@@ -57,4 +57,4 @@ resource pip 'Microsoft.Network/publicIPAddresses@2021-05-01' = {
   }
 }
 
-output azFwIP string = azfw.properties.hubIPAddresses.privateIPAddress
+output azFwIP string = azfw.properties.ipConfigurations[0].properties.privateIPAddress
