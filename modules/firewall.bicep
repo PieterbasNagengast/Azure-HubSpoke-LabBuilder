@@ -1,7 +1,7 @@
 param firewallName string
 param location string
 param azfwSKUname string = 'AZFW_VNet'
-param azfwTier string = 'Standard'
+param azfwTier string
 param azfwsubnetid string
 
 var pipName = '${firewallName}-pip'
@@ -22,7 +22,7 @@ resource azfw 'Microsoft.Network/azureFirewalls@2021-05-01' = {
       {
         properties: {
           publicIPAddress: {
-            id: pip.id
+            id: azfwpip.id
           }
           subnet: {
             id: azfwsubnetid
@@ -44,7 +44,7 @@ resource azfwpolicy 'Microsoft.Network/firewallPolicies@2021-05-01' = {
   }
 }
 
-resource pip 'Microsoft.Network/publicIPAddresses@2021-05-01' = {
+resource azfwpip 'Microsoft.Network/publicIPAddresses@2021-05-01' = {
   name: pipName
   location: location
   properties: {

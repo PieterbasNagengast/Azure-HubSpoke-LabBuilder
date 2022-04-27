@@ -3,85 +3,97 @@ param location string
 param startAddressSpace string
 param counter int
 param deployBastionInSpoke bool
-param hubVnetID string
 param adminUsername string
 @secure()
 param adminPassword string
 param deployVMsInSpokes bool
 param deployFirewallInHub bool
-param azFWip string
+param AzureFirewallpip string
+param HubDeployed bool
 
-
-var hubRgName = split(hubVnetID, '/')[4]
-var hubVnetName = split(hubVnetID, '/')[8]
+var vnetName = 'SpokeVNET${counter}'
 var vmName = 'VM-Spoke${counter}'
 var rtName = 'RT-Spoke${counter}'
+var nsgName = 'NSG-Spoke${counter}'
+
+var vnetAddressSpace = '${startAddressSpace}${counter}.0/24'
+var defaultSubnetPrefix = replace(vnetAddressSpace, '/24', '/25')
+var bastionSubnetPrefix = replace(vnetAddressSpace, '0/24', '192/26')
+var firewallSubnetPrefix = replace(vnetAddressSpace, '0/24', '128/26')
+
+var bastionName = 'Bastion-Spoke${counter}'
 
 resource spokerg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   name: 'rg-Spoke${counter}'
   location: location
 }
 
-module spoke 'SpokeVnet.bicep' = {
-  name: 'Spoke-VNET-${counter}'
+module vnet 'modules/vnet.bicep' = {
   scope: spokerg
+  name: vnetName
   params: {
     location: location
-    vnetname: 'Spoke-VNET-${counter}'
-    vnetAddressSpcae: '${startAddressSpace}${counter}.0/24'
-    deployBastionInSpoke: deployBastionInSpoke
-    rtID: empty(rt.outputs.rtID)  ? '' : rt.outputs.rtID
+    vnetAddressSpcae: vnetAddressSpace
+    bastionSubnetPrefix: deployBastionInSpoke ? bastionSubnetPrefix : ''
+    firewallSubnetPrefix: deployFirewallInHub ? firewallSubnetPrefix : ''
+    nsgID: nsg.outputs.nsgID
+    rtID: deployFirewallInHub && HubDeployed ? rt.outputs.rtID : 'none'
+    vnetname: vnetName
+    defaultSubnetPrefix: defaultSubnetPrefix
+    deployBastionSubnet: deployBastionInSpoke
   }
 }
 
-resource hubrg 'Microsoft.Resources/resourceGroups@2021-04-01' existing = {
-  name: hubRgName
-}
-
-module peeringToHub 'vnetPeeerings.bicep' = {
-  scope: spokerg
-  name: 'peeringTo${hubVnetName}'
-  params: {
-    remoteVnetID: hubVnetID
-    peeringName: '${spoke.name}/peeringTo${hubVnetName}'
-    useRemoteGateways: false
-    allowForwardedTraffic: true
-    allowGatewayTransit: false
-    allowVirtualNetworkAccess: true
-  }
-}
-
-module peeringToSpoke 'vnetPeeerings.bicep' = {
-  scope: hubrg
-  name: 'peeringTo${spoke.name}'
-  params: {
-    remoteVnetID: spoke.outputs.spokeVnetID
-    peeringName: '${hubVnetName}/peeringTo${spoke.name}'
-    useRemoteGateways: false
-    allowForwardedTraffic: false
-    allowGatewayTransit: false
-    allowVirtualNetworkAccess: true
-  }
-}
-
-module vm 'vm.bicep' = if (deployVMsInSpokes) {
+module vm 'modules/vm.bicep' = if (deployVMsInSpokes) {
   scope: spokerg
   name: vmName
   params: {
     adminPassword: adminPassword
     adminUsername: adminUsername
     location: location
-    subnetID: spoke.outputs.defaultSubnetID
+    subnetID: vnet.outputs.defaultSubnetID
     vmName: vmName
   }
 }
 
-module rt 'routetable.bicep' = if (deployFirewallInHub) {
+module nsg 'modules/nsg.bicep' = {
+  scope: spokerg
+  name: nsgName
+  params: {
+    location: location
+    nsgName: nsgName
+  }
+}
+
+module bastion 'modules/bastion.bicep' = if (deployBastionInSpoke) {
+  scope: spokerg
+  name: 'bastion'
+  params: {
+    location: location
+    subnetID: deployBastionInSpoke ? vnet.outputs.bastionSubnetID : ''
+    bastionName: bastionName
+  }
+}
+
+module rt 'modules/routetable.bicep' = if (deployFirewallInHub && HubDeployed) {
   scope: spokerg
   name: rtName
   params: {
     location: location
     rtName: rtName
-    azFWip: azFWip
   }
 }
+
+module route 'modules/route.bicep' = if (deployFirewallInHub && HubDeployed) {
+  scope: spokerg
+  name: 'Route'
+  params: {
+    routeAddressPrefix: '0.0.0.0/0'
+    routeName: deployFirewallInHub && HubDeployed ? '${rt.outputs.rtName}/toInternet' : 'none'
+    routeNextHopIpAddress: deployFirewallInHub && HubDeployed ? AzureFirewallpip : '1.2.3.4'
+  }
+}
+
+output spokeVnetID string = vnet.outputs.vnetID
+output spokeResourceGroupName string = spokerg.name
+output spokeVnetName string = vnet.outputs.vnetName
