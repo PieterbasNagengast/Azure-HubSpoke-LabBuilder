@@ -9,20 +9,17 @@ I've always done this via multiple ways, like: PowerShell scripts, Azure CLI, AR
 
 With this 'LAB Builder' you'll be able to deploy a Hub&Spoke topology in Azure in notime!
 
-.. warning:
->[!WARNING]
->csdcds
-
-> :warning: **This deployment is for Testing, Demo-ing, (self)Training, Practice or Reproduction purposes ONLY!!**
-> :warning: Don't deploy to production environments!!
+> :warning:
+>  **This deployment is for Testing, Demo-ing, (self)Training, Practice or Reproduction purposes ONLY!!**
+> Don't deploy to production environments!!
 
 ## LABbuilder scenario's
 
 With LABbuilder you can deploy three **main** scenario's.
 
-**1. Only deploy Spokes**
-**2. Only deploy Hub**
-**3. Deploy Hub and Spokes**
+1. Only deploy Spokes
+2. Only deploy Hub
+3. Deploy Hub and Spokes
 
 *Note: Within these three main scenario's you can have multiple options, set by parameters.*
 
@@ -56,7 +53,7 @@ With LABbuilder you can deploy three **main** scenario's.
 |---|---|
 | Deploy to Azure Subscription |[![Deploy To Azure](https://docs.microsoft.com/en-us/azure/templates/media/deploy-to-azure.svg)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FPieterbasNagengast%2FLABbuilder%2Fmain%2FuiDefinition.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FPieterbasNagengast%2FLABbuilder%2Fmain%2FARM%2Fmain.json)|
 
-> :exclamation:
+> :warning:
 > **This deployment is for Testing, Demo-ing, (self)Training, Practice or Reproduction purposes ONLY!!**
 > **Don't deploy to production environments!!**
 
