@@ -96,7 +96,7 @@
 				"label": "Spoke VNET's",
 				"elements": [
 					{
-						"name": "DeploySpokes",
+						"name": "deploySpokes",
 						"type": "Microsoft.Common.CheckBox",
 						"label": "Deploy Spokes",
 						"defaultValue": true,
@@ -119,7 +119,7 @@
 						"constraints": {
 							"required": false
 						},
-						"visible": "[equals(steps('SpokeVNETs').DeploySpokes, true)]"
+						"visible": "[equals(steps('SpokeVNETs').deploySpokes, true)]"
 					},
 					{
 						"name": "deployVMsInSpokes",
@@ -130,7 +130,7 @@
 						"constraints": {
 							"required": false
 						},
-						"visible": "[equals(steps('SpokeVNETs').DeploySpokes, true)]"
+						"visible": "[equals(steps('SpokeVNETs').deploySpokes, true)]"
 					},
 					{
 						"name": "deployBastionInSpoke",
@@ -141,7 +141,7 @@
 						"constraints": {
 							"required": false
 						},
-						"visible": "[equals(steps('SpokeVNETs').DeploySpokes, true)]"
+						"visible": "[equals(steps('SpokeVNETs').deploySpokes, true)]"
 					}
 				]
 			},
@@ -186,7 +186,7 @@
 			"adminUsername": "[steps('VMUserAccount').adminUsername]",
 			"adminPassword": "[steps('VMUserAccount').adminPassword.password]",
 			"startAddressSpace": "[basics('startAddressSpace')]",
-			"DeploySpokes": "[steps('SpokeVNETs').DeploySpokes]",
+			"deploySpokes": "[steps('SpokeVNETs').deploySpokes]",
 			"amountOfSpokes": "[steps('SpokeVNETs').amountOfSpokes]",
 			"deployVMsInSpokes": "[steps('SpokeVNETs').deployVMsInSpokes]",
 			"deployBastionInSpoke": "[steps('SpokeVNETs').deployBastionInSpoke]",
