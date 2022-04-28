@@ -10,6 +10,7 @@ var firewallPolicyName = '${firewallName}-policy'
 resource azfw 'Microsoft.Network/azureFirewalls@2021-05-01' = {
   name: firewallName
   location: location
+  zones: []
   properties: {
     sku: {
       name: azfwSKUname

@@ -1,4 +1,5 @@
 targetScope = 'subscription'
+
 param location string
 param startAddressSpace string
 param deployBastionInHub bool
@@ -7,17 +8,17 @@ param adminUsername string
 param adminPassword string
 param deployVMinHub bool
 param deployFirewallInHub bool
-param hubVnetName string
 param AzureFirewallTier string
 
-var vmName = 'VM-Hub1'
+var vmName = 'VM-Hub'
 var vnetAddressSpace = '${startAddressSpace}0.0/24'
 var defaultSubnetPrefix = replace(vnetAddressSpace, '/24', '/25')
 var bastionSubnetPrefix = replace(vnetAddressSpace, '0/24', '192/26')
 var firewallSubnetPrefix = replace(vnetAddressSpace, '0/24', '128/26')
-var nsgName = '${hubVnetName}-NSG'
+var nsgName = 'NSG-Hub'
 var bastionName = 'Bastion-Hub'
-var rtName = 'rt-hub'
+var rtName = 'RT-Hub'
+var hubVnetName = 'VNET-Hub'
 
 resource hubrg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   name: 'rg-Hub'

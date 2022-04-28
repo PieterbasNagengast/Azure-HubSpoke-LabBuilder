@@ -1,7 +1,6 @@
-// Shared parameters
-@description('Deploy Spoke VNETs')
-param DeploySpokes bool = true
+targetScope = 'subscription'
 
+// Shared parameters
 @description('Admin username for VM')
 param adminUsername string
 
@@ -16,6 +15,9 @@ param startAddressSpace string = '172.16.'
 param location string = deployment().location
 
 // Spoke VNET Parameters
+@description('Deploy Spoke VNETs')
+param DeploySpokes bool = true
+
 @description('Amount of Spoke VNETs you want to deploy. Default = 2')
 param amountOfSpokes int = 2
 
@@ -23,7 +25,7 @@ param amountOfSpokes int = 2
 param deployVMsInSpokes bool = true
 
 @description('Deploy Bastion Host in every Spoke VNET')
-param deployBastionInSpoke bool = true
+param deployBastionInSpoke bool = false
 
 // Hub VNET Parameters
 @description('Deploy Hub VNET')
@@ -43,12 +45,7 @@ param deployFirewallInHub bool = true
   'Standard'
   'Premium'
 ])
-param AzureFirewallTier string = 'Standard'
-
-// variables
-var hubVnetName = 'hub-vnet'
-
-targetScope = 'subscription'
+param AzureFirewallTier string = 'Premium'
 
 // Deploy Hub VNET including VM, Bastion Host, Route Table, Network Security group and Azure Firewall
 module hubVnet 'HubResourceGroup.bicep' = if (DeployHUB) {
@@ -61,12 +58,11 @@ module hubVnet 'HubResourceGroup.bicep' = if (DeployHUB) {
     adminUsername: adminUsername
     deployVMinHub: deployVMinHub
     deployFirewallInHub: deployFirewallInHub
-    hubVnetName: hubVnetName
     AzureFirewallTier: AzureFirewallTier
   }
 }
 
-// Deploy Spoke VNET's
+// Deploy Spoke VNET's including VM, Bastion Host, Route Table, Network Security group
 module spokeVnets 'SpokeResourceGroup.bicep' =  [for i in range(1, amountOfSpokes): if(DeploySpokes) {
   name: 'SpokeResourceGroup${i}'
   params: {
