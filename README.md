@@ -54,7 +54,7 @@ With LABbuilder you can deploy three **main** scenario's.
 
 | Description | Template |
 |---|---|
-| Deploy to Azure Subscription | [![Deploy to Azure](https://aka.ms/deploytoazurebutton)]()|
+| Deploy to Azure Subscription |[![Deploy To Azure](https://docs.microsoft.com/en-us/azure/templates/media/deploy-to-azure.svg)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FPieterbasNagengast%2FLABbuilder%2Fmain%2FuiDefinition.json%3Ftoken%3DGHSAT0AAAAAABRYUUI6IJ4UX3MCQGKZZMLOYTLB5ZQ/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FPieterbasNagengast%2FLABbuilder%2Fmain%2FARM%2Fmain.json%3Ftoken%3DGHSAT0AAAAAABRYUUI7ZNUVZZWRUSCDPF4QYTLCCRQ)|
 
 > :exclamation:
 > **This deployment is for Testing, Demo-ing, (self)Training, Practice or Reproduction purposes ONLY!!**
