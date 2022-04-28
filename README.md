@@ -9,6 +9,7 @@ I've always done this via multiple ways, like: PowerShell scripts, Azure CLI, AR
 
 With this 'LAB Builder' you'll be able to deploy a Hub&Spoke topology in Azure in notime!
 
+.. warning:
 >[!WARNING]
 >csdcds
 

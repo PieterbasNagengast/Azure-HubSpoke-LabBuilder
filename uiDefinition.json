@@ -1,0 +1,200 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/0.1.2-preview/CreateUIDefinition.MultiVm.json#",
+	"handler": "Microsoft.Azure.CreateUIDef",
+	"version": "0.1.2-preview",
+	"parameters": {
+		"resourceTypes": [],
+		"basics": [
+			{
+				"name": "startAddressSpace",
+				"type": "Microsoft.Common.TextBox",
+				"label": "Start Address Space",
+				"defaultValue": "172.16.",
+				"toolTip": "IP Address space used for VNETs in deployment. Only enter the two first octets of a /16 subnet. Default = 172.16.  ",
+				"constraints": {
+					"required": false,
+					"regex": "",
+					"validationMessage": ""
+				},
+				"visible": true
+			}
+		],
+		"steps": [
+			{
+				"name": "HubVNET",
+				"label": "Hub VNET",
+				"elements": [
+					{
+						"name": "deployHUB",
+						"type": "Microsoft.Common.CheckBox",
+						"label": "Deploy HUB",
+						"defaultValue": true,
+						"toolTip": "Deploy Hub VNET",
+						"constraints": {
+							"required": false
+						},
+						"visible": true
+					},
+					{
+						"name": "deployBastionInHub",
+						"type": "Microsoft.Common.CheckBox",
+						"label": "Deploy Bastion In Hub",
+						"defaultValue": false,
+						"toolTip": "Deploy Bastion Host in Hub VNET",
+						"constraints": {
+							"required": false
+						},
+						"visible": "[equals(steps('HubVNET').deployHUB, true)]"
+					},
+					{
+						"name": "deployVMinHub",
+						"type": "Microsoft.Common.CheckBox",
+						"label": "Deploy V Min Hub",
+						"defaultValue": false,
+						"toolTip": "Deploy VM in Hub VNET",
+						"constraints": {
+							"required": false
+						},
+						"visible": "[equals(steps('HubVNET').deployHUB, true)]"
+					},
+					{
+						"name": "deployFirewallInHub",
+						"type": "Microsoft.Common.CheckBox",
+						"label": "Deploy Firewall In Hub",
+						"defaultValue": false,
+						"toolTip": "Deploy Azure Firewall in Hub VNET. includes deployment of custom route tables in Spokes and Hub VNETs",
+						"constraints": {
+							"required": false
+						},
+						"visible": "[equals(steps('HubVNET').deployHUB, true)]"
+					},
+					{
+						"name": "AzureFirewallTier",
+						"type": "Microsoft.Common.DropDown",
+						"label": "Azure Firewall Tier",
+						"defaultValue": "Standard",
+						"toolTip": "Azure Firewall Tier: Standard or Premium",
+						"constraints": {
+							"required": false,
+							"allowedValues": [
+								{
+									"label": "Standard",
+									"value": "Standard"
+								},
+								{
+									"label": "Premium",
+									"value": "Premium"
+								}
+							]
+						},
+						"visible": "[equals(steps('HubVNET').deployHUB, true)]"
+					}
+				]
+			},
+			{
+				"name": "SpokeVNETs",
+				"label": "Spoke VNET's",
+				"elements": [
+					{
+						"name": "DeploySpokes",
+						"type": "Microsoft.Common.CheckBox",
+						"label": "Deploy Spokes",
+						"defaultValue": true,
+						"toolTip": "Deploy Spoke VNETs",
+						"constraints": {
+							"required": false
+						},
+						"visible": true
+					},
+					{
+						"name": "amountOfSpokes",
+						"type": "Microsoft.Common.Slider",
+						"min": 1,
+						"max": 25,
+						"label": "Amount Of Spokes",
+						"sublabel": "# of Spoke",
+						"defaultValue": 2,
+						"showStepMarkers": false,
+						"toolTip": "Amount of Spoke VNETs you want to deploy. Default = 2",
+						"constraints": {
+							"required": false
+						},
+						"visible": "[equals(steps('SpokeVNETs').DeploySpokes, true)]"
+					},
+					{
+						"name": "deployVMsInSpokes",
+						"type": "Microsoft.Common.CheckBox",
+						"label": "Deploy VM's In Spokes",
+						"defaultValue": false,
+						"toolTip": "Deploy VM in every Spoke VNET",
+						"constraints": {
+							"required": false
+						},
+						"visible": "[equals(steps('SpokeVNETs').DeploySpokes, true)]"
+					},
+					{
+						"name": "deployBastionInSpoke",
+						"type": "Microsoft.Common.CheckBox",
+						"label": "Deploy Bastion In Spoke",
+						"defaultValue": false,
+						"toolTip": "Deploy Bastion Host in every Spoke VNET",
+						"constraints": {
+							"required": false
+						},
+						"visible": "[equals(steps('SpokeVNETs').DeploySpokes, true)]"
+					}
+				]
+			},
+			{
+				"name": "VMUserAccount",
+				"label": "VM User Account",
+				"elements": [
+					{
+						"name": "adminUsername",
+						"type": "Microsoft.Compute.UserNameTextBox",
+						"label": "Admin Username",
+						"toolTip": "",
+						"osPlatform": "Windows",
+						"constraints": {
+							"required": true
+						},
+						"visible": true
+					},
+					{
+						"name": "adminPassword",
+						"type": "Microsoft.Compute.CredentialsCombo",
+						"label": {
+							"password": "Admin Password",
+							"confirmPassword": "Confirm password"
+						},
+						"toolTip": {
+                            "password": ""
+                        },
+						"osPlatform": "Windows",
+						"constraints": {
+							"required": true
+						},
+						"options": {
+							"hideConfirmation": false
+						},
+						"visible": true
+					}
+				]
+			}
+		],
+		"outputs": {
+			"adminUsername": "[steps('VMUserAccount').adminUsername]",
+			"adminPassword": "[steps('VMUserAccount').adminPassword.password]",
+			"startAddressSpace": "[basics('startAddressSpace')]",
+			"DeploySpokes": "[steps('SpokeVNETs').DeploySpokes]",
+			"amountOfSpokes": "[steps('SpokeVNETs').amountOfSpokes]",
+			"deployVMsInSpokes": "[steps('SpokeVNETs').deployVMsInSpokes]",
+			"deployBastionInSpoke": "[steps('SpokeVNETs').deployBastionInSpoke]",
+			"deployHUB": "[steps('HubVNET').deployHUB]",
+			"deployBastionInHub": "[steps('HubVNET').deployBastionInHub]",
+			"deployVMinHub": "[steps('HubVNET').deployVMinHub]",
+			"deployFirewallInHub": "[steps('HubVNET').deployFirewallInHub]",
+			"AzureFirewallTier": "[steps('HubVNET').AzureFirewallTier]"
+		}
+	}
+}

@@ -16,7 +16,7 @@ param location string = deployment().location
 
 // Spoke VNET Parameters
 @description('Deploy Spoke VNETs')
-param DeploySpokes bool = true
+param deploySpokes bool = true
 
 @description('Amount of Spoke VNETs you want to deploy. Default = 2')
 param amountOfSpokes int = 2
@@ -63,7 +63,7 @@ module hubVnet 'HubResourceGroup.bicep' = if (deployHUB) {
 }
 
 // Deploy Spoke VNET's including VM, Bastion Host, Route Table, Network Security group
-module spokeVnets 'SpokeResourceGroup.bicep' =  [for i in range(1, amountOfSpokes): if(DeploySpokes) {
+module spokeVnets 'SpokeResourceGroup.bicep' =  [for i in range(1, amountOfSpokes): if(deploySpokes) {
   name: 'SpokeResourceGroup${i}'
   params: {
     location: location
@@ -80,7 +80,7 @@ module spokeVnets 'SpokeResourceGroup.bicep' =  [for i in range(1, amountOfSpoke
 }]
 
 // VNET Peerings
-module vnetPeerings 'Vnetpeerings.bicep' = [for i in range(0, amountOfSpokes): if (deployHUB && DeploySpokes) {
+module vnetPeerings 'Vnetpeerings.bicep' = [for i in range(0, amountOfSpokes): if (deployHUB && deploySpokes) {
   name: 'VnetPeering${i}'
   params: {
     HubResourceGroupName: hubVnet.outputs.HubResourceGroupName
@@ -95,7 +95,7 @@ module vnetPeerings 'Vnetpeerings.bicep' = [for i in range(0, amountOfSpokes): i
 
 output AzureFirewallpip string = deployFirewallInHub && deployHUB ? hubVnet.outputs.azFwIp : 'none'
 output HubVnetID string = deployHUB ? hubVnet.outputs.hubVnetID : 'none'
-output SpokeVnetIDs array = [for i in range(0, amountOfSpokes): DeploySpokes ? {
+output SpokeVnetIDs array = [for i in range(0, amountOfSpokes): deploySpokes ? {
   SpokeVnetId: spokeVnets[i].outputs.spokeVnetID
 }: 'none']
 
