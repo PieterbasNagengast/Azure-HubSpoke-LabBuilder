@@ -29,7 +29,7 @@ param deployBastionInSpoke bool = false
 
 // Hub VNET Parameters
 @description('Deploy Hub VNET')
-param DeployHUB bool = true
+param deployHUB bool = true
 
 @description('Deploy Bastion Host in Hub VNET')
 param deployBastionInHub bool = true
@@ -48,7 +48,7 @@ param deployFirewallInHub bool = true
 param AzureFirewallTier string = 'Premium'
 
 // Deploy Hub VNET including VM, Bastion Host, Route Table, Network Security group and Azure Firewall
-module hubVnet 'HubResourceGroup.bicep' = if (DeployHUB) {
+module hubVnet 'HubResourceGroup.bicep' = if (deployHUB) {
   name: 'HubResourceGroup'
   params: {
     deployBastionInHub: deployBastionInHub
@@ -74,13 +74,13 @@ module spokeVnets 'SpokeResourceGroup.bicep' =  [for i in range(1, amountOfSpoke
     adminUsername: adminUsername
     deployVMsInSpokes: deployVMsInSpokes
     deployFirewallInHub: deployFirewallInHub
-    AzureFirewallpip: DeployHUB ? hubVnet.outputs.azFwIp : 'Not deployed'
-    HubDeployed: DeployHUB
+    AzureFirewallpip: deployHUB ? hubVnet.outputs.azFwIp : 'Not deployed'
+    HubDeployed: deployHUB
   }
 }]
 
 // VNET Peerings
-module vnetPeerings 'Vnetpeerings.bicep' = [for i in range(0, amountOfSpokes): if (DeployHUB && DeploySpokes) {
+module vnetPeerings 'Vnetpeerings.bicep' = [for i in range(0, amountOfSpokes): if (deployHUB && DeploySpokes) {
   name: 'VnetPeering${i}'
   params: {
     HubResourceGroupName: hubVnet.outputs.HubResourceGroupName
@@ -93,8 +93,8 @@ module vnetPeerings 'Vnetpeerings.bicep' = [for i in range(0, amountOfSpokes): i
   }
 }]
 
-output AzureFirewallpip string = deployFirewallInHub && DeployHUB ? hubVnet.outputs.azFwIp : 'none'
-output HubVnetID string = DeployHUB ? hubVnet.outputs.hubVnetID : 'none'
+output AzureFirewallpip string = deployFirewallInHub && deployHUB ? hubVnet.outputs.azFwIp : 'none'
+output HubVnetID string = deployHUB ? hubVnet.outputs.hubVnetID : 'none'
 output SpokeVnetIDs array = [for i in range(0, amountOfSpokes): DeploySpokes ? {
   SpokeVnetId: spokeVnets[i].outputs.spokeVnetID
 }: 'none']
