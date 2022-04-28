@@ -35,7 +35,7 @@
         "description": "Azure Region. Defualt = Deployment location"
       }
     },
-    "DeploySpokes": {
+    "deploySpokes": {
       "type": "bool",
       "defaultValue": true,
       "metadata": {
@@ -994,7 +994,7 @@
       }
     },
     {
-      "condition": "[parameters('DeploySpokes')]",
+      "condition": "[parameters('deploySpokes')]",
       "copy": {
         "name": "spokeVnets",
         "count": "[length(range(1, parameters('amountOfSpokes')))]"
@@ -1764,7 +1764,7 @@
       ]
     },
     {
-      "condition": "[and(parameters('deployHUB'), parameters('DeploySpokes'))]",
+      "condition": "[and(parameters('deployHUB'), parameters('deploySpokes'))]",
       "copy": {
         "name": "vnetPeerings",
         "count": "[length(range(0, parameters('amountOfSpokes')))]"
@@ -2013,7 +2013,7 @@
       "type": "array",
       "copy": {
         "count": "[length(range(0, parameters('amountOfSpokes')))]",
-        "input": "[if(parameters('DeploySpokes'), createObject('SpokeVnetId', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('SpokeResourceGroup{0}', range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]]))).outputs.spokeVnetID.value), 'none')]"
+        "input": "[if(parameters('deploySpokes'), createObject('SpokeVnetId', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('SpokeResourceGroup{0}', range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]]))).outputs.spokeVnetID.value), 'none')]"
       }
     }
   }
