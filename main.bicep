@@ -84,7 +84,7 @@ module spokeVnets 'SpokeResourceGroup.bicep' =  [for i in range(1, amountOfSpoke
 }]
 
 // VNET Peerings
-module vnetPeerings 'VnetPeerings.bicep' = [for i in range(0, amountOfSpokes): if (DeployHUB && DeploySpokes) {
+module vnetPeerings 'Vnetpeerings.bicep' = [for i in range(0, amountOfSpokes): if (DeployHUB && DeploySpokes) {
   name: 'VnetPeering${i}'
   params: {
     HubResourceGroupName: hubVnet.outputs.HubResourceGroupName
@@ -102,3 +102,4 @@ output HubVnetID string = DeployHUB ? hubVnet.outputs.hubVnetID : 'none'
 output SpokeVnetIDs array = [for i in range(0, amountOfSpokes): DeploySpokes ? {
   SpokeVnetId: spokeVnets[i].outputs.spokeVnetID
 }: 'none']
+

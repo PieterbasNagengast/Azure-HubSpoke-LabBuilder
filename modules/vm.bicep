@@ -1,4 +1,4 @@
-param location string 
+param location string
 param vmName string
 param adminUsername string
 @secure()
@@ -11,43 +11,45 @@ param storageType string = 'StandardSSD_LRS'
   '2019-datacenter'
   '2016-datacenter'
   '2012-R2-datacenter'
- ])
- param OSVersion string = '2022-datacenter'
+])
+param OSVersion string = '2022-datacenter'
+
+var EnableICMPv4 = 'netsh advfirewall firewall add rule name="ICMP Allow incoming V4 echo request" protocol="icmpv4:8,any" dir=in action=allow'
 
 resource vm 'Microsoft.Compute/virtualMachines@2021-11-01' = {
   name: vmName
   location: location
   properties: {
-   osProfile: {
-     computerName: vmName
-     adminUsername: adminUsername
-     adminPassword: adminPassword
-   }
-   storageProfile: {
-     imageReference: {
-      publisher: 'MicrosoftWindowsServer'
-      offer: 'WindowsServer'
-      sku: OSVersion
-      version: 'latest'
-     }
-     osDisk: {
-       createOption: 'FromImage'
-       managedDisk: {
-         storageAccountType: storageType
-       }
-       osType: 'Windows'
-     }
-   }   
-   networkProfile: {
-     networkInterfaces: [
-       {
-         id: nic.id
-       }
-     ]
-   }
-   hardwareProfile: {
-     vmSize: vmSize
-   }
+    osProfile: {
+      computerName: vmName
+      adminUsername: adminUsername
+      adminPassword: adminPassword
+    }
+    storageProfile: {
+      imageReference: {
+        publisher: 'MicrosoftWindowsServer'
+        offer: 'WindowsServer'
+        sku: OSVersion
+        version: 'latest'
+      }
+      osDisk: {
+        createOption: 'FromImage'
+        managedDisk: {
+          storageAccountType: storageType
+        }
+        osType: 'Windows'
+      }
+    }
+    networkProfile: {
+      networkInterfaces: [
+        {
+          id: nic.id
+        }
+      ]
+    }
+    hardwareProfile: {
+      vmSize: vmSize
+    }
   }
 }
 
@@ -70,14 +72,11 @@ resource nic 'Microsoft.Network/networkInterfaces@2021-05-01' = {
   }
 }
 
-// resource customScript 'Microsoft.Compute/virtualMachines/extensions@2021-11-01' = {
-//   name: '${vm.name}/EnableICMP'
-//   location: location
-//   properties: {
-//     publisher: 'Microsoft.Compute'
-//     type: 'CustomScriptExtension'
-//     typeHandlerVersion: '1.4'
-//     settings: {     
-//     }
-//   }
-// }
+module run 'runcommand.bicep' = {
+  name: '${vmName}-runCommand'
+  params: {
+    location: location
+    runCommand: EnableICMPv4
+    vmName: vm.name
+  }
+}
