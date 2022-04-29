@@ -21,7 +21,7 @@ var rtName = 'RT-Hub'
 var hubVnetName = 'VNET-Hub'
 
 resource hubrg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
-  name: 'rg-Hub'
+  name: 'rg-Hub-${location}'
   location: location
 }
 

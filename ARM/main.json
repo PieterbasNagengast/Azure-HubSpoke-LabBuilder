@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1272.37030",
-      "templateHash": "4043308578312255148"
+      "templateHash": "2103435386920765496"
     }
   },
   "parameters": {
@@ -150,7 +150,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1272.37030",
-              "templateHash": "6481750886089856992"
+              "templateHash": "15500434995278761670"
             }
           },
           "parameters": {
@@ -194,14 +194,14 @@
             {
               "type": "Microsoft.Resources/resourceGroups",
               "apiVersion": "2021-04-01",
-              "name": "rg-Hub",
+              "name": "[format('rg-Hub-{0}', parameters('location'))]",
               "location": "[parameters('location')]"
             },
             {
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2020-10-01",
               "name": "hubvnet",
-              "resourceGroup": "rg-Hub",
+              "resourceGroup": "[format('rg-Hub-{0}', parameters('location'))]",
               "properties": {
                 "expressionEvaluationOptions": {
                   "scope": "inner"
@@ -221,10 +221,10 @@
                     "value": "[variables('firewallSubnetPrefix')]"
                   },
                   "nsgID": {
-                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'rg-Hub'), 'Microsoft.Resources/deployments', 'nsg')).outputs.nsgID.value]"
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-Hub-{0}', parameters('location'))), 'Microsoft.Resources/deployments', 'nsg')).outputs.nsgID.value]"
                   },
                   "rtID": {
-                    "value": "[if(parameters('deployFirewallInHub'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'rg-Hub'), 'Microsoft.Resources/deployments', 'routeTable')).outputs.rtID.value, 'none')]"
+                    "value": "[if(parameters('deployFirewallInHub'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-Hub-{0}', parameters('location'))), 'Microsoft.Resources/deployments', 'routeTable')).outputs.rtID.value, 'none')]"
                   },
                   "vnetname": {
                     "value": "[variables('hubVnetName')]"
@@ -339,9 +339,9 @@
                 }
               },
               "dependsOn": [
-                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', 'rg-Hub')]",
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'rg-Hub'), 'Microsoft.Resources/deployments', 'nsg')]",
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'rg-Hub'), 'Microsoft.Resources/deployments', 'routeTable')]"
+                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('rg-Hub-{0}', parameters('location')))]",
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-Hub-{0}', parameters('location'))), 'Microsoft.Resources/deployments', 'nsg')]",
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-Hub-{0}', parameters('location'))), 'Microsoft.Resources/deployments', 'routeTable')]"
               ]
             },
             {
@@ -349,7 +349,7 @@
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2020-10-01",
               "name": "virtualMachine",
-              "resourceGroup": "rg-Hub",
+              "resourceGroup": "[format('rg-Hub-{0}', parameters('location'))]",
               "properties": {
                 "expressionEvaluationOptions": {
                   "scope": "inner"
@@ -366,7 +366,7 @@
                     "value": "[parameters('location')]"
                   },
                   "subnetID": {
-                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'rg-Hub'), 'Microsoft.Resources/deployments', 'hubvnet')).outputs.defaultSubnetID.value]"
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-Hub-{0}', parameters('location'))), 'Microsoft.Resources/deployments', 'hubvnet')).outputs.defaultSubnetID.value]"
                   },
                   "vmName": {
                     "value": "[variables('vmName')]"
@@ -551,15 +551,15 @@
                 }
               },
               "dependsOn": [
-                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', 'rg-Hub')]",
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'rg-Hub'), 'Microsoft.Resources/deployments', 'hubvnet')]"
+                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('rg-Hub-{0}', parameters('location')))]",
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-Hub-{0}', parameters('location'))), 'Microsoft.Resources/deployments', 'hubvnet')]"
               ]
             },
             {
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2020-10-01",
               "name": "nsg",
-              "resourceGroup": "rg-Hub",
+              "resourceGroup": "[format('rg-Hub-{0}', parameters('location'))]",
               "properties": {
                 "expressionEvaluationOptions": {
                   "scope": "inner"
@@ -608,7 +608,7 @@
                 }
               },
               "dependsOn": [
-                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', 'rg-Hub')]"
+                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('rg-Hub-{0}', parameters('location')))]"
               ]
             },
             {
@@ -616,7 +616,7 @@
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2020-10-01",
               "name": "bastion",
-              "resourceGroup": "rg-Hub",
+              "resourceGroup": "[format('rg-Hub-{0}', parameters('location'))]",
               "properties": {
                 "expressionEvaluationOptions": {
                   "scope": "inner"
@@ -627,7 +627,7 @@
                     "value": "[parameters('location')]"
                   },
                   "subnetID": {
-                    "value": "[if(parameters('deployBastionInHub'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'rg-Hub'), 'Microsoft.Resources/deployments', 'hubvnet')).outputs.bastionSubnetID.value, '')]"
+                    "value": "[if(parameters('deployBastionInHub'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-Hub-{0}', parameters('location'))), 'Microsoft.Resources/deployments', 'hubvnet')).outputs.bastionSubnetID.value, '')]"
                   },
                   "bastionName": {
                     "value": "[variables('bastionName')]"
@@ -704,8 +704,8 @@
                 }
               },
               "dependsOn": [
-                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', 'rg-Hub')]",
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'rg-Hub'), 'Microsoft.Resources/deployments', 'hubvnet')]"
+                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('rg-Hub-{0}', parameters('location')))]",
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-Hub-{0}', parameters('location'))), 'Microsoft.Resources/deployments', 'hubvnet')]"
               ]
             },
             {
@@ -713,7 +713,7 @@
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2020-10-01",
               "name": "hubFirewall",
-              "resourceGroup": "rg-Hub",
+              "resourceGroup": "[format('rg-Hub-{0}', parameters('location'))]",
               "properties": {
                 "expressionEvaluationOptions": {
                   "scope": "inner"
@@ -727,7 +727,7 @@
                     "value": "AzFw"
                   },
                   "azfwsubnetid": {
-                    "value": "[if(parameters('deployFirewallInHub'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'rg-Hub'), 'Microsoft.Resources/deployments', 'hubvnet')).outputs.firewallSubnetID.value, '')]"
+                    "value": "[if(parameters('deployFirewallInHub'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-Hub-{0}', parameters('location'))), 'Microsoft.Resources/deployments', 'hubvnet')).outputs.firewallSubnetID.value, '')]"
                   },
                   "azfwTier": {
                     "value": "[parameters('AzureFirewallTier')]"
@@ -834,8 +834,8 @@
                 }
               },
               "dependsOn": [
-                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', 'rg-Hub')]",
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'rg-Hub'), 'Microsoft.Resources/deployments', 'hubvnet')]"
+                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('rg-Hub-{0}', parameters('location')))]",
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-Hub-{0}', parameters('location'))), 'Microsoft.Resources/deployments', 'hubvnet')]"
               ]
             },
             {
@@ -843,7 +843,7 @@
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2020-10-01",
               "name": "routeTable",
-              "resourceGroup": "rg-Hub",
+              "resourceGroup": "[format('rg-Hub-{0}', parameters('location'))]",
               "properties": {
                 "expressionEvaluationOptions": {
                   "scope": "inner"
@@ -903,7 +903,7 @@
                 }
               },
               "dependsOn": [
-                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', 'rg-Hub')]"
+                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('rg-Hub-{0}', parameters('location')))]"
               ]
             },
             {
@@ -911,7 +911,7 @@
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2020-10-01",
               "name": "Route",
-              "resourceGroup": "rg-Hub",
+              "resourceGroup": "[format('rg-Hub-{0}', parameters('location'))]",
               "properties": {
                 "expressionEvaluationOptions": {
                   "scope": "inner"
@@ -922,10 +922,10 @@
                     "value": "0.0.0.0/0"
                   },
                   "routeName": {
-                    "value": "[if(parameters('deployFirewallInHub'), format('{0}/toInternet', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'rg-Hub'), 'Microsoft.Resources/deployments', 'routeTable')).outputs.rtName.value), 'dummy')]"
+                    "value": "[if(parameters('deployFirewallInHub'), format('{0}/toInternet', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-Hub-{0}', parameters('location'))), 'Microsoft.Resources/deployments', 'routeTable')).outputs.rtName.value), 'dummy')]"
                   },
                   "routeNextHopIpAddress": {
-                    "value": "[if(parameters('deployFirewallInHub'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'rg-Hub'), 'Microsoft.Resources/deployments', 'hubFirewall')).outputs.azFwIP.value, '1.2.3.4')]"
+                    "value": "[if(parameters('deployFirewallInHub'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-Hub-{0}', parameters('location'))), 'Microsoft.Resources/deployments', 'hubFirewall')).outputs.azFwIP.value, '1.2.3.4')]"
                   }
                 },
                 "template": {
@@ -968,28 +968,28 @@
                 }
               },
               "dependsOn": [
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'rg-Hub'), 'Microsoft.Resources/deployments', 'hubFirewall')]",
-                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', 'rg-Hub')]",
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'rg-Hub'), 'Microsoft.Resources/deployments', 'routeTable')]"
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-Hub-{0}', parameters('location'))), 'Microsoft.Resources/deployments', 'hubFirewall')]",
+                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('rg-Hub-{0}', parameters('location')))]",
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-Hub-{0}', parameters('location'))), 'Microsoft.Resources/deployments', 'routeTable')]"
               ]
             }
           ],
           "outputs": {
             "hubVnetID": {
               "type": "string",
-              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'rg-Hub'), 'Microsoft.Resources/deployments', 'hubvnet')).outputs.vnetID.value]"
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-Hub-{0}', parameters('location'))), 'Microsoft.Resources/deployments', 'hubvnet')).outputs.vnetID.value]"
             },
             "azFwIp": {
               "type": "string",
-              "value": "[if(parameters('deployFirewallInHub'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'rg-Hub'), 'Microsoft.Resources/deployments', 'hubFirewall')).outputs.azFwIP.value, '1.2.3.4')]"
+              "value": "[if(parameters('deployFirewallInHub'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-Hub-{0}', parameters('location'))), 'Microsoft.Resources/deployments', 'hubFirewall')).outputs.azFwIP.value, '1.2.3.4')]"
             },
             "HubResourceGroupName": {
               "type": "string",
-              "value": "rg-Hub"
+              "value": "[format('rg-Hub-{0}', parameters('location'))]"
             },
             "hubVnetName": {
               "type": "string",
-              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'rg-Hub'), 'Microsoft.Resources/deployments', 'hubvnet')).outputs.vnetName.value]"
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-Hub-{0}', parameters('location'))), 'Microsoft.Resources/deployments', 'hubvnet')).outputs.vnetName.value]"
             }
           }
         }
@@ -1049,7 +1049,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1272.37030",
-              "templateHash": "16421471857749889820"
+              "templateHash": "11845752041087789375"
             }
           },
           "parameters": {
@@ -1099,14 +1099,14 @@
             {
               "type": "Microsoft.Resources/resourceGroups",
               "apiVersion": "2021-04-01",
-              "name": "[format('rg-Spoke{0}', parameters('counter'))]",
+              "name": "[format('rg-Spoke{0}-{1}', parameters('counter'), parameters('location'))]",
               "location": "[parameters('location')]"
             },
             {
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2020-10-01",
               "name": "[variables('vnetName')]",
-              "resourceGroup": "[format('rg-Spoke{0}', parameters('counter'))]",
+              "resourceGroup": "[format('rg-Spoke{0}-{1}', parameters('counter'), parameters('location'))]",
               "properties": {
                 "expressionEvaluationOptions": {
                   "scope": "inner"
@@ -1126,10 +1126,10 @@
                     "value": "[if(parameters('deployFirewallInHub'), variables('firewallSubnetPrefix'), '')]"
                   },
                   "nsgID": {
-                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-Spoke{0}', parameters('counter'))), 'Microsoft.Resources/deployments', variables('nsgName'))).outputs.nsgID.value]"
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-Spoke{0}-{1}', parameters('counter'), parameters('location'))), 'Microsoft.Resources/deployments', variables('nsgName'))).outputs.nsgID.value]"
                   },
                   "rtID": {
-                    "value": "[if(and(parameters('deployFirewallInHub'), parameters('HubDeployed')), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-Spoke{0}', parameters('counter'))), 'Microsoft.Resources/deployments', variables('rtName'))).outputs.rtID.value, 'none')]"
+                    "value": "[if(and(parameters('deployFirewallInHub'), parameters('HubDeployed')), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-Spoke{0}-{1}', parameters('counter'), parameters('location'))), 'Microsoft.Resources/deployments', variables('rtName'))).outputs.rtID.value, 'none')]"
                   },
                   "vnetname": {
                     "value": "[variables('vnetName')]"
@@ -1241,9 +1241,9 @@
                 }
               },
               "dependsOn": [
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-Spoke{0}', parameters('counter'))), 'Microsoft.Resources/deployments', variables('nsgName'))]",
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-Spoke{0}', parameters('counter'))), 'Microsoft.Resources/deployments', variables('rtName'))]",
-                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('rg-Spoke{0}', parameters('counter')))]"
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-Spoke{0}-{1}', parameters('counter'), parameters('location'))), 'Microsoft.Resources/deployments', variables('nsgName'))]",
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-Spoke{0}-{1}', parameters('counter'), parameters('location'))), 'Microsoft.Resources/deployments', variables('rtName'))]",
+                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('rg-Spoke{0}-{1}', parameters('counter'), parameters('location')))]"
               ]
             },
             {
@@ -1251,7 +1251,7 @@
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2020-10-01",
               "name": "[variables('vmName')]",
-              "resourceGroup": "[format('rg-Spoke{0}', parameters('counter'))]",
+              "resourceGroup": "[format('rg-Spoke{0}-{1}', parameters('counter'), parameters('location'))]",
               "properties": {
                 "expressionEvaluationOptions": {
                   "scope": "inner"
@@ -1268,7 +1268,7 @@
                     "value": "[parameters('location')]"
                   },
                   "subnetID": {
-                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-Spoke{0}', parameters('counter'))), 'Microsoft.Resources/deployments', variables('vnetName'))).outputs.defaultSubnetID.value]"
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-Spoke{0}-{1}', parameters('counter'), parameters('location'))), 'Microsoft.Resources/deployments', variables('vnetName'))).outputs.defaultSubnetID.value]"
                   },
                   "vmName": {
                     "value": "[variables('vmName')]"
@@ -1453,15 +1453,15 @@
                 }
               },
               "dependsOn": [
-                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('rg-Spoke{0}', parameters('counter')))]",
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-Spoke{0}', parameters('counter'))), 'Microsoft.Resources/deployments', variables('vnetName'))]"
+                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('rg-Spoke{0}-{1}', parameters('counter'), parameters('location')))]",
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-Spoke{0}-{1}', parameters('counter'), parameters('location'))), 'Microsoft.Resources/deployments', variables('vnetName'))]"
               ]
             },
             {
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2020-10-01",
               "name": "[variables('nsgName')]",
-              "resourceGroup": "[format('rg-Spoke{0}', parameters('counter'))]",
+              "resourceGroup": "[format('rg-Spoke{0}-{1}', parameters('counter'), parameters('location'))]",
               "properties": {
                 "expressionEvaluationOptions": {
                   "scope": "inner"
@@ -1510,7 +1510,7 @@
                 }
               },
               "dependsOn": [
-                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('rg-Spoke{0}', parameters('counter')))]"
+                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('rg-Spoke{0}-{1}', parameters('counter'), parameters('location')))]"
               ]
             },
             {
@@ -1518,7 +1518,7 @@
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2020-10-01",
               "name": "bastion",
-              "resourceGroup": "[format('rg-Spoke{0}', parameters('counter'))]",
+              "resourceGroup": "[format('rg-Spoke{0}-{1}', parameters('counter'), parameters('location'))]",
               "properties": {
                 "expressionEvaluationOptions": {
                   "scope": "inner"
@@ -1529,7 +1529,7 @@
                     "value": "[parameters('location')]"
                   },
                   "subnetID": {
-                    "value": "[if(parameters('deployBastionInSpoke'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-Spoke{0}', parameters('counter'))), 'Microsoft.Resources/deployments', variables('vnetName'))).outputs.bastionSubnetID.value, '')]"
+                    "value": "[if(parameters('deployBastionInSpoke'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-Spoke{0}-{1}', parameters('counter'), parameters('location'))), 'Microsoft.Resources/deployments', variables('vnetName'))).outputs.bastionSubnetID.value, '')]"
                   },
                   "bastionName": {
                     "value": "[variables('bastionName')]"
@@ -1606,8 +1606,8 @@
                 }
               },
               "dependsOn": [
-                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('rg-Spoke{0}', parameters('counter')))]",
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-Spoke{0}', parameters('counter'))), 'Microsoft.Resources/deployments', variables('vnetName'))]"
+                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('rg-Spoke{0}-{1}', parameters('counter'), parameters('location')))]",
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-Spoke{0}-{1}', parameters('counter'), parameters('location'))), 'Microsoft.Resources/deployments', variables('vnetName'))]"
               ]
             },
             {
@@ -1615,7 +1615,7 @@
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2020-10-01",
               "name": "[variables('rtName')]",
-              "resourceGroup": "[format('rg-Spoke{0}', parameters('counter'))]",
+              "resourceGroup": "[format('rg-Spoke{0}-{1}', parameters('counter'), parameters('location'))]",
               "properties": {
                 "expressionEvaluationOptions": {
                   "scope": "inner"
@@ -1675,7 +1675,7 @@
                 }
               },
               "dependsOn": [
-                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('rg-Spoke{0}', parameters('counter')))]"
+                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('rg-Spoke{0}-{1}', parameters('counter'), parameters('location')))]"
               ]
             },
             {
@@ -1683,7 +1683,7 @@
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2020-10-01",
               "name": "Route",
-              "resourceGroup": "[format('rg-Spoke{0}', parameters('counter'))]",
+              "resourceGroup": "[format('rg-Spoke{0}-{1}', parameters('counter'), parameters('location'))]",
               "properties": {
                 "expressionEvaluationOptions": {
                   "scope": "inner"
@@ -1694,7 +1694,7 @@
                     "value": "0.0.0.0/0"
                   },
                   "routeName": {
-                    "value": "[if(and(parameters('deployFirewallInHub'), parameters('HubDeployed')), format('{0}/toInternet', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-Spoke{0}', parameters('counter'))), 'Microsoft.Resources/deployments', variables('rtName'))).outputs.rtName.value), 'none')]"
+                    "value": "[if(and(parameters('deployFirewallInHub'), parameters('HubDeployed')), format('{0}/toInternet', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-Spoke{0}-{1}', parameters('counter'), parameters('location'))), 'Microsoft.Resources/deployments', variables('rtName'))).outputs.rtName.value), 'none')]"
                   },
                   "routeNextHopIpAddress": {
                     "value": "[if(and(parameters('deployFirewallInHub'), parameters('HubDeployed')), parameters('AzureFirewallpip'), '1.2.3.4')]"
@@ -1740,23 +1740,23 @@
                 }
               },
               "dependsOn": [
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-Spoke{0}', parameters('counter'))), 'Microsoft.Resources/deployments', variables('rtName'))]",
-                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('rg-Spoke{0}', parameters('counter')))]"
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-Spoke{0}-{1}', parameters('counter'), parameters('location'))), 'Microsoft.Resources/deployments', variables('rtName'))]",
+                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('rg-Spoke{0}-{1}', parameters('counter'), parameters('location')))]"
               ]
             }
           ],
           "outputs": {
             "spokeVnetID": {
               "type": "string",
-              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-Spoke{0}', parameters('counter'))), 'Microsoft.Resources/deployments', variables('vnetName'))).outputs.vnetID.value]"
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-Spoke{0}-{1}', parameters('counter'), parameters('location'))), 'Microsoft.Resources/deployments', variables('vnetName'))).outputs.vnetID.value]"
             },
             "spokeResourceGroupName": {
               "type": "string",
-              "value": "[format('rg-Spoke{0}', parameters('counter'))]"
+              "value": "[format('rg-Spoke{0}-{1}', parameters('counter'), parameters('location'))]"
             },
             "spokeVnetName": {
               "type": "string",
-              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-Spoke{0}', parameters('counter'))), 'Microsoft.Resources/deployments', variables('vnetName'))).outputs.vnetName.value]"
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-Spoke{0}-{1}', parameters('counter'), parameters('location'))), 'Microsoft.Resources/deployments', variables('vnetName'))).outputs.vnetName.value]"
             }
           }
         }

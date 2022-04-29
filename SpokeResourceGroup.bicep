@@ -24,7 +24,7 @@ var bastionSubnetPrefix = replace(vnetAddressSpace, '0/24', '192/26')
 var firewallSubnetPrefix = replace(vnetAddressSpace, '0/24', '128/26')
 
 resource spokerg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
-  name: 'rg-Spoke${counter}'
+  name: 'rg-Spoke${counter}-${location}'
   location: location
 }
 
