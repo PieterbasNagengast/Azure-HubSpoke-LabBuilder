@@ -227,9 +227,9 @@
                 "deployFirewallInHub": "[steps('HubVNET').deployFirewallInHub]",
                 "AzureFirewallTier": "[steps('HubVNET').AzureFirewallTier]"
             },
-            "kind": "subscription",
+            "kind": "Subscription",
             "location": "[steps('basics').resourceScope.location.name]",
-            "subscriptionId": "[steps('basics').resourceScope.subscription.id]"
+            "subscriptionId": "[steps('basics').resourceScope.subscription.subscriptionId]"
         }
     }
 }
