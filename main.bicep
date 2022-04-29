@@ -2,11 +2,11 @@ targetScope = 'subscription'
 
 // Shared parameters
 @description('Admin username for VM')
-param adminUsername string
+param adminUsername string = ''
 
 @description('Admin Password for VM')
 @secure()
-param adminPassword string
+param adminPassword string = ''
 
 @description('IP Address space used for VNETs in deployment. Only enter the two first octets of a /16 subnet. Default = 172.16.  ')
 param startAddressSpace string = '172.16.'

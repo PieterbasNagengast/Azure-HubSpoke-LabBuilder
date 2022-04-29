@@ -5,18 +5,20 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1272.37030",
-      "templateHash": "7060567432710943853"
+      "templateHash": "13530925142358730373"
     }
   },
   "parameters": {
     "adminUsername": {
       "type": "string",
+      "defaultValue": "",
       "metadata": {
         "description": "Admin username for VM"
       }
     },
     "adminPassword": {
       "type": "secureString",
+      "defaultValue": "",
       "metadata": {
         "description": "Admin Password for VM"
       }
