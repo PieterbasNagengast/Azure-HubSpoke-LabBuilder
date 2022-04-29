@@ -49,7 +49,7 @@ param AzureFirewallTier string = 'Premium'
 
 // Deploy Hub VNET including VM, Bastion Host, Route Table, Network Security group and Azure Firewall
 module hubVnet 'HubResourceGroup.bicep' = if (deployHUB) {
-  name: 'HubResourceGroup'
+  name: 'HubResourceGroup-${location}'
   params: {
     deployBastionInHub: deployBastionInHub
     location: location
@@ -64,7 +64,7 @@ module hubVnet 'HubResourceGroup.bicep' = if (deployHUB) {
 
 // Deploy Spoke VNET's including VM, Bastion Host, Route Table, Network Security group
 module spokeVnets 'SpokeResourceGroup.bicep' =  [for i in range(1, amountOfSpokes): if(deploySpokes) {
-  name: 'SpokeResourceGroup${i}'
+  name: 'SpokeResourceGroup${i}-${location}'
   params: {
     location: location
     counter: i
@@ -81,7 +81,7 @@ module spokeVnets 'SpokeResourceGroup.bicep' =  [for i in range(1, amountOfSpoke
 
 // VNET Peerings
 module vnetPeerings 'Vnetpeerings.bicep' = [for i in range(0, amountOfSpokes): if (deployHUB && deploySpokes) {
-  name: 'VnetPeering${i}'
+  name: 'VnetPeering${i}-${location}'
   params: {
     HubResourceGroupName: hubVnet.outputs.HubResourceGroupName
     SpokeResourceGroupName: spokeVnets[i].outputs.spokeResourceGroupName
