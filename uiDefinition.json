@@ -228,6 +228,7 @@
                 "AzureFirewallTier": "[steps('HubVNET').AzureFirewallTier]"
             },
             "kind": "Subscription",
+			"subscriptionId": "[steps('basics').resourceScope.subscription.id]",
             "location": "[steps('basics').resourceScope.location.name]"        }
     }
 }
