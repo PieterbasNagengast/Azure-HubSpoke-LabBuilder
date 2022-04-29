@@ -3,6 +3,10 @@
 	"handler": "Microsoft.Azure.CreateUIDef",
 	"version": "0.1.2-preview",
 	"parameters": {
+		"config": {
+			"isWizard": false,
+			"basics": {}
+		},
 		"resourceTypes": [],
 		"basics": [
 			{
@@ -150,6 +154,24 @@
 				"label": "VM User Account",
 				"elements": [
 					{
+						"name": "VMUserAccountWarning",
+						"type": "Microsoft.Common.InfoBox",
+						"options": {
+							"icon": "Warning",
+							"text": "No Virtual machine selected to be deployed in Hub or Spoke(s). No need to enter crednetials..."
+						},
+						"visible": "[and(equals(steps('SpokeVNETs').deployVMsInSpokes, false), equals(steps('HubVNET').deployVMinHub, false))]"
+					},
+					{
+						"name": "VMUserAccountInfo",
+						"type": "Microsoft.Common.InfoBox",
+						"options": {
+							"icon": "Information",
+							"text": "Enter Local Admin Username and Password for Virtual Machine deployement."
+						},
+						"visible": "[or(equals(steps('SpokeVNETs').deployVMsInSpokes, true), equals(steps('HubVNET').deployVMinHub, true))]"
+					},
+					{
 						"name": "adminUsername",
 						"type": "Microsoft.Compute.UserNameTextBox",
 						"label": "Admin Username",
@@ -158,7 +180,7 @@
 						"constraints": {
 							"required": true
 						},
-						"visible": true
+						"visible": "[or(equals(steps('SpokeVNETs').deployVMsInSpokes, true), equals(steps('HubVNET').deployVMinHub, true))]"
 					},
 					{
 						"name": "adminPassword",
@@ -168,8 +190,8 @@
 							"confirmPassword": "Confirm password"
 						},
 						"toolTip": {
-                            "password": ""
-                        },
+							"password": ""
+						},
 						"osPlatform": "Windows",
 						"constraints": {
 							"required": true
@@ -177,7 +199,7 @@
 						"options": {
 							"hideConfirmation": false
 						},
-						"visible": true
+						"visible": "[or(equals(steps('SpokeVNETs').deployVMsInSpokes, true), equals(steps('HubVNET').deployVMinHub, true))]"
 					}
 				]
 			}

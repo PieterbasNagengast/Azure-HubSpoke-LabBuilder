@@ -34,13 +34,9 @@ Within these three **main** scenario's there are multiple options:
 
 ## Deploy to Azure
 
-
-
-
 | Description | Template |
 |---|---|
-| Deploy to Azure Subscription |[![Deploy To Azure](https://docs.microsoft.com/en-us/azure/templates/media/deploy-to-azure.svg)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FPieterbasNagengast%2FLABbuilder%2Fmain%2FuiDefinition.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FPieterbasNagengast%2FLABbuilder%2Fmain%2FARM%2Fmain.json)|
-
+| Deploy to Azure Subscription |[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FPieterbasNagengast%2FLABbuilder%2Fmain%2FARM%2Fmain.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FPieterbasNagengast%2FLABbuilder%2Fmain%2FuiDefinition.json)|
 
 ## Parameters
 
