@@ -3,7 +3,7 @@
     "view": {
         "kind": "Form",
         "properties": {
-            "title": "Hub & Spoke playground",
+            "title": "Test Form View",
             "steps": [
                 {
                     "name": "basics",
@@ -227,9 +227,9 @@
                 "deployFirewallInHub": "[steps('HubVNET').deployFirewallInHub]",
                 "AzureFirewallTier": "[steps('HubVNET').AzureFirewallTier]"
             },
-            "kind": "ResourceGroup",
+            "kind": "subscription",
             "location": "[steps('basics').resourceScope.location.name]",
-            "resourceGroupId": "[steps('basics').resourceScope.resourceGroup.id]"
+            "subscriptionId": "[steps('basics').resourceScope.subscription.id]"
         }
     }
 }
