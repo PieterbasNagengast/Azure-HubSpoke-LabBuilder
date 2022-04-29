@@ -3,7 +3,7 @@
 	"view": {
 		"kind": "Form",
 		"properties": {
-			"title": "Test Form View",
+			"title": "Hub & Spoke playground - LAB Builder",
 			"steps": [
 				{
 					"name": "basics",
@@ -60,7 +60,7 @@
 						{
 							"name": "deployVMinHub",
 							"type": "Microsoft.Common.CheckBox",
-							"label": "Deploy V Min Hub",
+							"label": "Deploy VM in Hub",
 							"defaultValue": false,
 							"toolTip": "Deploy VM in Hub VNET",
 							"constraints": {
