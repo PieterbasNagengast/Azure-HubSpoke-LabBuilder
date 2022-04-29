@@ -83,12 +83,12 @@ module spokeVnets 'SpokeResourceGroup.bicep' =  [for i in range(1, amountOfSpoke
 module vnetPeerings 'Vnetpeerings.bicep' = [for i in range(0, amountOfSpokes): if (deployHUB && deploySpokes) {
   name: 'VnetPeering${i}-${location}'
   params: {
-    HubResourceGroupName: hubVnet.outputs.HubResourceGroupName
-    SpokeResourceGroupName: spokeVnets[i].outputs.spokeResourceGroupName
-    HubVnetName: hubVnet.outputs.hubVnetName
-    SpokeVnetID: spokeVnets[i].outputs.spokeVnetID
-    HubVnetID:  hubVnet.outputs.hubVnetID
-    SpokeVnetName: spokeVnets[i].outputs.spokeVnetName
+    HubResourceGroupName: deployHUB && deploySpokes ? hubVnet.outputs.HubResourceGroupName : 'No VNET peering'
+    SpokeResourceGroupName: deployHUB && deploySpokes ? spokeVnets[i].outputs.spokeResourceGroupName : 'No peering'
+    HubVnetName: deployHUB && deploySpokes ? hubVnet.outputs.hubVnetName : 'No VNET peering'
+    SpokeVnetID: deployHUB && deploySpokes ? spokeVnets[i].outputs.spokeVnetID : 'No VNET peering'
+    HubVnetID:  deployHUB && deploySpokes ? hubVnet.outputs.hubVnetID : 'No VNET peering'
+    SpokeVnetName: deployHUB && deploySpokes ? spokeVnets[i].outputs.spokeVnetName : 'No VNET peering'
     counter: i
   }
 }]

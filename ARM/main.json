@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1272.37030",
-      "templateHash": "2103435386920765496"
+      "templateHash": "12662442376726146816"
     }
   },
   "parameters": {
@@ -1782,22 +1782,22 @@
         "mode": "Incremental",
         "parameters": {
           "HubResourceGroupName": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('HubResourceGroup-{0}', parameters('location')))).outputs.HubResourceGroupName.value]"
+            "value": "[if(and(parameters('deployHUB'), parameters('deploySpokes')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('HubResourceGroup-{0}', parameters('location')))).outputs.HubResourceGroupName.value, 'No VNET peering')]"
           },
           "SpokeResourceGroupName": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('SpokeResourceGroup{0}-{1}', range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]], parameters('location')))).outputs.spokeResourceGroupName.value]"
+            "value": "[if(and(parameters('deployHUB'), parameters('deploySpokes')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('SpokeResourceGroup{0}-{1}', range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]], parameters('location')))).outputs.spokeResourceGroupName.value, 'No peering')]"
           },
           "HubVnetName": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('HubResourceGroup-{0}', parameters('location')))).outputs.hubVnetName.value]"
+            "value": "[if(and(parameters('deployHUB'), parameters('deploySpokes')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('HubResourceGroup-{0}', parameters('location')))).outputs.hubVnetName.value, 'No VNET peering')]"
           },
           "SpokeVnetID": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('SpokeResourceGroup{0}-{1}', range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]], parameters('location')))).outputs.spokeVnetID.value]"
+            "value": "[if(and(parameters('deployHUB'), parameters('deploySpokes')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('SpokeResourceGroup{0}-{1}', range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]], parameters('location')))).outputs.spokeVnetID.value, 'No VNET peering')]"
           },
           "HubVnetID": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('HubResourceGroup-{0}', parameters('location')))).outputs.hubVnetID.value]"
+            "value": "[if(and(parameters('deployHUB'), parameters('deploySpokes')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('HubResourceGroup-{0}', parameters('location')))).outputs.hubVnetID.value, 'No VNET peering')]"
           },
           "SpokeVnetName": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', format('SpokeResourceGroup{0}-{1}', range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]], parameters('location')))).outputs.spokeVnetName.value]"
+            "value": "[if(and(parameters('deployHUB'), parameters('deploySpokes')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('SpokeResourceGroup{0}-{1}', range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]], parameters('location')))).outputs.spokeVnetName.value, 'No VNET peering')]"
           },
           "counter": {
             "value": "[range(0, parameters('amountOfSpokes'))[copyIndex()]]"
