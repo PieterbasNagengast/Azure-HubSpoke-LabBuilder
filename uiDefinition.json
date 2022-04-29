@@ -39,7 +39,7 @@
                             "name": "deployHUB",
                             "type": "Microsoft.Common.CheckBox",
                             "label": "Deploy HUB",
-                            "defaultValue": true,
+                            "value": true,
                             "toolTip": "Deploy Hub VNET",
                             "constraints": {
                                 "required": false
@@ -228,8 +228,6 @@
                 "AzureFirewallTier": "[steps('HubVNET').AzureFirewallTier]"
             },
             "kind": "Subscription",
-            "location": "[steps('basics').resourceScope.location.name]",
-            "subscriptionId": "[steps('basics').resourceScope.subscription.subscriptionId]"
-        }
+            "location": "[steps('basics').resourceScope.location.name]"        }
     }
 }
