@@ -46,11 +46,11 @@ Within these three **main** scenario's there are multiple options:
 
 |Step|Screenshot|
 |-|-|
-|Select Subscription and Region<br>Enter the first two octets of a **/16** subnet<br>example: **172.16.**|![Step1](images/DeployToAzure-Step1.jpeg)|
-|Deploy Hub<br>Optional enable:<br>- Azure Bastion<br>- Virtual Machine<br>- Azure Firewall Standard or Premium|![Step2](images/DeployToAzure-Step2.jpeg)|
-|Deploy Spokes<br>Enter amount of Spokes to deploy (Max 25)<br>Optional enable:<br>- Virtual Machine<br>- Azure Bastion<br><br> *Note: VM and Azure Bastion will be deployed in every Spoke*|![Step3](images/DeployToAzure-Step3.jpeg)|
-|Enter Local Admin credentials If Virtual Machine is selected for Hub and/or Spoke|![Step4](images/DeployToAzure-Step4.jpeg)|
-|Validate and Deploy|![Step5](images/DeployToAzure-Step5.jpeg)|
+|Select Subscription and Region<br>Enter the first two octets of a **/16** subnet<br>example: **172.16.**|![Step1](images/DeployToAzure-Step1.png)|
+|Deploy Hub<br>Optional enable:<br>- Azure Bastion<br>- Virtual Machine<br>- Azure Firewall Standard or Premium|![Step2](images/DeployToAzure-Step2.png)|
+|Deploy Spokes<br>Enter amount of Spokes to deploy (Max 25)<br>Optional enable:<br>- Virtual Machine<br>- Azure Bastion<br><br> *Note: VM and Azure Bastion will be deployed in every Spoke*|![Step3](images/DeployToAzure-Step3.png)|
+|Enter Local Admin credentials If Virtual Machine is selected for Hub and/or Spoke|![Step4](images/DeployToAzure-Step4.png)|
+|Validate and Deploy|![Step5](images/DeployToAzure-Step5.png)|
 
 ## Appendix
 
