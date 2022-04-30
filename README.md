@@ -1,22 +1,36 @@
 # Hub & Spoke playground - LAB Builder
 
+## Index
+
+- [Hub & Spoke playground - LAB Builder](#hub--spoke-playground---lab-builder)
+  - [Index](#index)
+  - [Deploy to Azure](#deploy-to-azure)
+  - [Introduction](#introduction)
+  - [Description](#description)
+    - [LABbuilder scenario's](#labbuilder-scenarios)
+  - [Topology drawing](#topology-drawing)
+  - [Deployment Steps](#deployment-steps)
+  - [Appendix](#appendix)
+    - [Parameters](#parameters)
+    - [~~Backlog~~... whishlist items](#backlog-whishlist-items)
+
 ## Deploy to Azure
 
 | Description | Template |
 |---|---|
 | Deploy to Azure Subscription |[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FPieterbasNagengast%2FAzure-HubSpoke-LabBuilder%2Fmain%2FARM%2Fmain.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FPieterbasNagengast%2FAzure-HubSpoke-LabBuilder%2Fmain%2FuiDefinition.json)|
 
+> :warning: **Warning:**
+> **This deployment is ment for Testing, Training, Practice or Reproduction purposes ONLY!!**
+> **Please don't deploy to production environments!!**
+
 ## Introduction
 
-In my daily work I've created, numourous times, a (semi-)manual Hub & Spoke topology for Testing, (Self)Training, Demo or Reproduction purposes. I've always done this via multiple ways, like: PowerShell scripts, Azure CLI, ARM or Azure Potal GUI..... but bottom line: Wathever option is fine by me as long as it has the least amount of effort to build it. ;)
+In my daily work I've created numourous times a (semi-)manual Hub & Spoke topology for Testing, (Self)Training, Demo or Reproduction purposes. I've always done this in multiple ways, like: PowerShell scripts, Azure CLI, ARM or Azure Potal GUI.....whatever was the best fit. But bottom line: Wathever option is fine by me as long as it has the least amount of effort to build it.
 
 With that in mind I've created a "Hub & Spoke playground Lab builder" so you'll be able to deploy Hub & Spoke scenario's in notime :) It takes approx. 20min to deploy a 'full option Hub & Spoke' deployment with 2 Spoke VNET's.
 
-> :warning: Warning:
-> **This deployment is ment for Testing, Training, Practice or Reproduction purposes ONLY!!**
-> Please don't deploy to production environments!!
-
-## Description/Guidance
+## Description
 
 With this 'Hub & Spoke playground - LAB Builder' you'll be able to deploy Hub & Spoke topologies in various ways.
 
@@ -46,7 +60,7 @@ Within these three **main** scenario's there are multiple options:
 
 |Step|Screenshot|
 |-|-|
-|Select Subscription and Region<br>Enter the first two octets of a **/16** subnet<br>example: **172.16.**|![Step1](images/DeployToAzure-Step1.png)|
+|Select Subscription and Region<br>Enter the first two octets of a **/16** subnet<br>example: **172.16.**<br><br>*Note: Hub VNET will always get the first available /24 subnet, first spoke the second subnet etc.<br>like:<br>172.16.0.0/24 = Hub VNET<br>172.16.1.0/24 = Spoke1<br>172.16.2.0/24 = Spoke2<br>etc.*|![Step1](images/DeployToAzure-Step1.png)|
 |Deploy Hub<br>Optional enable:<br>- Azure Bastion<br>- Virtual Machine<br>- Azure Firewall Standard or Premium|![Step2](images/DeployToAzure-Step2.png)|
 |Deploy Spokes<br>Enter amount of Spokes to deploy (Max 25)<br>Optional enable:<br>- Virtual Machine<br>- Azure Bastion<br><br> *Note: VM and Azure Bastion will be deployed in every Spoke*|![Step3](images/DeployToAzure-Step3.png)|
 |Enter Local Admin credentials If Virtual Machine is selected for Hub and/or Spoke|![Step4](images/DeployToAzure-Step4.png)|
@@ -71,10 +85,6 @@ Within these three **main** scenario's there are multiple options:
 |deployVMinHub|bool|true|Deploy VM in Hub VNET|
 |deployFirewallInHub|bool|true|Deploy Azure Firewall in Hub VNET.<br>Includes deployment of custom route tables in Spokes and Hub VNETs|
 |AzureFirewallTier|string|Standard|Azure Firewall Tier: Standard or Premium|
-
-> :warning:
-> **This deployment is for Testing, Demo-ing, (self)Training, Practice or Reproduction purposes ONLY!!**
-> **Don't deploy to production environments!!**
 
 ### ~~Backlog~~... whishlist items
 
