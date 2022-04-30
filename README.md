@@ -1,5 +1,11 @@
 # Hub & Spoke playground - LAB Builder
 
+## Deploy to Azure
+
+| Description | Template |
+|---|---|
+| Deploy to Azure Subscription |[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FPieterbasNagengast%2FAzure-HubSpoke-LabBuilder%2Fmain%2FARM%2Fmain.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FPieterbasNagengast%2FAzure-HubSpoke-LabBuilder%2Fmain%2FuiDefinition.json)|
+
 ## Introduction
 
 In my daily work I've created, numourous times, a (semi-)manual Hub & Spoke topology for Testing, (Self)Training, Demo or Reproduction purposes. I've always done this via multiple ways, like: PowerShell scripts, Azure CLI, ARM or Azure Potal GUI..... but bottom line: Wathever option is fine by me as long as it has the least amount of effort to build it. ;)
@@ -36,13 +42,19 @@ Within these three **main** scenario's there are multiple options:
 
 ![LabBuilderTopology](images/LabBuilder.svg)
 
-## Deploy to Azure
+## Deployment Steps
 
-| Description | Template |
-|---|---|
-| Deploy to Azure Subscription |[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FPieterbasNagengast%2FAzure-HubSpoke-LabBuilder%2Fmain%2FARM%2Fmain.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FPieterbasNagengast%2FAzure-HubSpoke-LabBuilder%2Fmain%2FuiDefinition.json)|
+|Step|Screenshot|
+|-|-|
+|Select Subscription and Region<br>Enter the first two octets of a **/16** subnet<br>example: **172.16.**|![Step1](images/DeployToAzure-Step1.jpeg)|
+|Deploy Hub<br>Optional enable:<br>- Azure Bastion<br>- Virtual Machine<br>- Azure Firewall Standard or Premium|![Step2](images/DeployToAzure-Step2.jpeg)|
+|Deploy Spokes<br>Enter amount of Spokes to deploy (Max 25)<br>Optional enable:<br>- Virtual Machine<br>- Azure Bastion<br><br> *Note: VM and Azure Bastion will be deployed in every Spoke*|![Step3](images/DeployToAzure-Step3.jpeg)|
+|Enter Local Admin credentials If Virtual Machine is selected for Hub and/or Spoke|![Step4](images/DeployToAzure-Step4.jpeg)|
+|Validate and Deploy|![Step5](images/DeployToAzure-Step5.jpeg)|
 
-## Parameters
+## Appendix
+
+### Parameters
 
 |Parameter name|type|default value|notes|
 |-|-|-|-|
@@ -60,13 +72,11 @@ Within these three **main** scenario's there are multiple options:
 |deployFirewallInHub|bool|true|Deploy Azure Firewall in Hub VNET.<br>Includes deployment of custom route tables in Spokes and Hub VNETs|
 |AzureFirewallTier|string|Standard|Azure Firewall Tier: Standard or Premium|
 
-
-
 > :warning:
 > **This deployment is for Testing, Demo-ing, (self)Training, Practice or Reproduction purposes ONLY!!**
 > **Don't deploy to production environments!!**
 
-## ~~Backlog~~... whishlist items
+### ~~Backlog~~... whishlist items
 
 - Choose between Azure vWAN and Hub & Spoke
 - Add default Firewall Network & Application rules
