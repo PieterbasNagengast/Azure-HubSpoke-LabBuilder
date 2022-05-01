@@ -174,7 +174,7 @@
 							"type": "Microsoft.Common.InfoBox",
 							"options": {
 								"text": "Enter Local Admin Username and Password for Virtual Machine deployement.",
-								"style": "Information"
+								"style": "Info"
 							},
 							"visible": "[or(equals(steps('SpokeVNETs').deployVMsInSpokes,true),equals(steps('HubVNET').deployVMinHub,true))]"
 						},
