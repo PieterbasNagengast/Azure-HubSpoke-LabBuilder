@@ -19,6 +19,7 @@ var nsgName = 'NSG-Hub'
 var bastionName = 'Bastion-Hub'
 var rtName = 'RT-Hub'
 var hubVnetName = 'VNET-Hub'
+var firewallName = 'Firewall-Hub'
 
 resource hubrg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   name: 'rg-Hub-${location}'
@@ -78,7 +79,7 @@ module firewall 'modules/firewall.bicep' = if (deployFirewallInHub) {
   name: 'hubFirewall'
   params: {
     location: location
-    firewallName: 'AzFw'
+    firewallName: firewallName
     azfwsubnetid: deployFirewallInHub ? vnet.outputs.firewallSubnetID : ''
     azfwTier: AzureFirewallTier
   }

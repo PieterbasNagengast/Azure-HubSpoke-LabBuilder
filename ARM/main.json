@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1272.37030",
-      "templateHash": "12662442376726146816"
+      "templateHash": "1633576845882756903"
     }
   },
   "parameters": {
@@ -150,7 +150,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1272.37030",
-              "templateHash": "15500434995278761670"
+              "templateHash": "5049807236243148974"
             }
           },
           "parameters": {
@@ -188,7 +188,8 @@
             "nsgName": "NSG-Hub",
             "bastionName": "Bastion-Hub",
             "rtName": "RT-Hub",
-            "hubVnetName": "VNET-Hub"
+            "hubVnetName": "VNET-Hub",
+            "firewallName": "Firewall-Hub"
           },
           "resources": [
             {
@@ -724,7 +725,7 @@
                     "value": "[parameters('location')]"
                   },
                   "firewallName": {
-                    "value": "AzFw"
+                    "value": "[variables('firewallName')]"
                   },
                   "azfwsubnetid": {
                     "value": "[if(parameters('deployFirewallInHub'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-Hub-{0}', parameters('location'))), 'Microsoft.Resources/deployments', 'hubvnet')).outputs.firewallSubnetID.value, '')]"

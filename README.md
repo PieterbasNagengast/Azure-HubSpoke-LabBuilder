@@ -10,6 +10,8 @@
     - [LABbuilder scenario's](#labbuilder-scenarios)
   - [Topology drawing](#topology-drawing)
   - [Deployment Steps](#deployment-steps)
+  - [Deployment notes](#deployment-notes)
+  - [Resource Names](#resource-names)
   - [Appendix](#appendix)
     - [Parameters](#parameters)
     - [~~Backlog~~... whishlist items](#backlog-whishlist-items)
@@ -65,6 +67,43 @@ Within these three **main** scenario's there are multiple options:
 |Deploy Spokes<br>Enter amount of Spokes to deploy (Max 25)<br>Optional enable:<br>- Virtual Machine<br>- Azure Bastion<br><br> *Note: VM and Azure Bastion will be deployed in every Spoke*|![Step3](images/DeployToAzure-Step3.png)|
 |Enter Local Admin credentials If Virtual Machine is selected for Hub and/or Spoke|![Step4](images/DeployToAzure-Step4.png)|
 |Validate and Deploy|![Step5](images/DeployToAzure-Step5.png)|
+
+## Deployment notes
+
+- VNET Peering will be deployed when Hub and Spoke are selected
+- ICMPv4 Firewall rule will be enabled on Virtual Machines
+- Route tables incl. Default route will be deployed if Azure Firewall is selected (0.0.0.0/0 -> Azure Firewall)
+- Network Security group will be deplyed to 'default' subnet only
+- At deployemt use a /16 subnet. every VNET (Hub and Spoke VNET's) will get a /24 subnet
+- Hub VNET will always get the first available /24 subnet, first spoke the second subnet etc.
+- VNET's subnets:
+
+|Subnet Name|Subnet address range|notes|
+|-|-|-|
+|default|x.x.Y.0/24||
+|AzureFirewallSubnet|x.x.Y.128/26|Only Hub VNET with Azure Firewall|
+|AzureBastionSubnet|x.x.Y.192/26||
+*note1: x.x. = 'Start Address Space'*
+*note2: Y = 0 for Hub VNET 1 and onward for Spoke VNET's*
+
+## Resource Names
+
+|Type|Name|
+|-|-|
+|Hub Resource group|rg-hub-[AzureRegion]|
+|Spoke Resource group|rg-spoke#-[AzureRegion]|
+|Hub VNET|VNET-Hub|
+|Spoke VNET's|VNET-Spoke#|
+|Hub Virtual Machine|VM-Hub|
+|Spoke Virtual Machines|VM-Spoke#|
+|Hub Route Table|RT-Hub|
+|Spoke Route tables|RT-Spoke#|
+|Hub Bastion Host|Bastion-Hub|
+|Spoke Bastion Hosts|Bastion-Spoke#|
+|Hub Network Security Group|NSG-Hub|
+|Spoke Network Security Groups|NSG-Spoke#|
+|Azure Firewall|Firewall-Hub|
+
 
 ## Appendix
 
