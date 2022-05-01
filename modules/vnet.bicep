@@ -56,5 +56,5 @@ resource vnet 'Microsoft.Network/virtualNetworks@2021-05-01' = {
 output vnetName string = vnet.name
 output vnetID string = vnet.id
 output defaultSubnetID string = vnet.properties.subnets[0].id
-output bastionSubnetID string = deployBastionSubnet ? vnet.properties.subnets[1].id : 'Not deployed'
-output firewallSubnetID string = deployFirewallSubnet ? vnet.properties.subnets[2].id : 'Not deployed'
+output bastionSubnetID string = deployBastionSubnet ? vnet.properties.subnets[1].id : 'Not deployed' 
+output firewallSubnetID string = deployFirewallSubnet && !deployBastionSubnet ? vnet.properties.subnets[1].id : deployBastionSubnet && deployBastionSubnet ? vnet.properties.subnets[2].id  : 'Not deployed'

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1272.37030",
-      "templateHash": "1633576845882756903"
+      "templateHash": "12194755456688203147"
     }
   },
   "parameters": {
@@ -150,7 +150,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1272.37030",
-              "templateHash": "5049807236243148974"
+              "templateHash": "17771310624325538218"
             }
           },
           "parameters": {
@@ -247,7 +247,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1272.37030",
-                      "templateHash": "9861403853758965849"
+                      "templateHash": "11807809256362960647"
                     }
                   },
                   "parameters": {
@@ -334,7 +334,7 @@
                     },
                     "firewallSubnetID": {
                       "type": "string",
-                      "value": "[if(parameters('deployFirewallSubnet'), reference(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetname'))).subnets[2].id, 'Not deployed')]"
+                      "value": "[if(and(parameters('deployFirewallSubnet'), not(parameters('deployBastionSubnet'))), reference(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetname'))).subnets[1].id, if(and(parameters('deployBastionSubnet'), parameters('deployBastionSubnet')), reference(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetname'))).subnets[2].id, 'Not deployed'))]"
                     }
                   }
                 }
@@ -1050,7 +1050,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1272.37030",
-              "templateHash": "11845752041087789375"
+              "templateHash": "8499793737280187700"
             }
           },
           "parameters": {
@@ -1149,7 +1149,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1272.37030",
-                      "templateHash": "9861403853758965849"
+                      "templateHash": "11807809256362960647"
                     }
                   },
                   "parameters": {
@@ -1236,7 +1236,7 @@
                     },
                     "firewallSubnetID": {
                       "type": "string",
-                      "value": "[if(parameters('deployFirewallSubnet'), reference(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetname'))).subnets[2].id, 'Not deployed')]"
+                      "value": "[if(and(parameters('deployFirewallSubnet'), not(parameters('deployBastionSubnet'))), reference(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetname'))).subnets[1].id, if(and(parameters('deployBastionSubnet'), parameters('deployBastionSubnet')), reference(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetname'))).subnets[2].id, 'Not deployed'))]"
                     }
                   }
                 }
