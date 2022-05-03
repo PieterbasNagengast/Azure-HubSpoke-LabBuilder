@@ -51,7 +51,7 @@ Within these three **main** scenario's there are multiple options:
 |Scenrio|What gets deployed|
 |-|-|
 |**1. Only deploy Spokes**|- Resource Group (rg-Spoke#)<br>- Virtual Network (VNET-Spoke#)<br>- Network Security Group (NSG-Spoke#) linked to 'Default' Subnet<br>- Subnet (Default)<br>- [optional] Subnet (AzureBastionSubnet)<br>- [optional] Subnet (AzureFirewallSubnet)<br>- [optional] Azure Bastion Host (Bastion-Spoke#) incl. Public IP<br>- [optional] Azure Virtual Machine (Windows)<br><br>*Only in combination with Firewall in Hub:*<br>- Route table (RT-Hub) linked to 'Default' Subnet, with default route to Azure Firewall|
-|**2. Only deploy Hub**|- Resource Group (rg-Hub)<br>- Virtual Network (VNET-Hub)<br>- Network Security Group (NSG-Hub) linked to 'Default' Subnet<br>- Subnet (Default)<br>- [optional] Subnet (AzureBastionSubnet)<br>- [optional] Subnet (AzureFirewallSubnet)<br>- [optional] Azure Bastion Host (Bastion-Hub) incl. Public IP <br>- [optional] Azure Firewall (AzFw) incl. Public IP<br>- [optional] Azure Firewall Policy (AzFwPolicy)<br>- [optional] Azure Virtual Machine (Windows)<br><br>*Only in combination with Firewall in Hub:*<br>- Route table (RT-Hub) linked to 'Default' Subnet, with default route to Azure Firewall|
+|**2. Only deploy Hub**|- Resource Group (rg-Hub)<br>- Virtual Network (VNET-Hub)<br>- Network Security Group (NSG-Hub) linked to 'Default' Subnet<br>- Subnet (Default)<br>- [optional] Subnet (AzureBastionSubnet)<br>- [optional] Subnet (AzureFirewallSubnet)<br>- [optional] Azure Bastion Host (Bastion-Hub) incl. Public IP <br>- [optional] Azure Firewall (AzFw) incl. Public IP<br>- [optional] Azure Firewall Policy (AzFwPolicy)<br>- [optional] Azure Firewall Policy rule Collection Group<br>- [optional] Azure Virtual Machine (Windows)<br><br>*Only in combination with Firewall in Hub:*<br>- Route table (RT-Hub) linked to 'Default' Subnet, with default route to Azure Firewall|
 |**3. Deploy Hub and Spokes**|includes all from scenario 1 and 2, incl:<br>- VNET Peerings|
 
 ## Topology drawing
@@ -62,10 +62,10 @@ Within these three **main** scenario's there are multiple options:
 
 |Step|Screenshot|
 |-|-|
-|Select Subscription and Region<br>Enter the first two octets of a **/16** subnet<br>example: **172.16.**<br><br>*Note: Hub VNET will always get the first available /24 subnet, first spoke the second subnet etc.<br>like:<br>172.16.0.0/24 = Hub VNET<br>172.16.1.0/24 = Spoke1<br>172.16.2.0/24 = Spoke2<br>etc.*|![Step1](images/DeployToAzure-Step1.png)|
-|Deploy Hub<br>Optional enable:<br>- Azure Bastion<br>- Virtual Machine<br>- Azure Firewall Standard or Premium|![Step2](images/DeployToAzure-Step2.png)|
-|Deploy Spokes<br>Enter amount of Spokes to deploy (Max 25)<br>Optional enable:<br>- Virtual Machine<br>- Azure Bastion<br><br> *Note: VM and Azure Bastion will be deployed in every Spoke*|![Step3](images/DeployToAzure-Step3.png)|
-|Enter Local Admin credentials If Virtual Machine is selected for Hub and/or Spoke|![Step4](images/DeployToAzure-Step4.png)|
+|Select Subscription and Region<br>Enter the a **/16** subnet<br>example: **172.16.0.0/16**<br><br>*Note: Hub VNET will always get the first available /24 subnet, first spoke the second subnet etc.<br>like:<br>172.16.0.0/24 = Hub VNET<br>172.16.1.0/24 = Spoke1<br>172.16.2.0/24 = Spoke2<br>etc.*|![Step1](images/DeployToAzure-Step1.png)|
+|Deploy Hub<br>Optional enable:<br>- Azure Bastion<br>- Azure Firewall Standard or Premium<bR>- Azure Firewall Policy rule Collection group|![Step2](images/DeployToAzure-Step2.png)|
+|Deploy Spokes<br>Enter amount of Spokes to deploy (Max 25)<br>Optional enable:<br>- Azure Bastion<br><br> *Note: VM and Azure Bastion will be deployed in every Spoke*|![Step3](images/DeployToAzure-Step3.png)|
+|Enable Virtual Machine deployment in Hub and/or Spoke.<br><br>Enter Local Admin credentials If Virtual Machine is selected for Hub and/or Spoke|![Step4](images/DeployToAzure-Step4.png)|
 |Validate and Deploy|![Step5](images/DeployToAzure-Step5.png)|
 
 ## Deployment notes
@@ -76,24 +76,28 @@ Within these three **main** scenario's there are multiple options:
 - Route tables incl. Default route will be deployed if Azure Firewall is selected (0.0.0.0/0 -> Azure Firewall)
 - Network Security group will be deplyed to 'default' subnet only
 - At deployemt use a /16 subnet. every VNET (Hub and Spoke VNET's) will get a /24 subnet
-- Hub VNET will always get the first available /24 subnet, first spoke the second subnet etc.
-- VNET's subnets:
+- Hub VNET will always get the first available /24 subnet, first spoke the second subnet etc. see subnet details:
+
+*Spoke VNET's subnets:*
 
 |Subnet Name|Subnet address range|notes|
 |-|-|-|
 |default|x.x.Y.0/24||
-|AzureFirewallSubnet|x.x.Y.128/26|Only applicable for Hub VNET with Azure Firewall selected|
 |AzureBastionSubnet|x.x.Y.192/26|Only when Bastion is selected|
 
-*note1: x.x. = 'Start Address Space'*
-*note2: Y = 0 for Hub VNET 1 and onward for Spoke VNET's*
+*Hub VNET subnets:*
+
+|Subnet Name|Subnet address range|notes|
+|-|-|-|
+|default|x.x.0.0/24||
+|AzureFirewallSubnet|x.x.0.128/26|Only applicable for Hub VNET with Azure Firewall selected|
+|AzureBastionSubnet|x.x.0.192/26|Only when Bastion is selected|
+
 
 ## Resource Names
 
 |Type|Name|
 |-|-|
-|Hub Resource group|rg-hub-[AzureRegion]|
-|Spoke Resource group|rg-spoke#-[AzureRegion]|
 |Hub VNET|VNET-Hub|
 |Spoke VNET's|VNET-Spoke#|
 |Hub Virtual Machine|VM-Hub|
@@ -115,21 +119,26 @@ Within these three **main** scenario's there are multiple options:
 |-|-|-|-|
 |adminUsername|string|n/a|Admin username for VM|
 |adminPassword|secure string|n/a|Admin password for VM|
-|startAddressSpace|string|172.16.|IP Address space used for VNETs in deployment.<br>Only enter the two first octets of a /16 subnet. Default = 172.16.|
+|AddressSpace|string|172.16.0.0/16|IP Address space used for VNETs in deployment.<br>Only enter a /16 subnet. Default = 172.16.0.0/16|
 |location|string|deployment().location|Azure Region. Defualt = Deployment location|
 |deploySpokes|bool|true|Deploy Spoke VNETs|
+|spokeRgNamePrefix|string|rg-spoke|Spoke Resource Group prefix name.<br>With default value set, spoke resource groups will be: rg-spoke1, rg-spoke2 etc.|
 |amountOfSpokes|int|2|Amount of Spoke VNETs you want to deploy. Default = 2|
 |deployVMsInSpokes|bool|true|Deploy VM in every Spoke VNET|
 |deployBastionInSpoke|bool|false|Deploy Bastion Host in every Spoke VNET|
-|DeployHUB|bool|true|bool|Deploy Hub VNET|
+|deployHUB|bool|true|bool|Deploy Hub VNET|
+|hubRgName|string|rg-hub|Hub Resource Group Name
 |deployBastionInHub|bool|true|Deploy Bastion Host in Hub VNET|
 |deployVMinHub|bool|true|Deploy VM in Hub VNET|
 |deployFirewallInHub|bool|true|Deploy Azure Firewall in Hub VNET.<br>Includes deployment of custom route tables in Spokes and Hub VNETs|
 |AzureFirewallTier|string|Standard|Azure Firewall Tier: Standard or Premium|
+|deployFirewallrules|bool|false|Deploy firewall policy rule collection group which enables spoke-to-spoke traffic and internet traffic|
 
 ### ~~Backlog~~... whishlist items
 
 - Choose between Azure vWAN and Hub & Spoke
-- Add default Firewall Network & Application rules
+- ~~Add default Firewall Network & Application rules~~
 - Deploy separate VNET (simulate OnPrem) and deploy VPN gateways including Site-to-Site tunnel
+- ~~remove static Resource Group names~~
+- ~~use CIDR notation as Address Space (Instead of first two octets)~~
 - etc...
