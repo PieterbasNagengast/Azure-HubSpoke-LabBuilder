@@ -17,11 +17,11 @@
 							}
 						},
 						{
-							"name": "startAddressSpace",
+							"name": "AddressSpace",
 							"type": "Microsoft.Common.TextBox",
-							"label": "Start Address Space",
-							"defaultValue": "172.16.",
-							"toolTip": "IP Address space used for VNETs in deployment. Only enter the two first octets of a /16 subnet. Default = 172.16.  ",
+							"label": "IP Address Space",
+							"defaultValue": "172.16.0.0/16",
+							"toolTip": "IP Address space used for VNETs in deployment. Only enter a /16 subnet. Default = 172.16.0.0/16",
 							"constraints": {
 								"required": false,
 								"regex": "",
@@ -254,7 +254,7 @@
 			"parameters": {
 				"adminUsername": "[steps('VMUserAccount').adminUsername]",
 				"adminPassword": "[steps('VMUserAccount').adminPassword.password]",
-				"startAddressSpace": "[steps('basics').startAddressSpace]",
+				"AddressSpace": "[steps('basics').AddressSpace]",
 				"deploySpokes": "[steps('SpokeVNETs').deploySpokes]",
 				"amountOfSpokes": "[steps('SpokeVNETs').amountOfSpokes]",
 				"deployVMsInSpokes": "[steps('SpokeVNETs').deployVMsInSpokes]",
