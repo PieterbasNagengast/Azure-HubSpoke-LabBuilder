@@ -71,6 +71,7 @@ Within these three **main** scenario's there are multiple options:
 ## Deployment notes
 
 - VNET Peering will be deployed when Hub and Spoke are selected
+- Azure Firewall policy doesn't have any rules configured
 - ICMPv4 Firewall rule will be enabled on Virtual Machines
 - Route tables incl. Default route will be deployed if Azure Firewall is selected (0.0.0.0/0 -> Azure Firewall)
 - Network Security group will be deplyed to 'default' subnet only
@@ -81,8 +82,9 @@ Within these three **main** scenario's there are multiple options:
 |Subnet Name|Subnet address range|notes|
 |-|-|-|
 |default|x.x.Y.0/24||
-|AzureFirewallSubnet|x.x.Y.128/26|Only Hub VNET with Azure Firewall|
-|AzureBastionSubnet|x.x.Y.192/26||
+|AzureFirewallSubnet|x.x.Y.128/26|Only applicable for Hub VNET with Azure Firewall selected|
+|AzureBastionSubnet|x.x.Y.192/26|Only when Bastion is selected|
+
 *note1: x.x. = 'Start Address Space'*
 *note2: Y = 0 for Hub VNET 1 and onward for Spoke VNET's*
 

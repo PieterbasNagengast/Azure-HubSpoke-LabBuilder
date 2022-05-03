@@ -47,6 +47,25 @@
 							"visible": true
 						},
 						{
+							"name": "HubPrefixRgName",
+							"type": "Microsoft.Common.TextBox",
+							"label": "Name",
+							"defaultValue": "rg-hub",
+							"toolTip": "Use only allowed characters",
+							"placeholder": "",
+							"multiLine": false,
+							"constraints": {
+							  "required": true,
+							  "validations": [
+								{
+								  "regex": "^[a-zA-Z0-9_\\-\\.]+$",
+								  "message": "Only alphanumeric and numeric characters are allowed including symbols like: _ and . and -"
+								}
+							  ]
+							},
+							"visible": "[equals(steps('HubVNET').deployHUB,true)]"
+						  },
+						{
 							"name": "deployBastionInHub",
 							"type": "Microsoft.Common.CheckBox",
 							"label": "Deploy Bastion In Hub",
@@ -225,7 +244,8 @@
 				"deployBastionInHub": "[steps('HubVNET').deployBastionInHub]",
 				"deployVMinHub": "[steps('HubVNET').deployVMinHub]",
 				"deployFirewallInHub": "[steps('HubVNET').deployFirewallInHub]",
-				"AzureFirewallTier": "[steps('HubVNET').AzureFirewallTier]"
+				"AzureFirewallTier": "[steps('HubVNET').AzureFirewallTier]",
+				"hubPrefixRgName": "[steps('HubVNET').HubPrefixRgName]"
 			},
 			"kind": "Subscription",
 			"subscriptionId": "[steps('basics').resourceScope.subscription.id]",
