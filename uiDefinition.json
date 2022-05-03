@@ -137,6 +137,25 @@
 							"visible": true
 						},
 						{
+							"name": "spokeRgNamePrefix",
+							"type": "Microsoft.Common.TextBox",
+							"label": "Spoke Resource Group prefix Name",
+							"defaultValue": "rg-spoke",
+							"toolTip": "Use only allowed characters",
+							"placeholder": "",
+							"multiLine": false,
+							"constraints": {
+							  "required": true,
+							  "validations": [
+								{
+								  "regex": "^[a-zA-Z0-9_\\-\\.]+$",
+								  "message": "Only alphanumeric and numeric characters are allowed including symbols like: _ and . and -"
+								}
+							  ]
+							},
+							"visible": "[equals(steps('SpokeVNETs').deploySpokes,true)]"
+						  },
+						{
 							"name": "amountOfSpokes",
 							"type": "Microsoft.Common.Slider",
 							"min": 1,
@@ -245,7 +264,8 @@
 				"deployBastionInHub": "[steps('HubVNET').deployBastionInHub]",
 				"deployVMinHub": "[steps('HubVNET').deployVMinHub]",
 				"deployFirewallInHub": "[steps('HubVNET').deployFirewallInHub]",
-				"AzureFirewallTier": "[steps('HubVNET').AzureFirewallTier]"
+				"AzureFirewallTier": "[steps('HubVNET').AzureFirewallTier]",
+				"spokeRgNamePrefix": "[steps('SpokeVNETs').spokeRgNamePrefix]"
 			},
 			"kind": "Subscription",
 			"subscriptionId": "[steps('basics').resourceScope.subscription.id]",

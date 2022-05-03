@@ -18,6 +18,9 @@ param location string = deployment().location
 @description('Deploy Spoke VNETs')
 param deploySpokes bool = true
 
+@description('Spoke resource group prefix name')
+param spokeRgNamePrefix string = 'rg-spoke'
+
 @description('Amount of Spoke VNETs you want to deploy. Default = 2')
 param amountOfSpokes int = 2
 
@@ -68,7 +71,7 @@ module hubVnet 'HubResourceGroup.bicep' = if (deployHUB) {
 
 // Deploy Spoke VNET's including VM, Bastion Host, Route Table, Network Security group
 module spokeVnets 'SpokeResourceGroup.bicep' =  [for i in range(1, amountOfSpokes): if(deploySpokes) {
-  name: 'SpokeResourceGroup${i}-${location}'
+  name: '${spokeRgNamePrefix}${i}-${location}'
   params: {
     location: location
     counter: i
@@ -80,6 +83,7 @@ module spokeVnets 'SpokeResourceGroup.bicep' =  [for i in range(1, amountOfSpoke
     deployFirewallInHub: deployFirewallInHub
     AzureFirewallpip: deployHUB ? hubVnet.outputs.azFwIp : 'Not deployed'
     HubDeployed: deployHUB
+    spokeRgNamePrefix: spokeRgNamePrefix
   }
 }]
 

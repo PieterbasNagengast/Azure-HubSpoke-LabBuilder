@@ -11,6 +11,7 @@ param deployVMsInSpokes bool
 param deployFirewallInHub bool
 param AzureFirewallpip string
 param HubDeployed bool
+param spokeRgNamePrefix string
 
 var vnetName = 'VNET-Spoke${counter}'
 var vmName = 'VM-Spoke${counter}'
@@ -24,7 +25,7 @@ var bastionSubnetPrefix = replace(vnetAddressSpace, '0/24', '192/26')
 var firewallSubnetPrefix = replace(vnetAddressSpace, '0/24', '128/26')
 
 resource spokerg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
-  name: 'rg-Spoke${counter}-${location}'
+  name: '${spokeRgNamePrefix}${counter}'
   location: location
 }
 

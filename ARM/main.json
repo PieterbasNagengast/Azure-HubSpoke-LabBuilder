@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1272.37030",
-      "templateHash": "15334935564422022817"
+      "templateHash": "6826134522791641834"
     }
   },
   "parameters": {
@@ -42,6 +42,13 @@
       "defaultValue": true,
       "metadata": {
         "description": "Deploy Spoke VNETs"
+      }
+    },
+    "spokeRgNamePrefix": {
+      "type": "string",
+      "defaultValue": "rg-spoke",
+      "metadata": {
+        "description": "Spoke resource group prefix name"
       }
     },
     "amountOfSpokes": {
@@ -1017,7 +1024,7 @@
       },
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
-      "name": "[format('SpokeResourceGroup{0}-{1}', range(1, parameters('amountOfSpokes'))[copyIndex()], parameters('location'))]",
+      "name": "[format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[copyIndex()], parameters('location'))]",
       "location": "[deployment().location]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -1054,6 +1061,9 @@
           },
           "HubDeployed": {
             "value": "[parameters('deployHUB')]"
+          },
+          "spokeRgNamePrefix": {
+            "value": "[parameters('spokeRgNamePrefix')]"
           }
         },
         "template": {
@@ -1063,7 +1073,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1272.37030",
-              "templateHash": "8499793737280187700"
+              "templateHash": "2703914593943980219"
             }
           },
           "parameters": {
@@ -1096,6 +1106,9 @@
             },
             "HubDeployed": {
               "type": "bool"
+            },
+            "spokeRgNamePrefix": {
+              "type": "string"
             }
           },
           "variables": {
@@ -1113,14 +1126,14 @@
             {
               "type": "Microsoft.Resources/resourceGroups",
               "apiVersion": "2021-04-01",
-              "name": "[format('rg-Spoke{0}-{1}', parameters('counter'), parameters('location'))]",
+              "name": "[format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))]",
               "location": "[parameters('location')]"
             },
             {
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2020-10-01",
               "name": "[variables('vnetName')]",
-              "resourceGroup": "[format('rg-Spoke{0}-{1}', parameters('counter'), parameters('location'))]",
+              "resourceGroup": "[format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))]",
               "properties": {
                 "expressionEvaluationOptions": {
                   "scope": "inner"
@@ -1140,10 +1153,10 @@
                     "value": "[if(parameters('deployFirewallInHub'), variables('firewallSubnetPrefix'), '')]"
                   },
                   "nsgID": {
-                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-Spoke{0}-{1}', parameters('counter'), parameters('location'))), 'Microsoft.Resources/deployments', variables('nsgName'))).outputs.nsgID.value]"
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))), 'Microsoft.Resources/deployments', variables('nsgName'))).outputs.nsgID.value]"
                   },
                   "rtID": {
-                    "value": "[if(and(parameters('deployFirewallInHub'), parameters('HubDeployed')), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-Spoke{0}-{1}', parameters('counter'), parameters('location'))), 'Microsoft.Resources/deployments', variables('rtName'))).outputs.rtID.value, 'none')]"
+                    "value": "[if(and(parameters('deployFirewallInHub'), parameters('HubDeployed')), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))), 'Microsoft.Resources/deployments', variables('rtName'))).outputs.rtID.value, 'none')]"
                   },
                   "vnetname": {
                     "value": "[variables('vnetName')]"
@@ -1255,9 +1268,9 @@
                 }
               },
               "dependsOn": [
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-Spoke{0}-{1}', parameters('counter'), parameters('location'))), 'Microsoft.Resources/deployments', variables('nsgName'))]",
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-Spoke{0}-{1}', parameters('counter'), parameters('location'))), 'Microsoft.Resources/deployments', variables('rtName'))]",
-                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('rg-Spoke{0}-{1}', parameters('counter'), parameters('location')))]"
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))), 'Microsoft.Resources/deployments', variables('nsgName'))]",
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))), 'Microsoft.Resources/deployments', variables('rtName'))]",
+                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter')))]"
               ]
             },
             {
@@ -1265,7 +1278,7 @@
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2020-10-01",
               "name": "[variables('vmName')]",
-              "resourceGroup": "[format('rg-Spoke{0}-{1}', parameters('counter'), parameters('location'))]",
+              "resourceGroup": "[format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))]",
               "properties": {
                 "expressionEvaluationOptions": {
                   "scope": "inner"
@@ -1282,7 +1295,7 @@
                     "value": "[parameters('location')]"
                   },
                   "subnetID": {
-                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-Spoke{0}-{1}', parameters('counter'), parameters('location'))), 'Microsoft.Resources/deployments', variables('vnetName'))).outputs.defaultSubnetID.value]"
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))), 'Microsoft.Resources/deployments', variables('vnetName'))).outputs.defaultSubnetID.value]"
                   },
                   "vmName": {
                     "value": "[variables('vmName')]"
@@ -1467,15 +1480,15 @@
                 }
               },
               "dependsOn": [
-                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('rg-Spoke{0}-{1}', parameters('counter'), parameters('location')))]",
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-Spoke{0}-{1}', parameters('counter'), parameters('location'))), 'Microsoft.Resources/deployments', variables('vnetName'))]"
+                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter')))]",
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))), 'Microsoft.Resources/deployments', variables('vnetName'))]"
               ]
             },
             {
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2020-10-01",
               "name": "[variables('nsgName')]",
-              "resourceGroup": "[format('rg-Spoke{0}-{1}', parameters('counter'), parameters('location'))]",
+              "resourceGroup": "[format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))]",
               "properties": {
                 "expressionEvaluationOptions": {
                   "scope": "inner"
@@ -1524,7 +1537,7 @@
                 }
               },
               "dependsOn": [
-                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('rg-Spoke{0}-{1}', parameters('counter'), parameters('location')))]"
+                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter')))]"
               ]
             },
             {
@@ -1532,7 +1545,7 @@
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2020-10-01",
               "name": "bastion",
-              "resourceGroup": "[format('rg-Spoke{0}-{1}', parameters('counter'), parameters('location'))]",
+              "resourceGroup": "[format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))]",
               "properties": {
                 "expressionEvaluationOptions": {
                   "scope": "inner"
@@ -1543,7 +1556,7 @@
                     "value": "[parameters('location')]"
                   },
                   "subnetID": {
-                    "value": "[if(parameters('deployBastionInSpoke'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-Spoke{0}-{1}', parameters('counter'), parameters('location'))), 'Microsoft.Resources/deployments', variables('vnetName'))).outputs.bastionSubnetID.value, '')]"
+                    "value": "[if(parameters('deployBastionInSpoke'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))), 'Microsoft.Resources/deployments', variables('vnetName'))).outputs.bastionSubnetID.value, '')]"
                   },
                   "bastionName": {
                     "value": "[variables('bastionName')]"
@@ -1620,8 +1633,8 @@
                 }
               },
               "dependsOn": [
-                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('rg-Spoke{0}-{1}', parameters('counter'), parameters('location')))]",
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-Spoke{0}-{1}', parameters('counter'), parameters('location'))), 'Microsoft.Resources/deployments', variables('vnetName'))]"
+                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter')))]",
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))), 'Microsoft.Resources/deployments', variables('vnetName'))]"
               ]
             },
             {
@@ -1629,7 +1642,7 @@
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2020-10-01",
               "name": "[variables('rtName')]",
-              "resourceGroup": "[format('rg-Spoke{0}-{1}', parameters('counter'), parameters('location'))]",
+              "resourceGroup": "[format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))]",
               "properties": {
                 "expressionEvaluationOptions": {
                   "scope": "inner"
@@ -1689,7 +1702,7 @@
                 }
               },
               "dependsOn": [
-                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('rg-Spoke{0}-{1}', parameters('counter'), parameters('location')))]"
+                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter')))]"
               ]
             },
             {
@@ -1697,7 +1710,7 @@
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2020-10-01",
               "name": "Route",
-              "resourceGroup": "[format('rg-Spoke{0}-{1}', parameters('counter'), parameters('location'))]",
+              "resourceGroup": "[format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))]",
               "properties": {
                 "expressionEvaluationOptions": {
                   "scope": "inner"
@@ -1708,7 +1721,7 @@
                     "value": "0.0.0.0/0"
                   },
                   "routeName": {
-                    "value": "[if(and(parameters('deployFirewallInHub'), parameters('HubDeployed')), format('{0}/toInternet', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-Spoke{0}-{1}', parameters('counter'), parameters('location'))), 'Microsoft.Resources/deployments', variables('rtName'))).outputs.rtName.value), 'none')]"
+                    "value": "[if(and(parameters('deployFirewallInHub'), parameters('HubDeployed')), format('{0}/toInternet', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))), 'Microsoft.Resources/deployments', variables('rtName'))).outputs.rtName.value), 'none')]"
                   },
                   "routeNextHopIpAddress": {
                     "value": "[if(and(parameters('deployFirewallInHub'), parameters('HubDeployed')), parameters('AzureFirewallpip'), '1.2.3.4')]"
@@ -1754,23 +1767,23 @@
                 }
               },
               "dependsOn": [
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-Spoke{0}-{1}', parameters('counter'), parameters('location'))), 'Microsoft.Resources/deployments', variables('rtName'))]",
-                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('rg-Spoke{0}-{1}', parameters('counter'), parameters('location')))]"
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))), 'Microsoft.Resources/deployments', variables('rtName'))]",
+                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter')))]"
               ]
             }
           ],
           "outputs": {
             "spokeVnetID": {
               "type": "string",
-              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-Spoke{0}-{1}', parameters('counter'), parameters('location'))), 'Microsoft.Resources/deployments', variables('vnetName'))).outputs.vnetID.value]"
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))), 'Microsoft.Resources/deployments', variables('vnetName'))).outputs.vnetID.value]"
             },
             "spokeResourceGroupName": {
               "type": "string",
-              "value": "[format('rg-Spoke{0}-{1}', parameters('counter'), parameters('location'))]"
+              "value": "[format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))]"
             },
             "spokeVnetName": {
               "type": "string",
-              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('rg-Spoke{0}-{1}', parameters('counter'), parameters('location'))), 'Microsoft.Resources/deployments', variables('vnetName'))).outputs.vnetName.value]"
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))), 'Microsoft.Resources/deployments', variables('vnetName'))).outputs.vnetName.value]"
             }
           }
         }
@@ -1799,19 +1812,19 @@
             "value": "[if(and(parameters('deployHUB'), parameters('deploySpokes')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}', parameters('hubRgName'), parameters('location')))).outputs.HubResourceGroupName.value, 'No VNET peering')]"
           },
           "SpokeResourceGroupName": {
-            "value": "[if(and(parameters('deployHUB'), parameters('deploySpokes')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('SpokeResourceGroup{0}-{1}', range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]], parameters('location')))).outputs.spokeResourceGroupName.value, 'No peering')]"
+            "value": "[if(and(parameters('deployHUB'), parameters('deploySpokes')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]], parameters('location')))).outputs.spokeResourceGroupName.value, 'No peering')]"
           },
           "HubVnetName": {
             "value": "[if(and(parameters('deployHUB'), parameters('deploySpokes')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}', parameters('hubRgName'), parameters('location')))).outputs.hubVnetName.value, 'No VNET peering')]"
           },
           "SpokeVnetID": {
-            "value": "[if(and(parameters('deployHUB'), parameters('deploySpokes')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('SpokeResourceGroup{0}-{1}', range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]], parameters('location')))).outputs.spokeVnetID.value, 'No VNET peering')]"
+            "value": "[if(and(parameters('deployHUB'), parameters('deploySpokes')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]], parameters('location')))).outputs.spokeVnetID.value, 'No VNET peering')]"
           },
           "HubVnetID": {
             "value": "[if(and(parameters('deployHUB'), parameters('deploySpokes')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}', parameters('hubRgName'), parameters('location')))).outputs.hubVnetID.value, 'No VNET peering')]"
           },
           "SpokeVnetName": {
-            "value": "[if(and(parameters('deployHUB'), parameters('deploySpokes')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('SpokeResourceGroup{0}-{1}', range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]], parameters('location')))).outputs.spokeVnetName.value, 'No VNET peering')]"
+            "value": "[if(and(parameters('deployHUB'), parameters('deploySpokes')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]], parameters('location')))).outputs.spokeVnetName.value, 'No VNET peering')]"
           },
           "counter": {
             "value": "[range(0, parameters('amountOfSpokes'))[copyIndex()]]"
@@ -2010,9 +2023,9 @@
       },
       "dependsOn": [
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}', parameters('hubRgName'), parameters('location')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('SpokeResourceGroup{0}-{1}', range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]], parameters('location')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('SpokeResourceGroup{0}-{1}', range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]], parameters('location')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('SpokeResourceGroup{0}-{1}', range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]], parameters('location')))]"
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]], parameters('location')))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]], parameters('location')))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]], parameters('location')))]"
       ]
     }
   ],
@@ -2029,7 +2042,7 @@
       "type": "array",
       "copy": {
         "count": "[length(range(0, parameters('amountOfSpokes')))]",
-        "input": "[if(parameters('deploySpokes'), createObject('SpokeVnetId', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('SpokeResourceGroup{0}-{1}', range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]], parameters('location')))).outputs.spokeVnetID.value), 'none')]"
+        "input": "[if(parameters('deploySpokes'), createObject('SpokeVnetId', reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]], parameters('location')))).outputs.spokeVnetID.value), 'none')]"
       }
     }
   }
