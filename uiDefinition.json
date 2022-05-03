@@ -118,6 +118,17 @@
 								]
 							},
 							"visible": "[equals(steps('HubVNET').deployHUB,true)]"
+						},
+						{
+							"name": "deployFirewallrules",
+							"type": "Microsoft.Common.CheckBox",
+							"label": "Deploy Firewall policy rules",
+							"defaultValue": false,
+							"toolTip": "Deploy Firewall policy Rule Collection group which allows spoke-to-spoke and internet traffic",
+							"constraints": {
+								"required": false
+							},
+							"visible": "[equals(steps('HubVNET').deployHUB,true)]"
 						}
 					]
 				},
@@ -265,7 +276,8 @@
 				"deployVMinHub": "[steps('HubVNET').deployVMinHub]",
 				"deployFirewallInHub": "[steps('HubVNET').deployFirewallInHub]",
 				"AzureFirewallTier": "[steps('HubVNET').AzureFirewallTier]",
-				"spokeRgNamePrefix": "[steps('SpokeVNETs').spokeRgNamePrefix]"
+				"spokeRgNamePrefix": "[steps('SpokeVNETs').spokeRgNamePrefix]",
+				"deployFirewallrules": "[steps('HubVNET').deployFirewallrules]"
 			},
 			"kind": "Subscription",
 			"subscriptionId": "[steps('basics').resourceScope.subscription.id]",

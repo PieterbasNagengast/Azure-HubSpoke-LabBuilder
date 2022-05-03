@@ -10,6 +10,7 @@ param deployVMinHub bool
 param deployFirewallInHub bool
 param AzureFirewallTier string
 param hubRgName string
+param deployFirewallrules bool
 
 var vmName = 'VM-Hub'
 var vnetAddressSpace = replace(AddressSpace,'/16', '/24')
@@ -83,6 +84,15 @@ module firewall 'modules/firewall.bicep' = if (deployFirewallInHub) {
     firewallName: firewallName
     azfwsubnetid: deployFirewallInHub ? vnet.outputs.firewallSubnetID : ''
     azfwTier: AzureFirewallTier
+  }
+}
+
+module firewallrules 'modules/firewallpolicyrules.bicep' = if (deployFirewallrules && deployFirewallInHub) {
+  scope: hubrg
+  name:'firewallRules'
+  params: {
+    azFwPolicyName: deployFirewallInHub && deployFirewallrules ? firewall.outputs.azFwPolicyName : ''
+    AddressSpace: AddressSpace
   }
 }
 

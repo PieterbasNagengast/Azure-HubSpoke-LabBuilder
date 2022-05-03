@@ -25,7 +25,7 @@ param spokeRgNamePrefix string = 'rg-spoke'
 param amountOfSpokes int = 2
 
 @description('Deploy VM in every Spoke VNET')
-param deployVMsInSpokes bool = true
+param deployVMsInSpokes bool = false
 
 @description('Deploy Bastion Host in every Spoke VNET')
 param deployBastionInSpoke bool = false
@@ -51,7 +51,10 @@ param deployFirewallInHub bool = true
   'Standard'
   'Premium'
 ])
-param AzureFirewallTier string = 'Premium'
+param AzureFirewallTier string = 'Standard'
+
+@description('Deploy Firewall policy Rule Collection group which allows spoke-to-spoke and internet traffic')
+param deployFirewallrules bool = false
 
 // Deploy Hub VNET including VM, Bastion Host, Route Table, Network Security group and Azure Firewall
 module hubVnet 'HubResourceGroup.bicep' = if (deployHUB) {
@@ -66,6 +69,7 @@ module hubVnet 'HubResourceGroup.bicep' = if (deployHUB) {
     deployFirewallInHub: deployFirewallInHub
     AzureFirewallTier: AzureFirewallTier
     hubRgName: hubRgName
+    deployFirewallrules: deployFirewallrules
   }
 }
 

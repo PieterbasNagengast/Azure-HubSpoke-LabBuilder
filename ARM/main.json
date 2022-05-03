@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1272.37030",
-      "templateHash": "9784522941350742535"
+      "templateHash": "13851796152015206897"
     }
   },
   "parameters": {
@@ -60,7 +60,7 @@
     },
     "deployVMsInSpokes": {
       "type": "bool",
-      "defaultValue": true,
+      "defaultValue": false,
       "metadata": {
         "description": "Deploy VM in every Spoke VNET"
       }
@@ -109,13 +109,20 @@
     },
     "AzureFirewallTier": {
       "type": "string",
-      "defaultValue": "Premium",
+      "defaultValue": "Standard",
       "allowedValues": [
         "Standard",
         "Premium"
       ],
       "metadata": {
         "description": "Azure Firewall Tier: Standard or Premium"
+      }
+    },
+    "deployFirewallrules": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Deploy Firewall policy Rule Collection group which allows spoke-to-spoke and internet traffic"
       }
     }
   },
@@ -158,6 +165,9 @@
           },
           "hubRgName": {
             "value": "[parameters('hubRgName')]"
+          },
+          "deployFirewallrules": {
+            "value": "[parameters('deployFirewallrules')]"
           }
         },
         "template": {
@@ -167,7 +177,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1272.37030",
-              "templateHash": "11724256129112548495"
+              "templateHash": "10805625902433361196"
             }
           },
           "parameters": {
@@ -197,6 +207,9 @@
             },
             "hubRgName": {
               "type": "string"
+            },
+            "deployFirewallrules": {
+              "type": "bool"
             }
           },
           "variables": {
@@ -761,7 +774,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1272.37030",
-                      "templateHash": "3761882121399756366"
+                      "templateHash": "17732112070604624765"
                     }
                   },
                   "parameters": {
@@ -850,6 +863,10 @@
                     "azFwIP": {
                       "type": "string",
                       "value": "[reference(resourceId('Microsoft.Network/azureFirewalls', parameters('firewallName'))).ipConfigurations[0].properties.privateIPAddress]"
+                    },
+                    "azFwPolicyName": {
+                      "type": "string",
+                      "value": "[variables('firewallPolicyName')]"
                     }
                   }
                 }
@@ -857,6 +874,128 @@
               "dependsOn": [
                 "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('hubRgName'))]",
                 "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'hubvnet')]"
+              ]
+            },
+            {
+              "condition": "[and(parameters('deployFirewallrules'), parameters('deployFirewallInHub'))]",
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2020-10-01",
+              "name": "firewallRules",
+              "resourceGroup": "[parameters('hubRgName')]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "azFwPolicyName": {
+                    "value": "[if(and(parameters('deployFirewallInHub'), parameters('deployFirewallrules')), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'hubFirewall')).outputs.azFwPolicyName.value, '')]"
+                  },
+                  "AddressSpace": {
+                    "value": "[parameters('AddressSpace')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.4.1272.37030",
+                      "templateHash": "2163297474746570044"
+                    }
+                  },
+                  "parameters": {
+                    "azFwPolicyName": {
+                      "type": "string"
+                    },
+                    "ruleCollectiongroupName": {
+                      "type": "string",
+                      "defaultValue": "HubSpokeLabBuilderCollectionGroup"
+                    },
+                    "AddressSpace": {
+                      "type": "string"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Network/firewallPolicies/ruleCollectionGroups",
+                      "apiVersion": "2021-05-01",
+                      "name": "[format('{0}/{1}', parameters('azFwPolicyName'), parameters('ruleCollectiongroupName'))]",
+                      "properties": {
+                        "priority": 400,
+                        "ruleCollections": [
+                          {
+                            "name": "NetworkRules",
+                            "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                            "action": {
+                              "type": "Allow"
+                            },
+                            "priority": 100,
+                            "rules": [
+                              {
+                                "name": "AllowLocalTraffic",
+                                "ruleType": "NetworkRule",
+                                "sourceAddresses": [
+                                  "[parameters('AddressSpace')]"
+                                ],
+                                "destinationAddresses": [
+                                  "[parameters('AddressSpace')]"
+                                ],
+                                "ipProtocols": [
+                                  "Any"
+                                ],
+                                "destinationPorts": [
+                                  "*"
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "name": "ApplicationRules",
+                            "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                            "action": {
+                              "type": "Allow"
+                            },
+                            "priority": 200,
+                            "rules": [
+                              {
+                                "name": "AllowHttpHttps",
+                                "ruleType": "ApplicationRule",
+                                "sourceAddresses": [
+                                  "[parameters('AddressSpace')]"
+                                ],
+                                "sourceIpGroups": [],
+                                "destinationAddresses": [],
+                                "terminateTLS": false,
+                                "fqdnTags": [],
+                                "webCategories": [],
+                                "targetUrls": [],
+                                "targetFqdns": [
+                                  "*"
+                                ],
+                                "protocols": [
+                                  {
+                                    "protocolType": "Http",
+                                    "port": 80
+                                  },
+                                  {
+                                    "protocolType": "Https",
+                                    "port": 443
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              },
+              "dependsOn": [
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'hubFirewall')]",
+                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('hubRgName'))]"
               ]
             },
             {
@@ -1837,7 +1976,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1272.37030",
-              "templateHash": "12126472096354939116"
+              "templateHash": "5606406182668930178"
             }
           },
           "parameters": {
@@ -1876,7 +2015,7 @@
                 "mode": "Incremental",
                 "parameters": {
                   "peeringName": {
-                    "value": "[format('{0}/peeringToSpoke{1}', parameters('HubVnetName'), parameters('counter'))]"
+                    "value": "[format('{0}/peeringToSpoke{1}', parameters('HubVnetName'), add(parameters('counter'), 1))]"
                   },
                   "remoteVnetID": {
                     "value": "[parameters('SpokeVnetID')]"
@@ -1953,7 +2092,7 @@
                 "mode": "Incremental",
                 "parameters": {
                   "peeringName": {
-                    "value": "[format('{0}/peeringToHub{1}', parameters('SpokeVnetName'), parameters('counter'))]"
+                    "value": "[format('{0}/peeringToHub{1}', parameters('SpokeVnetName'), add(parameters('counter'), 1))]"
                   },
                   "remoteVnetID": {
                     "value": "[parameters('HubVnetID')]"

@@ -15,7 +15,7 @@ module peeringToSpoke 'modules/vnetpeeering.bicep' = {
   scope: hubrg
   name: 'peeringToSpoke${counter+1}'
   params: {
-    peeringName: '${HubVnetName}/peeringToSpoke${counter}'
+    peeringName: '${HubVnetName}/peeringToSpoke${counter+1}'
     remoteVnetID: SpokeVnetID
     useRemoteGateways: false
     allowGatewayTransit: false
@@ -30,7 +30,7 @@ module peeringToHub 'modules/vnetpeeering.bicep' = {
   scope: spokerg
   name: 'peeringToHub${counter+1}'
   params: {
-    peeringName: '${SpokeVnetName}/peeringToHub${counter}'
+    peeringName: '${SpokeVnetName}/peeringToHub${counter+1}'
     remoteVnetID: HubVnetID
     useRemoteGateways: false 
     allowGatewayTransit: false
