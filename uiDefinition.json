@@ -47,7 +47,7 @@
 							"visible": true
 						},
 						{
-							"name": "HubPrefixRgName",
+							"name": "hubRgName",
 							"type": "Microsoft.Common.TextBox",
 							"label": "Hub Resource Group Name",
 							"defaultValue": "rg-hub",
@@ -245,7 +245,7 @@
 				"deployVMinHub": "[steps('HubVNET').deployVMinHub]",
 				"deployFirewallInHub": "[steps('HubVNET').deployFirewallInHub]",
 				"AzureFirewallTier": "[steps('HubVNET').AzureFirewallTier]",
-				"hubPrefixRgName": "[steps('HubVNET').HubPrefixRgName]"
+				"hubRgName": "[steps('HubVNET').hubRgName]"
 			},
 			"kind": "Subscription",
 			"subscriptionId": "[steps('basics').resourceScope.subscription.id]",

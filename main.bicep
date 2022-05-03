@@ -32,7 +32,7 @@ param deployBastionInSpoke bool = false
 param deployHUB bool = true
 
 @description('Hub resource group pre-fix name')
-param hubPrefixRgName string
+param hubRgName string = 'rg-hub'
 
 @description('Deploy Bastion Host in Hub VNET')
 param deployBastionInHub bool = true
@@ -62,7 +62,7 @@ module hubVnet 'HubResourceGroup.bicep' = if (deployHUB) {
     deployVMinHub: deployVMinHub
     deployFirewallInHub: deployFirewallInHub
     AzureFirewallTier: AzureFirewallTier
-    hubPrefixRgName: hubPrefixRgName
+    hubRgName: hubRgName
   }
 }
 

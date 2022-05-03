@@ -9,7 +9,7 @@ param adminPassword string
 param deployVMinHub bool
 param deployFirewallInHub bool
 param AzureFirewallTier string
-param hubPrefixRgName string
+param hubRgName string
 
 var vmName = 'VM-Hub'
 var vnetAddressSpace = '${startAddressSpace}0.0/24'
@@ -21,7 +21,6 @@ var bastionName = 'Bastion-Hub'
 var rtName = 'RT-Hub'
 var hubVnetName = 'VNET-Hub'
 var firewallName = 'Firewall-Hub'
-var hubRgName = '${hubPrefixRgName}-${location}'
 
 resource hubrg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   name: hubRgName
