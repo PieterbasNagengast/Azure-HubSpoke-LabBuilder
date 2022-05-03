@@ -1,7 +1,7 @@
 targetScope = 'subscription'
 
 param location string
-param startAddressSpace string
+param AddressSpace string
 param deployBastionInHub bool
 param adminUsername string
 @secure()
@@ -12,7 +12,7 @@ param AzureFirewallTier string
 param hubRgName string
 
 var vmName = 'VM-Hub'
-var vnetAddressSpace = '${startAddressSpace}0.0/24'
+var vnetAddressSpace = replace(AddressSpace,'/16', '/24')
 var defaultSubnetPrefix = replace(vnetAddressSpace, '/24', '/25')
 var bastionSubnetPrefix = replace(vnetAddressSpace, '0/24', '192/26')
 var firewallSubnetPrefix = replace(vnetAddressSpace, '0/24', '128/26')

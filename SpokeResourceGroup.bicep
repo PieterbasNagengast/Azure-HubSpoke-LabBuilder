@@ -1,7 +1,7 @@
 targetScope = 'subscription'
 
 param location string
-param startAddressSpace string
+param AddressSpace string
 param counter int
 param deployBastionInSpoke bool
 param adminUsername string
@@ -19,7 +19,7 @@ var rtName = 'RT-Spoke${counter}'
 var nsgName = 'NSG-Spoke${counter}'
 var bastionName = 'Bastion-Spoke${counter}'
 
-var vnetAddressSpace = '${startAddressSpace}${counter}.0/24'
+var vnetAddressSpace = replace(AddressSpace,'0.0/16', '${counter}.0/24')
 var defaultSubnetPrefix = replace(vnetAddressSpace, '/24', '/25')
 var bastionSubnetPrefix = replace(vnetAddressSpace, '0/24', '192/26')
 var firewallSubnetPrefix = replace(vnetAddressSpace, '0/24', '128/26')

@@ -8,8 +8,8 @@ param adminUsername string = ''
 @secure()
 param adminPassword string = ''
 
-@description('IP Address space used for VNETs in deployment. Only enter the two first octets of a /16 subnet. Default = 172.16.  ')
-param startAddressSpace string = '172.16.'
+@description('IP Address space used for VNETs in deployment. Only enter a /16 subnet. Default = 172.16.0.0/16')
+param AddressSpace string = '172.16.0.0/16'
 
 @description('Azure Region. Defualt = Deployment location')
 param location string = deployment().location
@@ -59,7 +59,7 @@ module hubVnet 'HubResourceGroup.bicep' = if (deployHUB) {
   params: {
     deployBastionInHub: deployBastionInHub
     location: location
-    startAddressSpace: startAddressSpace
+    AddressSpace: AddressSpace
     adminPassword: adminPassword
     adminUsername: adminUsername
     deployVMinHub: deployVMinHub
@@ -75,7 +75,7 @@ module spokeVnets 'SpokeResourceGroup.bicep' =  [for i in range(1, amountOfSpoke
   params: {
     location: location
     counter: i
-    startAddressSpace: startAddressSpace
+    AddressSpace: AddressSpace
     deployBastionInSpoke: deployBastionInSpoke
     adminPassword: adminPassword
     adminUsername: adminUsername

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1272.37030",
-      "templateHash": "6826134522791641834"
+      "templateHash": "16481565964909012871"
     }
   },
   "parameters": {
@@ -23,11 +23,11 @@
         "description": "Admin Password for VM"
       }
     },
-    "startAddressSpace": {
+    "AddressSpace": {
       "type": "string",
-      "defaultValue": "172.16.",
+      "defaultValue": "172.16.0.0/16",
       "metadata": {
-        "description": "IP Address space used for VNETs in deployment. Only enter the two first octets of a /16 subnet. Default = 172.16.  "
+        "description": "IP Address space used for VNETs in deployment. Only enter a /16 subnet. Default = 172.16.0.0/16"
       }
     },
     "location": {
@@ -138,8 +138,8 @@
           "location": {
             "value": "[parameters('location')]"
           },
-          "startAddressSpace": {
-            "value": "[parameters('startAddressSpace')]"
+          "AddressSpace": {
+            "value": "[parameters('AddressSpace')]"
           },
           "adminPassword": {
             "value": "[parameters('adminPassword')]"
@@ -167,14 +167,14 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1272.37030",
-              "templateHash": "9571542178833132562"
+              "templateHash": "11724256129112548495"
             }
           },
           "parameters": {
             "location": {
               "type": "string"
             },
-            "startAddressSpace": {
+            "AddressSpace": {
               "type": "string"
             },
             "deployBastionInHub": {
@@ -201,7 +201,7 @@
           },
           "variables": {
             "vmName": "VM-Hub",
-            "vnetAddressSpace": "[format('{0}0.0/24', parameters('startAddressSpace'))]",
+            "vnetAddressSpace": "[replace(parameters('AddressSpace'), '/16', '/24')]",
             "defaultSubnetPrefix": "[replace(variables('vnetAddressSpace'), '/24', '/25')]",
             "bastionSubnetPrefix": "[replace(variables('vnetAddressSpace'), '0/24', '192/26')]",
             "firewallSubnetPrefix": "[replace(variables('vnetAddressSpace'), '0/24', '128/26')]",
@@ -1038,8 +1038,8 @@
           "counter": {
             "value": "[range(1, parameters('amountOfSpokes'))[copyIndex()]]"
           },
-          "startAddressSpace": {
-            "value": "[parameters('startAddressSpace')]"
+          "AddressSpace": {
+            "value": "[parameters('AddressSpace')]"
           },
           "deployBastionInSpoke": {
             "value": "[parameters('deployBastionInSpoke')]"
@@ -1073,14 +1073,14 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1272.37030",
-              "templateHash": "2703914593943980219"
+              "templateHash": "7652751703969853906"
             }
           },
           "parameters": {
             "location": {
               "type": "string"
             },
-            "startAddressSpace": {
+            "AddressSpace": {
               "type": "string"
             },
             "counter": {
@@ -1117,7 +1117,7 @@
             "rtName": "[format('RT-Spoke{0}', parameters('counter'))]",
             "nsgName": "[format('NSG-Spoke{0}', parameters('counter'))]",
             "bastionName": "[format('Bastion-Spoke{0}', parameters('counter'))]",
-            "vnetAddressSpace": "[format('{0}{1}.0/24', parameters('startAddressSpace'), parameters('counter'))]",
+            "vnetAddressSpace": "[replace(parameters('AddressSpace'), '0.0/16', format('{0}.0/24', parameters('counter')))]",
             "defaultSubnetPrefix": "[replace(variables('vnetAddressSpace'), '/24', '/25')]",
             "bastionSubnetPrefix": "[replace(variables('vnetAddressSpace'), '0/24', '192/26')]",
             "firewallSubnetPrefix": "[replace(variables('vnetAddressSpace'), '0/24', '128/26')]"
