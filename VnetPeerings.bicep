@@ -13,7 +13,7 @@ resource hubrg 'Microsoft.Resources/resourceGroups@2021-04-01' existing = {
 
 module peeringToSpoke 'modules/vnetpeeering.bicep' = {
   scope: hubrg
-  name: 'peeringToSpoke${counter}'
+  name: 'peeringToSpoke${counter+1}'
   params: {
     peeringName: '${HubVnetName}/peeringToSpoke${counter}'
     remoteVnetID: SpokeVnetID
@@ -28,7 +28,7 @@ resource spokerg 'Microsoft.Resources/resourceGroups@2021-04-01' existing = {
 
 module peeringToHub 'modules/vnetpeeering.bicep' = {
   scope: spokerg
-  name: 'peeringToHub${counter}'
+  name: 'peeringToHub${counter+1}'
   params: {
     peeringName: '${SpokeVnetName}/peeringToHub${counter}'
     remoteVnetID: HubVnetID

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1272.37030",
-      "templateHash": "16481565964909012871"
+      "templateHash": "9784522941350742535"
     }
   },
   "parameters": {
@@ -1837,7 +1837,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1272.37030",
-              "templateHash": "7932880491642064987"
+              "templateHash": "12126472096354939116"
             }
           },
           "parameters": {
@@ -1867,7 +1867,7 @@
             {
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2020-10-01",
-              "name": "[format('peeringToSpoke{0}', parameters('counter'))]",
+              "name": "[format('peeringToSpoke{0}', add(parameters('counter'), 1))]",
               "resourceGroup": "[parameters('HubResourceGroupName')]",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -1944,7 +1944,7 @@
             {
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2020-10-01",
-              "name": "[format('peeringToHub{0}', parameters('counter'))]",
+              "name": "[format('peeringToHub{0}', add(parameters('counter'), 1))]",
               "resourceGroup": "[parameters('SpokeResourceGroupName')]",
               "properties": {
                 "expressionEvaluationOptions": {
