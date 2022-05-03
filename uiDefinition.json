@@ -38,7 +38,7 @@
 						{
 							"name": "deployHUB",
 							"type": "Microsoft.Common.CheckBox",
-							"label": "Deploy HUB",
+							"label": "Deploy Hub",
 							"defaultValue": true,
 							"toolTip": "Deploy Hub VNET",
 							"constraints": {
@@ -49,7 +49,7 @@
 						{
 							"name": "HubPrefixRgName",
 							"type": "Microsoft.Common.TextBox",
-							"label": "Name",
+							"label": "Hub Resource Group Name",
 							"defaultValue": "rg-hub",
 							"toolTip": "Use only allowed characters",
 							"placeholder": "",
