@@ -241,11 +241,11 @@
 				"deployVMsInSpokes": "[steps('SpokeVNETs').deployVMsInSpokes]",
 				"deployBastionInSpoke": "[steps('SpokeVNETs').deployBastionInSpoke]",
 				"deployHUB": "[steps('HubVNET').deployHUB]",
+				"hubRgName": "[steps('HubVNET').hubRgName]",
 				"deployBastionInHub": "[steps('HubVNET').deployBastionInHub]",
 				"deployVMinHub": "[steps('HubVNET').deployVMinHub]",
 				"deployFirewallInHub": "[steps('HubVNET').deployFirewallInHub]",
-				"AzureFirewallTier": "[steps('HubVNET').AzureFirewallTier]",
-				"hubRgName": "[steps('HubVNET').hubRgName]"
+				"AzureFirewallTier": "[steps('HubVNET').AzureFirewallTier]"
 			},
 			"kind": "Subscription",
 			"subscriptionId": "[steps('basics').resourceScope.subscription.id]",
