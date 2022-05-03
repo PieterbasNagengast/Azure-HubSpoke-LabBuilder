@@ -77,17 +77,6 @@
 							"visible": "[equals(steps('HubVNET').deployHUB,true)]"
 						},
 						{
-							"name": "deployVMinHub",
-							"type": "Microsoft.Common.CheckBox",
-							"label": "Deploy VM in Hub",
-							"defaultValue": false,
-							"toolTip": "Deploy VM in Hub VNET",
-							"constraints": {
-								"required": false
-							},
-							"visible": "[equals(steps('HubVNET').deployHUB,true)]"
-						},
-						{
 							"name": "deployFirewallInHub",
 							"type": "Microsoft.Common.CheckBox",
 							"label": "Deploy Firewall In Hub",
@@ -182,17 +171,6 @@
 							"visible": "[equals(steps('SpokeVNETs').deploySpokes,true)]"
 						},
 						{
-							"name": "deployVMsInSpokes",
-							"type": "Microsoft.Common.CheckBox",
-							"label": "Deploy VM's In Spokes",
-							"defaultValue": false,
-							"toolTip": "Deploy VM in every Spoke VNET",
-							"constraints": {
-								"required": false
-							},
-							"visible": "[equals(steps('SpokeVNETs').deploySpokes,true)]"
-						},
-						{
 							"name": "deployBastionInSpoke",
 							"type": "Microsoft.Common.CheckBox",
 							"label": "Deploy Bastion In Spoke",
@@ -206,17 +184,30 @@
 					]
 				},
 				{
-					"name": "VMUserAccount",
-					"label": "VM User Account",
+					"name": "VirtualMachines",
+					"label": "Virtual Machines",
 					"elements": [
 						{
-							"name": "VMUserAccountWarning",
-							"type": "Microsoft.Common.InfoBox",
-							"options": {
-								"text": "No Virtual machine selected to be deployed in Hub or Spoke(s). No need to enter crednetials...",
-								"style": "Warning"
+							"name": "deployVMinHub",
+							"type": "Microsoft.Common.CheckBox",
+							"label": "Deploy VM in Hub",
+							"defaultValue": false,
+							"toolTip": "Deploy VM in Hub VNET",
+							"constraints": {
+								"required": false
 							},
-							"visible": "[and(equals(steps('SpokeVNETs').deployVMsInSpokes,false),equals(steps('HubVNET').deployVMinHub,false))]"
+							"visible": true
+						},
+						{
+							"name": "deployVMsInSpokes",
+							"type": "Microsoft.Common.CheckBox",
+							"label": "Deploy VM's In Spokes",
+							"defaultValue": false,
+							"toolTip": "Deploy VM in every Spoke VNET",
+							"constraints": {
+								"required": false
+							},
+							"visible": true
 						},
 						{
 							"name": "VMUserAccountInfo",
@@ -225,7 +216,7 @@
 								"text": "Enter Local Admin Username and Password for Virtual Machine deployement.",
 								"style": "Info"
 							},
-							"visible": "[or(equals(steps('SpokeVNETs').deployVMsInSpokes,true),equals(steps('HubVNET').deployVMinHub,true))]"
+							"visible": "[or(equals(steps('VirtualMachines').deployVMsInSpokes,true),equals(steps('VirtualMachines').deployVMinHub,true))]"
 						},
 						{
 							"name": "adminUsername",
@@ -236,7 +227,7 @@
 							"constraints": {
 								"required": true
 							},
-							"visible": "[or(equals(steps('SpokeVNETs').deployVMsInSpokes,true),equals(steps('HubVNET').deployVMinHub,true))]"
+							"visible": "[or(equals(steps('VirtualMachines').deployVMsInSpokes,true),equals(steps('VirtualMachines').deployVMinHub,true))]"
 						},
 						{
 							"name": "adminPassword",
@@ -255,7 +246,7 @@
 							"options": {
 								"hideConfirmation": false
 							},
-							"visible": "[or(equals(steps('SpokeVNETs').deployVMsInSpokes,true),equals(steps('HubVNET').deployVMinHub,true))]"
+							"visible": "[or(equals(steps('VirtualMachines').deployVMsInSpokes,true),equals(steps('VirtualMachines').deployVMinHub,true))]"
 						}
 					]
 				}
@@ -263,17 +254,17 @@
 		},
 		"outputs": {
 			"parameters": {
-				"adminUsername": "[steps('VMUserAccount').adminUsername]",
-				"adminPassword": "[steps('VMUserAccount').adminPassword.password]",
+				"adminUsername": "[steps('VirtualMachines').adminUsername]",
+				"adminPassword": "[steps('VirtualMachines').adminPassword.password]",
 				"AddressSpace": "[steps('basics').AddressSpace]",
 				"deploySpokes": "[steps('SpokeVNETs').deploySpokes]",
 				"amountOfSpokes": "[steps('SpokeVNETs').amountOfSpokes]",
-				"deployVMsInSpokes": "[steps('SpokeVNETs').deployVMsInSpokes]",
+				"deployVMsInSpokes": "[steps('VirtualMachines').deployVMsInSpokes]",
 				"deployBastionInSpoke": "[steps('SpokeVNETs').deployBastionInSpoke]",
 				"deployHUB": "[steps('HubVNET').deployHUB]",
 				"hubRgName": "[steps('HubVNET').hubRgName]",
 				"deployBastionInHub": "[steps('HubVNET').deployBastionInHub]",
-				"deployVMinHub": "[steps('HubVNET').deployVMinHub]",
+				"deployVMinHub": "[steps('VirtualMachines').deployVMinHub]",
 				"deployFirewallInHub": "[steps('HubVNET').deployFirewallInHub]",
 				"AzureFirewallTier": "[steps('HubVNET').AzureFirewallTier]",
 				"spokeRgNamePrefix": "[steps('SpokeVNETs').spokeRgNamePrefix]",
