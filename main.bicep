@@ -52,7 +52,7 @@ param AzureFirewallTier string = 'Premium'
 
 // Deploy Hub VNET including VM, Bastion Host, Route Table, Network Security group and Azure Firewall
 module hubVnet 'HubResourceGroup.bicep' = if (deployHUB) {
-  name: hubRgName
+  name: '${hubRgName}-${location}'
   params: {
     deployBastionInHub: deployBastionInHub
     location: location
