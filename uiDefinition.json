@@ -117,7 +117,7 @@
 									}
 								]
 							},
-							"visible": "[equals(steps('HubVNET').deployHUB,true)]"
+							"visible": "[and(equals(steps('HubVNET').deployHUB,true),equals(steps('HubVNET').deployFirewallInHub,true))]"
 						},
 						{
 							"name": "deployFirewallrules",
@@ -128,7 +128,7 @@
 							"constraints": {
 								"required": false
 							},
-							"visible": "[equals(steps('HubVNET').deployHUB,true)]"
+							"visible": "[and(equals(steps('HubVNET').deployHUB,true),equals(steps('HubVNET').deployFirewallInHub,true))]"
 						}
 					]
 				},
