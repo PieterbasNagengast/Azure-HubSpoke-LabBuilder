@@ -2,12 +2,14 @@ param location string
 param vnetname string
 param vnetAddressSpcae string
 param defaultSubnetPrefix string
-param bastionSubnetPrefix string
-param firewallSubnetPrefix string
+param bastionSubnetPrefix string = ''
+param firewallSubnetPrefix string = ''
+param GatewaySubnetPrefix string = ''
 param nsgID string
-param rtID string
-param deployBastionSubnet bool
+param rtID string = 'none'
+param deployBastionSubnet bool = false
 param deployFirewallSubnet bool = false
+param deployGatewaySubnet bool = false
 
 var defaultSubnet = [
   {
@@ -40,6 +42,15 @@ var firewallSubnet = !deployFirewallSubnet ? [] : [
   }
 ]
 
+var gatewaySubnet = !deployGatewaySubnet ? [] : [
+  {
+    name: 'GatewaySubnet'
+    properties: {
+      addressPrefix: GatewaySubnetPrefix
+    }
+  }
+]
+
 resource vnet 'Microsoft.Network/virtualNetworks@2021-05-01' = {
   name: vnetname
   location: location
@@ -49,12 +60,13 @@ resource vnet 'Microsoft.Network/virtualNetworks@2021-05-01' = {
         vnetAddressSpcae
       ]
     }
-    subnets: concat(defaultSubnet, bastionSubnet, firewallSubnet)
+    subnets: concat(defaultSubnet, bastionSubnet, firewallSubnet, gatewaySubnet)
   }
 }
 
 output vnetName string = vnet.name
 output vnetID string = vnet.id
 output defaultSubnetID string = vnet.properties.subnets[0].id
-output bastionSubnetID string = deployBastionSubnet ? vnet.properties.subnets[1].id : 'Not deployed' 
-output firewallSubnetID string = deployFirewallSubnet && !deployBastionSubnet ? vnet.properties.subnets[1].id : deployBastionSubnet && deployBastionSubnet ? vnet.properties.subnets[2].id  : 'Not deployed'
+output bastionSubnetID string = deployBastionSubnet ? resourceId('Microsoft.Network/VirtualNetworks/subnets',vnetname,'AzureBastionSubnet'): 'Not deployed' 
+output firewallSubnetID string = deployFirewallSubnet ? resourceId('Microsoft.Network/VirtualNetworks/subnets',vnetname,'AzureFirewallSubnet'): 'Not deployed' 
+output gatewaySubnetID string = deployGatewaySubnet ? resourceId('Microsoft.Network/VirtualNetworks/subnets',vnetname,'GatewaySubnet'): 'Not deployed' 

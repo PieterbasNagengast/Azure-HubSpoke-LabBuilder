@@ -55,22 +55,33 @@
 							"placeholder": "",
 							"multiLine": false,
 							"constraints": {
-							  "required": true,
-							  "validations": [
-								{
-								  "regex": "^[a-zA-Z0-9_\\-\\.]+$",
-								  "message": "Only alphanumeric and numeric characters are allowed including symbols like: _ and . and -"
-								}
-							  ]
+								"required": true,
+								"validations": [
+									{
+										"regex": "^[a-zA-Z0-9_\\-\\.]+$",
+										"message": "Only alphanumeric and numeric characters are allowed including symbols like: _ and . and -"
+									}
+								]
 							},
 							"visible": "[equals(steps('HubVNET').deployHUB,true)]"
-						  },
+						},
 						{
 							"name": "deployBastionInHub",
 							"type": "Microsoft.Common.CheckBox",
 							"label": "Deploy Bastion In Hub",
 							"defaultValue": false,
 							"toolTip": "Deploy Bastion Host in Hub VNET",
+							"constraints": {
+								"required": false
+							},
+							"visible": "[equals(steps('HubVNET').deployHUB,true)]"
+						},
+						{
+							"name": "deployGatewayInHub",
+							"type": "Microsoft.Common.CheckBox",
+							"label": "Deploy Virtual Network Gateway In Hub",
+							"defaultValue": false,
+							"toolTip": "Deploy Virtual Network Gateway in Hub VNET",
 							"constraints": {
 								"required": false
 							},
@@ -145,16 +156,16 @@
 							"placeholder": "",
 							"multiLine": false,
 							"constraints": {
-							  "required": true,
-							  "validations": [
-								{
-								  "regex": "^[a-zA-Z0-9_\\-\\.]+$",
-								  "message": "Only alphanumeric and numeric characters are allowed including symbols like: _ and . and -"
-								}
-							  ]
+								"required": true,
+								"validations": [
+									{
+										"regex": "^[a-zA-Z0-9_\\-\\.]+$",
+										"message": "Only alphanumeric and numeric characters are allowed including symbols like: _ and . and -"
+									}
+								]
 							},
 							"visible": "[equals(steps('SpokeVNETs').deploySpokes,true)]"
-						  },
+						},
 						{
 							"name": "amountOfSpokes",
 							"type": "Microsoft.Common.Slider",
@@ -180,6 +191,84 @@
 								"required": false
 							},
 							"visible": "[equals(steps('SpokeVNETs').deploySpokes,true)]"
+						}
+					]
+				},
+				{
+					"name": "OnPrem",
+					"label": "Simulate OnPrem",
+					"elements": [
+						{
+							"name": "deployOnPrem",
+							"type": "Microsoft.Common.CheckBox",
+							"label": "Deploy OnPrem",
+							"defaultValue": false,
+							"toolTip": "Simulate OnPrem as VNET",
+							"constraints": {
+								"required": false
+							},
+							"visible": true
+						},
+						{
+							"name": "OnPremRgName",
+							"type": "Microsoft.Common.TextBox",
+							"label": "OnPrem Resource Group Name",
+							"defaultValue": "rg-onprem",
+							"toolTip": "Use only allowed characters",
+							"placeholder": "",
+							"multiLine": false,
+							"constraints": {
+								"required": true,
+								"validations": [
+									{
+										"regex": "^[a-zA-Z0-9_\\-\\.]+$",
+										"message": "Only alphanumeric and numeric characters are allowed including symbols like: _ and . and -"
+									}
+								]
+							},
+							"visible": "[equals(steps('OnPrem').deployOnPrem,true)]"
+						},
+						{
+							"name": "deployBastionInOnPrem",
+							"type": "Microsoft.Common.CheckBox",
+							"label": "Deploy Bastion In OnPrem",
+							"defaultValue": false,
+							"toolTip": "Deploy Bastion Host in OnPrem VNET",
+							"constraints": {
+								"required": false
+							},
+							"visible": "[equals(steps('OnPrem').deployOnPrem,true)]"
+						},
+						{
+							"name": "deployGatewayInOnPrem",
+							"type": "Microsoft.Common.CheckBox",
+							"label": "Deploy Virtual Network Gateway In OnPrem",
+							"defaultValue": false,
+							"toolTip": "Deploy Virtual Network Gateway in OnPrem VNET",
+							"constraints": {
+								"required": false
+							},
+							"visible": "[equals(steps('OnPrem').deployOnPrem,true)]"
+						},
+						{
+							"name": "deploySite2Site",
+							"type": "Microsoft.Common.CheckBox",
+							"label": "Deploy Site-to-Site connection between Hub and OnPrem Gateways",
+							"defaultValue": false,
+							"toolTip": "Deploy Site-to-Site connection between Hub and OnPrem Gateways",
+							"constraints": {
+								"required": false
+							},
+							"visible": "[and(equals(steps('OnPrem').deployGatewayInOnPrem,true),equals(steps('OnPrem').deployOnPrem,true))]"
+						},
+						{
+							"name": "deploySite2SiteInfo",
+							"type": "Microsoft.Common.InfoBox",
+							"options": {
+								"text": "This will also enable the deployment of a Virtual Network Gateway in the Hub",
+								"style": "Warning"
+							},
+							"visible": "[equals(steps('OnPrem').deploySite2Site,true)]"
 						}
 					]
 				},
@@ -210,13 +299,24 @@
 							"visible": true
 						},
 						{
+							"name": "deployVMinOnPrem",
+							"type": "Microsoft.Common.CheckBox",
+							"label": "Deploy VM In OnPrem",
+							"defaultValue": false,
+							"toolTip": "Deploy VM in OnPrem VNET",
+							"constraints": {
+								"required": false
+							},
+							"visible": true
+						},
+						{
 							"name": "VMUserAccountInfo",
 							"type": "Microsoft.Common.InfoBox",
 							"options": {
 								"text": "Enter Local Admin Username and Password for Virtual Machine deployement.",
 								"style": "Info"
 							},
-							"visible": "[or(equals(steps('VirtualMachines').deployVMsInSpokes,true),equals(steps('VirtualMachines').deployVMinHub,true))]"
+							"visible": "[or(equals(steps('VirtualMachines').deployVMsInSpokes,true),equals(steps('VirtualMachines').deployVMinHub,true),equals(steps('VirtualMachines').deployVMinOnPrem,true))]"
 						},
 						{
 							"name": "adminUsername",
@@ -227,7 +327,7 @@
 							"constraints": {
 								"required": true
 							},
-							"visible": "[or(equals(steps('VirtualMachines').deployVMsInSpokes,true),equals(steps('VirtualMachines').deployVMinHub,true))]"
+							"visible": "[or(equals(steps('VirtualMachines').deployVMsInSpokes,true),equals(steps('VirtualMachines').deployVMinHub,true),equals(steps('VirtualMachines').deployVMinOnPrem,true))]"
 						},
 						{
 							"name": "adminPassword",
@@ -246,7 +346,7 @@
 							"options": {
 								"hideConfirmation": false
 							},
-							"visible": "[or(equals(steps('VirtualMachines').deployVMsInSpokes,true),equals(steps('VirtualMachines').deployVMinHub,true))]"
+							"visible": "[or(equals(steps('VirtualMachines').deployVMsInSpokes,true),equals(steps('VirtualMachines').deployVMinHub,true),equals(steps('VirtualMachines').deployVMinOnPrem,true))]"
 						}
 					]
 				}
@@ -254,21 +354,29 @@
 		},
 		"outputs": {
 			"parameters": {
+				"AddressSpace": "[steps('basics').AddressSpace]",
 				"adminUsername": "[steps('VirtualMachines').adminUsername]",
 				"adminPassword": "[steps('VirtualMachines').adminPassword.password]",
-				"AddressSpace": "[steps('basics').AddressSpace]",
+				"deployVMsInSpokes": "[steps('VirtualMachines').deployVMsInSpokes]",
+				"deployVMinHub": "[steps('VirtualMachines').deployVMinHub]",
+				"deployVMinOnPrem": "[steps('VirtualMachines').deployVMinOnPrem]",
 				"deploySpokes": "[steps('SpokeVNETs').deploySpokes]",
 				"amountOfSpokes": "[steps('SpokeVNETs').amountOfSpokes]",
-				"deployVMsInSpokes": "[steps('VirtualMachines').deployVMsInSpokes]",
 				"deployBastionInSpoke": "[steps('SpokeVNETs').deployBastionInSpoke]",
 				"deployHUB": "[steps('HubVNET').deployHUB]",
 				"hubRgName": "[steps('HubVNET').hubRgName]",
 				"deployBastionInHub": "[steps('HubVNET').deployBastionInHub]",
-				"deployVMinHub": "[steps('VirtualMachines').deployVMinHub]",
+				"deployGatewayInHub": "[or(steps('HubVNET').deployGatewayInHub,steps('OnPrem').deploySite2Site)]",
 				"deployFirewallInHub": "[steps('HubVNET').deployFirewallInHub]",
 				"AzureFirewallTier": "[steps('HubVNET').AzureFirewallTier]",
 				"spokeRgNamePrefix": "[steps('SpokeVNETs').spokeRgNamePrefix]",
-				"deployFirewallrules": "[steps('HubVNET').deployFirewallrules]"
+				"deployFirewallrules": "[steps('HubVNET').deployFirewallrules]",
+				"deployOnPrem": "[steps('OnPrem').deployOnPrem]",
+				"onpremRgName": "[steps('OnPrem').OnPremRgName]",
+				"deployBastionInOnPrem": "[steps('OnPrem').deployBastionInOnPrem]",
+				"deployGatewayinOnPrem": "[steps('OnPrem').deployGatewayInOnPrem]",
+				"deploySiteToSite": "[steps('OnPrem').deploySite2Site]"
+
 			},
 			"kind": "Subscription",
 			"subscriptionId": "[steps('basics').resourceScope.subscription.id]",

@@ -11,17 +11,21 @@ param deployFirewallInHub bool
 param AzureFirewallTier string
 param hubRgName string
 param deployFirewallrules bool
+param deployGatewayInHub bool
+
+var vnetAddressSpace = replace(AddressSpace, '/16', '/24')
+var defaultSubnetPrefix = replace(vnetAddressSpace, '/24', '/26')
+var firewallSubnetPrefix = replace(vnetAddressSpace, '0/24', '64/26')
+var bastionSubnetPrefix = replace(vnetAddressSpace, '0/24', '128/27')
+var gatewaySubnetPrefix = replace(vnetAddressSpace, '0/24', '160/27')
 
 var vmName = 'VM-Hub'
-var vnetAddressSpace = replace(AddressSpace,'/16', '/24')
-var defaultSubnetPrefix = replace(vnetAddressSpace, '/24', '/25')
-var bastionSubnetPrefix = replace(vnetAddressSpace, '0/24', '192/26')
-var firewallSubnetPrefix = replace(vnetAddressSpace, '0/24', '128/26')
 var nsgName = 'NSG-Hub'
 var bastionName = 'Bastion-Hub'
 var rtName = 'RT-Hub'
 var hubVnetName = 'VNET-Hub'
 var firewallName = 'Firewall-Hub'
+var gatewayName = 'Gateway-Hub'
 
 resource hubrg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   name: hubRgName
@@ -34,14 +38,16 @@ module vnet 'modules/vnet.bicep' = {
   params: {
     location: location
     vnetAddressSpcae: vnetAddressSpace
-    bastionSubnetPrefix: bastionSubnetPrefix
-    firewallSubnetPrefix: firewallSubnetPrefix
     nsgID: nsg.outputs.nsgID
     rtID: deployFirewallInHub ? rt.outputs.rtID : 'none'
     vnetname: hubVnetName
     defaultSubnetPrefix: defaultSubnetPrefix
+    bastionSubnetPrefix: bastionSubnetPrefix
+    firewallSubnetPrefix: firewallSubnetPrefix
+    GatewaySubnetPrefix: gatewaySubnetPrefix
     deployBastionSubnet: deployBastionInHub
     deployFirewallSubnet: deployFirewallInHub
+    deployGatewaySubnet: deployGatewayInHub
   }
 }
 
@@ -89,7 +95,7 @@ module firewall 'modules/firewall.bicep' = if (deployFirewallInHub) {
 
 module firewallrules 'modules/firewallpolicyrules.bicep' = if (deployFirewallrules && deployFirewallInHub) {
   scope: hubrg
-  name:'firewallRules'
+  name: 'firewallRules'
   params: {
     azFwPolicyName: deployFirewallInHub && deployFirewallrules ? firewall.outputs.azFwPolicyName : ''
     AddressSpace: AddressSpace
@@ -115,7 +121,20 @@ module route 'modules/route.bicep' = if (deployFirewallInHub) {
   }
 }
 
+module vpngw 'modules/vpngateway.bicep' = if (deployGatewayInHub) {
+  scope: hubrg
+  name: 'Gateway'
+  params: {
+    location: location
+    vpnGatewayName: gatewayName
+    vpnGatewaySubnetID: deployGatewayInHub ? vnet.outputs.gatewaySubnetID : ''
+  }
+}
+
 output hubVnetID string = vnet.outputs.vnetID
-output azFwIp string =  deployFirewallInHub ? firewall.outputs.azFwIP : '1.2.3.4'
+output azFwIp string = deployFirewallInHub ? firewall.outputs.azFwIP : '1.2.3.4'
 output HubResourceGroupName string = hubrg.name
 output hubVnetName string = vnet.outputs.vnetName
+output hubVnetAddressSpace string = vnetAddressSpace
+output hubGatewayPublicIP string = vpngw.outputs.vpnGwPublicIP
+output hubGatewayID string = vpngw.outputs.vpnGwID

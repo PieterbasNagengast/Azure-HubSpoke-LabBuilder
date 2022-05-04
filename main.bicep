@@ -43,6 +43,9 @@ param deployBastionInHub bool = true
 @description('Deploy VM in Hub VNET')
 param deployVMinHub bool = true
 
+@description('Deploy Virtual Network Gateway in Hub VNET')
+param deployGatewayInHub bool = true
+
 @description('Deploy Azure Firewall in Hub VNET. includes deployment of custom route tables in Spokes and Hub VNETs')
 param deployFirewallInHub bool = true
 
@@ -54,7 +57,29 @@ param deployFirewallInHub bool = true
 param AzureFirewallTier string = 'Standard'
 
 @description('Deploy Firewall policy Rule Collection group which allows spoke-to-spoke and internet traffic')
-param deployFirewallrules bool = false
+param deployFirewallrules bool = true
+
+// OnPrem parameters\
+@description('Deploy Virtual Network Gateway in OnPrem')
+param deployOnPrem bool = true
+
+@description('OnPrem Resource Group Name')
+param onpremRgName string = 'rg-onprem'
+
+@description('Deploy Bastion Host in OnPrem VNET')
+param deployBastionInOnPrem bool = false
+
+@description('Deploy VM in OnPrem VNET')
+param deployVMinOnPrem bool = true
+
+@description('Deploy Virtual Network Gateway in OnPrem VNET')
+param deployGatewayinOnPrem bool = true
+
+@description('Deploy Site-to-Site VPN connection between OnPrem and Hub Gateways')
+param deploySiteToSite bool = true
+
+// Create array of all Address Spaces used for Hub and Spoke VNET's (used in site-to-site connection)
+var AllAddressSpaces = [for i in range(0, amountOfSpokes + 1): replace(AddressSpace,'0.0/16','${i}.0/24')]
 
 // Deploy Hub VNET including VM, Bastion Host, Route Table, Network Security group and Azure Firewall
 module hubVnet 'HubResourceGroup.bicep' = if (deployHUB) {
@@ -70,11 +95,12 @@ module hubVnet 'HubResourceGroup.bicep' = if (deployHUB) {
     AzureFirewallTier: AzureFirewallTier
     hubRgName: hubRgName
     deployFirewallrules: deployFirewallrules
+    deployGatewayInHub: deployGatewayInHub
   }
 }
 
 // Deploy Spoke VNET's including VM, Bastion Host, Route Table, Network Security group
-module spokeVnets 'SpokeResourceGroup.bicep' =  [for i in range(1, amountOfSpokes): if(deploySpokes) {
+module spokeVnets 'SpokeResourceGroup.bicep' = [for i in range(1, amountOfSpokes): if (deploySpokes) {
   name: '${spokeRgNamePrefix}${i}-${location}'
   params: {
     location: location
@@ -99,15 +125,55 @@ module vnetPeerings 'Vnetpeerings.bicep' = [for i in range(0, amountOfSpokes): i
     SpokeResourceGroupName: deployHUB && deploySpokes ? spokeVnets[i].outputs.spokeResourceGroupName : 'No peering'
     HubVnetName: deployHUB && deploySpokes ? hubVnet.outputs.hubVnetName : 'No VNET peering'
     SpokeVnetID: deployHUB && deploySpokes ? spokeVnets[i].outputs.spokeVnetID : 'No VNET peering'
-    HubVnetID:  deployHUB && deploySpokes ? hubVnet.outputs.hubVnetID : 'No VNET peering'
+    HubVnetID: deployHUB && deploySpokes ? hubVnet.outputs.hubVnetID : 'No VNET peering'
     SpokeVnetName: deployHUB && deploySpokes ? spokeVnets[i].outputs.spokeVnetName : 'No VNET peering'
     counter: i
   }
 }]
 
+// Deploy OnPrem VNET including VM, Bastion, Network Security Group and Virtual Network Gateway
+module onprem 'OnPremResourceGroup.bicep' = if (deployOnPrem) {
+  name: onpremRgName
+  params: {
+    location: location
+    adminPassword: adminPassword
+    adminUsername: adminUsername
+    AddressSpace: AddressSpace
+    deployBastionInOnPrem: deployBastionInOnPrem
+    deployGatewayInOnPrem: deployGatewayinOnPrem
+    deployVMsInOnPrem: deployVMinOnPrem
+    OnPremRgName: onpremRgName
+  }
+}
+
+// Deploy S2s VPN from OnPrem Gateway to Hub Gateway
+module s2s 'VpnConnections.bicep' = if(deployGatewayInHub && deployGatewayinOnPrem && deploySiteToSite) {
+  name:'s2s-Hub-OnPrem'
+  params: {
+    location: location
+    HubRgName: deployHUB ? hubRgName : 'none'
+    HubGatewayID: deployGatewayInHub ? hubVnet.outputs.hubGatewayID : 'none'
+    HubGatewayPublicIP: deployGatewayInHub ? hubVnet.outputs.hubGatewayPublicIP : 'none'
+    HubAddressPrefixes: deployHUB ? AllAddressSpaces : []
+    HubLocalGatewayName: deploySiteToSite ? 'LocalGateway-Hub' : 'none'
+    OnPremRgName: deployOnPrem ? onpremRgName : 'none'
+    OnPremGatewayID: deployGatewayinOnPrem ? onprem.outputs.OnPremGatewayID : 'none'
+    OnPremGatewayPublicIP: deployGatewayinOnPrem ? onprem.outputs.OnPremGatewayPublicIP : 'none'
+    OnPremAddressPrefixes: deployOnPrem ? array(onprem.outputs.OnPremAddressSpace) : []
+    OnPremLocalGatewayName: deploySiteToSite ? 'LocalGateway-OnPrem' : 'none'
+  }
+}
+
+// Outputs
 output AzureFirewallpip string = deployFirewallInHub && deployHUB ? hubVnet.outputs.azFwIp : 'none'
 output HubVnetID string = deployHUB ? hubVnet.outputs.hubVnetID : 'none'
-output SpokeVnetIDs array = [for i in range(0, amountOfSpokes): deploySpokes ? {
+output HubVnetAddressSpace string = deployHUB ? hubVnet.outputs.hubVnetAddressSpace : 'none'
+output HubGatewayPublicIP string = deployGatewayInHub ? hubVnet.outputs.hubGatewayPublicIP : 'none'
+output HubGatewayID string = deployGatewayInHub ? hubVnet.outputs.hubGatewayID : 'none'
+output OnPremVnetAddressSpace string = deployOnPrem ? onprem.outputs.OnPremAddressSpace : 'none'
+output OnPremGatewayPublicIP string = deployGatewayinOnPrem ? onprem.outputs.OnPremGatewayPublicIP : 'none'
+output OnPremGatewayID string = deployGatewayinOnPrem ? onprem.outputs.OnPremGatewayID : 'none'
+output SpokeVnets array = [for i in range(0, amountOfSpokes): deploySpokes ? {
   SpokeVnetId: spokeVnets[i].outputs.spokeVnetID
-}: 'none']
-
+  SpokeVnetAddressSpace: spokeVnets[i].outputs.spokeVnetAddressSpace
+} : 'none']

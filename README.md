@@ -81,16 +81,16 @@ Within these three **main** scenario's there are multiple options:
 
 |Subnet Name|Subnet address range|notes|
 |-|-|-|
-|default|x.x.Y.0/24||
-|AzureBastionSubnet|x.x.Y.192/26|Only when Bastion is selected|
+|default|x.x.Y.0/26||
+|AzureBastionSubnet|x.x.Y.128/27|Only when Bastion is selected|
 
 *Hub VNET subnets:*
 
 |Subnet Name|Subnet address range|notes|
 |-|-|-|
-|default|x.x.0.0/24||
-|AzureFirewallSubnet|x.x.0.128/26|Only applicable for Hub VNET with Azure Firewall selected|
-|AzureBastionSubnet|x.x.0.192/26|Only when Bastion is selected|
+|default|x.x.0.0/26||
+|AzureFirewallSubnet|x.x.0.64/26|Only applicable for Hub VNET with Azure Firewall selected|
+|AzureBastionSubnet|x.x.0.128/27|Only when Bastion is selected|
 
 ## Resource Names
 
