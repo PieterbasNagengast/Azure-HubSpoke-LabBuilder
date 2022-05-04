@@ -366,7 +366,7 @@
 				"deployHUB": "[steps('HubVNET').deployHUB]",
 				"hubRgName": "[steps('HubVNET').hubRgName]",
 				"deployBastionInHub": "[steps('HubVNET').deployBastionInHub]",
-				"deployGatewayInHub": "[or(equals(steps('HubVNET').deployGatewayInHub,true),equals(steps('OnPrem').deploySite2Site,true))]",
+				"deployGatewayInHub": "[or(steps('HubVNET').deployGatewayInHub,steps('OnPrem').deploySite2Site)]",
 				"deployFirewallInHub": "[steps('HubVNET').deployFirewallInHub]",
 				"AzureFirewallTier": "[steps('HubVNET').AzureFirewallTier]",
 				"spokeRgNamePrefix": "[steps('SpokeVNETs').spokeRgNamePrefix]",
