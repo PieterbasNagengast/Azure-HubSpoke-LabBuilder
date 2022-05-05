@@ -78,7 +78,10 @@ Within these three **main** scenario's there are multiple options:
 - Route tables incl. Default route will be deployed if Azure Firewall is selected (0.0.0.0/0 -> Azure Firewall)
 - Network Security group will be deplyed to 'default' subnets only
 - At deployemt use a /16 subnet. every VNET (Hub and Spoke VNET's) will get a /24 subnet
-- Hub VNET will always get the first available /24 subnet, first spoke the second subnet etc. see subnet details:
+- Hub VNET will always get the first available /24 subnet. eg. 172.16.0.0/24
+- Spoke(s) VNET gets subsequent subnets. eg. 172.16.1.0/24, 172.16.2.0/24 etc.
+- OnPrem VNET will always get the latest available /24 subnet. eg. 172.16.255.0/24
+- see subnet details:
 
 *Spoke VNET's subnets:*
 
@@ -94,6 +97,15 @@ Within these three **main** scenario's there are multiple options:
 |default|x.x.0.0/26||
 |AzureFirewallSubnet|x.x.0.64/26|Only applicable for Hub VNET with Azure Firewall selected|
 |AzureBastionSubnet|x.x.0.128/27|Only when Bastion is selected|
+|GatewaySubnet|x.x.0.160/27|Only when Gateway is selected|
+
+*OnPrem VNET subnets:*
+
+|Subnet Name|Subnet address range|notes|
+|-|-|-|
+|default|x.x.255.0/26||
+|AzureBastionSubnet|x.x.255.128/27|Only when Bastion is selected|
+|GatewaySubnet|x.x.255.160/27|Only when Gateway is selected|
 
 ## Resource Names
 
