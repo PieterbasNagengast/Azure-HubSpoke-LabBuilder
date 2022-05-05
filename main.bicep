@@ -38,16 +38,16 @@ param deployHUB bool = true
 param hubRgName string = 'rg-hub'
 
 @description('Deploy Bastion Host in Hub VNET')
-param deployBastionInHub bool = true
+param deployBastionInHub bool = false
 
 @description('Deploy VM in Hub VNET')
-param deployVMinHub bool = true
+param deployVMinHub bool = false
 
 @description('Deploy Virtual Network Gateway in Hub VNET')
-param deployGatewayInHub bool = true
+param deployGatewayInHub bool = false
 
 @description('Deploy Azure Firewall in Hub VNET. includes deployment of custom route tables in Spokes and Hub VNETs')
-param deployFirewallInHub bool = true
+param deployFirewallInHub bool = false
 
 @description('Azure Firewall Tier: Standard or Premium')
 @allowed([
@@ -57,7 +57,7 @@ param deployFirewallInHub bool = true
 param AzureFirewallTier string = 'Standard'
 
 @description('Deploy Firewall policy Rule Collection group which allows spoke-to-spoke and internet traffic')
-param deployFirewallrules bool = true
+param deployFirewallrules bool = false
 
 // OnPrem parameters\
 @description('Deploy Virtual Network Gateway in OnPrem')
@@ -70,13 +70,13 @@ param onpremRgName string = 'rg-onprem'
 param deployBastionInOnPrem bool = false
 
 @description('Deploy VM in OnPrem VNET')
-param deployVMinOnPrem bool = true
+param deployVMinOnPrem bool = false
 
 @description('Deploy Virtual Network Gateway in OnPrem VNET')
-param deployGatewayinOnPrem bool = true
+param deployGatewayinOnPrem bool = false
 
 @description('Deploy Site-to-Site VPN connection between OnPrem and Hub Gateways')
-param deploySiteToSite bool = true
+param deploySiteToSite bool = false
 
 // Create array of all Address Spaces used for Hub and Spoke VNET's (used in site-to-site connection)
 var AllAddressSpaces = [for i in range(0, amountOfSpokes + 1): replace(AddressSpace,'0.0/16','${i}.0/24')]

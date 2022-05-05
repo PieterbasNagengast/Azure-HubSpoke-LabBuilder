@@ -6,7 +6,7 @@ param VpnGatewayID string
 param connectionName string
 param sharedKey string
 
-resource localNetworkGateway 'Microsoft.Network/localNetworkGateways@2021-08-01' = {
+resource localNetworkGateway 'Microsoft.Network/localNetworkGateways@2021-05-01' = {
   name: LocalGatewayName
   location: location
   properties: {
@@ -17,7 +17,7 @@ resource localNetworkGateway 'Microsoft.Network/localNetworkGateways@2021-08-01'
   }
 }
 
-resource connection 'Microsoft.Network/connections@2021-08-01' = {
+resource connection 'Microsoft.Network/connections@2021-05-01' = {
   name: connectionName
   location: location
   properties: {
@@ -29,9 +29,12 @@ resource connection 'Microsoft.Network/connections@2021-08-01' = {
     sharedKey: sharedKey
     virtualNetworkGateway1: {
       id: VpnGatewayID
+      properties: {}
     }
     localNetworkGateway2: {
       id: localNetworkGateway.id
+      properties: {}
     }
   }
 }
+

@@ -2,12 +2,12 @@ targetScope = 'subscription'
 
 param location string
 param AddressSpace string 
-param deployBastionInOnPrem bool = false
+param deployBastionInOnPrem bool
 param adminUsername string
 @secure()
 param adminPassword string
-param deployVMsInOnPrem bool = false
-param deployGatewayInOnPrem bool = false
+param deployVMsInOnPrem bool
+param deployGatewayInOnPrem bool
 param OnPremRgName string
 
 var vnetName = 'VNET-OnPrem'
@@ -75,7 +75,7 @@ module bastion 'modules/bastion.bicep' = if (deployBastionInOnPrem) {
 
 module vpngw 'modules/vpngateway.bicep' = if (deployGatewayInOnPrem) {
   scope: onpremrg
-  name: 'Gateway'
+  name: gatewayName
   params: {
     location: location
     vpnGatewayName: gatewayName

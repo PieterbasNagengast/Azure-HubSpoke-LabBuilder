@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1272.37030",
-      "templateHash": "11514344351427645083"
+      "templateHash": "13271195094731078354"
     }
   },
   "parameters": {
@@ -88,28 +88,28 @@
     },
     "deployBastionInHub": {
       "type": "bool",
-      "defaultValue": true,
+      "defaultValue": false,
       "metadata": {
         "description": "Deploy Bastion Host in Hub VNET"
       }
     },
     "deployVMinHub": {
       "type": "bool",
-      "defaultValue": true,
+      "defaultValue": false,
       "metadata": {
         "description": "Deploy VM in Hub VNET"
       }
     },
     "deployGatewayInHub": {
       "type": "bool",
-      "defaultValue": true,
+      "defaultValue": false,
       "metadata": {
         "description": "Deploy Virtual Network Gateway in Hub VNET"
       }
     },
     "deployFirewallInHub": {
       "type": "bool",
-      "defaultValue": true,
+      "defaultValue": false,
       "metadata": {
         "description": "Deploy Azure Firewall in Hub VNET. includes deployment of custom route tables in Spokes and Hub VNETs"
       }
@@ -127,7 +127,7 @@
     },
     "deployFirewallrules": {
       "type": "bool",
-      "defaultValue": true,
+      "defaultValue": false,
       "metadata": {
         "description": "Deploy Firewall policy Rule Collection group which allows spoke-to-spoke and internet traffic"
       }
@@ -155,21 +155,21 @@
     },
     "deployVMinOnPrem": {
       "type": "bool",
-      "defaultValue": true,
+      "defaultValue": false,
       "metadata": {
         "description": "Deploy VM in OnPrem VNET"
       }
     },
     "deployGatewayinOnPrem": {
       "type": "bool",
-      "defaultValue": true,
+      "defaultValue": false,
       "metadata": {
         "description": "Deploy Virtual Network Gateway in OnPrem VNET"
       }
     },
     "deploySiteToSite": {
       "type": "bool",
-      "defaultValue": true,
+      "defaultValue": false,
       "metadata": {
         "description": "Deploy Site-to-Site VPN connection between OnPrem and Hub Gateways"
       }
@@ -238,7 +238,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1272.37030",
-              "templateHash": "10764843335244513328"
+              "templateHash": "2076578547437168746"
             }
           },
           "parameters": {
@@ -1226,7 +1226,7 @@
               "condition": "[parameters('deployGatewayInHub')]",
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2020-10-01",
-              "name": "Gateway",
+              "name": "[variables('gatewayName')]",
               "resourceGroup": "[parameters('hubRgName')]",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -1375,11 +1375,11 @@
             },
             "hubGatewayPublicIP": {
               "type": "string",
-              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'Gateway')).outputs.vpnGwPublicIP.value]"
+              "value": "[if(parameters('deployGatewayInHub'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('gatewayName'))).outputs.vpnGwPublicIP.value, 'none')]"
             },
             "hubGatewayID": {
               "type": "string",
-              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'Gateway')).outputs.vpnGwID.value]"
+              "value": "[if(parameters('deployGatewayInHub'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('gatewayName'))).outputs.vpnGwID.value, 'none')]"
             }
           }
         }
@@ -2458,7 +2458,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1272.37030",
-              "templateHash": "9425270663130722904"
+              "templateHash": "11079442618630352679"
             }
           },
           "parameters": {
@@ -2469,8 +2469,7 @@
               "type": "string"
             },
             "deployBastionInOnPrem": {
-              "type": "bool",
-              "defaultValue": false
+              "type": "bool"
             },
             "adminUsername": {
               "type": "string"
@@ -2479,12 +2478,10 @@
               "type": "secureString"
             },
             "deployVMsInOnPrem": {
-              "type": "bool",
-              "defaultValue": false
+              "type": "bool"
             },
             "deployGatewayInOnPrem": {
-              "type": "bool",
-              "defaultValue": false
+              "type": "bool"
             },
             "OnPremRgName": {
               "type": "string"
@@ -3036,7 +3033,7 @@
               "condition": "[parameters('deployGatewayInOnPrem')]",
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2020-10-01",
-              "name": "Gateway",
+              "name": "[variables('gatewayName')]",
               "resourceGroup": "[parameters('OnPremRgName')]",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -3165,11 +3162,11 @@
           "outputs": {
             "OnPremGatewayPublicIP": {
               "type": "string",
-              "value": "[if(parameters('deployGatewayInOnPrem'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('OnPremRgName')), 'Microsoft.Resources/deployments', 'Gateway')).outputs.vpnGwPublicIP.value, 'none')]"
+              "value": "[if(parameters('deployGatewayInOnPrem'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('OnPremRgName')), 'Microsoft.Resources/deployments', variables('gatewayName'))).outputs.vpnGwPublicIP.value, 'none')]"
             },
             "OnPremGatewayID": {
               "type": "string",
-              "value": "[if(parameters('deployGatewayInOnPrem'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('OnPremRgName')), 'Microsoft.Resources/deployments', 'Gateway')).outputs.vpnGwID.value, 'none')]"
+              "value": "[if(parameters('deployGatewayInOnPrem'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('OnPremRgName')), 'Microsoft.Resources/deployments', variables('gatewayName'))).outputs.vpnGwID.value, 'none')]"
             },
             "OnPremAddressSpace": {
               "type": "string",
@@ -3232,7 +3229,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1272.37030",
-              "templateHash": "6377951166366811825"
+              "templateHash": "18077375745989292574"
             }
           },
           "parameters": {
@@ -3315,7 +3312,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1272.37030",
-                      "templateHash": "17820892086485655081"
+                      "templateHash": "472787544918161386"
                     }
                   },
                   "parameters": {
@@ -3344,7 +3341,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.Network/localNetworkGateways",
-                      "apiVersion": "2021-08-01",
+                      "apiVersion": "2021-05-01",
                       "name": "[parameters('LocalGatewayName')]",
                       "location": "[parameters('location')]",
                       "properties": {
@@ -3356,7 +3353,7 @@
                     },
                     {
                       "type": "Microsoft.Network/connections",
-                      "apiVersion": "2021-08-01",
+                      "apiVersion": "2021-05-01",
                       "name": "[parameters('connectionName')]",
                       "location": "[parameters('location')]",
                       "properties": {
@@ -3367,10 +3364,12 @@
                         "usePolicyBasedTrafficSelectors": false,
                         "sharedKey": "[parameters('sharedKey')]",
                         "virtualNetworkGateway1": {
-                          "id": "[parameters('VpnGatewayID')]"
+                          "id": "[parameters('VpnGatewayID')]",
+                          "properties": {}
                         },
                         "localNetworkGateway2": {
-                          "id": "[resourceId('Microsoft.Network/localNetworkGateways', parameters('LocalGatewayName'))]"
+                          "id": "[resourceId('Microsoft.Network/localNetworkGateways', parameters('LocalGatewayName'))]",
+                          "properties": {}
                         }
                       },
                       "dependsOn": [
@@ -3421,7 +3420,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1272.37030",
-                      "templateHash": "17820892086485655081"
+                      "templateHash": "472787544918161386"
                     }
                   },
                   "parameters": {
@@ -3450,7 +3449,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.Network/localNetworkGateways",
-                      "apiVersion": "2021-08-01",
+                      "apiVersion": "2021-05-01",
                       "name": "[parameters('LocalGatewayName')]",
                       "location": "[parameters('location')]",
                       "properties": {
@@ -3462,7 +3461,7 @@
                     },
                     {
                       "type": "Microsoft.Network/connections",
-                      "apiVersion": "2021-08-01",
+                      "apiVersion": "2021-05-01",
                       "name": "[parameters('connectionName')]",
                       "location": "[parameters('location')]",
                       "properties": {
@@ -3473,10 +3472,12 @@
                         "usePolicyBasedTrafficSelectors": false,
                         "sharedKey": "[parameters('sharedKey')]",
                         "virtualNetworkGateway1": {
-                          "id": "[parameters('VpnGatewayID')]"
+                          "id": "[parameters('VpnGatewayID')]",
+                          "properties": {}
                         },
                         "localNetworkGateway2": {
-                          "id": "[resourceId('Microsoft.Network/localNetworkGateways', parameters('LocalGatewayName'))]"
+                          "id": "[resourceId('Microsoft.Network/localNetworkGateways', parameters('LocalGatewayName'))]",
+                          "properties": {}
                         }
                       },
                       "dependsOn": [

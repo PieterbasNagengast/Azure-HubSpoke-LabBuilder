@@ -123,7 +123,7 @@ module route 'modules/route.bicep' = if (deployFirewallInHub) {
 
 module vpngw 'modules/vpngateway.bicep' = if (deployGatewayInHub) {
   scope: hubrg
-  name: 'Gateway'
+  name: gatewayName
   params: {
     location: location
     vpnGatewayName: gatewayName
@@ -136,5 +136,5 @@ output azFwIp string = deployFirewallInHub ? firewall.outputs.azFwIP : '1.2.3.4'
 output HubResourceGroupName string = hubrg.name
 output hubVnetName string = vnet.outputs.vnetName
 output hubVnetAddressSpace string = vnetAddressSpace
-output hubGatewayPublicIP string = vpngw.outputs.vpnGwPublicIP
-output hubGatewayID string = vpngw.outputs.vpnGwID
+output hubGatewayPublicIP string = deployGatewayInHub ? vpngw.outputs.vpnGwPublicIP : 'none'
+output hubGatewayID string = deployGatewayInHub ? vpngw.outputs.vpnGwID : 'none'
