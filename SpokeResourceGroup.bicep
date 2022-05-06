@@ -12,6 +12,7 @@ param deployFirewallInHub bool
 param AzureFirewallpip string
 param HubDeployed bool
 param spokeRgNamePrefix string
+param vmSize string
 
 var vnetName = 'VNET-Spoke${counter}'
 var vmName = 'VM-Spoke${counter}'
@@ -52,6 +53,7 @@ module vm 'modules/vm.bicep' = if (deployVMsInSpokes) {
     location: location
     subnetID: vnet.outputs.defaultSubnetID
     vmName: vmName
+    vmSize: vmSize
   }
 }
 

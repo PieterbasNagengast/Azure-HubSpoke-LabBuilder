@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1272.37030",
-      "templateHash": "13271195094731078354"
+      "templateHash": "4360865294826238929"
     }
   },
   "parameters": {
@@ -21,6 +21,13 @@
       "defaultValue": "",
       "metadata": {
         "description": "Admin Password for VM"
+      }
+    },
+    "vmSize": {
+      "type": "string",
+      "defaultValue": "Standard_B2s",
+      "metadata": {
+        "description": "Virtual Machine SKU. Default = Standard_B2s"
       }
     },
     "AddressSpace": {
@@ -95,7 +102,7 @@
     },
     "deployVMinHub": {
       "type": "bool",
-      "defaultValue": false,
+      "defaultValue": true,
       "metadata": {
         "description": "Deploy VM in Hub VNET"
       }
@@ -229,6 +236,9 @@
           },
           "deployGatewayInHub": {
             "value": "[parameters('deployGatewayInHub')]"
+          },
+          "vmSize": {
+            "value": "[parameters('vmSize')]"
           }
         },
         "template": {
@@ -238,7 +248,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1272.37030",
-              "templateHash": "2076578547437168746"
+              "templateHash": "14190367265513666242"
             }
           },
           "parameters": {
@@ -274,6 +284,9 @@
             },
             "deployGatewayInHub": {
               "type": "bool"
+            },
+            "vmSize": {
+              "type": "string"
             }
           },
           "variables": {
@@ -493,6 +506,9 @@
                   },
                   "vmName": {
                     "value": "[variables('vmName')]"
+                  },
+                  "vmSize": {
+                    "value": "[parameters('vmSize')]"
                   }
                 },
                 "template": {
@@ -502,7 +518,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1272.37030",
-                      "templateHash": "1655614801925322928"
+                      "templateHash": "18440020198386350136"
                     }
                   },
                   "parameters": {
@@ -522,8 +538,7 @@
                       "type": "string"
                     },
                     "vmSize": {
-                      "type": "string",
-                      "defaultValue": "Standard_B2s"
+                      "type": "string"
                     },
                     "storageType": {
                       "type": "string",
@@ -1433,6 +1448,9 @@
           },
           "spokeRgNamePrefix": {
             "value": "[parameters('spokeRgNamePrefix')]"
+          },
+          "vmSize": {
+            "value": "[parameters('vmSize')]"
           }
         },
         "template": {
@@ -1442,7 +1460,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1272.37030",
-              "templateHash": "15335830101738826689"
+              "templateHash": "12064320804069521029"
             }
           },
           "parameters": {
@@ -1477,6 +1495,9 @@
               "type": "bool"
             },
             "spokeRgNamePrefix": {
+              "type": "string"
+            },
+            "vmSize": {
               "type": "string"
             }
           },
@@ -1681,6 +1702,9 @@
                   },
                   "vmName": {
                     "value": "[variables('vmName')]"
+                  },
+                  "vmSize": {
+                    "value": "[parameters('vmSize')]"
                   }
                 },
                 "template": {
@@ -1690,7 +1714,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1272.37030",
-                      "templateHash": "1655614801925322928"
+                      "templateHash": "18440020198386350136"
                     }
                   },
                   "parameters": {
@@ -1710,8 +1734,7 @@
                       "type": "string"
                     },
                     "vmSize": {
-                      "type": "string",
-                      "defaultValue": "Standard_B2s"
+                      "type": "string"
                     },
                     "storageType": {
                       "type": "string",
@@ -2449,6 +2472,9 @@
           },
           "OnPremRgName": {
             "value": "[parameters('onpremRgName')]"
+          },
+          "vmSize": {
+            "value": "[parameters('vmSize')]"
           }
         },
         "template": {
@@ -2458,7 +2484,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1272.37030",
-              "templateHash": "11079442618630352679"
+              "templateHash": "16500273587954315090"
             }
           },
           "parameters": {
@@ -2484,6 +2510,9 @@
               "type": "bool"
             },
             "OnPremRgName": {
+              "type": "string"
+            },
+            "vmSize": {
               "type": "string"
             }
           },
@@ -2691,6 +2720,9 @@
                   },
                   "vmName": {
                     "value": "[variables('vmName')]"
+                  },
+                  "vmSize": {
+                    "value": "[parameters('vmSize')]"
                   }
                 },
                 "template": {
@@ -2700,7 +2732,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1272.37030",
-                      "templateHash": "1655614801925322928"
+                      "templateHash": "18440020198386350136"
                     }
                   },
                   "parameters": {
@@ -2720,8 +2752,7 @@
                       "type": "string"
                     },
                     "vmSize": {
-                      "type": "string",
-                      "defaultValue": "Standard_B2s"
+                      "type": "string"
                     },
                     "storageType": {
                       "type": "string",

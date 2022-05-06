@@ -4,7 +4,7 @@ param adminUsername string
 @secure()
 param adminPassword string
 param subnetID string
-param vmSize string = 'Standard_B2s'
+param vmSize string
 param storageType string = 'StandardSSD_LRS'
 @allowed([
   '2022-datacenter'

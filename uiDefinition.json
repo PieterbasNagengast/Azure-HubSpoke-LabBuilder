@@ -310,6 +310,24 @@
 							"visible": true
 						},
 						{
+							"name": "vmSize",
+							"type": "Microsoft.Compute.SizeSelector",
+							"label": "Virtual Machine SKU Size",
+							"toolTip": "Virtual Machine SKU Siz. Default = Standard_B2s",
+							"recommendedSizes": [
+								"Standard_B2s"
+							],
+							"constraints": {
+								"allowedSizes": []
+							},
+							"options": {
+								"hideDiskTypeFilter": false
+							},
+							"osPlatform": "Windows",
+							"count": 1,
+							"visible": "[or(equals(steps('VirtualMachines').deployVMsInSpokes,true),equals(steps('VirtualMachines').deployVMinHub,true),equals(steps('VirtualMachines').deployVMinOnPrem,true))]"
+						},
+						{
 							"name": "VMUserAccountInfo",
 							"type": "Microsoft.Common.InfoBox",
 							"options": {
@@ -360,6 +378,7 @@
 				"deployVMsInSpokes": "[steps('VirtualMachines').deployVMsInSpokes]",
 				"deployVMinHub": "[steps('VirtualMachines').deployVMinHub]",
 				"deployVMinOnPrem": "[steps('VirtualMachines').deployVMinOnPrem]",
+				"vmSize": "[steps('VirtualMachines').vmSize]",
 				"deploySpokes": "[steps('SpokeVNETs').deploySpokes]",
 				"amountOfSpokes": "[steps('SpokeVNETs').amountOfSpokes]",
 				"deployBastionInSpoke": "[steps('SpokeVNETs').deployBastionInSpoke]",

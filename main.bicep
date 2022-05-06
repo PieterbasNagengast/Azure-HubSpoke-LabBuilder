@@ -1,6 +1,6 @@
 targetScope = 'subscription'
 
-// Shared parameters
+// Virtual Machine parameters
 @description('Admin username for VM')
 param adminUsername string = ''
 
@@ -8,6 +8,10 @@ param adminUsername string = ''
 @secure()
 param adminPassword string = ''
 
+@description('Virtual Machine SKU. Default = Standard_B2s')
+param vmSize string = 'Standard_B2s'
+
+// Shared parameters
 @description('IP Address space used for VNETs in deployment. Only enter a /16 subnet. Default = 172.16.0.0/16')
 param AddressSpace string = '172.16.0.0/16'
 
@@ -41,7 +45,7 @@ param hubRgName string = 'rg-hub'
 param deployBastionInHub bool = false
 
 @description('Deploy VM in Hub VNET')
-param deployVMinHub bool = false
+param deployVMinHub bool = true
 
 @description('Deploy Virtual Network Gateway in Hub VNET')
 param deployGatewayInHub bool = false
@@ -96,6 +100,7 @@ module hubVnet 'HubResourceGroup.bicep' = if (deployHUB) {
     hubRgName: hubRgName
     deployFirewallrules: deployFirewallrules
     deployGatewayInHub: deployGatewayInHub
+    vmSize: vmSize
   }
 }
 
@@ -114,6 +119,7 @@ module spokeVnets 'SpokeResourceGroup.bicep' = [for i in range(1, amountOfSpokes
     AzureFirewallpip: deployHUB ? hubVnet.outputs.azFwIp : 'Not deployed'
     HubDeployed: deployHUB
     spokeRgNamePrefix: spokeRgNamePrefix
+    vmSize: vmSize
   }
 }]
 
@@ -143,6 +149,7 @@ module onprem 'OnPremResourceGroup.bicep' = if (deployOnPrem) {
     deployGatewayInOnPrem: deployGatewayinOnPrem
     deployVMsInOnPrem: deployVMinOnPrem
     OnPremRgName: onpremRgName
+    vmSize: vmSize
   }
 }
 

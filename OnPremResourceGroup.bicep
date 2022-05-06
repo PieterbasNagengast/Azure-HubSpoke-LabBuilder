@@ -9,6 +9,7 @@ param adminPassword string
 param deployVMsInOnPrem bool
 param deployGatewayInOnPrem bool
 param OnPremRgName string
+param vmSize string
 
 var vnetName = 'VNET-OnPrem'
 var vmName = 'VM-OnPrem'
@@ -51,6 +52,7 @@ module vm 'modules/vm.bicep' = if (deployVMsInOnPrem) {
     location: location
     subnetID: vnet.outputs.defaultSubnetID
     vmName: vmName
+    vmSize: vmSize
   }
 }
 
