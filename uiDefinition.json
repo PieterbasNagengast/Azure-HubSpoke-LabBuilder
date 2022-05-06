@@ -386,8 +386,7 @@
 								"Microsoft.Network/virtualNetworkGateways",
 								"Microsoft.Network/publicIPAddresses",
 								"Microsoft.Network/localNetworkGateways",
-								"Microsoft.Network/connections",
-								"Resource Groups"
+								"Microsoft.Network/connections"
                             ]
                         }
                     ]
