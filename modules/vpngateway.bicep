@@ -5,6 +5,7 @@ param vpnGatewaySKU string = 'VpnGw1'
 param vpnGatewayType string = 'Vpn'
 param vpnGatewayVPNtype string = 'RouteBased'
 param vpnGatewayGen string = 'Generation1'
+param tagsByResource object = {}
 
 var pipName = '${vpnGatewayName}-pip'
 
@@ -36,6 +37,7 @@ resource vpngw 'Microsoft.Network/virtualNetworkGateways@2021-05-01' = {
       }
     ]
   }
+  tags: contains(tagsByResource, 'Microsoft.Network/virtualNetworkGateways') ? tagsByResource['Microsoft.Network/virtualNetworkGateways'] : {}
 }
 
 resource vpngwpip 'Microsoft.Network/publicIPAddresses@2021-05-01' = {
@@ -49,6 +51,7 @@ resource vpngwpip 'Microsoft.Network/publicIPAddresses@2021-05-01' = {
     tier: 'Regional'
     name: 'Standard'
   }
+  tags: contains(tagsByResource, 'Microsoft.Network/publicIPAddresses') ? tagsByResource['Microsoft.Network/publicIPAddresses'] : {}
 }
 
 output vpnGwPublicIP string = vpngwpip.properties.ipAddress

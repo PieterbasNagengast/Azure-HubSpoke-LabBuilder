@@ -1,6 +1,7 @@
 param rtName string
 param location string
 param disableRouteProp bool = true
+param tagsByResource object = {}
 
 resource rt 'Microsoft.Network/routeTables@2021-05-01' = {
   name: rtName
@@ -8,6 +9,7 @@ resource rt 'Microsoft.Network/routeTables@2021-05-01' = {
   properties: {
     disableBgpRoutePropagation: disableRouteProp
   }
+  tags: contains(tagsByResource, 'Microsoft.Network/routeTables') ? tagsByResource['Microsoft.Network/routeTables'] : {}
 }
 
 output rtID string = rt.id

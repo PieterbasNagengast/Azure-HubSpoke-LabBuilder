@@ -124,6 +124,7 @@ module spokeVnets 'SpokeResourceGroup.bicep' = [for i in range(1, amountOfSpokes
     HubDeployed: deployHUB
     spokeRgNamePrefix: spokeRgNamePrefix
     vmSize: vmSize
+    tagsByResource: tagsByResource
   }
 }]
 
@@ -154,6 +155,7 @@ module onprem 'OnPremResourceGroup.bicep' = if (deployOnPrem) {
     deployVMsInOnPrem: deployVMinOnPrem
     OnPremRgName: onpremRgName
     vmSize: vmSize
+    tagsByResource: tagsByResource
   }
 }
 
@@ -172,6 +174,7 @@ module s2s 'VpnConnections.bicep' = if(deployGatewayInHub && deployGatewayinOnPr
     OnPremGatewayPublicIP: deployGatewayinOnPrem ? onprem.outputs.OnPremGatewayPublicIP : 'none'
     OnPremAddressPrefixes: deployOnPrem ? array(onprem.outputs.OnPremAddressSpace) : []
     OnPremLocalGatewayName: deploySiteToSite ? 'LocalGateway-OnPrem' : 'none'
+    tagsByResource: tagsByResource
   }
 }
 

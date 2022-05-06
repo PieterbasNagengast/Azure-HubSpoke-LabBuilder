@@ -72,6 +72,7 @@ resource nic 'Microsoft.Network/networkInterfaces@2021-05-01' = {
       }
     ]
   }
+  tags: contains(tagsByResource, 'Microsoft.Compute/virtualMachines') ? tagsByResource['Microsoft.Compute/virtualMachines'] : {}
 }
 
 module run 'runcommand.bicep' = {

@@ -10,6 +10,7 @@ param deployVMsInOnPrem bool
 param deployGatewayInOnPrem bool
 param OnPremRgName string
 param vmSize string
+param tagsByResource object
 
 var vnetName = 'VNET-OnPrem'
 var vmName = 'VM-OnPrem'
@@ -40,6 +41,7 @@ module vnet 'modules/vnet.bicep' = {
     GatewaySubnetPrefix: gatewaySubnetPrefix
     deployBastionSubnet: deployBastionInOnPrem
     deployGatewaySubnet: true
+    tagsByResource: tagsByResource
   }
 }
 
@@ -53,6 +55,7 @@ module vm 'modules/vm.bicep' = if (deployVMsInOnPrem) {
     subnetID: vnet.outputs.defaultSubnetID
     vmName: vmName
     vmSize: vmSize
+    tagsByResource: tagsByResource
   }
 }
 
@@ -62,6 +65,7 @@ module nsg 'modules/nsg.bicep' = {
   params: {
     location: location
     nsgName: nsgName
+    tagsByResource: tagsByResource
   }
 }
 
@@ -72,6 +76,7 @@ module bastion 'modules/bastion.bicep' = if (deployBastionInOnPrem) {
     location: location
     subnetID: deployBastionInOnPrem ? vnet.outputs.bastionSubnetID : ''
     bastionName: bastionName
+    tagsByResource: tagsByResource
   }
 }
 
@@ -82,6 +87,7 @@ module vpngw 'modules/vpngateway.bicep' = if (deployGatewayInOnPrem) {
     location: location
     vpnGatewayName: gatewayName
     vpnGatewaySubnetID: deployGatewayInOnPrem ? vnet.outputs.gatewaySubnetID : ''
+    tagsByResource: tagsByResource
   }
 }
 

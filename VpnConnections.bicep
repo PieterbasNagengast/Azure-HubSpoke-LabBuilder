@@ -3,6 +3,7 @@ targetScope = 'subscription'
 param location string
 @secure()
 param sharedKey string = uniqueString(newGuid())
+param tagsByResource object
 
 //OnPrem
 param OnPremGatewayID string
@@ -33,6 +34,7 @@ module onprem2hub 'modules/vpnconnection.bicep' = {
     connectionName: 'VPNtoHub'
     sharedKey: sharedKey
     VpnGatewayID: OnPremGatewayID
+    tagsByResource: tagsByResource
   }
 }
 
@@ -51,5 +53,6 @@ module hub2onprem 'modules/vpnconnection.bicep' = {
     connectionName: 'VPNtoOnPrem'
     sharedKey:sharedKey
     VpnGatewayID: HubGatewayID
+    tagsByResource: tagsByResource
   }
 }

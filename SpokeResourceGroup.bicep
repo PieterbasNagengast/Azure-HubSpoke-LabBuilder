@@ -13,6 +13,7 @@ param AzureFirewallpip string
 param HubDeployed bool
 param spokeRgNamePrefix string
 param vmSize string
+param tagsByResource object
 
 var vnetName = 'VNET-Spoke${counter}'
 var vmName = 'VM-Spoke${counter}'
@@ -41,6 +42,7 @@ module vnet 'modules/vnet.bicep' = {
     defaultSubnetPrefix: defaultSubnetPrefix
     bastionSubnetPrefix: deployBastionInSpoke ? bastionSubnetPrefix : ''
     deployBastionSubnet: deployBastionInSpoke
+    tagsByResource: tagsByResource
   }
 }
 
@@ -54,6 +56,7 @@ module vm 'modules/vm.bicep' = if (deployVMsInSpokes) {
     subnetID: vnet.outputs.defaultSubnetID
     vmName: vmName
     vmSize: vmSize
+    tagsByResource: tagsByResource
   }
 }
 
@@ -63,6 +66,7 @@ module nsg 'modules/nsg.bicep' = {
   params: {
     location: location
     nsgName: nsgName
+    tagsByResource: tagsByResource
   }
 }
 
@@ -73,6 +77,7 @@ module bastion 'modules/bastion.bicep' = if (deployBastionInSpoke) {
     location: location
     subnetID: deployBastionInSpoke ? vnet.outputs.bastionSubnetID : ''
     bastionName: bastionName
+    tagsByResource: tagsByResource
   }
 }
 
@@ -82,6 +87,7 @@ module rt 'modules/routetable.bicep' = if (deployFirewallInHub && HubDeployed) {
   params: {
     location: location
     rtName: rtName
+    tagsByResource: tagsByResource
   }
 }
 

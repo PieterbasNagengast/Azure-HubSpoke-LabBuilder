@@ -10,6 +10,7 @@ param rtID string = 'none'
 param deployBastionSubnet bool = false
 param deployFirewallSubnet bool = false
 param deployGatewaySubnet bool = false
+param tagsByResource object = {}
 
 var defaultSubnet = [
   {
@@ -62,6 +63,8 @@ resource vnet 'Microsoft.Network/virtualNetworks@2021-05-01' = {
     }
     subnets: concat(defaultSubnet, bastionSubnet, firewallSubnet, gatewaySubnet)
   }
+  tags: contains(tagsByResource, 'Microsoft.Network/virtualNetworks') ? tagsByResource['Microsoft.Network/virtualNetworks'] : {}
+
 }
 
 output vnetName string = vnet.name

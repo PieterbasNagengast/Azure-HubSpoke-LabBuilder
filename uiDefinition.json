@@ -381,8 +381,12 @@
 								"Microsoft.Network/virtualNetworks",
 								"Microsoft.Network/bastionHosts",
 								"Microsoft.Network/azureFirewalls",
+								"Microsoft.Network/firewallPolicies",
 								"Microsoft.Network/routeTables",
-								"Microsoft.Network/virtualNetworkGateways"
+								"Microsoft.Network/virtualNetworkGateways",
+								"Microsoft.Network/publicIPAddresses",
+								"Microsoft.Network/localNetworkGateways",
+								"Microsoft.Network/connections"
                             ]
                         }
                     ]

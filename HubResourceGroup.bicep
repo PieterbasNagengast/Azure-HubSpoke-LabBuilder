@@ -50,6 +50,7 @@ module vnet 'modules/vnet.bicep' = {
     deployBastionSubnet: deployBastionInHub
     deployFirewallSubnet: deployFirewallInHub
     deployGatewaySubnet: deployGatewayInHub
+    tagsByResource: tagsByResource
   }
 }
 
@@ -73,6 +74,7 @@ module nsg 'modules/nsg.bicep' = {
   params: {
     location: location
     nsgName: nsgName
+    tagsByResource: tagsByResource
   }
 }
 
@@ -83,6 +85,7 @@ module bastion 'modules/bastion.bicep' = if (deployBastionInHub) {
     location: location
     subnetID: deployBastionInHub ? vnet.outputs.bastionSubnetID : ''
     bastionName: bastionName
+    tagsByResource: tagsByResource
   }
 }
 
@@ -94,6 +97,7 @@ module firewall 'modules/firewall.bicep' = if (deployFirewallInHub) {
     firewallName: firewallName
     azfwsubnetid: deployFirewallInHub ? vnet.outputs.firewallSubnetID : ''
     azfwTier: AzureFirewallTier
+    tagsByResource: tagsByResource
   }
 }
 
@@ -112,6 +116,7 @@ module rt 'modules/routetable.bicep' = if (deployFirewallInHub) {
   params: {
     location: location
     rtName: rtName
+    tagsByResource: tagsByResource
   }
 }
 
@@ -132,6 +137,7 @@ module vpngw 'modules/vpngateway.bicep' = if (deployGatewayInHub) {
     location: location
     vpnGatewayName: gatewayName
     vpnGatewaySubnetID: deployGatewayInHub ? vnet.outputs.gatewaySubnetID : ''
+    tagsByResource: tagsByResource
   }
 }
 

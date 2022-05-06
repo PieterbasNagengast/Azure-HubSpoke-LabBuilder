@@ -5,6 +5,7 @@ param LocalGatewayAddressPrefixes array
 param VpnGatewayID string
 param connectionName string
 param sharedKey string
+param tagsByResource object = {}
 
 resource localNetworkGateway 'Microsoft.Network/localNetworkGateways@2021-05-01' = {
   name: LocalGatewayName
@@ -15,6 +16,7 @@ resource localNetworkGateway 'Microsoft.Network/localNetworkGateways@2021-05-01'
       addressPrefixes: LocalGatewayAddressPrefixes
     }
   }
+  tags: contains(tagsByResource, 'Microsoft.Network/localNetworkGateways') ? tagsByResource['Microsoft.Network/localNetworkGateways'] : {}
 }
 
 resource connection 'Microsoft.Network/connections@2021-05-01' = {
@@ -36,5 +38,6 @@ resource connection 'Microsoft.Network/connections@2021-05-01' = {
       properties: {}
     }
   }
+  tags: contains(tagsByResource, 'Microsoft.Network/connections') ? tagsByResource['Microsoft.Network/connections'] : {}
 }
 
