@@ -104,6 +104,7 @@ module hubVnet 'HubResourceGroup.bicep' = if (deployHUB) {
     deployFirewallrules: deployFirewallrules
     deployGatewayInHub: deployGatewayInHub
     vmSize: vmSize
+    tagsByResource: tagsByResource
   }
 }
 

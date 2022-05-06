@@ -63,6 +63,7 @@ module vm 'modules/vm.bicep' = if (deployVMinHub) {
     subnetID: vnet.outputs.defaultSubnetID
     vmName: vmName
     vmSize: vmSize
+    tagsByResource: tagsByResource
   }
 }
 

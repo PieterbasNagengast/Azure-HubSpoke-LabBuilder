@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1272.37030",
-      "templateHash": "4360865294826238929"
+      "templateHash": "1734266318141328479"
     }
   },
   "parameters": {
@@ -42,6 +42,13 @@
       "defaultValue": "[deployment().location]",
       "metadata": {
         "description": "Azure Region. Defualt = Deployment location"
+      }
+    },
+    "tagsByResource": {
+      "type": "object",
+      "defaultValue": {},
+      "metadata": {
+        "description": "Tags by resource types"
       }
     },
     "deploySpokes": {
@@ -239,6 +246,9 @@
           },
           "vmSize": {
             "value": "[parameters('vmSize')]"
+          },
+          "tagsByResource": {
+            "value": "[parameters('tagsByResource')]"
           }
         },
         "template": {
@@ -248,7 +258,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1272.37030",
-              "templateHash": "14190367265513666242"
+              "templateHash": "18163088979815347474"
             }
           },
           "parameters": {
@@ -287,6 +297,9 @@
             },
             "vmSize": {
               "type": "string"
+            },
+            "tagsByResource": {
+              "type": "object"
             }
           },
           "variables": {
@@ -509,6 +522,9 @@
                   },
                   "vmSize": {
                     "value": "[parameters('vmSize')]"
+                  },
+                  "tagsByResource": {
+                    "value": "[parameters('tagsByResource')]"
                   }
                 },
                 "template": {
@@ -518,7 +534,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1272.37030",
-                      "templateHash": "18440020198386350136"
+                      "templateHash": "1976441923952094471"
                     }
                   },
                   "parameters": {
@@ -553,6 +569,10 @@
                         "2016-datacenter",
                         "2012-R2-datacenter"
                       ]
+                    },
+                    "tagsByResource": {
+                      "type": "object",
+                      "defaultValue": {}
                     }
                   },
                   "variables": {
@@ -596,6 +616,7 @@
                           "vmSize": "[parameters('vmSize')]"
                         }
                       },
+                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Compute/virtualMachines'), parameters('tagsByResource')['Microsoft.Compute/virtualMachines'], createObject())]",
                       "dependsOn": [
                         "[resourceId('Microsoft.Network/networkInterfaces', format('{0}-nic', parameters('vmName')))]"
                       ]
@@ -1460,7 +1481,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1272.37030",
-              "templateHash": "12064320804069521029"
+              "templateHash": "4812080307972321936"
             }
           },
           "parameters": {
@@ -1714,7 +1735,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1272.37030",
-                      "templateHash": "18440020198386350136"
+                      "templateHash": "1976441923952094471"
                     }
                   },
                   "parameters": {
@@ -1749,6 +1770,10 @@
                         "2016-datacenter",
                         "2012-R2-datacenter"
                       ]
+                    },
+                    "tagsByResource": {
+                      "type": "object",
+                      "defaultValue": {}
                     }
                   },
                   "variables": {
@@ -1792,6 +1817,7 @@
                           "vmSize": "[parameters('vmSize')]"
                         }
                       },
+                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Compute/virtualMachines'), parameters('tagsByResource')['Microsoft.Compute/virtualMachines'], createObject())]",
                       "dependsOn": [
                         "[resourceId('Microsoft.Network/networkInterfaces', format('{0}-nic', parameters('vmName')))]"
                       ]
@@ -2484,7 +2510,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1272.37030",
-              "templateHash": "16500273587954315090"
+              "templateHash": "15223008573652334822"
             }
           },
           "parameters": {
@@ -2732,7 +2758,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1272.37030",
-                      "templateHash": "18440020198386350136"
+                      "templateHash": "1976441923952094471"
                     }
                   },
                   "parameters": {
@@ -2767,6 +2793,10 @@
                         "2016-datacenter",
                         "2012-R2-datacenter"
                       ]
+                    },
+                    "tagsByResource": {
+                      "type": "object",
+                      "defaultValue": {}
                     }
                   },
                   "variables": {
@@ -2810,6 +2840,7 @@
                           "vmSize": "[parameters('vmSize')]"
                         }
                       },
+                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Compute/virtualMachines'), parameters('tagsByResource')['Microsoft.Compute/virtualMachines'], createObject())]",
                       "dependsOn": [
                         "[resourceId('Microsoft.Network/networkInterfaces', format('{0}-nic', parameters('vmName')))]"
                       ]
