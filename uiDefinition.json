@@ -369,14 +369,14 @@
 					]
 				},
 				{
-                    "name": "tags",
-                    "label": "Tags",
-                    "elements": [
-                        {
-                            "name": "tagsByResource",
-                            "type": "Microsoft.Common.TagsByResource",
-                            "resources": [
-                                "Microsoft.Compute/virtualMachines",
+					"name": "tags",
+					"label": "Tags",
+					"elements": [
+						{
+							"name": "tagsByResource",
+							"type": "Microsoft.Common.TagsByResource",
+							"resources": [
+								"Microsoft.Compute/virtualMachines",
 								"Microsoft.Network/networkSecurityGroups",
 								"Microsoft.Network/virtualNetworks",
 								"Microsoft.Network/bastionHosts",
@@ -387,10 +387,10 @@
 								"Microsoft.Network/publicIPAddresses",
 								"Microsoft.Network/localNetworkGateways",
 								"Microsoft.Network/connections"
-                            ]
-                        }
-                    ]
-                }
+							]
+						}
+					]
+				}
 			]
 		},
 		"outputs": {
@@ -419,7 +419,6 @@
 				"deployBastionInOnPrem": "[steps('OnPrem').deployBastionInOnPrem]",
 				"deployGatewayinOnPrem": "[steps('OnPrem').deployGatewayInOnPrem]",
 				"deploySiteToSite": "[steps('OnPrem').deploySite2Site]"
-
 			},
 			"kind": "Subscription",
 			"subscriptionId": "[steps('basics').resourceScope.subscription.id]",
