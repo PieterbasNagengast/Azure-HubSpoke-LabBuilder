@@ -13,6 +13,7 @@ param hubRgName string
 param deployFirewallrules bool
 param deployGatewayInHub bool
 param vmSize string
+param tagsByResource object
 
 var vnetAddressSpace = replace(AddressSpace, '/16', '/24')
 var defaultSubnetPrefix = replace(vnetAddressSpace, '/24', '/26')

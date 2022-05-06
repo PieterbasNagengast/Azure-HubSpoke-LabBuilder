@@ -367,12 +367,32 @@
 							"visible": "[or(equals(steps('VirtualMachines').deployVMsInSpokes,true),equals(steps('VirtualMachines').deployVMinHub,true),equals(steps('VirtualMachines').deployVMinOnPrem,true))]"
 						}
 					]
-				}
+				},
+				{
+                    "name": "tags",
+                    "label": "Tags",
+                    "elements": [
+                        {
+                            "name": "tagsByResource",
+                            "type": "Microsoft.Common.TagsByResource",
+                            "resources": [
+                                "Microsoft.Compute/virtualMachines",
+								"Microsoft.Network/networkSecurityGroups",
+								"Microsoft.Network/virtualNetworks",
+								"Microsoft.Network/bastionHosts",
+								"Microsoft.Network/azureFirewalls",
+								"Microsoft.Network/routeTables",
+								"Microsoft.Network/virtualNetworkGateways"
+                            ]
+                        }
+                    ]
+                }
 			]
 		},
 		"outputs": {
 			"parameters": {
 				"AddressSpace": "[steps('basics').AddressSpace]",
+				"tagsByResource": "[steps('tags').tagsByResource]",
 				"adminUsername": "[steps('VirtualMachines').adminUsername]",
 				"adminPassword": "[steps('VirtualMachines').adminPassword.password]",
 				"deployVMsInSpokes": "[steps('VirtualMachines').deployVMsInSpokes]",

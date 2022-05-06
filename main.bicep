@@ -18,6 +18,9 @@ param AddressSpace string = '172.16.0.0/16'
 @description('Azure Region. Defualt = Deployment location')
 param location string = deployment().location
 
+@description('Tags by resource types')
+param tagsByResource object = {}
+
 // Spoke VNET Parameters
 @description('Deploy Spoke VNETs')
 param deploySpokes bool = true

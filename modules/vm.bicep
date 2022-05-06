@@ -13,6 +13,7 @@ param storageType string = 'StandardSSD_LRS'
   '2012-R2-datacenter'
 ])
 param OSVersion string = '2022-datacenter'
+param tagsByResource object = {}
 
 var EnableICMPv4 = 'netsh advfirewall firewall add rule name="ICMP Allow incoming V4 echo request" protocol="icmpv4:8,any" dir=in action=allow'
 
@@ -51,6 +52,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2021-11-01' = {
       vmSize: vmSize
     }
   }
+  tags: contains(tagsByResource, 'Microsoft.Compute/virtualMachines') ? tagsByResource['Microsoft.Compute/virtualMachines'] : {}
 }
 
 resource nic 'Microsoft.Network/networkInterfaces@2021-05-01' = {
