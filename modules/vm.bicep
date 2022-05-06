@@ -7,12 +7,9 @@ param subnetID string
 param vmSize string
 param storageType string = 'StandardSSD_LRS'
 @allowed([
-  '2022-datacenter'
-  '2019-datacenter'
-  '2016-datacenter'
-  '2012-R2-datacenter'
+  '2022-datacenter-g2'
 ])
-param OSVersion string = '2022-datacenter'
+param OSVersion string = '2022-datacenter-g2'
 param tagsByResource object = {}
 
 var EnableICMPv4 = 'netsh advfirewall firewall add rule name="ICMP Allow incoming V4 echo request" protocol="icmpv4:8,any" dir=in action=allow'

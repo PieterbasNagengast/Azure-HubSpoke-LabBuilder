@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1272.37030",
-      "templateHash": "10185061388608030590"
+      "templateHash": "12577942257676719166"
     }
   },
   "parameters": {
@@ -258,7 +258,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1272.37030",
-              "templateHash": "5074200463057908420"
+              "templateHash": "8925811696813845357"
             }
           },
           "parameters": {
@@ -542,7 +542,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1272.37030",
-                      "templateHash": "18119060452542130282"
+                      "templateHash": "191567655701879973"
                     }
                   },
                   "parameters": {
@@ -570,12 +570,9 @@
                     },
                     "OSVersion": {
                       "type": "string",
-                      "defaultValue": "2022-datacenter",
+                      "defaultValue": "2022-datacenter-g2",
                       "allowedValues": [
-                        "2022-datacenter",
-                        "2019-datacenter",
-                        "2016-datacenter",
-                        "2012-R2-datacenter"
+                        "2022-datacenter-g2"
                       ]
                     },
                     "tagsByResource": {
@@ -1537,7 +1534,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1272.37030",
-              "templateHash": "8414355652231984262"
+              "templateHash": "6790191020493479385"
             }
           },
           "parameters": {
@@ -1805,7 +1802,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1272.37030",
-                      "templateHash": "18119060452542130282"
+                      "templateHash": "191567655701879973"
                     }
                   },
                   "parameters": {
@@ -1833,12 +1830,9 @@
                     },
                     "OSVersion": {
                       "type": "string",
-                      "defaultValue": "2022-datacenter",
+                      "defaultValue": "2022-datacenter-g2",
                       "allowedValues": [
-                        "2022-datacenter",
-                        "2019-datacenter",
-                        "2016-datacenter",
-                        "2012-R2-datacenter"
+                        "2022-datacenter-g2"
                       ]
                     },
                     "tagsByResource": {
@@ -2609,7 +2603,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1272.37030",
-              "templateHash": "10934637405215126036"
+              "templateHash": "14023241680552940728"
             }
           },
           "parameters": {
@@ -2871,7 +2865,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1272.37030",
-                      "templateHash": "18119060452542130282"
+                      "templateHash": "191567655701879973"
                     }
                   },
                   "parameters": {
@@ -2899,12 +2893,9 @@
                     },
                     "OSVersion": {
                       "type": "string",
-                      "defaultValue": "2022-datacenter",
+                      "defaultValue": "2022-datacenter-g2",
                       "allowedValues": [
-                        "2022-datacenter",
-                        "2019-datacenter",
-                        "2016-datacenter",
-                        "2012-R2-datacenter"
+                        "2022-datacenter-g2"
                       ]
                     },
                     "tagsByResource": {
