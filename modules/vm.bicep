@@ -6,13 +6,26 @@ param adminPassword string
 param subnetID string
 param vmSize string
 param storageType string = 'StandardSSD_LRS'
-@allowed([
-  '2022-datacenter-g2'
-])
-param OSVersion string = '2022-datacenter-g2'
+param osType string = 'Windows'
 param tagsByResource object = {}
 
 var EnableICMPv4 = 'netsh advfirewall firewall add rule name="ICMP Allow incoming V4 echo request" protocol="icmpv4:8,any" dir=in action=allow'
+
+var Windows = {
+  publisher: 'MicrosoftWindowsServer'
+  offer: 'WindowsServer'
+  sku: '2022-datacenter-g2'
+  version: 'latest'
+}
+
+var Linux = {
+  publisher: 'Canonical'
+  offer: '0001-com-ubuntu-server-jammy' 
+  sku: '22_04-lts-gen2' 
+  version: 'latest'
+}
+
+var imagereference = (osType == 'Windows') ? Windows : (osType == 'Linux') ? Linux : {}
 
 resource vm 'Microsoft.Compute/virtualMachines@2021-11-01' = {
   name: vmName
@@ -24,18 +37,13 @@ resource vm 'Microsoft.Compute/virtualMachines@2021-11-01' = {
       adminPassword: adminPassword
     }
     storageProfile: {
-      imageReference: {
-        publisher: 'MicrosoftWindowsServer'
-        offer: 'WindowsServer'
-        sku: OSVersion
-        version: 'latest'
-      }
+      imageReference: imagereference
       osDisk: {
         createOption: 'FromImage'
         managedDisk: {
           storageAccountType: storageType
         }
-        osType: 'Windows'
+        osType: osType
       }
     }
     networkProfile: {
@@ -47,6 +55,11 @@ resource vm 'Microsoft.Compute/virtualMachines@2021-11-01' = {
     }
     hardwareProfile: {
       vmSize: vmSize
+    }
+    diagnosticsProfile: {
+       bootDiagnostics: {
+          enabled: true
+       }
     }
   }
   tags: contains(tagsByResource, 'Microsoft.Compute/virtualMachines') ? tagsByResource['Microsoft.Compute/virtualMachines'] : {}
@@ -72,7 +85,7 @@ resource nic 'Microsoft.Network/networkInterfaces@2021-05-01' = {
   tags: contains(tagsByResource, 'Microsoft.Compute/virtualMachines') ? tagsByResource['Microsoft.Compute/virtualMachines'] : {}
 }
 
-module run 'runcommand.bicep' = {
+module run 'runcommand.bicep' = if (osType == 'Windows') {
   name: '${vmName}-runCommand'
   params: {
     location: location

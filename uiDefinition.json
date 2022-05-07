@@ -310,6 +310,27 @@
 							"visible": true
 						},
 						{
+							"name": "osType",
+							"type": "Microsoft.Common.OptionsGroup",
+							"label": "Virtual Machine OS Type",
+							"defaultValue": "Windows",
+							"toolTip": "",
+							"constraints": {
+								"allowedValues": [
+									{
+										"label": "Windows",
+										"value": "Windows"
+									},
+									{
+										"label": "Linux",
+										"value": "Linux"
+									}
+								],
+								"required": true
+							},
+							"visible": true
+						},
+						{
 							"name": "vmSize",
 							"type": "Microsoft.Compute.SizeSelector",
 							"label": "Virtual Machine SKU Size",
@@ -402,6 +423,7 @@
 				"deployVMsInSpokes": "[steps('VirtualMachines').deployVMsInSpokes]",
 				"deployVMinHub": "[steps('VirtualMachines').deployVMinHub]",
 				"deployVMinOnPrem": "[steps('VirtualMachines').deployVMinOnPrem]",
+				"osType": "[steps('VirtualMachines').osType]",
 				"vmSize": "[steps('VirtualMachines').vmSize]",
 				"deploySpokes": "[steps('SpokeVNETs').deploySpokes]",
 				"amountOfSpokes": "[steps('SpokeVNETs').amountOfSpokes]",

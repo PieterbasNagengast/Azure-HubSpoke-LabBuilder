@@ -14,6 +14,7 @@ param HubDeployed bool
 param spokeRgNamePrefix string
 param vmSize string
 param tagsByResource object
+param osType string
 
 var vnetName = 'VNET-Spoke${counter}'
 var vmName = 'VM-Spoke${counter}'
@@ -57,6 +58,7 @@ module vm 'modules/vm.bicep' = if (deployVMsInSpokes) {
     vmName: vmName
     vmSize: vmSize
     tagsByResource: tagsByResource
+    osType: osType
   }
 }
 

@@ -11,6 +11,7 @@ param deployGatewayInOnPrem bool
 param OnPremRgName string
 param vmSize string
 param tagsByResource object
+param osType string
 
 var vnetName = 'VNET-OnPrem'
 var vmName = 'VM-OnPrem'
@@ -56,6 +57,7 @@ module vm 'modules/vm.bicep' = if (deployVMsInOnPrem) {
     vmName: vmName
     vmSize: vmSize
     tagsByResource: tagsByResource
+    osType: osType
   }
 }
 

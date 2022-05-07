@@ -14,6 +14,7 @@ param deployFirewallrules bool
 param deployGatewayInHub bool
 param vmSize string
 param tagsByResource object
+param osType string
 
 var vnetAddressSpace = replace(AddressSpace, '/16', '/24')
 var defaultSubnetPrefix = replace(vnetAddressSpace, '/24', '/26')
@@ -65,6 +66,7 @@ module vm 'modules/vm.bicep' = if (deployVMinHub) {
     vmName: vmName
     vmSize: vmSize
     tagsByResource: tagsByResource
+    osType: osType
   }
 }
 

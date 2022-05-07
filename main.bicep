@@ -11,6 +11,13 @@ param adminPassword string = ''
 @description('Virtual Machine SKU. Default = Standard_B2s')
 param vmSize string = 'Standard_B2s'
 
+@description('Virtual Machine OS type. Windows or Linux. Default = Windows')
+@allowed([
+  'Linux'
+  'Windows'
+])
+param osType string = 'Windows'
+
 // Shared parameters
 @description('IP Address space used for VNETs in deployment. Only enter a /16 subnet. Default = 172.16.0.0/16')
 param AddressSpace string = '172.16.0.0/16'
@@ -105,6 +112,7 @@ module hubVnet 'HubResourceGroup.bicep' = if (deployHUB) {
     deployGatewayInHub: deployGatewayInHub
     vmSize: vmSize
     tagsByResource: tagsByResource
+    osType: osType
   }
 }
 
@@ -125,6 +133,7 @@ module spokeVnets 'SpokeResourceGroup.bicep' = [for i in range(1, amountOfSpokes
     spokeRgNamePrefix: spokeRgNamePrefix
     vmSize: vmSize
     tagsByResource: tagsByResource
+    osType: osType
   }
 }]
 
@@ -156,6 +165,7 @@ module onprem 'OnPremResourceGroup.bicep' = if (deployOnPrem) {
     OnPremRgName: onpremRgName
     vmSize: vmSize
     tagsByResource: tagsByResource
+    osType: osType
   }
 }
 
