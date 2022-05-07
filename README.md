@@ -36,7 +36,11 @@ With that in mind I've created a "Hub & Spoke playground Lab builder" so you'll 
 
 With this 'Hub & Spoke playground - LAB Builder' you'll be able to deploy Hub & Spoke topologies in various ways.
 
-Optionaly you can deploy Azure Firewall (Standard or Premium) in Hub VNET incl. Route table, deploy Virtual Machine in Hub VNET and/or Spoke VNET's and deploy Bastion Host in Hub VNET and/or Spoke VNET's. On deployemnt you can specify the amount of Spoke VNET's to be deployed. VNET peerings will be deployed if both Hub and Spoke(s) are selected for deployement.
+Optionaly you can deploy Azure Firewall (Standard or Premium) in Hub VNET incl. Route table, deploy Virtual Machine in Hub VNET and/or Spoke VNET's and deploy Bastion Host in Hub VNET and/or Spoke VNET's. Optional deploy default Azure Firewall rule Collection group which enables spoke-to-spoke and internet traffic.
+
+On deployemnt you can specify the amount of Spoke VNET's to be deployed. VNET peerings will be deployed if both Hub and Spoke(s) are selected for deployement.
+
+To simulate OnPrem hybrid connectivity you can optionaly deploy a 'OnPrem' VNET. Optionaly deploy a Bastion Host, Virtual Machine and Virtual Network Gateway in the OnPrem VNET. When a Hub is also deployed with a VPN Gateway you can optionaly deploy a site-to-site VPN connection.
 
 ## LABbuilder scenario's
 
@@ -47,7 +51,7 @@ With LABbuilder you can deploy 4 **main** scenario's.
 3. Deploy **Hub and Spoke(s)**
 4. Deploy **Hub and Spoke(s)** and **OnPrem** simulating Hybrid connectivity
 
-Within these three **main** scenario's there are multiple options:
+Within these **main** scenario's there are multiple options:
 
 |Scenrio|What gets deployed|
 |-|-|
@@ -67,14 +71,17 @@ Within these three **main** scenario's there are multiple options:
 |Select Subscription and Region<br>Enter the a **/16** subnet<br>example: **172.16.0.0/16**<br><br>*Note: Hub VNET will always get the first available /24 subnet, first spoke the second subnet etc.<br>like:<br>172.16.0.0/24 = Hub VNET<br>172.16.1.0/24 = Spoke1<br>172.16.2.0/24 = Spoke2<br>etc.*|![Step1](images/DeployToAzure-Step1.png)|
 |Deploy Hub<br>Optional enable:<br>- Azure Bastion<br>- Azure Firewall Standard or Premium<bR>- Azure Firewall Policy rule Collection group|![Step2](images/DeployToAzure-Step2.png)|
 |Deploy Spokes<br>Enter resource group prefix name<br>Enter amount of Spokes to deploy (Max 25)<br>Optional enable:<br>- Azure Bastion<br><br> *Note: VM and Azure Bastion will be deployed in every Spoke*|![Step3](images/DeployToAzure-Step3.png)|
-|Deploy a simulated OnPrem incl. Hybrid Connectivity.<br>Enter resource group name<br>Optional enable:<br>- Azure Bastion<br>- Virtual Network Gateway<br>- Site-to-Site connection between OnPrem and Hub|![Step4](images/DeployToAzure-Step4.png)|
-|Enable Virtual Machine deployment in Hub, Spoke or OnPrem.<br><br>Enter Local Admin credentials If Virtual Machine is selected for Hub and/or Spoke|![Step4](images/DeployToAzure-Step5.png)|
-|Validate and Deploy|![Step5](images/DeployToAzure-Step6.png)|
+|Deploy a simulated OnPrem incl. Hybrid Connectivity.<br>Enter resource group name<br><br>Optional enable:<br>- Azure Bastion<br>- Virtual Network Gateway<br>- Site-to-Site connection between OnPrem and Hub|![Step4](images/DeployToAzure-Step4.png)|
+|Enable Virtual Machine deployment in Hub, Spoke or OnPrem.<br><br>Select OS Type (Windows or Linux)<br><br>Select VM SKU Size<br><br>Enter Local Admin credentials If Virtual Machine is selected for Hub and/or Spoke|![Step4](images/DeployToAzure-Step5.png)|
+|Setup Tags|![Step5](images/DeployToAzure-Step6.png)|
+|Validate and Deploy|![Step5](images/DeployToAzure-Step7.png)|
 
 ## Deployment notes
 
 - VNET Peering will be deployed when Hub and Spoke are selected
 - ICMPv4 Firewall rule will be enabled on Virtual Machines
+- Windows VM image is Windows Server 2022 Datacenter Gen2
+- Linux VM image is Ubuntu Server 22.04 LTS Gen2
 - Route tables incl. Default route will be deployed if Azure Firewall is selected (0.0.0.0/0 -> Azure Firewall)
 - Network Security group will be deplyed to 'default' subnets only
 - At deployemt use a /16 subnet. every VNET (Hub and Spoke VNET's) will get a /24 subnet
@@ -157,6 +164,9 @@ Within these three **main** scenario's there are multiple options:
 |deployVMinOnPrem|bool|false|Deploy VM in OnPrem VNET|
 |deployGatewayinOnPrem|bool|false|Deploy Virtual Network Gateway in OnPrem VNET|
 |deploySiteToSite|bool|false|Deploy Site-to-Site VPN Connection between OnPrem and Hub VNET|
+|osType|string|Windows|Virtual machine OS Type. Windows or Linux|
+|vmSize|string|Standard_B2s|Virtual machine SKU size|
+
 
 ### ~~Backlog~~... whishlist items
 
@@ -165,4 +175,9 @@ Within these three **main** scenario's there are multiple options:
 - ~~Deploy separate VNET (simulate OnPrem) and deploy VPN gateways including Site-to-Site tunnel~~
 - ~~remove static Resource Group names~~
 - ~~use CIDR notation as Address Space (Instead of first two octets)~~
+- ~~Virtual machine OS Type. Windows and Linux support~~
+- ~~Virtual Machine SKU size selection~~
+- ~~Virtual machine boot diagnostics (Managed storage account)~~
+- ~~Virtual machine delete option of Disk and Nic~~
+- ~~Tags support for resources deployed~~
 - etc...
