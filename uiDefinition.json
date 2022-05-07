@@ -328,7 +328,7 @@
 								],
 								"required": true
 							},
-							"visible": true
+							"visible": "[or(equals(steps('VirtualMachines').deployVMsInSpokes,true),equals(steps('VirtualMachines').deployVMinHub,true),equals(steps('VirtualMachines').deployVMinOnPrem,true))]"
 						},
 						{
 							"name": "vmSize",
