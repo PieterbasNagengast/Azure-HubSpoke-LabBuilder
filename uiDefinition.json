@@ -314,7 +314,7 @@
 							"type": "Microsoft.Common.OptionsGroup",
 							"label": "Virtual Machine OS Type",
 							"defaultValue": "Windows",
-							"toolTip": "",
+							"toolTip": "Virtual Machine OS type. Windows or Linux. Default = Windows",
 							"constraints": {
 								"allowedValues": [
 									{
@@ -327,6 +327,15 @@
 									}
 								],
 								"required": true
+							},
+							"visible": "[or(equals(steps('VirtualMachines').deployVMsInSpokes,true),equals(steps('VirtualMachines').deployVMinHub,true),equals(steps('VirtualMachines').deployVMinOnPrem,true))]"
+						},
+						{
+							"name": "VMosTypeInfo",
+							"type": "Microsoft.Common.InfoBox",
+							"options": {
+								"text": "Windows = Windows Server 2022 Datacenter - Gen2, Linux = Ubuntu Server 22.04 LTS Gen2",
+								"style": "Info"
 							},
 							"visible": "[or(equals(steps('VirtualMachines').deployVMsInSpokes,true),equals(steps('VirtualMachines').deployVMinHub,true),equals(steps('VirtualMachines').deployVMinOnPrem,true))]"
 						},
