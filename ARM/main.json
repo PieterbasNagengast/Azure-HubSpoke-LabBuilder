@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1272.37030",
-      "templateHash": "14913956696744958143"
+      "templateHash": "15857833405228240259"
     }
   },
   "parameters": {
@@ -272,7 +272,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1272.37030",
-              "templateHash": "11184132127112388217"
+              "templateHash": "16400198274972063032"
             }
           },
           "parameters": {
@@ -562,7 +562,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1272.37030",
-                      "templateHash": "14145506333287269766"
+                      "templateHash": "8734156456072154768"
                     }
                   },
                   "parameters": {
@@ -632,13 +632,17 @@
                             "managedDisk": {
                               "storageAccountType": "[parameters('storageType')]"
                             },
-                            "osType": "[parameters('osType')]"
+                            "osType": "[parameters('osType')]",
+                            "deleteOption": "Delete"
                           }
                         },
                         "networkProfile": {
                           "networkInterfaces": [
                             {
-                              "id": "[resourceId('Microsoft.Network/networkInterfaces', format('{0}-nic', parameters('vmName')))]"
+                              "id": "[resourceId('Microsoft.Network/networkInterfaces', format('{0}-nic', parameters('vmName')))]",
+                              "properties": {
+                                "deleteOption": "Delete"
+                              }
                             }
                           ]
                         },
@@ -1568,7 +1572,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1272.37030",
-              "templateHash": "14855443599955263242"
+              "templateHash": "5379704737222300324"
             }
           },
           "parameters": {
@@ -1842,7 +1846,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1272.37030",
-                      "templateHash": "14145506333287269766"
+                      "templateHash": "8734156456072154768"
                     }
                   },
                   "parameters": {
@@ -1912,13 +1916,17 @@
                             "managedDisk": {
                               "storageAccountType": "[parameters('storageType')]"
                             },
-                            "osType": "[parameters('osType')]"
+                            "osType": "[parameters('osType')]",
+                            "deleteOption": "Delete"
                           }
                         },
                         "networkProfile": {
                           "networkInterfaces": [
                             {
-                              "id": "[resourceId('Microsoft.Network/networkInterfaces', format('{0}-nic', parameters('vmName')))]"
+                              "id": "[resourceId('Microsoft.Network/networkInterfaces', format('{0}-nic', parameters('vmName')))]",
+                              "properties": {
+                                "deleteOption": "Delete"
+                              }
                             }
                           ]
                         },
@@ -2657,7 +2665,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1272.37030",
-              "templateHash": "8540121151222452970"
+              "templateHash": "12885451554287948321"
             }
           },
           "parameters": {
@@ -2925,7 +2933,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1272.37030",
-                      "templateHash": "14145506333287269766"
+                      "templateHash": "8734156456072154768"
                     }
                   },
                   "parameters": {
@@ -2995,13 +3003,17 @@
                             "managedDisk": {
                               "storageAccountType": "[parameters('storageType')]"
                             },
-                            "osType": "[parameters('osType')]"
+                            "osType": "[parameters('osType')]",
+                            "deleteOption": "Delete"
                           }
                         },
                         "networkProfile": {
                           "networkInterfaces": [
                             {
-                              "id": "[resourceId('Microsoft.Network/networkInterfaces', format('{0}-nic', parameters('vmName')))]"
+                              "id": "[resourceId('Microsoft.Network/networkInterfaces', format('{0}-nic', parameters('vmName')))]",
+                              "properties": {
+                                "deleteOption": "Delete"
+                              }
                             }
                           ]
                         },

@@ -44,12 +44,16 @@ resource vm 'Microsoft.Compute/virtualMachines@2021-11-01' = {
           storageAccountType: storageType
         }
         osType: osType
+        deleteOption: 'Delete'
       }
     }
     networkProfile: {
       networkInterfaces: [
         {
           id: nic.id
+          properties: {
+            deleteOption: 'Delete'
+          }
         }
       ]
     }
