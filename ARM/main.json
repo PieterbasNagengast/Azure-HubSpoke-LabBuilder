@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1272.37030",
-      "templateHash": "15857833405228240259"
+      "templateHash": "11227567316470184009"
     }
   },
   "parameters": {
@@ -2384,7 +2384,7 @@
       },
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
-      "name": "[format('VnetPeering{0}-{1}', range(0, parameters('amountOfSpokes'))[copyIndex()], parameters('location'))]",
+      "name": "[format('{0}-VnetPeering{1}-{2}', parameters('hubRgName'), add(range(0, parameters('amountOfSpokes'))[copyIndex()], 1), parameters('location'))]",
       "location": "[deployment().location]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -2616,7 +2616,7 @@
       "condition": "[parameters('deployOnPrem')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
-      "name": "[parameters('onpremRgName')]",
+      "name": "[format('{0}-{1}', parameters('onpremRgName'), parameters('location'))]",
       "location": "[deployment().location]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -3456,7 +3456,7 @@
       "condition": "[and(and(parameters('deployGatewayInHub'), parameters('deployGatewayinOnPrem')), parameters('deploySiteToSite'))]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
-      "name": "s2s-Hub-OnPrem",
+      "name": "[format('{0}-s2s-Hub-OnPrem-{1}', parameters('hubRgName'), parameters('location'))]",
       "location": "[deployment().location]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -3486,13 +3486,13 @@
             "value": "[if(parameters('deployOnPrem'), parameters('onpremRgName'), 'none')]"
           },
           "OnPremGatewayID": {
-            "value": "[if(parameters('deployGatewayinOnPrem'), reference(subscriptionResourceId('Microsoft.Resources/deployments', parameters('onpremRgName'))).outputs.OnPremGatewayID.value, 'none')]"
+            "value": "[if(parameters('deployGatewayinOnPrem'), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}', parameters('onpremRgName'), parameters('location')))).outputs.OnPremGatewayID.value, 'none')]"
           },
           "OnPremGatewayPublicIP": {
-            "value": "[if(parameters('deployGatewayinOnPrem'), reference(subscriptionResourceId('Microsoft.Resources/deployments', parameters('onpremRgName'))).outputs.OnPremGatewayPublicIP.value, 'none')]"
+            "value": "[if(parameters('deployGatewayinOnPrem'), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}', parameters('onpremRgName'), parameters('location')))).outputs.OnPremGatewayPublicIP.value, 'none')]"
           },
           "OnPremAddressPrefixes": {
-            "value": "[if(parameters('deployOnPrem'), array(reference(subscriptionResourceId('Microsoft.Resources/deployments', parameters('onpremRgName'))).outputs.OnPremAddressSpace.value), createArray())]"
+            "value": "[if(parameters('deployOnPrem'), array(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}', parameters('onpremRgName'), parameters('location')))).outputs.OnPremAddressSpace.value), createArray())]"
           },
           "OnPremLocalGatewayName": {
             "value": "[if(parameters('deploySiteToSite'), 'LocalGateway-OnPrem', 'none')]"
@@ -3793,7 +3793,7 @@
       },
       "dependsOn": [
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}', parameters('hubRgName'), parameters('location')))]",
-        "[subscriptionResourceId('Microsoft.Resources/deployments', parameters('onpremRgName'))]"
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}', parameters('onpremRgName'), parameters('location')))]"
       ]
     }
   ],
@@ -3820,15 +3820,15 @@
     },
     "OnPremVnetAddressSpace": {
       "type": "string",
-      "value": "[if(parameters('deployOnPrem'), reference(subscriptionResourceId('Microsoft.Resources/deployments', parameters('onpremRgName'))).outputs.OnPremAddressSpace.value, 'none')]"
+      "value": "[if(parameters('deployOnPrem'), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}', parameters('onpremRgName'), parameters('location')))).outputs.OnPremAddressSpace.value, 'none')]"
     },
     "OnPremGatewayPublicIP": {
       "type": "string",
-      "value": "[if(parameters('deployGatewayinOnPrem'), reference(subscriptionResourceId('Microsoft.Resources/deployments', parameters('onpremRgName'))).outputs.OnPremGatewayPublicIP.value, 'none')]"
+      "value": "[if(parameters('deployGatewayinOnPrem'), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}', parameters('onpremRgName'), parameters('location')))).outputs.OnPremGatewayPublicIP.value, 'none')]"
     },
     "OnPremGatewayID": {
       "type": "string",
-      "value": "[if(parameters('deployGatewayinOnPrem'), reference(subscriptionResourceId('Microsoft.Resources/deployments', parameters('onpremRgName'))).outputs.OnPremGatewayID.value, 'none')]"
+      "value": "[if(parameters('deployGatewayinOnPrem'), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}', parameters('onpremRgName'), parameters('location')))).outputs.OnPremGatewayID.value, 'none')]"
     },
     "SpokeVnets": {
       "type": "array",

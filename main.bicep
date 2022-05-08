@@ -139,7 +139,7 @@ module spokeVnets 'SpokeResourceGroup.bicep' = [for i in range(1, amountOfSpokes
 
 // VNET Peerings
 module vnetPeerings 'Vnetpeerings.bicep' = [for i in range(0, amountOfSpokes): if (deployHUB && deploySpokes) {
-  name: 'VnetPeering${i}-${location}'
+  name: '${hubRgName}-VnetPeering${i+1}-${location}'
   params: {
     HubResourceGroupName: deployHUB && deploySpokes ? hubVnet.outputs.HubResourceGroupName : 'No VNET peering'
     SpokeResourceGroupName: deployHUB && deploySpokes ? spokeVnets[i].outputs.spokeResourceGroupName : 'No peering'
@@ -153,7 +153,7 @@ module vnetPeerings 'Vnetpeerings.bicep' = [for i in range(0, amountOfSpokes): i
 
 // Deploy OnPrem VNET including VM, Bastion, Network Security Group and Virtual Network Gateway
 module onprem 'OnPremResourceGroup.bicep' = if (deployOnPrem) {
-  name: onpremRgName
+  name: '${onpremRgName}-${location}'
   params: {
     location: location
     adminPassword: adminPassword
@@ -171,7 +171,7 @@ module onprem 'OnPremResourceGroup.bicep' = if (deployOnPrem) {
 
 // Deploy S2s VPN from OnPrem Gateway to Hub Gateway
 module s2s 'VpnConnections.bicep' = if(deployGatewayInHub && deployGatewayinOnPrem && deploySiteToSite) {
-  name:'s2s-Hub-OnPrem'
+  name:'${hubRgName}-s2s-Hub-OnPrem-${location}'
   params: {
     location: location
     HubRgName: deployHUB ? hubRgName : 'none'
