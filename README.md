@@ -1,20 +1,19 @@
-# Hub & Spoke playground - LAB Builder
+<h1>Hub & Spoke playground - LAB Builder</h1>
 
-## Index
+## Table of contents
 
-- [Hub & Spoke playground - LAB Builder](#hub--spoke-playground---lab-builder)
-  - [Index](#index)
-  - [Deploy to Azure](#deploy-to-azure)
-  - [Introduction](#introduction)
-  - [Description](#description)
-  - [LABbuilder scenario's](#labbuilder-scenarios)
-  - [Topology drawing](#topology-drawing)
-  - [Deployment Steps](#deployment-steps)
-  - [Deployment notes](#deployment-notes)
-  - [Resource Names](#resource-names)
-  - [Appendix](#appendix)
-    - [Parameters](#parameters)
-    - [~~Backlog~~... whishlist items](#backlog-whishlist-items)
+- [Table of contents](#table-of-contents)
+- [Deploy to Azure](#deploy-to-azure)
+- [Introduction](#introduction)
+- [Description](#description)
+- [LAB Builder scenario's](#lab-builder-scenarios)
+- [Topology drawing](#topology-drawing)
+- [Deployment Steps](#deployment-steps)
+- [Deployment notes](#deployment-notes)
+- [Resource Names](#resource-names)
+- [Appendix](#appendix)
+  - [Parameters](#parameters)
+  - [~~Backlog~~... whishlist items](#backlog-whishlist-items)
 
 ## Deploy to Azure
 
@@ -30,7 +29,7 @@
 
 In my daily work I've created numourous times a (semi-)manual Hub & Spoke topology for Testing, (Self)Training, Demo or Reproduction purposes. I've always done this in multiple ways, like: PowerShell scripts, Azure CLI, ARM or Azure Potal GUI.....whatever was the best fit. But bottom line: Wathever option is fine by me as long as it has the least amount of effort to build it.
 
-With that in mind I've created a "Hub & Spoke playground Lab builder" so you'll be able to deploy Hub & Spoke scenario's in notime :) It takes approx. 20min to deploy a 'full option Hub & Spoke' deployment with 2 Spoke VNET's.
+With that in mind I've created a "Hub & Spoke playground Lab builder" so you'll be able to deploy Hub & Spoke scenario's in notime. It takes approx. 30min to deploy a 'full option Hub & Spoke' deployment with 2 Spoke VNET's.
 
 ## Description
 
@@ -42,7 +41,7 @@ On deployemnt you can specify the amount of Spoke VNET's to be deployed. VNET pe
 
 To simulate OnPrem hybrid connectivity you can optionaly deploy a 'OnPrem' VNET. Optionaly deploy a Bastion Host, Virtual Machine and Virtual Network Gateway in the OnPrem VNET. When a Hub is also deployed with a VPN Gateway you can optionaly deploy a site-to-site VPN connection.
 
-## LABbuilder scenario's
+## LAB Builder scenario's
 
 With LABbuilder you can deploy 4 **main** scenario's.
 
