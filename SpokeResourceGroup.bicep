@@ -15,6 +15,7 @@ param spokeRgNamePrefix string
 param vmSize string
 param tagsByResource object
 param osType string
+param hubDefaultSubnetPrefix string
 
 var vnetName = 'VNET-Spoke${counter}'
 var vmName = 'VM-Spoke${counter}'
@@ -38,7 +39,7 @@ module vnet 'modules/vnet.bicep' = {
     location: location
     vnetAddressSpcae: vnetAddressSpace
     nsgID: nsg.outputs.nsgID
-    rtID: deployFirewallInHub && HubDeployed ? rt.outputs.rtID : 'none'
+    rtDefID: deployFirewallInHub && HubDeployed ? rt.outputs.rtID : 'none'
     vnetname: vnetName
     defaultSubnetPrefix: defaultSubnetPrefix
     bastionSubnetPrefix: deployBastionInSpoke ? bastionSubnetPrefix : ''
@@ -93,12 +94,22 @@ module rt 'modules/routetable.bicep' = if (deployFirewallInHub && HubDeployed) {
   }
 }
 
-module route 'modules/route.bicep' = if (deployFirewallInHub && HubDeployed) {
+module route1 'modules/route.bicep' = if (deployFirewallInHub && HubDeployed) {
   scope: spokerg
-  name: 'Route'
+  name: 'RouteToInternet'
   params: {
     routeAddressPrefix: '0.0.0.0/0'
     routeName: deployFirewallInHub && HubDeployed ? '${rt.outputs.rtName}/toInternet' : 'none'
+    routeNextHopIpAddress: deployFirewallInHub && HubDeployed ? AzureFirewallpip : '1.2.3.4'
+  }
+}
+
+module route2 'modules/route.bicep' = if (deployFirewallInHub && HubDeployed) {
+  scope: spokerg
+  name: 'RouteToLocal'
+  params: {
+    routeAddressPrefix: hubDefaultSubnetPrefix
+    routeName: deployFirewallInHub && HubDeployed ? '${rt.outputs.rtName}/toHubDefaultSubnet' : 'none'
     routeNextHopIpAddress: deployFirewallInHub && HubDeployed ? AzureFirewallpip : '1.2.3.4'
   }
 }
