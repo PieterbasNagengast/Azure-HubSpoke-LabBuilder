@@ -92,8 +92,11 @@ param deployGatewayinOnPrem bool = false
 @description('Deploy Site-to-Site VPN connection between OnPrem and Hub Gateways')
 param deploySiteToSite bool = false
 
-// Create array of all Address Spaces used for Hub and Spoke VNET's (used in site-to-site connection)
+// Create array of all Address Spaces used for site-to-site connection from Hub to OnPrem
 var AllAddressSpaces = [for i in range(0, amountOfSpokes + 1): replace(AddressSpace,'0.0/16','${i}.0/24')]
+
+// Create array of all Spoke Address Spaces used to set routes on VPN Gateway rout table in Hub
+var AllSpokeAddressSpaces = [for i in range(1, amountOfSpokes): replace(AddressSpace,'0.0/16','${i}.0/24')]
 
 // Deploy Hub VNET including VM, Bastion Host, Route Table, Network Security group and Azure Firewall
 module hubVnet 'HubResourceGroup.bicep' = if (deployHUB) {
@@ -113,6 +116,7 @@ module hubVnet 'HubResourceGroup.bicep' = if (deployHUB) {
     vmSize: vmSize
     tagsByResource: tagsByResource
     osType: osType
+    AllSpokeAddressSpaces: AllSpokeAddressSpaces
   }
 }
 
@@ -134,6 +138,7 @@ module spokeVnets 'SpokeResourceGroup.bicep' = [for i in range(1, amountOfSpokes
     vmSize: vmSize
     tagsByResource: tagsByResource
     osType: osType
+    hubDefaultSubnetPrefix: deployHUB ? hubVnet.outputs.hubDefaultSubnetPrefix : 'Not deployed'
   }
 }]
 

@@ -6,7 +6,8 @@ param bastionSubnetPrefix string = ''
 param firewallSubnetPrefix string = ''
 param GatewaySubnetPrefix string = ''
 param nsgID string
-param rtID string = 'none'
+param rtDefID string = 'none'
+param rtGwID string = 'none'
 param deployBastionSubnet bool = false
 param deployFirewallSubnet bool = false
 param deployGatewaySubnet bool = false
@@ -20,7 +21,7 @@ var defaultSubnet = [
       networkSecurityGroup: {
         id: nsgID
       }
-      routeTable: rtID == 'none' ? json('null') : json('{"id": "${rtID}"}"')
+      routeTable: rtDefID == 'none' ? json('null') : json('{"id": "${rtDefID}"}"')
     }
   }
 ]
@@ -43,11 +44,12 @@ var firewallSubnet = !deployFirewallSubnet ? [] : [
   }
 ]
 
-var gatewaySubnet = !deployGatewaySubnet ? [] : [
+var gatewaySubnet = !deployGatewaySubnet && !deployFirewallSubnet ? [] : [
   {
     name: 'GatewaySubnet'
     properties: {
       addressPrefix: GatewaySubnetPrefix
+      routeTable: rtGwID == 'none' ? json('null') : json('{"id": "${rtGwID}"}"')
     }
   }
 ]

@@ -15,6 +15,7 @@ param deployGatewayInHub bool
 param vmSize string
 param tagsByResource object
 param osType string
+param AllSpokeAddressSpaces array
 
 var vnetAddressSpace = replace(AddressSpace, '/16', '/24')
 var defaultSubnetPrefix = replace(vnetAddressSpace, '/24', '/26')
@@ -25,7 +26,8 @@ var gatewaySubnetPrefix = replace(vnetAddressSpace, '0/24', '160/27')
 var vmName = 'VM-Hub'
 var nsgName = 'NSG-Hub'
 var bastionName = 'Bastion-Hub'
-var rtName = 'RT-Hub'
+var rtNameDefSubnet = 'RT-Hub-DefaultSubnet'
+var rtNameVPNgwSubnet = 'RT-Hub-GatewaySubnet'
 var hubVnetName = 'VNET-Hub'
 var firewallName = 'Firewall-Hub'
 var gatewayName = 'Gateway-Hub'
@@ -42,7 +44,8 @@ module vnet 'modules/vnet.bicep' = {
     location: location
     vnetAddressSpcae: vnetAddressSpace
     nsgID: nsg.outputs.nsgID
-    rtID: deployFirewallInHub ? rt.outputs.rtID : 'none'
+    rtDefID: deployFirewallInHub ? rtDefault.outputs.rtID : 'none'
+    rtGwID: deployFirewallInHub && deployGatewayInHub? rtvpngw.outputs.rtID : 'none'
     vnetname: hubVnetName
     defaultSubnetPrefix: defaultSubnetPrefix
     bastionSubnetPrefix: bastionSubnetPrefix
@@ -112,25 +115,35 @@ module firewallrules 'modules/firewallpolicyrules.bicep' = if (deployFirewallrul
   }
 }
 
-module rt 'modules/routetable.bicep' = if (deployFirewallInHub) {
+module rtDefault 'modules/routetable.bicep' = if (deployFirewallInHub) {
   scope: hubrg
-  name: 'routeTable'
+  name: 'routeTable-Default'
   params: {
     location: location
-    rtName: rtName
+    rtName: rtNameDefSubnet
     tagsByResource: tagsByResource
   }
 }
 
-module route 'modules/route.bicep' = if (deployFirewallInHub) {
+module routeDefault1 'modules/route.bicep' = if (deployFirewallInHub) {
   scope: hubrg
-  name: 'Route'
+  name: 'RouteToInternet'
   params: {
     routeAddressPrefix: '0.0.0.0/0'
-    routeName: deployFirewallInHub ? '${rt.outputs.rtName}/toInternet' : 'dummy'
+    routeName: deployFirewallInHub ? '${rtDefault.outputs.rtName}/toInternet' : 'dummy'
     routeNextHopIpAddress: deployFirewallInHub ? firewall.outputs.azFwIP : '1.2.3.4'
   }
 }
+
+module routeDefault2 'modules/route.bicep' = [for (addressRange, i) in AllSpokeAddressSpaces : if (deployFirewallInHub) {
+  scope: hubrg
+  name: 'RouteToLocal${i}'
+  params: {
+    routeAddressPrefix: addressRange
+    routeName: deployFirewallInHub && deployGatewayInHub ? '${rtDefault.outputs.rtName}/LocalRoute${i}' : 'dummy'
+    routeNextHopIpAddress: deployFirewallInHub ? firewall.outputs.azFwIP : '1.2.3.4'
+  }
+}]
 
 module vpngw 'modules/vpngateway.bicep' = if (deployGatewayInHub) {
   scope: hubrg
@@ -143,10 +156,30 @@ module vpngw 'modules/vpngateway.bicep' = if (deployGatewayInHub) {
   }
 }
 
+module rtvpngw 'modules/routetable.bicep' = if (deployFirewallInHub && deployGatewayInHub) {
+  scope: hubrg
+  name: 'routeTable-VPNGW'
+  params: {
+    location: location
+    rtName: rtNameVPNgwSubnet
+  }
+}
+
+module routeVPNgw 'modules/route.bicep' = [for (addressRange, i) in concat(AllSpokeAddressSpaces,array(defaultSubnetPrefix)) : if (deployFirewallInHub && deployGatewayInHub) {
+  scope: hubrg
+  name: 'Route-vpngw${i}'
+  params: {
+    routeAddressPrefix: addressRange
+    routeName: deployFirewallInHub && deployGatewayInHub ? '${rtvpngw.outputs.rtName}/LocalRoute${i}' : 'dummy'
+    routeNextHopIpAddress: deployFirewallInHub ? firewall.outputs.azFwIP : '1.2.3.4'
+  }
+}]
+
 output hubVnetID string = vnet.outputs.vnetID
 output azFwIp string = deployFirewallInHub ? firewall.outputs.azFwIP : '1.2.3.4'
 output HubResourceGroupName string = hubrg.name
 output hubVnetName string = vnet.outputs.vnetName
 output hubVnetAddressSpace string = vnetAddressSpace
+output hubDefaultSubnetPrefix string = defaultSubnetPrefix
 output hubGatewayPublicIP string = deployGatewayInHub ? vpngw.outputs.vpnGwPublicIP : 'none'
 output hubGatewayID string = deployGatewayInHub ? vpngw.outputs.vpnGwID : 'none'
