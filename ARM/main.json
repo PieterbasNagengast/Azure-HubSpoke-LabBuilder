@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1272.37030",
-      "templateHash": "11227567316470184009"
+      "templateHash": "16107776361851204630"
     }
   },
   "parameters": {
@@ -206,6 +206,11 @@
         "name": "AllAddressSpaces",
         "count": "[length(range(0, add(parameters('amountOfSpokes'), 1)))]",
         "input": "[replace(parameters('AddressSpace'), '0.0/16', format('{0}.0/24', range(0, add(parameters('amountOfSpokes'), 1))[copyIndex('AllAddressSpaces')]))]"
+      },
+      {
+        "name": "AllSpokeAddressSpaces",
+        "count": "[length(range(1, parameters('amountOfSpokes')))]",
+        "input": "[replace(parameters('AddressSpace'), '0.0/16', format('{0}.0/24', range(1, parameters('amountOfSpokes'))[copyIndex('AllSpokeAddressSpaces')]))]"
       }
     ]
   },
@@ -263,6 +268,9 @@
           },
           "osType": {
             "value": "[parameters('osType')]"
+          },
+          "AllSpokeAddressSpaces": {
+            "value": "[variables('AllSpokeAddressSpaces')]"
           }
         },
         "template": {
@@ -272,7 +280,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1272.37030",
-              "templateHash": "16400198274972063032"
+              "templateHash": "8402814749651457414"
             }
           },
           "parameters": {
@@ -317,6 +325,9 @@
             },
             "osType": {
               "type": "string"
+            },
+            "AllSpokeAddressSpaces": {
+              "type": "array"
             }
           },
           "variables": {
@@ -328,7 +339,8 @@
             "vmName": "VM-Hub",
             "nsgName": "NSG-Hub",
             "bastionName": "Bastion-Hub",
-            "rtName": "RT-Hub",
+            "rtNameDefSubnet": "RT-Hub-DefaultSubnet",
+            "rtNameVPNgwSubnet": "RT-Hub-GatewaySubnet",
             "hubVnetName": "VNET-Hub",
             "firewallName": "Firewall-Hub",
             "gatewayName": "Gateway-Hub"
@@ -360,8 +372,11 @@
                   "nsgID": {
                     "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'nsg')).outputs.nsgID.value]"
                   },
-                  "rtID": {
-                    "value": "[if(parameters('deployFirewallInHub'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'routeTable')).outputs.rtID.value, 'none')]"
+                  "rtDefID": {
+                    "value": "[if(parameters('deployFirewallInHub'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'routeTable-Default')).outputs.rtID.value, 'none')]"
+                  },
+                  "rtGwID": {
+                    "value": "[if(and(parameters('deployFirewallInHub'), parameters('deployGatewayInHub')), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'routeTable-VPNGW')).outputs.rtID.value, 'none')]"
                   },
                   "vnetname": {
                     "value": "[variables('hubVnetName')]"
@@ -398,7 +413,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1272.37030",
-                      "templateHash": "12585763151169617245"
+                      "templateHash": "15972562488758076476"
                     }
                   },
                   "parameters": {
@@ -429,7 +444,11 @@
                     "nsgID": {
                       "type": "string"
                     },
-                    "rtID": {
+                    "rtDefID": {
+                      "type": "string",
+                      "defaultValue": "none"
+                    },
+                    "rtGwID": {
                       "type": "string",
                       "defaultValue": "none"
                     },
@@ -459,13 +478,13 @@
                           "networkSecurityGroup": {
                             "id": "[parameters('nsgID')]"
                           },
-                          "routeTable": "[if(equals(parameters('rtID'), 'none'), json('null'), json(format('{{\"id\": \"{0}\"}}\"', parameters('rtID'))))]"
+                          "routeTable": "[if(equals(parameters('rtDefID'), 'none'), json('null'), json(format('{{\"id\": \"{0}\"}}\"', parameters('rtDefID'))))]"
                         }
                       }
                     ],
                     "bastionSubnet": "[if(not(parameters('deployBastionSubnet')), createArray(), createArray(createObject('name', 'AzureBastionSubnet', 'properties', createObject('addressPrefix', parameters('bastionSubnetPrefix')))))]",
                     "firewallSubnet": "[if(not(parameters('deployFirewallSubnet')), createArray(), createArray(createObject('name', 'AzureFirewallSubnet', 'properties', createObject('addressPrefix', parameters('firewallSubnetPrefix')))))]",
-                    "gatewaySubnet": "[if(not(parameters('deployGatewaySubnet')), createArray(), createArray(createObject('name', 'GatewaySubnet', 'properties', createObject('addressPrefix', parameters('GatewaySubnetPrefix')))))]"
+                    "gatewaySubnet": "[if(and(not(parameters('deployGatewaySubnet')), not(parameters('deployFirewallSubnet'))), createArray(), createArray(createObject('name', 'GatewaySubnet', 'properties', createObject('addressPrefix', parameters('GatewaySubnetPrefix'), 'routeTable', if(equals(parameters('rtGwID'), 'none'), json('null'), json(format('{{\"id\": \"{0}\"}}\"', parameters('rtGwID'))))))))]"
                   },
                   "resources": [
                     {
@@ -515,7 +534,8 @@
               "dependsOn": [
                 "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('hubRgName'))]",
                 "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'nsg')]",
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'routeTable')]"
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'routeTable-Default')]",
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'routeTable-VPNGW')]"
               ]
             },
             {
@@ -1195,7 +1215,7 @@
               "condition": "[parameters('deployFirewallInHub')]",
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2020-10-01",
-              "name": "routeTable",
+              "name": "routeTable-Default",
               "resourceGroup": "[parameters('hubRgName')]",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -1207,7 +1227,7 @@
                     "value": "[parameters('location')]"
                   },
                   "rtName": {
-                    "value": "[variables('rtName')]"
+                    "value": "[variables('rtNameDefSubnet')]"
                   },
                   "tagsByResource": {
                     "value": "[parameters('tagsByResource')]"
@@ -1271,7 +1291,7 @@
               "condition": "[parameters('deployFirewallInHub')]",
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2020-10-01",
-              "name": "Route",
+              "name": "RouteToInternet",
               "resourceGroup": "[parameters('hubRgName')]",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -1283,7 +1303,7 @@
                     "value": "0.0.0.0/0"
                   },
                   "routeName": {
-                    "value": "[if(parameters('deployFirewallInHub'), format('{0}/toInternet', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'routeTable')).outputs.rtName.value), 'dummy')]"
+                    "value": "[if(parameters('deployFirewallInHub'), format('{0}/toInternet', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'routeTable-Default')).outputs.rtName.value), 'dummy')]"
                   },
                   "routeNextHopIpAddress": {
                     "value": "[if(parameters('deployFirewallInHub'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'hubFirewall')).outputs.azFwIP.value, '1.2.3.4')]"
@@ -1331,7 +1351,78 @@
               "dependsOn": [
                 "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'hubFirewall')]",
                 "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('hubRgName'))]",
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'routeTable')]"
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'routeTable-Default')]"
+              ]
+            },
+            {
+              "condition": "[parameters('deployFirewallInHub')]",
+              "copy": {
+                "name": "routeDefault2",
+                "count": "[length(parameters('AllSpokeAddressSpaces'))]"
+              },
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2020-10-01",
+              "name": "[format('RouteToLocal{0}', copyIndex())]",
+              "resourceGroup": "[parameters('hubRgName')]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "routeAddressPrefix": {
+                    "value": "[parameters('AllSpokeAddressSpaces')[copyIndex()]]"
+                  },
+                  "routeName": {
+                    "value": "[if(parameters('deployFirewallInHub'), format('{0}/LocalRoute{1}', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'routeTable-Default')).outputs.rtName.value, copyIndex()), 'dummy')]"
+                  },
+                  "routeNextHopIpAddress": {
+                    "value": "[if(parameters('deployFirewallInHub'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'hubFirewall')).outputs.azFwIP.value, '1.2.3.4')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.4.1272.37030",
+                      "templateHash": "8096143721828499520"
+                    }
+                  },
+                  "parameters": {
+                    "routeName": {
+                      "type": "string"
+                    },
+                    "routeNextHopType": {
+                      "type": "string",
+                      "defaultValue": "VirtualAppliance"
+                    },
+                    "routeAddressPrefix": {
+                      "type": "string"
+                    },
+                    "routeNextHopIpAddress": {
+                      "type": "string"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Network/routeTables/routes",
+                      "apiVersion": "2021-05-01",
+                      "name": "[parameters('routeName')]",
+                      "properties": {
+                        "nextHopType": "[parameters('routeNextHopType')]",
+                        "addressPrefix": "[parameters('routeAddressPrefix')]",
+                        "nextHopIpAddress": "[parameters('routeNextHopIpAddress')]"
+                      }
+                    }
+                  ]
+                }
+              },
+              "dependsOn": [
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'hubFirewall')]",
+                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('hubRgName'))]",
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'routeTable-Default')]"
               ]
             },
             {
@@ -1471,6 +1562,150 @@
                 "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('hubRgName'))]",
                 "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'hubvnet')]"
               ]
+            },
+            {
+              "condition": "[and(parameters('deployFirewallInHub'), parameters('deployGatewayInHub'))]",
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2020-10-01",
+              "name": "routeTable-VPNGW",
+              "resourceGroup": "[parameters('hubRgName')]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
+                  "rtName": {
+                    "value": "[variables('rtNameVPNgwSubnet')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.4.1272.37030",
+                      "templateHash": "7736955651557094540"
+                    }
+                  },
+                  "parameters": {
+                    "rtName": {
+                      "type": "string"
+                    },
+                    "location": {
+                      "type": "string"
+                    },
+                    "disableRouteProp": {
+                      "type": "bool",
+                      "defaultValue": true
+                    },
+                    "tagsByResource": {
+                      "type": "object",
+                      "defaultValue": {}
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Network/routeTables",
+                      "apiVersion": "2021-05-01",
+                      "name": "[parameters('rtName')]",
+                      "location": "[parameters('location')]",
+                      "properties": {
+                        "disableBgpRoutePropagation": "[parameters('disableRouteProp')]"
+                      },
+                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/routeTables'), parameters('tagsByResource')['Microsoft.Network/routeTables'], createObject())]"
+                    }
+                  ],
+                  "outputs": {
+                    "rtID": {
+                      "type": "string",
+                      "value": "[resourceId('Microsoft.Network/routeTables', parameters('rtName'))]"
+                    },
+                    "rtName": {
+                      "type": "string",
+                      "value": "[parameters('rtName')]"
+                    }
+                  }
+                }
+              },
+              "dependsOn": [
+                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('hubRgName'))]"
+              ]
+            },
+            {
+              "condition": "[and(parameters('deployFirewallInHub'), parameters('deployGatewayInHub'))]",
+              "copy": {
+                "name": "routeVPNgw",
+                "count": "[length(concat(parameters('AllSpokeAddressSpaces'), array(variables('defaultSubnetPrefix'))))]"
+              },
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2020-10-01",
+              "name": "[format('Route-vpngw{0}', copyIndex())]",
+              "resourceGroup": "[parameters('hubRgName')]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "routeAddressPrefix": {
+                    "value": "[concat(parameters('AllSpokeAddressSpaces'), array(variables('defaultSubnetPrefix')))[copyIndex()]]"
+                  },
+                  "routeName": {
+                    "value": "[if(and(parameters('deployFirewallInHub'), parameters('deployGatewayInHub')), format('{0}/LocalRoute{1}', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'routeTable-VPNGW')).outputs.rtName.value, copyIndex()), 'dummy')]"
+                  },
+                  "routeNextHopIpAddress": {
+                    "value": "[if(parameters('deployFirewallInHub'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'hubFirewall')).outputs.azFwIP.value, '1.2.3.4')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.4.1272.37030",
+                      "templateHash": "8096143721828499520"
+                    }
+                  },
+                  "parameters": {
+                    "routeName": {
+                      "type": "string"
+                    },
+                    "routeNextHopType": {
+                      "type": "string",
+                      "defaultValue": "VirtualAppliance"
+                    },
+                    "routeAddressPrefix": {
+                      "type": "string"
+                    },
+                    "routeNextHopIpAddress": {
+                      "type": "string"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Network/routeTables/routes",
+                      "apiVersion": "2021-05-01",
+                      "name": "[parameters('routeName')]",
+                      "properties": {
+                        "nextHopType": "[parameters('routeNextHopType')]",
+                        "addressPrefix": "[parameters('routeAddressPrefix')]",
+                        "nextHopIpAddress": "[parameters('routeNextHopIpAddress')]"
+                      }
+                    }
+                  ]
+                }
+              },
+              "dependsOn": [
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'hubFirewall')]",
+                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('hubRgName'))]",
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'routeTable-VPNGW')]"
+              ]
             }
           ],
           "outputs": {
@@ -1493,6 +1728,10 @@
             "hubVnetAddressSpace": {
               "type": "string",
               "value": "[variables('vnetAddressSpace')]"
+            },
+            "hubDefaultSubnetPrefix": {
+              "type": "string",
+              "value": "[variables('defaultSubnetPrefix')]"
             },
             "hubGatewayPublicIP": {
               "type": "string",
@@ -1563,6 +1802,9 @@
           },
           "osType": {
             "value": "[parameters('osType')]"
+          },
+          "hubDefaultSubnetPrefix": {
+            "value": "[if(parameters('deployHUB'), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}', parameters('hubRgName'), parameters('location')))).outputs.hubDefaultSubnetPrefix.value, 'Not deployed')]"
           }
         },
         "template": {
@@ -1572,7 +1814,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1272.37030",
-              "templateHash": "5379704737222300324"
+              "templateHash": "16578800762723238428"
             }
           },
           "parameters": {
@@ -1617,6 +1859,9 @@
             },
             "osType": {
               "type": "string"
+            },
+            "hubDefaultSubnetPrefix": {
+              "type": "string"
             }
           },
           "variables": {
@@ -1656,7 +1901,7 @@
                   "nsgID": {
                     "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))), 'Microsoft.Resources/deployments', variables('nsgName'))).outputs.nsgID.value]"
                   },
-                  "rtID": {
+                  "rtDefID": {
                     "value": "[if(and(parameters('deployFirewallInHub'), parameters('HubDeployed')), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))), 'Microsoft.Resources/deployments', variables('rtName'))).outputs.rtID.value, 'none')]"
                   },
                   "vnetname": {
@@ -1682,7 +1927,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1272.37030",
-                      "templateHash": "12585763151169617245"
+                      "templateHash": "15972562488758076476"
                     }
                   },
                   "parameters": {
@@ -1713,7 +1958,11 @@
                     "nsgID": {
                       "type": "string"
                     },
-                    "rtID": {
+                    "rtDefID": {
+                      "type": "string",
+                      "defaultValue": "none"
+                    },
+                    "rtGwID": {
                       "type": "string",
                       "defaultValue": "none"
                     },
@@ -1743,13 +1992,13 @@
                           "networkSecurityGroup": {
                             "id": "[parameters('nsgID')]"
                           },
-                          "routeTable": "[if(equals(parameters('rtID'), 'none'), json('null'), json(format('{{\"id\": \"{0}\"}}\"', parameters('rtID'))))]"
+                          "routeTable": "[if(equals(parameters('rtDefID'), 'none'), json('null'), json(format('{{\"id\": \"{0}\"}}\"', parameters('rtDefID'))))]"
                         }
                       }
                     ],
                     "bastionSubnet": "[if(not(parameters('deployBastionSubnet')), createArray(), createArray(createObject('name', 'AzureBastionSubnet', 'properties', createObject('addressPrefix', parameters('bastionSubnetPrefix')))))]",
                     "firewallSubnet": "[if(not(parameters('deployFirewallSubnet')), createArray(), createArray(createObject('name', 'AzureFirewallSubnet', 'properties', createObject('addressPrefix', parameters('firewallSubnetPrefix')))))]",
-                    "gatewaySubnet": "[if(not(parameters('deployGatewaySubnet')), createArray(), createArray(createObject('name', 'GatewaySubnet', 'properties', createObject('addressPrefix', parameters('GatewaySubnetPrefix')))))]"
+                    "gatewaySubnet": "[if(and(not(parameters('deployGatewaySubnet')), not(parameters('deployFirewallSubnet'))), createArray(), createArray(createObject('name', 'GatewaySubnet', 'properties', createObject('addressPrefix', parameters('GatewaySubnetPrefix'), 'routeTable', if(equals(parameters('rtGwID'), 'none'), json('null'), json(format('{{\"id\": \"{0}\"}}\"', parameters('rtGwID'))))))))]"
                   },
                   "resources": [
                     {
@@ -2289,7 +2538,7 @@
               "condition": "[and(parameters('deployFirewallInHub'), parameters('HubDeployed'))]",
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2020-10-01",
-              "name": "Route",
+              "name": "RouteToInternet",
               "resourceGroup": "[format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))]",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -2302,6 +2551,72 @@
                   },
                   "routeName": {
                     "value": "[if(and(parameters('deployFirewallInHub'), parameters('HubDeployed')), format('{0}/toInternet', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))), 'Microsoft.Resources/deployments', variables('rtName'))).outputs.rtName.value), 'none')]"
+                  },
+                  "routeNextHopIpAddress": {
+                    "value": "[if(and(parameters('deployFirewallInHub'), parameters('HubDeployed')), parameters('AzureFirewallpip'), '1.2.3.4')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.4.1272.37030",
+                      "templateHash": "8096143721828499520"
+                    }
+                  },
+                  "parameters": {
+                    "routeName": {
+                      "type": "string"
+                    },
+                    "routeNextHopType": {
+                      "type": "string",
+                      "defaultValue": "VirtualAppliance"
+                    },
+                    "routeAddressPrefix": {
+                      "type": "string"
+                    },
+                    "routeNextHopIpAddress": {
+                      "type": "string"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Network/routeTables/routes",
+                      "apiVersion": "2021-05-01",
+                      "name": "[parameters('routeName')]",
+                      "properties": {
+                        "nextHopType": "[parameters('routeNextHopType')]",
+                        "addressPrefix": "[parameters('routeAddressPrefix')]",
+                        "nextHopIpAddress": "[parameters('routeNextHopIpAddress')]"
+                      }
+                    }
+                  ]
+                }
+              },
+              "dependsOn": [
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))), 'Microsoft.Resources/deployments', variables('rtName'))]",
+                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter')))]"
+              ]
+            },
+            {
+              "condition": "[and(parameters('deployFirewallInHub'), parameters('HubDeployed'))]",
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2020-10-01",
+              "name": "RouteToLocal",
+              "resourceGroup": "[format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "routeAddressPrefix": {
+                    "value": "[parameters('hubDefaultSubnetPrefix')]"
+                  },
+                  "routeName": {
+                    "value": "[if(and(parameters('deployFirewallInHub'), parameters('HubDeployed')), format('{0}/toHubDefaultSubnet', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))), 'Microsoft.Resources/deployments', variables('rtName'))).outputs.rtName.value), 'none')]"
                   },
                   "routeNextHopIpAddress": {
                     "value": "[if(and(parameters('deployFirewallInHub'), parameters('HubDeployed')), parameters('AzureFirewallpip'), '1.2.3.4')]"
@@ -2665,7 +2980,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1272.37030",
-              "templateHash": "12885451554287948321"
+              "templateHash": "15443480187488307801"
             }
           },
           "parameters": {
@@ -2770,7 +3085,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1272.37030",
-                      "templateHash": "12585763151169617245"
+                      "templateHash": "15972562488758076476"
                     }
                   },
                   "parameters": {
@@ -2801,7 +3116,11 @@
                     "nsgID": {
                       "type": "string"
                     },
-                    "rtID": {
+                    "rtDefID": {
+                      "type": "string",
+                      "defaultValue": "none"
+                    },
+                    "rtGwID": {
                       "type": "string",
                       "defaultValue": "none"
                     },
@@ -2831,13 +3150,13 @@
                           "networkSecurityGroup": {
                             "id": "[parameters('nsgID')]"
                           },
-                          "routeTable": "[if(equals(parameters('rtID'), 'none'), json('null'), json(format('{{\"id\": \"{0}\"}}\"', parameters('rtID'))))]"
+                          "routeTable": "[if(equals(parameters('rtDefID'), 'none'), json('null'), json(format('{{\"id\": \"{0}\"}}\"', parameters('rtDefID'))))]"
                         }
                       }
                     ],
                     "bastionSubnet": "[if(not(parameters('deployBastionSubnet')), createArray(), createArray(createObject('name', 'AzureBastionSubnet', 'properties', createObject('addressPrefix', parameters('bastionSubnetPrefix')))))]",
                     "firewallSubnet": "[if(not(parameters('deployFirewallSubnet')), createArray(), createArray(createObject('name', 'AzureFirewallSubnet', 'properties', createObject('addressPrefix', parameters('firewallSubnetPrefix')))))]",
-                    "gatewaySubnet": "[if(not(parameters('deployGatewaySubnet')), createArray(), createArray(createObject('name', 'GatewaySubnet', 'properties', createObject('addressPrefix', parameters('GatewaySubnetPrefix')))))]"
+                    "gatewaySubnet": "[if(and(not(parameters('deployGatewaySubnet')), not(parameters('deployFirewallSubnet'))), createArray(), createArray(createObject('name', 'GatewaySubnet', 'properties', createObject('addressPrefix', parameters('GatewaySubnetPrefix'), 'routeTable', if(equals(parameters('rtGwID'), 'none'), json('null'), json(format('{{\"id\": \"{0}\"}}\"', parameters('rtGwID'))))))))]"
                   },
                   "resources": [
                     {

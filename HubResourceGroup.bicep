@@ -140,7 +140,7 @@ module routeDefault2 'modules/route.bicep' = [for (addressRange, i) in AllSpokeA
   name: 'RouteToLocal${i}'
   params: {
     routeAddressPrefix: addressRange
-    routeName: deployFirewallInHub && deployGatewayInHub ? '${rtDefault.outputs.rtName}/LocalRoute${i}' : 'dummy'
+    routeName: deployFirewallInHub ? '${rtDefault.outputs.rtName}/LocalRoute${i}' : 'dummy'
     routeNextHopIpAddress: deployFirewallInHub ? firewall.outputs.azFwIP : '1.2.3.4'
   }
 }]
