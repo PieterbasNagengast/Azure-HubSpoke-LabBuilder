@@ -23,9 +23,9 @@
 							"defaultValue": "172.16.0.0/16",
 							"toolTip": "IP Address space used for VNETs in deployment. Only enter a /16 subnet. Default = 172.16.0.0/16",
 							"constraints": {
-								"required": false,
-								"regex": "",
-								"validationMessage": ""
+								"required": true,
+								"regex": "^(10(?:\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))\\.0\\.0\\/16)|(172\\.(?:1[6-9]|2\\d|3[0-1])\\.0\\.0\\/16)|(192\\.168\\.0\\.0\\/16)",
+								"validationMessage": "The value must match a /16 subnet. 10.[0-255].0.0/16 or 172.[16-31].0.0/16 or 192.168.0.0/16"
 							},
 							"visible": true
 						}
