@@ -285,7 +285,7 @@
 							"constraints": {
 								"required": false
 							},
-							"visible": true
+							"visible": "[coalesce(steps('HubVNET').deployHUB,false)]"
 						},
 						{
 							"name": "deployVMsInSpokes",
@@ -296,7 +296,7 @@
 							"constraints": {
 								"required": false
 							},
-							"visible": true
+							"visible": "[coalesce(steps('SpokeVNETs').deploySpokes,false)]"
 						},
 						{
 							"name": "deployVMinOnPrem",
@@ -307,7 +307,16 @@
 							"constraints": {
 								"required": false
 							},
-							"visible": true
+							"visible": "[coalesce(steps('OnPrem').deployOnPrem,false)]"
+						},
+												{
+							"name": "noVirtualMachines",
+							"type": "Microsoft.Common.InfoBox",
+							"options": {
+								"text": "Virtual machine deployments requires at least that deployemtn for Hub, Spokes or OnPrem is selected!",
+								"style": "Info"
+							},
+							"visible": "[and(equals(steps('HubVNET').deployHUB,false),equals(steps('SpokeVNETs').deploySpokes,false),equals(steps('OnPrem').deployOnPrem,false))]"
 						},
 						{
 							"name": "osType",
@@ -429,9 +438,9 @@
 				"tagsByResource": "[steps('tags').tagsByResource]",
 				"adminUsername": "[steps('VirtualMachines').adminUsername]",
 				"adminPassword": "[steps('VirtualMachines').adminPassword.password]",
-				"deployVMsInSpokes": "[steps('VirtualMachines').deployVMsInSpokes]",
-				"deployVMinHub": "[steps('VirtualMachines').deployVMinHub]",
-				"deployVMinOnPrem": "[steps('VirtualMachines').deployVMinOnPrem]",
+				"deployVMsInSpokes": "[coalesce(steps('VirtualMachines').deployVMsInSpokes,false)]",
+				"deployVMinHub": "[coalesce(steps('VirtualMachines').deployVMinHub,false)]",
+				"deployVMinOnPrem": "[coalesce(steps('VirtualMachines').deployVMinOnPrem,false)]",
 				"osType": "[steps('VirtualMachines').osType]",
 				"vmSize": "[steps('VirtualMachines').vmSize]",
 				"deploySpokes": "[steps('SpokeVNETs').deploySpokes]",
