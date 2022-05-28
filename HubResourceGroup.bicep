@@ -98,6 +98,7 @@ module firewall 'modules/firewall.bicep' = if (deployFirewallInHub) {
   scope: hubrg
   name: 'hubFirewall'
   params: {
+    deployInVWan: false
     location: location
     firewallName: firewallName
     azfwsubnetid: deployFirewallInHub ? vnet.outputs.firewallSubnetID : ''
