@@ -6,13 +6,20 @@ param VpnGatewayID string
 param connectionName string
 param sharedKey string
 param tagsByResource object = {}
+param enableBgp bool
+param BgpAsn int = 0
+param BgpPeeringAddress string = ''
 
 resource localNetworkGateway 'Microsoft.Network/localNetworkGateways@2021-05-01' = {
   name: LocalGatewayName
   location: location
   properties: {
     gatewayIpAddress: LocalGatewayPublicIP
-    localNetworkAddressSpace: {
+    bgpSettings: enableBgp ? {
+      asn: BgpAsn
+      bgpPeeringAddress: BgpPeeringAddress
+    } : {}
+    localNetworkAddressSpace: enableBgp ? {} : {
       addressPrefixes: LocalGatewayAddressPrefixes
     }
   }
@@ -28,6 +35,7 @@ resource connection 'Microsoft.Network/connections@2021-05-01' = {
     connectionProtocol: 'IKEv2'
     useLocalAzureIpAddress: false
     usePolicyBasedTrafficSelectors: false
+    enableBgp: enableBgp
     sharedKey: sharedKey
     virtualNetworkGateway1: {
       id: VpnGatewayID
@@ -40,4 +48,3 @@ resource connection 'Microsoft.Network/connections@2021-05-01' = {
   }
   tags: contains(tagsByResource, 'Microsoft.Network/connections') ? tagsByResource['Microsoft.Network/connections'] : {}
 }
-

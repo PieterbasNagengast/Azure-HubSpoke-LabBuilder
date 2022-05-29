@@ -79,6 +79,6 @@ resource azfwpip 'Microsoft.Network/publicIPAddresses@2021-05-01' = if (!deployI
 }
 
 output azFwIP string = deployInVWan ? 'None' : azfw.properties.ipConfigurations[0].properties.privateIPAddress
-output azFwIPvWan string = deployInVWan ? azfw.properties.hubIPAddresses.privateIPAddress : 'None'
+output azFwIPvWan array = deployInVWan ? azfw.properties.hubIPAddresses.publicIPs.addresses : []
 output azFwID string = azfw.id
 output azFwPolicyName string = azfwpolicy.name

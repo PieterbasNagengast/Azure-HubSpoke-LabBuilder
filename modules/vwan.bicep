@@ -8,14 +8,13 @@ param vWanType string = 'Standard'
 param tagsByResource object = {}
 param AddressPrefix string
 
-resource vWan 'Microsoft.Network/virtualWans@2020-07-01' = {
+resource vWan 'Microsoft.Network/virtualWans@2021-05-01' = {
   name: vWanName
   location: location
   properties: {
     type: vWanType
     disableVpnEncryption: false
     allowBranchToBranchTraffic: true
-    allowVnetToVnetTraffic: true
   }
   tags: contains(tagsByResource, 'Microsoft.Network/virtualWans') ? tagsByResource['Microsoft.Network/virtualWans'] : {}
 }
@@ -34,4 +33,5 @@ resource vWanHub 'Microsoft.Network/virtualHubs@2021-05-01' = {
 
 output vWanID string = vWan.id
 output vWanHubID string = vWanHub.id
+output vWanHubAddressSpace string = vWanHub.properties.addressPrefix
 output vWanHubName string= vWanHub.name

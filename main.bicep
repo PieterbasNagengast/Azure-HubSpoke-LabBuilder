@@ -39,14 +39,21 @@ param spokeRgNamePrefix string = 'rg-spoke'
 param amountOfSpokes int = 2
 
 @description('Deploy VM in every Spoke VNET')
-param deployVMsInSpokes bool = false
+param deployVMsInSpokes bool = true
 
 @description('Deploy Bastion Host in every Spoke VNET')
 param deployBastionInSpoke bool = false
 
 // Hub VNET Parameters
-@description('Deploy Hub VNET')
+@description('Deploy Hub')
 param deployHUB bool = true
+
+@description('Deploy Hub VNET or Azuere vWAN')
+@allowed([
+  'VNET'
+  'VWAN'
+])
+param hubType string = 'VWAN'
 
 @description('Hub resource group pre-fix name')
 param hubRgName string = 'rg-hub'
@@ -55,13 +62,13 @@ param hubRgName string = 'rg-hub'
 param deployBastionInHub bool = false
 
 @description('Deploy VM in Hub VNET')
-param deployVMinHub bool = true
+param deployVMinHub bool = false
 
 @description('Deploy Virtual Network Gateway in Hub VNET')
-param deployGatewayInHub bool = false
+param deployGatewayInHub bool = true
 
 @description('Deploy Azure Firewall in Hub VNET. includes deployment of custom route tables in Spokes and Hub VNETs')
-param deployFirewallInHub bool = false
+param deployFirewallInHub bool = true
 
 @description('Azure Firewall Tier: Standard or Premium')
 @allowed([
@@ -71,11 +78,17 @@ param deployFirewallInHub bool = false
 param AzureFirewallTier string = 'Standard'
 
 @description('Deploy Firewall policy Rule Collection group which allows spoke-to-spoke and internet traffic')
-param deployFirewallrules bool = false
+param deployFirewallrules bool = true
+
+@description('Enable BGP on Hub Gateway')
+param hubBgp bool = false
+
+@description('Hub BGP ASN')
+param hubBgpAsn int = 65515
 
 // OnPrem parameters\
 @description('Deploy Virtual Network Gateway in OnPrem')
-param deployOnPrem bool = true
+param deployOnPrem bool = false
 
 @description('OnPrem Resource Group Name')
 param onpremRgName string = 'rg-onprem'
@@ -92,6 +105,12 @@ param deployGatewayinOnPrem bool = false
 @description('Deploy Site-to-Site VPN connection between OnPrem and Hub Gateways')
 param deploySiteToSite bool = false
 
+@description('Enable BGP on OnPrem Gateway')
+param onpremBgp bool = false
+
+@description('OnPrem BGP ASN')
+param onpremBgpAsn int = 65010
+
 // Create array of all Address Spaces used for site-to-site connection from Hub to OnPrem
 var AllAddressSpaces = [for i in range(0, amountOfSpokes + 1): replace(AddressSpace,'0.0/16','${i}.0/24')]
 
@@ -99,26 +118,41 @@ var AllAddressSpaces = [for i in range(0, amountOfSpokes + 1): replace(AddressSp
 var AllSpokeAddressSpaces = [for i in range(1, amountOfSpokes): replace(AddressSpace,'0.0/16','${i}.0/24')]
 
 // Deploy Hub VNET including VM, Bastion Host, Route Table, Network Security group and Azure Firewall
-module hubVnet 'HubResourceGroup.bicep' = if (deployHUB) {
-  name: '${hubRgName}-${location}'
+module hubVnet 'HubResourceGroup.bicep' = if (deployHUB && hubType == 'VNET') {
+  name: '${hubRgName}-${location}-VNET'
   params: {
-    deployBastionInHub: deployBastionInHub
+    deployBastionInHub: deployBastionInHub && hubType == 'VNET'
     location: location
     AddressSpace: AddressSpace
     adminPassword: adminPassword
     adminUsername: adminUsername
-    deployVMinHub: deployVMinHub
-    deployFirewallInHub: deployFirewallInHub
+    deployVMinHub: deployVMinHub && hubType == 'VNET'
+    deployFirewallInHub: deployFirewallInHub && hubType == 'VNET'
     AzureFirewallTier: AzureFirewallTier
     hubRgName: hubRgName
-    deployFirewallrules: deployFirewallrules
-    deployGatewayInHub: deployGatewayInHub
+    deployFirewallrules: deployFirewallrules && hubType == 'VNET'
+    deployGatewayInHub: deployGatewayInHub && hubType == 'VNET'
     vmSize: vmSize
     tagsByResource: tagsByResource
     osType: osType
     AllSpokeAddressSpaces: AllSpokeAddressSpaces
   }
 }
+
+//  Deploy Azure vWAN with vWAN Hub and Azure Firewall
+module vwan 'vWanResourceGroup.bicep' = if (deployHUB && hubType == 'VWAN') {
+  name: '${hubRgName}-${location}-VWAN'
+  params: {
+    location: location
+    deployFirewallInHub: deployFirewallInHub && hubType == 'VWAN'
+    AddressSpace: AddressSpace
+    AzureFirewallTier: AzureFirewallTier
+    deployFirewallrules: deployFirewallrules && hubType == 'VWAN'
+    hubRgName: hubRgName
+    deployGatewayInHub: deployGatewayInHub && hubType == 'VWAN'
+  }
+}
+
 
 // Deploy Spoke VNET's including VM, Bastion Host, Route Table, Network Security group
 module spokeVnets 'SpokeResourceGroup.bicep' = [for i in range(1, amountOfSpokes): if (deploySpokes) {
@@ -131,27 +165,39 @@ module spokeVnets 'SpokeResourceGroup.bicep' = [for i in range(1, amountOfSpokes
     adminPassword: adminPassword
     adminUsername: adminUsername
     deployVMsInSpokes: deployVMsInSpokes
-    deployFirewallInHub: deployFirewallInHub
-    AzureFirewallpip: deployHUB ? hubVnet.outputs.azFwIp : 'Not deployed'
-    HubDeployed: deployHUB
+    deployFirewallInHub: deployFirewallInHub && hubType == 'VNET'
+    AzureFirewallpip: deployHUB && hubType == 'VNET' ? hubVnet.outputs.azFwIp : 'Not deployed'
+    HubDeployed: deployHUB && hubType == 'VNET'
     spokeRgNamePrefix: spokeRgNamePrefix
     vmSize: vmSize
     tagsByResource: tagsByResource
     osType: osType
-    hubDefaultSubnetPrefix: deployHUB ? hubVnet.outputs.hubDefaultSubnetPrefix : 'Not deployed'
+    hubDefaultSubnetPrefix: deployHUB && hubType == 'VNET' ? hubVnet.outputs.hubDefaultSubnetPrefix : 'Not deployed'
   }
 }]
 
 // VNET Peerings
-module vnetPeerings 'Vnetpeerings.bicep' = [for i in range(0, amountOfSpokes): if (deployHUB && deploySpokes) {
+module vnetPeerings 'Vnetpeerings.bicep' = [for i in range(0, amountOfSpokes): if (deployHUB && deploySpokes && hubType == 'VNET') {
   name: '${hubRgName}-VnetPeering${i+1}-${location}'
   params: {
-    HubResourceGroupName: deployHUB && deploySpokes ? hubVnet.outputs.HubResourceGroupName : 'No VNET peering'
-    SpokeResourceGroupName: deployHUB && deploySpokes ? spokeVnets[i].outputs.spokeResourceGroupName : 'No peering'
-    HubVnetName: deployHUB && deploySpokes ? hubVnet.outputs.hubVnetName : 'No VNET peering'
-    SpokeVnetID: deployHUB && deploySpokes ? spokeVnets[i].outputs.spokeVnetID : 'No VNET peering'
-    HubVnetID: deployHUB && deploySpokes ? hubVnet.outputs.hubVnetID : 'No VNET peering'
-    SpokeVnetName: deployHUB && deploySpokes ? spokeVnets[i].outputs.spokeVnetName : 'No VNET peering'
+    HubResourceGroupName: deployHUB && deploySpokes && hubType == 'VNET'? hubVnet.outputs.HubResourceGroupName : 'No VNET peering'
+    SpokeResourceGroupName: deployHUB && deploySpokes && hubType == 'VNET' ? spokeVnets[i].outputs.spokeResourceGroupName : 'No peering'
+    HubVnetName: deployHUB && deploySpokes && hubType == 'VNET' ? hubVnet.outputs.hubVnetName : 'No VNET peering'
+    SpokeVnetID: deployHUB && deploySpokes && hubType == 'VNET' ? spokeVnets[i].outputs.spokeVnetID : 'No VNET peering'
+    HubVnetID: deployHUB && deploySpokes && hubType == 'VNET' ? hubVnet.outputs.hubVnetID : 'No VNET peering'
+    SpokeVnetName: deployHUB && deploySpokes && hubType == 'VNET' ? spokeVnets[i].outputs.spokeVnetName : 'No VNET peering'
+    counter: i
+  }
+}]
+
+// VNET Connections to Azure vWAN
+module vnetConnections 'VnetConnections.bicep' = [for i in range(0, amountOfSpokes): if (deployHUB && deploySpokes && hubType == 'VWAN') {
+  name: '${hubRgName}-VnetConnection${i+1}-${location}'
+  params: {
+    HubResourceGroupName: deployHUB && deploySpokes && hubType == 'VWAN' ? vwan.outputs.HubResourceGroupName : 'No VNET peering'
+    SpokeVnetID: deployHUB && deploySpokes && hubType == 'VWAN' ? spokeVnets[i].outputs.spokeVnetID : 'No VNET peering'
+    vwanHubName: deployHUB && deploySpokes && hubType == 'VWAN' ? vwan.outputs.vwanHubName : 'No VNET peering'
+    deployFirewallInHub: deployFirewallInHub && hubType == 'VWAN'
     counter: i
   }
 }]
@@ -175,30 +221,43 @@ module onprem 'OnPremResourceGroup.bicep' = if (deployOnPrem) {
 }
 
 // Deploy S2s VPN from OnPrem Gateway to Hub Gateway
-module s2s 'VpnConnections.bicep' = if(deployGatewayInHub && deployGatewayinOnPrem && deploySiteToSite) {
+module s2s 'VpnConnections.bicep' = if(deployGatewayInHub && deployGatewayinOnPrem && deploySiteToSite && hubType == 'VNET') {
   name:'${hubRgName}-s2s-Hub-OnPrem-${location}'
   params: {
     location: location
-    HubRgName: deployHUB ? hubRgName : 'none'
-    HubGatewayID: deployGatewayInHub ? hubVnet.outputs.hubGatewayID : 'none'
-    HubGatewayPublicIP: deployGatewayInHub ? hubVnet.outputs.hubGatewayPublicIP : 'none'
-    HubAddressPrefixes: deployHUB ? AllAddressSpaces : []
-    HubLocalGatewayName: deploySiteToSite ? 'LocalGateway-Hub' : 'none'
-    OnPremRgName: deployOnPrem ? onpremRgName : 'none'
-    OnPremGatewayID: deployGatewayinOnPrem ? onprem.outputs.OnPremGatewayID : 'none'
-    OnPremGatewayPublicIP: deployGatewayinOnPrem ? onprem.outputs.OnPremGatewayPublicIP : 'none'
-    OnPremAddressPrefixes: deployOnPrem ? array(onprem.outputs.OnPremAddressSpace) : []
-    OnPremLocalGatewayName: deploySiteToSite ? 'LocalGateway-OnPrem' : 'none'
+    HubRgName: deployHUB && hubType == 'VNET' ? hubRgName : 'none'
+    HubGatewayID: deployGatewayInHub && hubType == 'VNET' ? hubVnet.outputs.hubGatewayID : 'none'
+    HubGatewayPublicIP: deployGatewayInHub && hubType == 'VNET' ? hubVnet.outputs.hubGatewayPublicIP : 'none'
+    HubAddressPrefixes: deployHUB && hubType == 'VNET' ? AllAddressSpaces : []
+    HubLocalGatewayName: deploySiteToSite && hubType == 'VNET' ? 'LocalGateway-Hub' : 'none'
+    OnPremRgName: deployOnPrem && hubType == 'VNET' ? onpremRgName : 'none'
+    OnPremGatewayID: deployGatewayinOnPrem && hubType == 'VNET' ? onprem.outputs.OnPremGatewayID : 'none'
+    OnPremGatewayPublicIP: deployGatewayinOnPrem && hubType == 'VNET' ? onprem.outputs.OnPremGatewayPublicIP : 'none'
+    OnPremAddressPrefixes: deployOnPrem && hubType == 'VNET' ? array(onprem.outputs.OnPremAddressSpace) : []
+    OnPremLocalGatewayName: deploySiteToSite && hubType == 'VNET' ? 'LocalGateway-OnPrem' : 'none'
     tagsByResource: tagsByResource
+    enableBgp: hubBgp && onpremBgp
+    HubBgpAsn: hubBgpAsn
+    HubBgpPeeringAddress: deployGatewayInHub && hubBgp && hubType == 'VNET' ? hubVnet.outputs.HubGwBgpPeeringAddress : 'none'
+    OnPremBgpAsn: onpremBgpAsn
+    OnPremBgpPeeringAddress: deployGatewayinOnPrem && onpremBgp && hubType == 'VNET' ? onprem.outputs.OnPremGwBgpPeeringAddress : 'none'
   }
 }
 
 // Outputs
-output AzureFirewallpip string = deployFirewallInHub && deployHUB ? hubVnet.outputs.azFwIp : 'none'
-output HubVnetID string = deployHUB ? hubVnet.outputs.hubVnetID : 'none'
-output HubVnetAddressSpace string = deployHUB ? hubVnet.outputs.hubVnetAddressSpace : 'none'
-output HubGatewayPublicIP string = deployGatewayInHub ? hubVnet.outputs.hubGatewayPublicIP : 'none'
-output HubGatewayID string = deployGatewayInHub ? hubVnet.outputs.hubGatewayID : 'none'
+output VNET_AzFwPrivateIp string = deployFirewallInHub && deployHUB && hubType == 'VNET' ? hubVnet.outputs.azFwIp : 'none'
+output VWAN_AzFwPublicIp array = deployFirewallInHub && deployHUB && hubType == 'VWAN' ? vwan.outputs.vWanFwPublicIP : []
+output HubVnetID string = deployHUB && hubType == 'VNET' ? hubVnet.outputs.hubVnetID : 'none'
+output HubVnetAddressSpace string = deployHUB && hubType == 'VNET' ? hubVnet.outputs.hubVnetAddressSpace : 'none'
+output HubGatewayPublicIP string = deployGatewayInHub && hubType == 'VNET' ? hubVnet.outputs.hubGatewayPublicIP : 'none'
+output HubGatewayID string = deployGatewayInHub && hubType == 'VNET' ? hubVnet.outputs.hubGatewayID : 'none'
+output vWanHubID string = deployHUB && hubType == 'VWAN' ? vwan.outputs.vWanHubID : 'none'
+output vWanID string = deployHUB && hubType == 'VWAN' ? vwan.outputs.vWanID : 'none'
+output vWanVpnGwID string = deployHUB && deployGatewayInHub && hubType == 'VWAN' ? vwan.outputs.vWanVpnGwID : 'none'
+output vWanVpnGwPip array = deployHUB && deployGatewayInHub && hubType == 'VWAN' ? vwan.outputs.vWanVpnGwPip : []
+output vWanVpnBgpIp array = deployHUB && deployGatewayInHub && hubType == 'VWAN' ? vwan.outputs.vpnGwBgpIp : []
+output vWanVpnBgpAsn int = deployHUB && deployGatewayInHub && hubType == 'VWAN' ? vwan.outputs.vpnGwBgpAsn : 0
+output vWanHubAddressSpace string = deployHUB && hubType == 'VWAN' ? vwan.outputs.vWanHubAddressSpace : 'none'
 output OnPremVnetAddressSpace string = deployOnPrem ? onprem.outputs.OnPremAddressSpace : 'none'
 output OnPremGatewayPublicIP string = deployGatewayinOnPrem ? onprem.outputs.OnPremGatewayPublicIP : 'none'
 output OnPremGatewayID string = deployGatewayinOnPrem ? onprem.outputs.OnPremGatewayID : 'none'

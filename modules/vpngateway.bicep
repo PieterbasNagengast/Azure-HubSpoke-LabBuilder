@@ -56,3 +56,4 @@ resource vpngwpip 'Microsoft.Network/publicIPAddresses@2021-05-01' = {
 
 output vpnGwPublicIP string = vpngwpip.properties.ipAddress
 output vpnGwID string = vpngw.id
+output vpnGwBgpPeeringAddress string = vpngw.properties.bgpSettings.bgpPeeringAddress
