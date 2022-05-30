@@ -4,6 +4,7 @@ param LocalGatewayPublicIP string
 param LocalGatewayAddressPrefixes array
 param VpnGatewayID string
 param connectionName string
+@secure()
 param sharedKey string
 param tagsByResource object = {}
 param enableBgp bool

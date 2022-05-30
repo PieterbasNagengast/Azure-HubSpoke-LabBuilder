@@ -7,7 +7,7 @@ param vwanID string
 param vwanHubName string
 param vwanGatewayName string
 @secure()
-param sharedKey string = uniqueString(newGuid())
+param sharedKey string
 param tagsByResource object = {}
 
 resource vpnsite 'Microsoft.Network/vpnSites@2021-05-01' = {

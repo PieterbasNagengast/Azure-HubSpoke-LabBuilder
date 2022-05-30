@@ -1,6 +1,7 @@
 targetScope = 'subscription'
 
-param location string = deployment().location
+param location string
+@secure()
 param sharedKey string = uniqueString(newGuid())
 
 param OnPremRgName string
