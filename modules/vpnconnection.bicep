@@ -7,8 +7,8 @@ param connectionName string
 param sharedKey string
 param tagsByResource object = {}
 param enableBgp bool
-param BgpAsn int = 0
-param BgpPeeringAddress string = ''
+param BgpAsn int
+param BgpPeeringAddress string
 
 resource localNetworkGateway 'Microsoft.Network/localNetworkGateways@2021-05-01' = {
   name: LocalGatewayName

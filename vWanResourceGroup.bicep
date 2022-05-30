@@ -73,6 +73,7 @@ module vpngateway 'modules/vwanvpngateway.bicep' = if (deployGatewayInHub) {
     location: location
     vpnGwName: gatewayName
     vWanHubID: vwan.outputs.vWanHubID
+    tagsByResource: tagsByResource
   }
 }
 
@@ -86,3 +87,4 @@ output vWanVpnGwPip array = vpngateway.outputs.vpnGwPip
 output vWanFwPublicIP array = AzFirewall.outputs.azFwIPvWan
 output vpnGwBgpIp array = vpngateway.outputs.vpnGwBgpIp
 output vpnGwBgpAsn int = vpngateway.outputs.vpnGwBgpAsn
+output vpnGwName string = vpngateway.outputs.vpnGwName

@@ -25,3 +25,4 @@ output vpnGwID string = vpngw.id
 output vpnGwPip array = vpngw.properties.ipConfigurations
 output vpnGwBgpIp array = vpngw.properties.bgpSettings.bgpPeeringAddresses
 output vpnGwBgpAsn int = vpngw.properties.bgpSettings.asn
+output vpnGwName string = vpngw.name

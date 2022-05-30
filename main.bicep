@@ -88,28 +88,28 @@ param hubBgpAsn int = 65515
 
 // OnPrem parameters\
 @description('Deploy Virtual Network Gateway in OnPrem')
-param deployOnPrem bool = false
+param deployOnPrem bool = true
 
 @description('OnPrem Resource Group Name')
 param onpremRgName string = 'rg-onprem'
 
 @description('Deploy Bastion Host in OnPrem VNET')
-param deployBastionInOnPrem bool = false
+param deployBastionInOnPrem bool = true
 
 @description('Deploy VM in OnPrem VNET')
-param deployVMinOnPrem bool = false
+param deployVMinOnPrem bool = true
 
 @description('Deploy Virtual Network Gateway in OnPrem VNET')
-param deployGatewayinOnPrem bool = false
+param deployGatewayinOnPrem bool = true
 
 @description('Deploy Site-to-Site VPN connection between OnPrem and Hub Gateways')
-param deploySiteToSite bool = false
+param deploySiteToSite bool = true
 
 @description('Enable BGP on OnPrem Gateway')
-param onpremBgp bool = false
+param onpremBgp bool = true
 
 @description('OnPrem BGP ASN')
-param onpremBgpAsn int = 65010
+param onpremBgpAsn int = 65011
 
 // Create array of all Address Spaces used for site-to-site connection from Hub to OnPrem
 var AllAddressSpaces = [for i in range(0, amountOfSpokes + 1): replace(AddressSpace,'0.0/16','${i}.0/24')]
@@ -136,6 +136,8 @@ module hubVnet 'HubResourceGroup.bicep' = if (deployHUB && hubType == 'VNET') {
     tagsByResource: tagsByResource
     osType: osType
     AllSpokeAddressSpaces: AllSpokeAddressSpaces
+    vpnGwBgpAsn: hubBgp ? hubBgpAsn : 0
+    vpnGwEnebaleBgp: hubBgp
   }
 }
 
@@ -217,6 +219,8 @@ module onprem 'OnPremResourceGroup.bicep' = if (deployOnPrem) {
     vmSize: vmSize
     tagsByResource: tagsByResource
     osType: osType
+    vpnGwBgpAsn: onpremBgp ? onpremBgpAsn : 0
+    vpnGwEnebaleBgp: onpremBgp
   }
 }
 
@@ -244,6 +248,26 @@ module s2s 'VpnConnections.bicep' = if(deployGatewayInHub && deployGatewayinOnPr
   }
 }
 
+// Deploy s2s VPN from OnPrem Gateway to vWan Hub Gateway
+module vwans2s 'vWanVpnConnections.bicep' = if(deployGatewayInHub && deployGatewayinOnPrem && deploySiteToSite && hubType == 'VWAN') {
+  name:'${hubRgName}-s2s-Hub-vWan-OnPrem-${location}'
+  params: {
+    location: location
+    vwanGatewayName: deployHUB && deployGatewayInHub && hubType == 'VWAN' ? vwan.outputs.vpnGwName : 'none'
+    vwanLinkBgpAsn: deployOnPrem && deployGatewayinOnPrem && onpremBgp ? onprem.outputs.OnPremGwBgpAsn : 0
+    vwanLinkPublicIP: deployOnPrem && deployGatewayinOnPrem ? onprem.outputs.OnPremGatewayPublicIP : 'none'
+    vwanVpnGwInfo: deployHUB && deployGatewayInHub && hubType == 'VWAN' ? vwan.outputs.vpnGwBgpIp : []
+    vwanLinkBgpPeeringAddress: deployOnPrem && deployGatewayinOnPrem && onpremBgp && hubType == 'VWAN' ? onprem.outputs.OnPremGwBgpPeeringAddress : 'none'
+    vwanVpnSiteName: 'OnPrem'
+    vwanID: deployHUB && hubType == 'VWAN' ? vwan.outputs.vWanID : 'none'
+    vwanHubName: deployHUB && hubType == 'VWAN' ? vwan.outputs.vwanHubName : 'none'
+    OnPremVpnGwID: deployOnPrem && deployGatewayinOnPrem ? onprem.outputs.OnPremGatewayID : 'none'
+    OnPremRgName: deployOnPrem ? onpremRgName : 'none'
+    HubRgName: deployHUB ? hubRgName : 'none'
+    tagsByResource: tagsByResource
+  }
+}
+
 // Outputs
 output VNET_AzFwPrivateIp string = deployFirewallInHub && deployHUB && hubType == 'VNET' ? hubVnet.outputs.azFwIp : 'none'
 output VWAN_AzFwPublicIp array = deployFirewallInHub && deployHUB && hubType == 'VWAN' ? vwan.outputs.vWanFwPublicIP : []
@@ -251,6 +275,7 @@ output HubVnetID string = deployHUB && hubType == 'VNET' ? hubVnet.outputs.hubVn
 output HubVnetAddressSpace string = deployHUB && hubType == 'VNET' ? hubVnet.outputs.hubVnetAddressSpace : 'none'
 output HubGatewayPublicIP string = deployGatewayInHub && hubType == 'VNET' ? hubVnet.outputs.hubGatewayPublicIP : 'none'
 output HubGatewayID string = deployGatewayInHub && hubType == 'VNET' ? hubVnet.outputs.hubGatewayID : 'none'
+output HubBgpPeeringAddress string = deployGatewayInHub && hubType == 'VNET' ? hubVnet.outputs.HubGwBgpPeeringAddress : 'none'
 output vWanHubID string = deployHUB && hubType == 'VWAN' ? vwan.outputs.vWanHubID : 'none'
 output vWanID string = deployHUB && hubType == 'VWAN' ? vwan.outputs.vWanID : 'none'
 output vWanVpnGwID string = deployHUB && deployGatewayInHub && hubType == 'VWAN' ? vwan.outputs.vWanVpnGwID : 'none'
@@ -261,6 +286,7 @@ output vWanHubAddressSpace string = deployHUB && hubType == 'VWAN' ? vwan.output
 output OnPremVnetAddressSpace string = deployOnPrem ? onprem.outputs.OnPremAddressSpace : 'none'
 output OnPremGatewayPublicIP string = deployGatewayinOnPrem ? onprem.outputs.OnPremGatewayPublicIP : 'none'
 output OnPremGatewayID string = deployGatewayinOnPrem ? onprem.outputs.OnPremGatewayID : 'none'
+output OnPremBgpPeeringAddress string = deployGatewayinOnPrem ? onprem.outputs.OnPremGwBgpPeeringAddress : 'none'
 output SpokeVnets array = [for i in range(0, amountOfSpokes): deploySpokes ? {
   SpokeVnetId: spokeVnets[i].outputs.spokeVnetID
   SpokeVnetAddressSpace: spokeVnets[i].outputs.spokeVnetAddressSpace

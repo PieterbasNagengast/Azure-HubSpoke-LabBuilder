@@ -13,6 +13,9 @@ param vmSize string
 param tagsByResource object
 param osType string
 
+param vpnGwEnebaleBgp bool
+param vpnGwBgpAsn int
+
 var vnetName = 'VNET-OnPrem'
 var vmName = 'VM-OnPrem'
 var nsgName = 'NSG-OnPrem'
@@ -90,6 +93,8 @@ module vpngw 'modules/vpngateway.bicep' = if (deployGatewayInOnPrem) {
     vpnGatewayName: gatewayName
     vpnGatewaySubnetID: deployGatewayInOnPrem ? vnet.outputs.gatewaySubnetID : ''
     tagsByResource: tagsByResource
+    vpnGatewayBgpAsn: vpnGwEnebaleBgp ? vpnGwBgpAsn : 0
+    vpnGatewayEnableBgp: vpnGwEnebaleBgp
   }
 }
 
@@ -97,3 +102,4 @@ output OnPremGatewayPublicIP string = deployGatewayInOnPrem ? vpngw.outputs.vpnG
 output OnPremGatewayID string = deployGatewayInOnPrem ? vpngw.outputs.vpnGwID : 'none'
 output OnPremAddressSpace string = vnetAddressSpace
 output OnPremGwBgpPeeringAddress string = deployGatewayInOnPrem ? vpngw.outputs.vpnGwBgpPeeringAddress : 'none'
+output OnPremGwBgpAsn int = deployGatewayInOnPrem && vpnGwEnebaleBgp ? vpngw.outputs.vpnGwAsn : 0

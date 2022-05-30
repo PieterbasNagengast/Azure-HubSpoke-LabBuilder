@@ -8,6 +8,7 @@ param vwanHubName string
 param vwanGatewayName string
 @secure()
 param sharedKey string = uniqueString(newGuid())
+param tagsByResource object = {}
 
 resource vpnsite 'Microsoft.Network/vpnSites@2021-05-01' = {
   name: vpnSiteName
@@ -39,12 +40,12 @@ resource vpnsite 'Microsoft.Network/vpnSites@2021-05-01' = {
       id: vwanID
     }
   }
+  tags: contains(tagsByResource, 'Microsoft.Network/vpnSites') ? tagsByResource['Microsoft.Network/vpnSites'] : {}
 }
 
 resource vpnconnection 'Microsoft.Network/vpnGateways/vpnConnections@2021-05-01' = {
   name: '${vwanGatewayName}/Connection-${vpnSiteName}'
   properties: {
-    enableBgp: true
     remoteVpnSite: {
       id: vpnsite.id
     }
@@ -68,6 +69,7 @@ resource vpnconnection 'Microsoft.Network/vpnGateways/vpnConnections@2021-05-01'
     }
     vpnLinkConnections: [
       {
+        name: '${vpnSiteName}-Link'
         properties: {
           vpnSiteLink: {
             id: vpnsite.properties.vpnSiteLinks[0].id

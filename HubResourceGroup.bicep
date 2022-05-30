@@ -17,6 +17,9 @@ param tagsByResource object
 param osType string
 param AllSpokeAddressSpaces array
 
+param vpnGwEnebaleBgp bool
+param vpnGwBgpAsn int
+
 var vnetAddressSpace = replace(AddressSpace, '/16', '/24')
 var defaultSubnetPrefix = replace(vnetAddressSpace, '/24', '/26')
 var firewallSubnetPrefix = replace(vnetAddressSpace, '0/24', '64/26')
@@ -154,6 +157,8 @@ module vpngw 'modules/vpngateway.bicep' = if (deployGatewayInHub) {
     vpnGatewayName: gatewayName
     vpnGatewaySubnetID: deployGatewayInHub ? vnet.outputs.gatewaySubnetID : ''
     tagsByResource: tagsByResource
+    vpnGatewayBgpAsn: vpnGwEnebaleBgp ? vpnGwBgpAsn : 0
+    vpnGatewayEnableBgp: vpnGwEnebaleBgp
   }
 }
 
