@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1272.37030",
-      "templateHash": "16107776361851204630"
+      "templateHash": "4390410917347739680"
     }
   },
   "parameters": {
@@ -85,7 +85,7 @@
     },
     "deployVMsInSpokes": {
       "type": "bool",
-      "defaultValue": false,
+      "defaultValue": true,
       "metadata": {
         "description": "Deploy VM in every Spoke VNET"
       }
@@ -101,7 +101,18 @@
       "type": "bool",
       "defaultValue": true,
       "metadata": {
-        "description": "Deploy Hub VNET"
+        "description": "Deploy Hub"
+      }
+    },
+    "hubType": {
+      "type": "string",
+      "defaultValue": "VWAN",
+      "allowedValues": [
+        "VNET",
+        "VWAN"
+      ],
+      "metadata": {
+        "description": "Deploy Hub VNET or Azuere vWAN"
       }
     },
     "hubRgName": {
@@ -120,21 +131,21 @@
     },
     "deployVMinHub": {
       "type": "bool",
-      "defaultValue": true,
+      "defaultValue": false,
       "metadata": {
         "description": "Deploy VM in Hub VNET"
       }
     },
     "deployGatewayInHub": {
       "type": "bool",
-      "defaultValue": false,
+      "defaultValue": true,
       "metadata": {
         "description": "Deploy Virtual Network Gateway in Hub VNET"
       }
     },
     "deployFirewallInHub": {
       "type": "bool",
-      "defaultValue": false,
+      "defaultValue": true,
       "metadata": {
         "description": "Deploy Azure Firewall in Hub VNET. includes deployment of custom route tables in Spokes and Hub VNETs"
       }
@@ -152,9 +163,23 @@
     },
     "deployFirewallrules": {
       "type": "bool",
-      "defaultValue": false,
+      "defaultValue": true,
       "metadata": {
         "description": "Deploy Firewall policy Rule Collection group which allows spoke-to-spoke and internet traffic"
+      }
+    },
+    "hubBgp": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Enable BGP on Hub Gateway"
+      }
+    },
+    "hubBgpAsn": {
+      "type": "int",
+      "defaultValue": 65515,
+      "metadata": {
+        "description": "Hub BGP ASN"
       }
     },
     "deployOnPrem": {
@@ -173,30 +198,44 @@
     },
     "deployBastionInOnPrem": {
       "type": "bool",
-      "defaultValue": false,
+      "defaultValue": true,
       "metadata": {
         "description": "Deploy Bastion Host in OnPrem VNET"
       }
     },
     "deployVMinOnPrem": {
       "type": "bool",
-      "defaultValue": false,
+      "defaultValue": true,
       "metadata": {
         "description": "Deploy VM in OnPrem VNET"
       }
     },
     "deployGatewayinOnPrem": {
       "type": "bool",
-      "defaultValue": false,
+      "defaultValue": true,
       "metadata": {
         "description": "Deploy Virtual Network Gateway in OnPrem VNET"
       }
     },
     "deploySiteToSite": {
       "type": "bool",
-      "defaultValue": false,
+      "defaultValue": true,
       "metadata": {
         "description": "Deploy Site-to-Site VPN connection between OnPrem and Hub Gateways"
+      }
+    },
+    "onpremBgp": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Enable BGP on OnPrem Gateway"
+      }
+    },
+    "onpremBgpAsn": {
+      "type": "int",
+      "defaultValue": 65011,
+      "metadata": {
+        "description": "OnPrem BGP ASN"
       }
     }
   },
@@ -216,10 +255,10 @@
   },
   "resources": [
     {
-      "condition": "[parameters('deployHUB')]",
+      "condition": "[and(parameters('deployHUB'), equals(parameters('hubType'), 'VNET'))]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
-      "name": "[format('{0}-{1}', parameters('hubRgName'), parameters('location'))]",
+      "name": "[format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))]",
       "location": "[deployment().location]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -228,7 +267,7 @@
         "mode": "Incremental",
         "parameters": {
           "deployBastionInHub": {
-            "value": "[parameters('deployBastionInHub')]"
+            "value": "[and(parameters('deployBastionInHub'), equals(parameters('hubType'), 'VNET'))]"
           },
           "location": {
             "value": "[parameters('location')]"
@@ -243,10 +282,10 @@
             "value": "[parameters('adminUsername')]"
           },
           "deployVMinHub": {
-            "value": "[parameters('deployVMinHub')]"
+            "value": "[and(parameters('deployVMinHub'), equals(parameters('hubType'), 'VNET'))]"
           },
           "deployFirewallInHub": {
-            "value": "[parameters('deployFirewallInHub')]"
+            "value": "[and(parameters('deployFirewallInHub'), equals(parameters('hubType'), 'VNET'))]"
           },
           "AzureFirewallTier": {
             "value": "[parameters('AzureFirewallTier')]"
@@ -255,10 +294,10 @@
             "value": "[parameters('hubRgName')]"
           },
           "deployFirewallrules": {
-            "value": "[parameters('deployFirewallrules')]"
+            "value": "[and(parameters('deployFirewallrules'), equals(parameters('hubType'), 'VNET'))]"
           },
           "deployGatewayInHub": {
-            "value": "[parameters('deployGatewayInHub')]"
+            "value": "[and(parameters('deployGatewayInHub'), equals(parameters('hubType'), 'VNET'))]"
           },
           "vmSize": {
             "value": "[parameters('vmSize')]"
@@ -271,6 +310,12 @@
           },
           "AllSpokeAddressSpaces": {
             "value": "[variables('AllSpokeAddressSpaces')]"
+          },
+          "vpnGwBgpAsn": {
+            "value": "[if(parameters('hubBgp'), parameters('hubBgpAsn'), 0)]"
+          },
+          "vpnGwEnebaleBgp": {
+            "value": "[parameters('hubBgp')]"
           }
         },
         "template": {
@@ -280,7 +325,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1272.37030",
-              "templateHash": "8402814749651457414"
+              "templateHash": "7523832583444240154"
             }
           },
           "parameters": {
@@ -328,6 +373,12 @@
             },
             "AllSpokeAddressSpaces": {
               "type": "array"
+            },
+            "vpnGwEnebaleBgp": {
+              "type": "bool"
+            },
+            "vpnGwBgpAsn": {
+              "type": "int"
             }
           },
           "variables": {
@@ -957,6 +1008,9 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
+                  "deployInVWan": {
+                    "value": false
+                  },
                   "location": {
                     "value": "[parameters('location')]"
                   },
@@ -980,7 +1034,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1272.37030",
-                      "templateHash": "1675999346805951273"
+                      "templateHash": "8830051547704122229"
                     }
                   },
                   "parameters": {
@@ -990,22 +1044,36 @@
                     "location": {
                       "type": "string"
                     },
-                    "azfwSKUname": {
-                      "type": "string",
-                      "defaultValue": "AZFW_VNet"
-                    },
                     "azfwTier": {
-                      "type": "string"
+                      "type": "string",
+                      "allowedValues": [
+                        "Standard",
+                        "Premium"
+                      ]
                     },
                     "azfwsubnetid": {
-                      "type": "string"
+                      "type": "string",
+                      "defaultValue": ""
                     },
                     "tagsByResource": {
                       "type": "object",
                       "defaultValue": {}
+                    },
+                    "vWanID": {
+                      "type": "string",
+                      "defaultValue": ""
+                    },
+                    "vWanAzFwPublicIPcount": {
+                      "type": "int",
+                      "defaultValue": 1
+                    },
+                    "deployInVWan": {
+                      "type": "bool",
+                      "defaultValue": false
                     }
                   },
                   "variables": {
+                    "azfwSKUname": "[if(parameters('deployInVWan'), 'AZFW_Hub', 'AZFW_VNet')]",
                     "pipName": "[format('{0}-pip', parameters('firewallName'))]",
                     "firewallPolicyName": "[format('{0}-policy', parameters('firewallName'))]"
                   },
@@ -1018,25 +1086,15 @@
                       "zones": [],
                       "properties": {
                         "sku": {
-                          "name": "[parameters('azfwSKUname')]",
+                          "name": "[variables('azfwSKUname')]",
                           "tier": "[parameters('azfwTier')]"
                         },
                         "firewallPolicy": {
                           "id": "[resourceId('Microsoft.Network/firewallPolicies', variables('firewallPolicyName'))]"
                         },
-                        "ipConfigurations": [
-                          {
-                            "properties": {
-                              "publicIPAddress": {
-                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('pipName'))]"
-                              },
-                              "subnet": {
-                                "id": "[parameters('azfwsubnetid')]"
-                              }
-                            },
-                            "name": "ipconfig1"
-                          }
-                        ]
+                        "ipConfigurations": "[if(parameters('deployInVWan'), null(), createArray(createObject('properties', createObject('publicIPAddress', createObject('id', resourceId('Microsoft.Network/publicIPAddresses', variables('pipName'))), 'subnet', createObject('id', parameters('azfwsubnetid'))), 'name', 'ipconfig1')))]",
+                        "virtualHub": "[if(not(parameters('deployInVWan')), createObject(), createObject('id', parameters('vWanID')))]",
+                        "hubIPAddresses": "[if(not(parameters('deployInVWan')), createObject(), createObject('publicIPs', createObject('count', parameters('vWanAzFwPublicIPcount'))))]"
                       },
                       "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/azureFirewalls'), parameters('tagsByResource')['Microsoft.Network/azureFirewalls'], createObject())]",
                       "dependsOn": [
@@ -1057,6 +1115,7 @@
                       "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/firewallPolicies'), parameters('tagsByResource')['Microsoft.Network/firewallPolicies'], createObject())]"
                     },
                     {
+                      "condition": "[not(parameters('deployInVWan'))]",
                       "type": "Microsoft.Network/publicIPAddresses",
                       "apiVersion": "2021-05-01",
                       "name": "[variables('pipName')]",
@@ -1075,7 +1134,15 @@
                   "outputs": {
                     "azFwIP": {
                       "type": "string",
-                      "value": "[reference(resourceId('Microsoft.Network/azureFirewalls', parameters('firewallName'))).ipConfigurations[0].properties.privateIPAddress]"
+                      "value": "[if(parameters('deployInVWan'), 'None', reference(resourceId('Microsoft.Network/azureFirewalls', parameters('firewallName'))).ipConfigurations[0].properties.privateIPAddress)]"
+                    },
+                    "azFwIPvWan": {
+                      "type": "array",
+                      "value": "[if(parameters('deployInVWan'), reference(resourceId('Microsoft.Network/azureFirewalls', parameters('firewallName'))).hubIPAddresses.publicIPs.addresses, createArray())]"
+                    },
+                    "azFwID": {
+                      "type": "string",
+                      "value": "[resourceId('Microsoft.Network/azureFirewalls', parameters('firewallName'))]"
                     },
                     "azFwPolicyName": {
                       "type": "string",
@@ -1448,6 +1515,12 @@
                   },
                   "tagsByResource": {
                     "value": "[parameters('tagsByResource')]"
+                  },
+                  "vpnGatewayBgpAsn": {
+                    "value": "[if(parameters('vpnGwEnebaleBgp'), parameters('vpnGwBgpAsn'), 0)]"
+                  },
+                  "vpnGatewayEnableBgp": {
+                    "value": "[parameters('vpnGwEnebaleBgp')]"
                   }
                 },
                 "template": {
@@ -1457,7 +1530,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1272.37030",
-                      "templateHash": "10472187036335450257"
+                      "templateHash": "17729252225643317290"
                     }
                   },
                   "parameters": {
@@ -1486,6 +1559,12 @@
                       "type": "string",
                       "defaultValue": "Generation1"
                     },
+                    "vpnGatewayEnableBgp": {
+                      "type": "bool"
+                    },
+                    "vpnGatewayBgpAsn": {
+                      "type": "int"
+                    },
                     "tagsByResource": {
                       "type": "object",
                       "defaultValue": {}
@@ -1503,7 +1582,8 @@
                       "properties": {
                         "gatewayType": "[parameters('vpnGatewayType')]",
                         "vpnType": "[parameters('vpnGatewayVPNtype')]",
-                        "enableBgp": false,
+                        "enableBgp": "[parameters('vpnGatewayEnableBgp')]",
+                        "bgpSettings": "[if(parameters('vpnGatewayEnableBgp'), createObject('asn', parameters('vpnGatewayBgpAsn')), createObject())]",
                         "sku": {
                           "name": "[parameters('vpnGatewaySKU')]",
                           "tier": "[parameters('vpnGatewaySKU')]"
@@ -1554,6 +1634,18 @@
                     "vpnGwID": {
                       "type": "string",
                       "value": "[resourceId('Microsoft.Network/virtualNetworkGateways', parameters('vpnGatewayName'))]"
+                    },
+                    "vpnGwBgpPeeringAddress": {
+                      "type": "string",
+                      "value": "[reference(resourceId('Microsoft.Network/virtualNetworkGateways', parameters('vpnGatewayName'))).bgpSettings.bgpPeeringAddress]"
+                    },
+                    "vpnGwName": {
+                      "type": "string",
+                      "value": "[parameters('vpnGatewayName')]"
+                    },
+                    "vpnGwAsn": {
+                      "type": "int",
+                      "value": "[reference(resourceId('Microsoft.Network/virtualNetworkGateways', parameters('vpnGatewayName'))).bgpSettings.asn]"
                     }
                   }
                 }
@@ -1740,6 +1832,711 @@
             "hubGatewayID": {
               "type": "string",
               "value": "[if(parameters('deployGatewayInHub'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('gatewayName'))).outputs.vpnGwID.value, 'none')]"
+            },
+            "HubGwBgpPeeringAddress": {
+              "type": "string",
+              "value": "[if(parameters('deployGatewayInHub'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('gatewayName'))).outputs.vpnGwBgpPeeringAddress.value, 'none')]"
+            }
+          }
+        }
+      }
+    },
+    {
+      "condition": "[and(parameters('deployHUB'), equals(parameters('hubType'), 'VWAN'))]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "[format('{0}-{1}-VWAN', parameters('hubRgName'), parameters('location'))]",
+      "location": "[deployment().location]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "deployFirewallInHub": {
+            "value": "[and(parameters('deployFirewallInHub'), equals(parameters('hubType'), 'VWAN'))]"
+          },
+          "AddressSpace": {
+            "value": "[parameters('AddressSpace')]"
+          },
+          "AzureFirewallTier": {
+            "value": "[parameters('AzureFirewallTier')]"
+          },
+          "deployFirewallrules": {
+            "value": "[and(parameters('deployFirewallrules'), equals(parameters('hubType'), 'VWAN'))]"
+          },
+          "hubRgName": {
+            "value": "[parameters('hubRgName')]"
+          },
+          "deployGatewayInHub": {
+            "value": "[and(parameters('deployGatewayInHub'), equals(parameters('hubType'), 'VWAN'))]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.4.1272.37030",
+              "templateHash": "4025316438370129253"
+            }
+          },
+          "parameters": {
+            "location": {
+              "type": "string"
+            },
+            "AddressSpace": {
+              "type": "string"
+            },
+            "deployFirewallInHub": {
+              "type": "bool"
+            },
+            "AzureFirewallTier": {
+              "type": "string"
+            },
+            "hubRgName": {
+              "type": "string"
+            },
+            "deployFirewallrules": {
+              "type": "bool"
+            },
+            "deployGatewayInHub": {
+              "type": "bool"
+            },
+            "tagsByResource": {
+              "type": "object",
+              "defaultValue": {}
+            }
+          },
+          "variables": {
+            "vnetAddressSpace": "[replace(parameters('AddressSpace'), '/16', '/24')]",
+            "vWanName": "vWAN",
+            "firewallName": "Firewall-Hub",
+            "gatewayName": "Gateway-Hub"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Resources/resourceGroups",
+              "apiVersion": "2021-04-01",
+              "name": "[parameters('hubRgName')]",
+              "location": "[parameters('location')]"
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2020-10-01",
+              "name": "[variables('vWanName')]",
+              "resourceGroup": "[parameters('hubRgName')]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "AddressPrefix": {
+                    "value": "[variables('vnetAddressSpace')]"
+                  },
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
+                  "vWanName": {
+                    "value": "[variables('vWanName')]"
+                  },
+                  "tagsByResource": {
+                    "value": "[parameters('tagsByResource')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.4.1272.37030",
+                      "templateHash": "631465296845133679"
+                    }
+                  },
+                  "parameters": {
+                    "location": {
+                      "type": "string"
+                    },
+                    "vWanName": {
+                      "type": "string"
+                    },
+                    "vWanType": {
+                      "type": "string",
+                      "defaultValue": "Standard",
+                      "allowedValues": [
+                        "Standard",
+                        "Basic"
+                      ]
+                    },
+                    "tagsByResource": {
+                      "type": "object",
+                      "defaultValue": {}
+                    },
+                    "AddressPrefix": {
+                      "type": "string"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Network/virtualWans",
+                      "apiVersion": "2021-05-01",
+                      "name": "[parameters('vWanName')]",
+                      "location": "[parameters('location')]",
+                      "properties": {
+                        "type": "[parameters('vWanType')]",
+                        "disableVpnEncryption": false,
+                        "allowBranchToBranchTraffic": true
+                      },
+                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/virtualWans'), parameters('tagsByResource')['Microsoft.Network/virtualWans'], createObject())]"
+                    },
+                    {
+                      "type": "Microsoft.Network/virtualHubs",
+                      "apiVersion": "2021-05-01",
+                      "name": "[format('HUB-{0}', parameters('location'))]",
+                      "location": "[parameters('location')]",
+                      "properties": {
+                        "addressPrefix": "[parameters('AddressPrefix')]",
+                        "virtualWan": {
+                          "id": "[resourceId('Microsoft.Network/virtualWans', parameters('vWanName'))]"
+                        }
+                      },
+                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/virtualHubs'), parameters('tagsByResource')['Microsoft.Network/virtualHubs'], createObject())]",
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/virtualWans', parameters('vWanName'))]"
+                      ]
+                    }
+                  ],
+                  "outputs": {
+                    "vWanID": {
+                      "type": "string",
+                      "value": "[resourceId('Microsoft.Network/virtualWans', parameters('vWanName'))]"
+                    },
+                    "vWanHubID": {
+                      "type": "string",
+                      "value": "[resourceId('Microsoft.Network/virtualHubs', format('HUB-{0}', parameters('location')))]"
+                    },
+                    "vWanHubAddressSpace": {
+                      "type": "string",
+                      "value": "[reference(resourceId('Microsoft.Network/virtualHubs', format('HUB-{0}', parameters('location')))).addressPrefix]"
+                    },
+                    "vWanHubName": {
+                      "type": "string",
+                      "value": "[format('HUB-{0}', parameters('location'))]"
+                    }
+                  }
+                }
+              },
+              "dependsOn": [
+                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('hubRgName'))]"
+              ]
+            },
+            {
+              "condition": "[parameters('deployFirewallInHub')]",
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2020-10-01",
+              "name": "[variables('firewallName')]",
+              "resourceGroup": "[parameters('hubRgName')]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "deployInVWan": {
+                    "value": true
+                  },
+                  "azfwTier": {
+                    "value": "[parameters('AzureFirewallTier')]"
+                  },
+                  "firewallName": {
+                    "value": "[variables('firewallName')]"
+                  },
+                  "vWanID": {
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('vWanName'))).outputs.vWanHubID.value]"
+                  },
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
+                  "tagsByResource": {
+                    "value": "[parameters('tagsByResource')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.4.1272.37030",
+                      "templateHash": "8830051547704122229"
+                    }
+                  },
+                  "parameters": {
+                    "firewallName": {
+                      "type": "string"
+                    },
+                    "location": {
+                      "type": "string"
+                    },
+                    "azfwTier": {
+                      "type": "string",
+                      "allowedValues": [
+                        "Standard",
+                        "Premium"
+                      ]
+                    },
+                    "azfwsubnetid": {
+                      "type": "string",
+                      "defaultValue": ""
+                    },
+                    "tagsByResource": {
+                      "type": "object",
+                      "defaultValue": {}
+                    },
+                    "vWanID": {
+                      "type": "string",
+                      "defaultValue": ""
+                    },
+                    "vWanAzFwPublicIPcount": {
+                      "type": "int",
+                      "defaultValue": 1
+                    },
+                    "deployInVWan": {
+                      "type": "bool",
+                      "defaultValue": false
+                    }
+                  },
+                  "variables": {
+                    "azfwSKUname": "[if(parameters('deployInVWan'), 'AZFW_Hub', 'AZFW_VNet')]",
+                    "pipName": "[format('{0}-pip', parameters('firewallName'))]",
+                    "firewallPolicyName": "[format('{0}-policy', parameters('firewallName'))]"
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Network/azureFirewalls",
+                      "apiVersion": "2021-05-01",
+                      "name": "[parameters('firewallName')]",
+                      "location": "[parameters('location')]",
+                      "zones": [],
+                      "properties": {
+                        "sku": {
+                          "name": "[variables('azfwSKUname')]",
+                          "tier": "[parameters('azfwTier')]"
+                        },
+                        "firewallPolicy": {
+                          "id": "[resourceId('Microsoft.Network/firewallPolicies', variables('firewallPolicyName'))]"
+                        },
+                        "ipConfigurations": "[if(parameters('deployInVWan'), null(), createArray(createObject('properties', createObject('publicIPAddress', createObject('id', resourceId('Microsoft.Network/publicIPAddresses', variables('pipName'))), 'subnet', createObject('id', parameters('azfwsubnetid'))), 'name', 'ipconfig1')))]",
+                        "virtualHub": "[if(not(parameters('deployInVWan')), createObject(), createObject('id', parameters('vWanID')))]",
+                        "hubIPAddresses": "[if(not(parameters('deployInVWan')), createObject(), createObject('publicIPs', createObject('count', parameters('vWanAzFwPublicIPcount'))))]"
+                      },
+                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/azureFirewalls'), parameters('tagsByResource')['Microsoft.Network/azureFirewalls'], createObject())]",
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/publicIPAddresses', variables('pipName'))]",
+                        "[resourceId('Microsoft.Network/firewallPolicies', variables('firewallPolicyName'))]"
+                      ]
+                    },
+                    {
+                      "type": "Microsoft.Network/firewallPolicies",
+                      "apiVersion": "2021-05-01",
+                      "name": "[variables('firewallPolicyName')]",
+                      "location": "[parameters('location')]",
+                      "properties": {
+                        "sku": {
+                          "tier": "[parameters('azfwTier')]"
+                        }
+                      },
+                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/firewallPolicies'), parameters('tagsByResource')['Microsoft.Network/firewallPolicies'], createObject())]"
+                    },
+                    {
+                      "condition": "[not(parameters('deployInVWan'))]",
+                      "type": "Microsoft.Network/publicIPAddresses",
+                      "apiVersion": "2021-05-01",
+                      "name": "[variables('pipName')]",
+                      "location": "[parameters('location')]",
+                      "properties": {
+                        "publicIPAddressVersion": "IPv4",
+                        "publicIPAllocationMethod": "Static"
+                      },
+                      "sku": {
+                        "tier": "Regional",
+                        "name": "Standard"
+                      },
+                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/publicIPAddresses'), parameters('tagsByResource')['Microsoft.Network/publicIPAddresses'], createObject())]"
+                    }
+                  ],
+                  "outputs": {
+                    "azFwIP": {
+                      "type": "string",
+                      "value": "[if(parameters('deployInVWan'), 'None', reference(resourceId('Microsoft.Network/azureFirewalls', parameters('firewallName'))).ipConfigurations[0].properties.privateIPAddress)]"
+                    },
+                    "azFwIPvWan": {
+                      "type": "array",
+                      "value": "[if(parameters('deployInVWan'), reference(resourceId('Microsoft.Network/azureFirewalls', parameters('firewallName'))).hubIPAddresses.publicIPs.addresses, createArray())]"
+                    },
+                    "azFwID": {
+                      "type": "string",
+                      "value": "[resourceId('Microsoft.Network/azureFirewalls', parameters('firewallName'))]"
+                    },
+                    "azFwPolicyName": {
+                      "type": "string",
+                      "value": "[variables('firewallPolicyName')]"
+                    }
+                  }
+                }
+              },
+              "dependsOn": [
+                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('hubRgName'))]",
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('vWanName'))]"
+              ]
+            },
+            {
+              "condition": "[and(parameters('deployFirewallrules'), parameters('deployFirewallInHub'))]",
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2020-10-01",
+              "name": "firewallRules",
+              "resourceGroup": "[parameters('hubRgName')]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "azFwPolicyName": {
+                    "value": "[if(and(parameters('deployFirewallInHub'), parameters('deployFirewallrules')), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('firewallName'))).outputs.azFwPolicyName.value, 'none')]"
+                  },
+                  "AddressSpace": {
+                    "value": "[parameters('AddressSpace')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.4.1272.37030",
+                      "templateHash": "2163297474746570044"
+                    }
+                  },
+                  "parameters": {
+                    "azFwPolicyName": {
+                      "type": "string"
+                    },
+                    "ruleCollectiongroupName": {
+                      "type": "string",
+                      "defaultValue": "HubSpokeLabBuilderCollectionGroup"
+                    },
+                    "AddressSpace": {
+                      "type": "string"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Network/firewallPolicies/ruleCollectionGroups",
+                      "apiVersion": "2021-05-01",
+                      "name": "[format('{0}/{1}', parameters('azFwPolicyName'), parameters('ruleCollectiongroupName'))]",
+                      "properties": {
+                        "priority": 400,
+                        "ruleCollections": [
+                          {
+                            "name": "NetworkRules",
+                            "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                            "action": {
+                              "type": "Allow"
+                            },
+                            "priority": 100,
+                            "rules": [
+                              {
+                                "name": "AllowLocalTraffic",
+                                "ruleType": "NetworkRule",
+                                "sourceAddresses": [
+                                  "[parameters('AddressSpace')]"
+                                ],
+                                "destinationAddresses": [
+                                  "[parameters('AddressSpace')]"
+                                ],
+                                "ipProtocols": [
+                                  "Any"
+                                ],
+                                "destinationPorts": [
+                                  "*"
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "name": "ApplicationRules",
+                            "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                            "action": {
+                              "type": "Allow"
+                            },
+                            "priority": 200,
+                            "rules": [
+                              {
+                                "name": "AllowHttpHttps",
+                                "ruleType": "ApplicationRule",
+                                "sourceAddresses": [
+                                  "[parameters('AddressSpace')]"
+                                ],
+                                "sourceIpGroups": [],
+                                "destinationAddresses": [],
+                                "terminateTLS": false,
+                                "fqdnTags": [],
+                                "webCategories": [],
+                                "targetUrls": [],
+                                "targetFqdns": [
+                                  "*"
+                                ],
+                                "protocols": [
+                                  {
+                                    "protocolType": "Http",
+                                    "port": 80
+                                  },
+                                  {
+                                    "protocolType": "Https",
+                                    "port": 443
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              },
+              "dependsOn": [
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('firewallName'))]",
+                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('hubRgName'))]"
+              ]
+            },
+            {
+              "condition": "[parameters('deployFirewallInHub')]",
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2020-10-01",
+              "name": "secureRoutes",
+              "resourceGroup": "[parameters('hubRgName')]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "vwanHubName": {
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('vWanName'))).outputs.vWanHubName.value]"
+                  },
+                  "AzFirewallID": {
+                    "value": "[if(parameters('deployFirewallInHub'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('firewallName'))).outputs.azFwID.value, 'none')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.4.1272.37030",
+                      "templateHash": "13227356620781286820"
+                    }
+                  },
+                  "parameters": {
+                    "vwanHubName": {
+                      "type": "string"
+                    },
+                    "AzFirewallID": {
+                      "type": "string"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Network/virtualHubs/hubRouteTables",
+                      "apiVersion": "2020-05-01",
+                      "name": "[format('{0}/defaultRouteTable', parameters('vwanHubName'))]",
+                      "properties": {
+                        "routes": [
+                          {
+                            "name": "all_traffic",
+                            "destinationType": "CIDR",
+                            "destinations": [
+                              "10.0.0.0/8",
+                              "172.16.0.0/12",
+                              "192.168.0.0/16",
+                              "0.0.0.0/0"
+                            ],
+                            "nextHopType": "ResourceId",
+                            "nextHop": "[parameters('AzFirewallID')]"
+                          }
+                        ],
+                        "labels": [
+                          "default"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              },
+              "dependsOn": [
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('firewallName'))]",
+                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('hubRgName'))]",
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('vWanName'))]"
+              ]
+            },
+            {
+              "condition": "[parameters('deployGatewayInHub')]",
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2020-10-01",
+              "name": "[variables('gatewayName')]",
+              "resourceGroup": "[parameters('hubRgName')]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
+                  "vpnGwName": {
+                    "value": "[variables('gatewayName')]"
+                  },
+                  "vWanHubID": {
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('vWanName'))).outputs.vWanHubID.value]"
+                  },
+                  "tagsByResource": {
+                    "value": "[parameters('tagsByResource')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.4.1272.37030",
+                      "templateHash": "6298597786445432225"
+                    }
+                  },
+                  "parameters": {
+                    "location": {
+                      "type": "string"
+                    },
+                    "vWanHubID": {
+                      "type": "string"
+                    },
+                    "vpnGwName": {
+                      "type": "string"
+                    },
+                    "vpnGwScaleUnits": {
+                      "type": "int",
+                      "defaultValue": 1,
+                      "maxValue": 25,
+                      "minValue": 1
+                    },
+                    "tagsByResource": {
+                      "type": "object",
+                      "defaultValue": {}
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Network/vpnGateways",
+                      "apiVersion": "2021-05-01",
+                      "name": "[parameters('vpnGwName')]",
+                      "location": "[parameters('location')]",
+                      "properties": {
+                        "bgpSettings": {
+                          "asn": 65515
+                        },
+                        "vpnGatewayScaleUnit": "[parameters('vpnGwScaleUnits')]",
+                        "virtualHub": {
+                          "id": "[parameters('vWanHubID')]"
+                        }
+                      },
+                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/vpnGateways'), parameters('tagsByResource')['Microsoft.Network/vpnGateways'], createObject())]"
+                    }
+                  ],
+                  "outputs": {
+                    "vpnGwID": {
+                      "type": "string",
+                      "value": "[resourceId('Microsoft.Network/vpnGateways', parameters('vpnGwName'))]"
+                    },
+                    "vpnGwPip": {
+                      "type": "array",
+                      "value": "[reference(resourceId('Microsoft.Network/vpnGateways', parameters('vpnGwName'))).ipConfigurations]"
+                    },
+                    "vpnGwBgpIp": {
+                      "type": "array",
+                      "value": "[reference(resourceId('Microsoft.Network/vpnGateways', parameters('vpnGwName'))).bgpSettings.bgpPeeringAddresses]"
+                    },
+                    "vpnGwBgpAsn": {
+                      "type": "int",
+                      "value": "[reference(resourceId('Microsoft.Network/vpnGateways', parameters('vpnGwName'))).bgpSettings.asn]"
+                    },
+                    "vpnGwName": {
+                      "type": "string",
+                      "value": "[parameters('vpnGwName')]"
+                    }
+                  }
+                }
+              },
+              "dependsOn": [
+                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('hubRgName'))]",
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('vWanName'))]"
+              ]
+            }
+          ],
+          "outputs": {
+            "vwanHubName": {
+              "type": "string",
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('vWanName'))).outputs.vWanHubName.value]"
+            },
+            "vWanHubID": {
+              "type": "string",
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('vWanName'))).outputs.vWanHubID.value]"
+            },
+            "vWanID": {
+              "type": "string",
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('vWanName'))).outputs.vWanID.value]"
+            },
+            "vWanHubAddressSpace": {
+              "type": "string",
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('vWanName'))).outputs.vWanHubAddressSpace.value]"
+            },
+            "HubResourceGroupName": {
+              "type": "string",
+              "value": "[parameters('hubRgName')]"
+            },
+            "vWanVpnGwID": {
+              "type": "string",
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('gatewayName'))).outputs.vpnGwID.value]"
+            },
+            "vWanVpnGwPip": {
+              "type": "array",
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('gatewayName'))).outputs.vpnGwPip.value]"
+            },
+            "vWanFwPublicIP": {
+              "type": "array",
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('firewallName'))).outputs.azFwIPvWan.value]"
+            },
+            "vpnGwBgpIp": {
+              "type": "array",
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('gatewayName'))).outputs.vpnGwBgpIp.value]"
+            },
+            "vpnGwBgpAsn": {
+              "type": "int",
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('gatewayName'))).outputs.vpnGwBgpAsn.value]"
+            },
+            "vpnGwName": {
+              "type": "string",
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('gatewayName'))).outputs.vpnGwName.value]"
             }
           }
         }
@@ -1783,13 +2580,13 @@
             "value": "[parameters('deployVMsInSpokes')]"
           },
           "deployFirewallInHub": {
-            "value": "[parameters('deployFirewallInHub')]"
+            "value": "[and(parameters('deployFirewallInHub'), equals(parameters('hubType'), 'VNET'))]"
           },
           "AzureFirewallpip": {
-            "value": "[if(parameters('deployHUB'), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}', parameters('hubRgName'), parameters('location')))).outputs.azFwIp.value, 'Not deployed')]"
+            "value": "[if(and(parameters('deployHUB'), equals(parameters('hubType'), 'VNET')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location')))).outputs.azFwIp.value, 'Not deployed')]"
           },
           "HubDeployed": {
-            "value": "[parameters('deployHUB')]"
+            "value": "[and(parameters('deployHUB'), equals(parameters('hubType'), 'VNET'))]"
           },
           "spokeRgNamePrefix": {
             "value": "[parameters('spokeRgNamePrefix')]"
@@ -1804,7 +2601,7 @@
             "value": "[parameters('osType')]"
           },
           "hubDefaultSubnetPrefix": {
-            "value": "[if(parameters('deployHUB'), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}', parameters('hubRgName'), parameters('location')))).outputs.hubDefaultSubnetPrefix.value, 'Not deployed')]"
+            "value": "[if(and(parameters('deployHUB'), equals(parameters('hubType'), 'VNET')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location')))).outputs.hubDefaultSubnetPrefix.value, 'Not deployed')]"
           }
         },
         "template": {
@@ -2688,11 +3485,11 @@
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}', parameters('hubRgName'), parameters('location')))]"
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location')))]"
       ]
     },
     {
-      "condition": "[and(parameters('deployHUB'), parameters('deploySpokes'))]",
+      "condition": "[and(and(parameters('deployHUB'), parameters('deploySpokes')), equals(parameters('hubType'), 'VNET'))]",
       "copy": {
         "name": "vnetPeerings",
         "count": "[length(range(0, parameters('amountOfSpokes')))]"
@@ -2708,22 +3505,22 @@
         "mode": "Incremental",
         "parameters": {
           "HubResourceGroupName": {
-            "value": "[if(and(parameters('deployHUB'), parameters('deploySpokes')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}', parameters('hubRgName'), parameters('location')))).outputs.HubResourceGroupName.value, 'No VNET peering')]"
+            "value": "[if(and(and(parameters('deployHUB'), parameters('deploySpokes')), equals(parameters('hubType'), 'VNET')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location')))).outputs.HubResourceGroupName.value, 'No VNET peering')]"
           },
           "SpokeResourceGroupName": {
-            "value": "[if(and(parameters('deployHUB'), parameters('deploySpokes')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]], parameters('location')))).outputs.spokeResourceGroupName.value, 'No peering')]"
+            "value": "[if(and(and(parameters('deployHUB'), parameters('deploySpokes')), equals(parameters('hubType'), 'VNET')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]], parameters('location')))).outputs.spokeResourceGroupName.value, 'No peering')]"
           },
           "HubVnetName": {
-            "value": "[if(and(parameters('deployHUB'), parameters('deploySpokes')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}', parameters('hubRgName'), parameters('location')))).outputs.hubVnetName.value, 'No VNET peering')]"
+            "value": "[if(and(and(parameters('deployHUB'), parameters('deploySpokes')), equals(parameters('hubType'), 'VNET')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location')))).outputs.hubVnetName.value, 'No VNET peering')]"
           },
           "SpokeVnetID": {
-            "value": "[if(and(parameters('deployHUB'), parameters('deploySpokes')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]], parameters('location')))).outputs.spokeVnetID.value, 'No VNET peering')]"
+            "value": "[if(and(and(parameters('deployHUB'), parameters('deploySpokes')), equals(parameters('hubType'), 'VNET')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]], parameters('location')))).outputs.spokeVnetID.value, 'No VNET peering')]"
           },
           "HubVnetID": {
-            "value": "[if(and(parameters('deployHUB'), parameters('deploySpokes')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}', parameters('hubRgName'), parameters('location')))).outputs.hubVnetID.value, 'No VNET peering')]"
+            "value": "[if(and(and(parameters('deployHUB'), parameters('deploySpokes')), equals(parameters('hubType'), 'VNET')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location')))).outputs.hubVnetID.value, 'No VNET peering')]"
           },
           "SpokeVnetName": {
-            "value": "[if(and(parameters('deployHUB'), parameters('deploySpokes')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]], parameters('location')))).outputs.spokeVnetName.value, 'No VNET peering')]"
+            "value": "[if(and(and(parameters('deployHUB'), parameters('deploySpokes')), equals(parameters('hubType'), 'VNET')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]], parameters('location')))).outputs.spokeVnetName.value, 'No VNET peering')]"
           },
           "counter": {
             "value": "[range(0, parameters('amountOfSpokes'))[copyIndex()]]"
@@ -2921,10 +3718,170 @@
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}', parameters('hubRgName'), parameters('location')))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]], parameters('location')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]], parameters('location')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]], parameters('location')))]"
+      ]
+    },
+    {
+      "condition": "[and(and(parameters('deployHUB'), parameters('deploySpokes')), equals(parameters('hubType'), 'VWAN'))]",
+      "copy": {
+        "name": "vnetConnections",
+        "count": "[length(range(0, parameters('amountOfSpokes')))]"
+      },
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "[format('{0}-VnetConnection{1}-{2}', parameters('hubRgName'), add(range(0, parameters('amountOfSpokes'))[copyIndex()], 1), parameters('location'))]",
+      "location": "[deployment().location]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "HubResourceGroupName": {
+            "value": "[if(and(and(parameters('deployHUB'), parameters('deploySpokes')), equals(parameters('hubType'), 'VWAN')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}-VWAN', parameters('hubRgName'), parameters('location')))).outputs.HubResourceGroupName.value, 'No VNET peering')]"
+          },
+          "SpokeVnetID": {
+            "value": "[if(and(and(parameters('deployHUB'), parameters('deploySpokes')), equals(parameters('hubType'), 'VWAN')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]], parameters('location')))).outputs.spokeVnetID.value, 'No VNET peering')]"
+          },
+          "vwanHubName": {
+            "value": "[if(and(and(parameters('deployHUB'), parameters('deploySpokes')), equals(parameters('hubType'), 'VWAN')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}-VWAN', parameters('hubRgName'), parameters('location')))).outputs.vwanHubName.value, 'No VNET peering')]"
+          },
+          "deployFirewallInHub": {
+            "value": "[and(parameters('deployFirewallInHub'), equals(parameters('hubType'), 'VWAN'))]"
+          },
+          "counter": {
+            "value": "[range(0, parameters('amountOfSpokes'))[copyIndex()]]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.4.1272.37030",
+              "templateHash": "12836541701492974067"
+            }
+          },
+          "parameters": {
+            "vwanHubName": {
+              "type": "string"
+            },
+            "SpokeVnetID": {
+              "type": "string"
+            },
+            "HubResourceGroupName": {
+              "type": "string"
+            },
+            "counter": {
+              "type": "int"
+            },
+            "deployFirewallInHub": {
+              "type": "bool"
+            }
+          },
+          "variables": {
+            "spokeName": "[split(parameters('SpokeVnetID'), '/')[8]]"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2020-10-01",
+              "name": "[format('VnetConnection{0}', add(parameters('counter'), 1))]",
+              "resourceGroup": "[parameters('HubResourceGroupName')]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "SpokeVnetID": {
+                    "value": "[parameters('SpokeVnetID')]"
+                  },
+                  "vwanHubName": {
+                    "value": "[parameters('vwanHubName')]"
+                  },
+                  "spokeName": {
+                    "value": "[variables('spokeName')]"
+                  },
+                  "enableInternetSecurity": {
+                    "value": "[parameters('deployFirewallInHub')]"
+                  },
+                  "propagateToNoneRouteTable": {
+                    "value": "[parameters('deployFirewallInHub')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.4.1272.37030",
+                      "templateHash": "3242770824320451866"
+                    }
+                  },
+                  "parameters": {
+                    "vwanHubName": {
+                      "type": "string"
+                    },
+                    "spokeName": {
+                      "type": "string"
+                    },
+                    "SpokeVnetID": {
+                      "type": "string"
+                    },
+                    "enableInternetSecurity": {
+                      "type": "bool",
+                      "defaultValue": false
+                    },
+                    "propagateToNoneRouteTable": {
+                      "type": "bool",
+                      "defaultValue": false
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Network/virtualHubs/hubVirtualNetworkConnections",
+                      "apiVersion": "2021-05-01",
+                      "name": "[format('{0}/{1}-to-{2}', parameters('vwanHubName'), parameters('vwanHubName'), parameters('spokeName'))]",
+                      "properties": {
+                        "routingConfiguration": {
+                          "associatedRouteTable": {
+                            "id": "[resourceId('Microsoft.Network/virtualHubs/hubRouteTables', parameters('vwanHubName'), 'defaultRouteTable')]"
+                          },
+                          "propagatedRouteTables": {
+                            "labels": [
+                              "[if(parameters('propagateToNoneRouteTable'), '', 'default')]"
+                            ],
+                            "ids": [
+                              {
+                                "id": "[resourceId('Microsoft.Network/virtualHubs/hubRouteTables', parameters('vwanHubName'), if(parameters('propagateToNoneRouteTable'), 'noneRouteTable', 'defaultRouteTable'))]"
+                              }
+                            ]
+                          }
+                        },
+                        "remoteVirtualNetwork": {
+                          "id": "[parameters('SpokeVnetID')]"
+                        },
+                        "allowRemoteVnetToUseHubVnetGateways": true,
+                        "allowHubToRemoteVnetTransit": true,
+                        "enableInternetSecurity": "[parameters('enableInternetSecurity')]"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]], parameters('location')))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}-VWAN', parameters('hubRgName'), parameters('location')))]"
       ]
     },
     {
@@ -2971,6 +3928,12 @@
           },
           "osType": {
             "value": "[parameters('osType')]"
+          },
+          "vpnGwBgpAsn": {
+            "value": "[if(parameters('onpremBgp'), parameters('onpremBgpAsn'), 0)]"
+          },
+          "vpnGwEnebaleBgp": {
+            "value": "[parameters('onpremBgp')]"
           }
         },
         "template": {
@@ -2980,7 +3943,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1272.37030",
-              "templateHash": "15443480187488307801"
+              "templateHash": "2389450796131366628"
             }
           },
           "parameters": {
@@ -3016,6 +3979,12 @@
             },
             "osType": {
               "type": "string"
+            },
+            "vpnGwEnebaleBgp": {
+              "type": "bool"
+            },
+            "vpnGwBgpAsn": {
+              "type": "int"
             }
           },
           "variables": {
@@ -3638,6 +4607,12 @@
                   },
                   "tagsByResource": {
                     "value": "[parameters('tagsByResource')]"
+                  },
+                  "vpnGatewayBgpAsn": {
+                    "value": "[if(parameters('vpnGwEnebaleBgp'), parameters('vpnGwBgpAsn'), 0)]"
+                  },
+                  "vpnGatewayEnableBgp": {
+                    "value": "[parameters('vpnGwEnebaleBgp')]"
                   }
                 },
                 "template": {
@@ -3647,7 +4622,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1272.37030",
-                      "templateHash": "10472187036335450257"
+                      "templateHash": "17729252225643317290"
                     }
                   },
                   "parameters": {
@@ -3676,6 +4651,12 @@
                       "type": "string",
                       "defaultValue": "Generation1"
                     },
+                    "vpnGatewayEnableBgp": {
+                      "type": "bool"
+                    },
+                    "vpnGatewayBgpAsn": {
+                      "type": "int"
+                    },
                     "tagsByResource": {
                       "type": "object",
                       "defaultValue": {}
@@ -3693,7 +4674,8 @@
                       "properties": {
                         "gatewayType": "[parameters('vpnGatewayType')]",
                         "vpnType": "[parameters('vpnGatewayVPNtype')]",
-                        "enableBgp": false,
+                        "enableBgp": "[parameters('vpnGatewayEnableBgp')]",
+                        "bgpSettings": "[if(parameters('vpnGatewayEnableBgp'), createObject('asn', parameters('vpnGatewayBgpAsn')), createObject())]",
                         "sku": {
                           "name": "[parameters('vpnGatewaySKU')]",
                           "tier": "[parameters('vpnGatewaySKU')]"
@@ -3744,6 +4726,18 @@
                     "vpnGwID": {
                       "type": "string",
                       "value": "[resourceId('Microsoft.Network/virtualNetworkGateways', parameters('vpnGatewayName'))]"
+                    },
+                    "vpnGwBgpPeeringAddress": {
+                      "type": "string",
+                      "value": "[reference(resourceId('Microsoft.Network/virtualNetworkGateways', parameters('vpnGatewayName'))).bgpSettings.bgpPeeringAddress]"
+                    },
+                    "vpnGwName": {
+                      "type": "string",
+                      "value": "[parameters('vpnGatewayName')]"
+                    },
+                    "vpnGwAsn": {
+                      "type": "int",
+                      "value": "[reference(resourceId('Microsoft.Network/virtualNetworkGateways', parameters('vpnGatewayName'))).bgpSettings.asn]"
                     }
                   }
                 }
@@ -3766,13 +4760,21 @@
             "OnPremAddressSpace": {
               "type": "string",
               "value": "[variables('vnetAddressSpace')]"
+            },
+            "OnPremGwBgpPeeringAddress": {
+              "type": "string",
+              "value": "[if(parameters('deployGatewayInOnPrem'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('OnPremRgName')), 'Microsoft.Resources/deployments', variables('gatewayName'))).outputs.vpnGwBgpPeeringAddress.value, 'none')]"
+            },
+            "OnPremGwBgpAsn": {
+              "type": "int",
+              "value": "[if(and(parameters('deployGatewayInOnPrem'), parameters('vpnGwEnebaleBgp')), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('OnPremRgName')), 'Microsoft.Resources/deployments', variables('gatewayName'))).outputs.vpnGwAsn.value, 0)]"
             }
           }
         }
       }
     },
     {
-      "condition": "[and(and(parameters('deployGatewayInHub'), parameters('deployGatewayinOnPrem')), parameters('deploySiteToSite'))]",
+      "condition": "[and(and(and(parameters('deployGatewayInHub'), parameters('deployGatewayinOnPrem')), parameters('deploySiteToSite')), equals(parameters('hubType'), 'VNET'))]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
       "name": "[format('{0}-s2s-Hub-OnPrem-{1}', parameters('hubRgName'), parameters('location'))]",
@@ -3787,37 +4789,52 @@
             "value": "[parameters('location')]"
           },
           "HubRgName": {
-            "value": "[if(parameters('deployHUB'), parameters('hubRgName'), 'none')]"
+            "value": "[if(and(parameters('deployHUB'), equals(parameters('hubType'), 'VNET')), parameters('hubRgName'), 'none')]"
           },
           "HubGatewayID": {
-            "value": "[if(parameters('deployGatewayInHub'), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}', parameters('hubRgName'), parameters('location')))).outputs.hubGatewayID.value, 'none')]"
+            "value": "[if(and(parameters('deployGatewayInHub'), equals(parameters('hubType'), 'VNET')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location')))).outputs.hubGatewayID.value, 'none')]"
           },
           "HubGatewayPublicIP": {
-            "value": "[if(parameters('deployGatewayInHub'), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}', parameters('hubRgName'), parameters('location')))).outputs.hubGatewayPublicIP.value, 'none')]"
+            "value": "[if(and(parameters('deployGatewayInHub'), equals(parameters('hubType'), 'VNET')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location')))).outputs.hubGatewayPublicIP.value, 'none')]"
           },
           "HubAddressPrefixes": {
-            "value": "[if(parameters('deployHUB'), variables('AllAddressSpaces'), createArray())]"
+            "value": "[if(and(parameters('deployHUB'), equals(parameters('hubType'), 'VNET')), variables('AllAddressSpaces'), createArray())]"
           },
           "HubLocalGatewayName": {
-            "value": "[if(parameters('deploySiteToSite'), 'LocalGateway-Hub', 'none')]"
+            "value": "[if(and(parameters('deploySiteToSite'), equals(parameters('hubType'), 'VNET')), 'LocalGateway-Hub', 'none')]"
           },
           "OnPremRgName": {
-            "value": "[if(parameters('deployOnPrem'), parameters('onpremRgName'), 'none')]"
+            "value": "[if(and(parameters('deployOnPrem'), equals(parameters('hubType'), 'VNET')), parameters('onpremRgName'), 'none')]"
           },
           "OnPremGatewayID": {
-            "value": "[if(parameters('deployGatewayinOnPrem'), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}', parameters('onpremRgName'), parameters('location')))).outputs.OnPremGatewayID.value, 'none')]"
+            "value": "[if(and(parameters('deployGatewayinOnPrem'), equals(parameters('hubType'), 'VNET')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}', parameters('onpremRgName'), parameters('location')))).outputs.OnPremGatewayID.value, 'none')]"
           },
           "OnPremGatewayPublicIP": {
-            "value": "[if(parameters('deployGatewayinOnPrem'), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}', parameters('onpremRgName'), parameters('location')))).outputs.OnPremGatewayPublicIP.value, 'none')]"
+            "value": "[if(and(parameters('deployGatewayinOnPrem'), equals(parameters('hubType'), 'VNET')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}', parameters('onpremRgName'), parameters('location')))).outputs.OnPremGatewayPublicIP.value, 'none')]"
           },
           "OnPremAddressPrefixes": {
-            "value": "[if(parameters('deployOnPrem'), array(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}', parameters('onpremRgName'), parameters('location')))).outputs.OnPremAddressSpace.value), createArray())]"
+            "value": "[if(and(parameters('deployOnPrem'), equals(parameters('hubType'), 'VNET')), array(reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}', parameters('onpremRgName'), parameters('location')))).outputs.OnPremAddressSpace.value), createArray())]"
           },
           "OnPremLocalGatewayName": {
-            "value": "[if(parameters('deploySiteToSite'), 'LocalGateway-OnPrem', 'none')]"
+            "value": "[if(and(parameters('deploySiteToSite'), equals(parameters('hubType'), 'VNET')), 'LocalGateway-OnPrem', 'none')]"
           },
           "tagsByResource": {
             "value": "[parameters('tagsByResource')]"
+          },
+          "enableBgp": {
+            "value": "[and(parameters('hubBgp'), parameters('onpremBgp'))]"
+          },
+          "HubBgpAsn": {
+            "value": "[parameters('hubBgpAsn')]"
+          },
+          "HubBgpPeeringAddress": {
+            "value": "[if(and(and(parameters('deployGatewayInHub'), parameters('hubBgp')), equals(parameters('hubType'), 'VNET')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location')))).outputs.HubGwBgpPeeringAddress.value, 'none')]"
+          },
+          "OnPremBgpAsn": {
+            "value": "[parameters('onpremBgpAsn')]"
+          },
+          "OnPremBgpPeeringAddress": {
+            "value": "[if(and(and(parameters('deployGatewayinOnPrem'), parameters('onpremBgp')), equals(parameters('hubType'), 'VNET')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}', parameters('onpremRgName'), parameters('location')))).outputs.OnPremGwBgpPeeringAddress.value, 'none')]"
           }
         },
         "template": {
@@ -3827,7 +4844,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1272.37030",
-              "templateHash": "4063040771691982962"
+              "templateHash": "11160999458190338186"
             }
           },
           "parameters": {
@@ -3838,6 +4855,9 @@
               "type": "secureString",
               "defaultValue": "[uniqueString(newGuid())]"
             },
+            "enableBgp": {
+              "type": "bool"
+            },
             "tagsByResource": {
               "type": "object"
             },
@@ -3845,6 +4865,12 @@
               "type": "string"
             },
             "OnPremRgName": {
+              "type": "string"
+            },
+            "OnPremBgpAsn": {
+              "type": "int"
+            },
+            "OnPremBgpPeeringAddress": {
               "type": "string"
             },
             "HubGatewayPublicIP": {
@@ -3860,6 +4886,12 @@
               "type": "string"
             },
             "HubRgName": {
+              "type": "string"
+            },
+            "HubBgpAsn": {
+              "type": "int"
+            },
+            "HubBgpPeeringAddress": {
               "type": "string"
             },
             "OnPremGatewayPublicIP": {
@@ -3907,6 +4939,15 @@
                   },
                   "tagsByResource": {
                     "value": "[parameters('tagsByResource')]"
+                  },
+                  "enableBgp": {
+                    "value": "[parameters('enableBgp')]"
+                  },
+                  "BgpAsn": {
+                    "value": "[parameters('HubBgpAsn')]"
+                  },
+                  "BgpPeeringAddress": {
+                    "value": "[parameters('HubBgpPeeringAddress')]"
                   }
                 },
                 "template": {
@@ -3916,7 +4957,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1272.37030",
-                      "templateHash": "14515774778222077433"
+                      "templateHash": "12496787363251811895"
                     }
                   },
                   "parameters": {
@@ -3939,11 +4980,20 @@
                       "type": "string"
                     },
                     "sharedKey": {
-                      "type": "string"
+                      "type": "secureString"
                     },
                     "tagsByResource": {
                       "type": "object",
                       "defaultValue": {}
+                    },
+                    "enableBgp": {
+                      "type": "bool"
+                    },
+                    "BgpAsn": {
+                      "type": "int"
+                    },
+                    "BgpPeeringAddress": {
+                      "type": "string"
                     }
                   },
                   "resources": [
@@ -3954,9 +5004,8 @@
                       "location": "[parameters('location')]",
                       "properties": {
                         "gatewayIpAddress": "[parameters('LocalGatewayPublicIP')]",
-                        "localNetworkAddressSpace": {
-                          "addressPrefixes": "[parameters('LocalGatewayAddressPrefixes')]"
-                        }
+                        "bgpSettings": "[if(parameters('enableBgp'), createObject('asn', parameters('BgpAsn'), 'bgpPeeringAddress', parameters('BgpPeeringAddress')), createObject())]",
+                        "localNetworkAddressSpace": "[if(parameters('enableBgp'), createObject(), createObject('addressPrefixes', parameters('LocalGatewayAddressPrefixes')))]"
                       },
                       "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/localNetworkGateways'), parameters('tagsByResource')['Microsoft.Network/localNetworkGateways'], createObject())]"
                     },
@@ -3971,6 +5020,7 @@
                         "connectionProtocol": "IKEv2",
                         "useLocalAzureIpAddress": false,
                         "usePolicyBasedTrafficSelectors": false,
+                        "enableBgp": "[parameters('enableBgp')]",
                         "sharedKey": "[parameters('sharedKey')]",
                         "virtualNetworkGateway1": {
                           "id": "[parameters('VpnGatewayID')]",
@@ -4024,6 +5074,15 @@
                   },
                   "tagsByResource": {
                     "value": "[parameters('tagsByResource')]"
+                  },
+                  "enableBgp": {
+                    "value": "[parameters('enableBgp')]"
+                  },
+                  "BgpAsn": {
+                    "value": "[parameters('OnPremBgpAsn')]"
+                  },
+                  "BgpPeeringAddress": {
+                    "value": "[parameters('OnPremBgpPeeringAddress')]"
                   }
                 },
                 "template": {
@@ -4033,7 +5092,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1272.37030",
-                      "templateHash": "14515774778222077433"
+                      "templateHash": "12496787363251811895"
                     }
                   },
                   "parameters": {
@@ -4056,11 +5115,20 @@
                       "type": "string"
                     },
                     "sharedKey": {
-                      "type": "string"
+                      "type": "secureString"
                     },
                     "tagsByResource": {
                       "type": "object",
                       "defaultValue": {}
+                    },
+                    "enableBgp": {
+                      "type": "bool"
+                    },
+                    "BgpAsn": {
+                      "type": "int"
+                    },
+                    "BgpPeeringAddress": {
+                      "type": "string"
                     }
                   },
                   "resources": [
@@ -4071,9 +5139,8 @@
                       "location": "[parameters('location')]",
                       "properties": {
                         "gatewayIpAddress": "[parameters('LocalGatewayPublicIP')]",
-                        "localNetworkAddressSpace": {
-                          "addressPrefixes": "[parameters('LocalGatewayAddressPrefixes')]"
-                        }
+                        "bgpSettings": "[if(parameters('enableBgp'), createObject('asn', parameters('BgpAsn'), 'bgpPeeringAddress', parameters('BgpPeeringAddress')), createObject())]",
+                        "localNetworkAddressSpace": "[if(parameters('enableBgp'), createObject(), createObject('addressPrefixes', parameters('LocalGatewayAddressPrefixes')))]"
                       },
                       "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/localNetworkGateways'), parameters('tagsByResource')['Microsoft.Network/localNetworkGateways'], createObject())]"
                     },
@@ -4088,6 +5155,7 @@
                         "connectionProtocol": "IKEv2",
                         "useLocalAzureIpAddress": false,
                         "usePolicyBasedTrafficSelectors": false,
+                        "enableBgp": "[parameters('enableBgp')]",
                         "sharedKey": "[parameters('sharedKey')]",
                         "virtualNetworkGateway1": {
                           "id": "[parameters('VpnGatewayID')]",
@@ -4111,31 +5179,498 @@
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}', parameters('hubRgName'), parameters('location')))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location')))]",
         "[subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}', parameters('onpremRgName'), parameters('location')))]"
+      ]
+    },
+    {
+      "condition": "[and(and(and(parameters('deployGatewayInHub'), parameters('deployGatewayinOnPrem')), parameters('deploySiteToSite')), equals(parameters('hubType'), 'VWAN'))]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "[format('{0}-s2s-Hub-vWan-OnPrem-{1}', parameters('hubRgName'), parameters('location'))]",
+      "location": "[deployment().location]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "vwanGatewayName": {
+            "value": "[if(and(and(parameters('deployHUB'), parameters('deployGatewayInHub')), equals(parameters('hubType'), 'VWAN')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}-VWAN', parameters('hubRgName'), parameters('location')))).outputs.vpnGwName.value, 'none')]"
+          },
+          "vwanLinkBgpAsn": {
+            "value": "[if(and(and(parameters('deployOnPrem'), parameters('deployGatewayinOnPrem')), parameters('onpremBgp')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}', parameters('onpremRgName'), parameters('location')))).outputs.OnPremGwBgpAsn.value, 0)]"
+          },
+          "vwanLinkPublicIP": {
+            "value": "[if(and(parameters('deployOnPrem'), parameters('deployGatewayinOnPrem')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}', parameters('onpremRgName'), parameters('location')))).outputs.OnPremGatewayPublicIP.value, 'none')]"
+          },
+          "vwanVpnGwInfo": {
+            "value": "[if(and(and(parameters('deployHUB'), parameters('deployGatewayInHub')), equals(parameters('hubType'), 'VWAN')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}-VWAN', parameters('hubRgName'), parameters('location')))).outputs.vpnGwBgpIp.value, createArray())]"
+          },
+          "vwanLinkBgpPeeringAddress": {
+            "value": "[if(and(and(and(parameters('deployOnPrem'), parameters('deployGatewayinOnPrem')), parameters('onpremBgp')), equals(parameters('hubType'), 'VWAN')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}', parameters('onpremRgName'), parameters('location')))).outputs.OnPremGwBgpPeeringAddress.value, 'none')]"
+          },
+          "vwanVpnSiteName": {
+            "value": "OnPrem"
+          },
+          "vwanID": {
+            "value": "[if(and(parameters('deployHUB'), equals(parameters('hubType'), 'VWAN')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}-VWAN', parameters('hubRgName'), parameters('location')))).outputs.vWanID.value, 'none')]"
+          },
+          "vwanHubName": {
+            "value": "[if(and(parameters('deployHUB'), equals(parameters('hubType'), 'VWAN')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}-VWAN', parameters('hubRgName'), parameters('location')))).outputs.vwanHubName.value, 'none')]"
+          },
+          "OnPremVpnGwID": {
+            "value": "[if(and(parameters('deployOnPrem'), parameters('deployGatewayinOnPrem')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}', parameters('onpremRgName'), parameters('location')))).outputs.OnPremGatewayID.value, 'none')]"
+          },
+          "OnPremRgName": {
+            "value": "[if(parameters('deployOnPrem'), parameters('onpremRgName'), 'none')]"
+          },
+          "HubRgName": {
+            "value": "[if(parameters('deployHUB'), parameters('hubRgName'), 'none')]"
+          },
+          "tagsByResource": {
+            "value": "[parameters('tagsByResource')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.4.1272.37030",
+              "templateHash": "3200338901381184762"
+            }
+          },
+          "parameters": {
+            "location": {
+              "type": "string"
+            },
+            "sharedKey": {
+              "type": "secureString",
+              "defaultValue": "[uniqueString(newGuid())]"
+            },
+            "OnPremRgName": {
+              "type": "string"
+            },
+            "HubRgName": {
+              "type": "string"
+            },
+            "vwanLinkBgpAsn": {
+              "type": "int"
+            },
+            "vwanLinkBgpPeeringAddress": {
+              "type": "string"
+            },
+            "vwanLinkPublicIP": {
+              "type": "string"
+            },
+            "vwanVpnSiteName": {
+              "type": "string"
+            },
+            "vwanID": {
+              "type": "string"
+            },
+            "vwanHubName": {
+              "type": "string"
+            },
+            "vwanGatewayName": {
+              "type": "string"
+            },
+            "vwanVpnGwInfo": {
+              "type": "array"
+            },
+            "tagsByResource": {
+              "type": "object",
+              "defaultValue": {}
+            },
+            "OnPremVpnGwID": {
+              "type": "string"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2020-10-01",
+              "name": "vwanVPNsites",
+              "resourceGroup": "[parameters('HubRgName')]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "linkBgpAsn": {
+                    "value": "[parameters('vwanLinkBgpAsn')]"
+                  },
+                  "linkBgpPeeringAddress": {
+                    "value": "[parameters('vwanLinkBgpPeeringAddress')]"
+                  },
+                  "linkPublicIP": {
+                    "value": "[parameters('vwanLinkPublicIP')]"
+                  },
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
+                  "vpnSiteName": {
+                    "value": "[parameters('vwanVpnSiteName')]"
+                  },
+                  "vwanGatewayName": {
+                    "value": "[parameters('vwanGatewayName')]"
+                  },
+                  "vwanHubName": {
+                    "value": "[parameters('vwanHubName')]"
+                  },
+                  "vwanID": {
+                    "value": "[parameters('vwanID')]"
+                  },
+                  "sharedKey": {
+                    "value": "[parameters('sharedKey')]"
+                  },
+                  "tagsByResource": {
+                    "value": "[parameters('tagsByResource')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.4.1272.37030",
+                      "templateHash": "7110359217315452396"
+                    }
+                  },
+                  "parameters": {
+                    "location": {
+                      "type": "string"
+                    },
+                    "linkBgpAsn": {
+                      "type": "int"
+                    },
+                    "linkBgpPeeringAddress": {
+                      "type": "string"
+                    },
+                    "linkPublicIP": {
+                      "type": "string"
+                    },
+                    "vpnSiteName": {
+                      "type": "string"
+                    },
+                    "vwanID": {
+                      "type": "string"
+                    },
+                    "vwanHubName": {
+                      "type": "string"
+                    },
+                    "vwanGatewayName": {
+                      "type": "string"
+                    },
+                    "sharedKey": {
+                      "type": "secureString"
+                    },
+                    "tagsByResource": {
+                      "type": "object",
+                      "defaultValue": {}
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Network/vpnSites",
+                      "apiVersion": "2021-05-01",
+                      "name": "[parameters('vpnSiteName')]",
+                      "location": "[parameters('location')]",
+                      "properties": {
+                        "deviceProperties": {
+                          "deviceModel": "LabBuilder",
+                          "deviceVendor": "LabBuilder",
+                          "linkSpeedInMbps": 1000
+                        },
+                        "addressSpace": {},
+                        "vpnSiteLinks": [
+                          {
+                            "name": "[format('{0}-Link', parameters('vpnSiteName'))]",
+                            "properties": {
+                              "linkProperties": {
+                                "linkProviderName": "Azure",
+                                "linkSpeedInMbps": 1000
+                              },
+                              "ipAddress": "[parameters('linkPublicIP')]",
+                              "bgpProperties": {
+                                "asn": "[parameters('linkBgpAsn')]",
+                                "bgpPeeringAddress": "[parameters('linkBgpPeeringAddress')]"
+                              }
+                            }
+                          }
+                        ],
+                        "virtualWan": {
+                          "id": "[parameters('vwanID')]"
+                        }
+                      },
+                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/vpnSites'), parameters('tagsByResource')['Microsoft.Network/vpnSites'], createObject())]"
+                    },
+                    {
+                      "type": "Microsoft.Network/vpnGateways/vpnConnections",
+                      "apiVersion": "2021-05-01",
+                      "name": "[format('{0}/Connection-{1}', parameters('vwanGatewayName'), parameters('vpnSiteName'))]",
+                      "properties": {
+                        "remoteVpnSite": {
+                          "id": "[resourceId('Microsoft.Network/vpnSites', parameters('vpnSiteName'))]"
+                        },
+                        "routingConfiguration": {
+                          "associatedRouteTable": {
+                            "id": "[resourceId('Microsoft.Network/virtualHubs/hubRouteTables', parameters('vwanHubName'), 'defaultRouteTable')]"
+                          },
+                          "propagatedRouteTables": {
+                            "ids": [
+                              {
+                                "id": "[resourceId('Microsoft.Network/virtualHubs/hubRouteTables', parameters('vwanHubName'), 'defaultRouteTable')]"
+                              }
+                            ],
+                            "labels": [
+                              "default"
+                            ]
+                          },
+                          "vnetRoutes": {
+                            "staticRoutes": []
+                          }
+                        },
+                        "vpnLinkConnections": [
+                          {
+                            "name": "[format('{0}-Link', parameters('vpnSiteName'))]",
+                            "properties": {
+                              "vpnSiteLink": {
+                                "id": "[reference(resourceId('Microsoft.Network/vpnSites', parameters('vpnSiteName'))).vpnSiteLinks[0].id]"
+                              },
+                              "enableBgp": true,
+                              "vpnConnectionProtocolType": "IKEv2",
+                              "sharedKey": "[parameters('sharedKey')]",
+                              "ipsecPolicies": [],
+                              "enableRateLimiting": false,
+                              "useLocalAzureIpAddress": false,
+                              "usePolicyBasedTrafficSelectors": false,
+                              "vpnLinkConnectionMode": "Default"
+                            }
+                          }
+                        ]
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/vpnSites', parameters('vpnSiteName'))]"
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "copy": {
+                "name": "vpnOnPrem",
+                "count": "[length(parameters('vwanVpnGwInfo'))]",
+                "mode": "serial",
+                "batchSize": 1
+              },
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2020-10-01",
+              "name": "[format('vpnconnection{0}', add(copyIndex(), 1))]",
+              "resourceGroup": "[parameters('OnPremRgName')]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "connectionName": {
+                    "value": "[format('toVWAN{0}', add(copyIndex(), 1))]"
+                  },
+                  "enableBgp": {
+                    "value": true
+                  },
+                  "LocalGatewayAddressPrefixes": {
+                    "value": []
+                  },
+                  "LocalGatewayName": {
+                    "value": "[format('VWAN{0}', add(copyIndex(), 1))]"
+                  },
+                  "BgpPeeringAddress": {
+                    "value": "[parameters('vwanVpnGwInfo')[copyIndex()].defaultBgpIpAddresses[0]]"
+                  },
+                  "BgpAsn": {
+                    "value": 65515
+                  },
+                  "LocalGatewayPublicIP": {
+                    "value": "[parameters('vwanVpnGwInfo')[copyIndex()].tunnelIpAddresses[0]]"
+                  },
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
+                  "sharedKey": {
+                    "value": "[parameters('sharedKey')]"
+                  },
+                  "VpnGatewayID": {
+                    "value": "[parameters('OnPremVpnGwID')]"
+                  },
+                  "tagsByResource": {
+                    "value": "[parameters('tagsByResource')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.4.1272.37030",
+                      "templateHash": "12496787363251811895"
+                    }
+                  },
+                  "parameters": {
+                    "location": {
+                      "type": "string"
+                    },
+                    "LocalGatewayName": {
+                      "type": "string"
+                    },
+                    "LocalGatewayPublicIP": {
+                      "type": "string"
+                    },
+                    "LocalGatewayAddressPrefixes": {
+                      "type": "array"
+                    },
+                    "VpnGatewayID": {
+                      "type": "string"
+                    },
+                    "connectionName": {
+                      "type": "string"
+                    },
+                    "sharedKey": {
+                      "type": "secureString"
+                    },
+                    "tagsByResource": {
+                      "type": "object",
+                      "defaultValue": {}
+                    },
+                    "enableBgp": {
+                      "type": "bool"
+                    },
+                    "BgpAsn": {
+                      "type": "int"
+                    },
+                    "BgpPeeringAddress": {
+                      "type": "string"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Network/localNetworkGateways",
+                      "apiVersion": "2021-05-01",
+                      "name": "[parameters('LocalGatewayName')]",
+                      "location": "[parameters('location')]",
+                      "properties": {
+                        "gatewayIpAddress": "[parameters('LocalGatewayPublicIP')]",
+                        "bgpSettings": "[if(parameters('enableBgp'), createObject('asn', parameters('BgpAsn'), 'bgpPeeringAddress', parameters('BgpPeeringAddress')), createObject())]",
+                        "localNetworkAddressSpace": "[if(parameters('enableBgp'), createObject(), createObject('addressPrefixes', parameters('LocalGatewayAddressPrefixes')))]"
+                      },
+                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/localNetworkGateways'), parameters('tagsByResource')['Microsoft.Network/localNetworkGateways'], createObject())]"
+                    },
+                    {
+                      "type": "Microsoft.Network/connections",
+                      "apiVersion": "2021-05-01",
+                      "name": "[parameters('connectionName')]",
+                      "location": "[parameters('location')]",
+                      "properties": {
+                        "connectionType": "IPsec",
+                        "connectionMode": "Default",
+                        "connectionProtocol": "IKEv2",
+                        "useLocalAzureIpAddress": false,
+                        "usePolicyBasedTrafficSelectors": false,
+                        "enableBgp": "[parameters('enableBgp')]",
+                        "sharedKey": "[parameters('sharedKey')]",
+                        "virtualNetworkGateway1": {
+                          "id": "[parameters('VpnGatewayID')]",
+                          "properties": {}
+                        },
+                        "localNetworkGateway2": {
+                          "id": "[resourceId('Microsoft.Network/localNetworkGateways', parameters('LocalGatewayName'))]",
+                          "properties": {}
+                        }
+                      },
+                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/connections'), parameters('tagsByResource')['Microsoft.Network/connections'], createObject())]",
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/localNetworkGateways', parameters('LocalGatewayName'))]"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}', parameters('onpremRgName'), parameters('location')))]",
+        "[subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}-VWAN', parameters('hubRgName'), parameters('location')))]"
       ]
     }
   ],
   "outputs": {
-    "AzureFirewallpip": {
+    "VNET_AzFwPrivateIp": {
       "type": "string",
-      "value": "[if(and(parameters('deployFirewallInHub'), parameters('deployHUB')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}', parameters('hubRgName'), parameters('location')))).outputs.azFwIp.value, 'none')]"
+      "value": "[if(and(and(parameters('deployFirewallInHub'), parameters('deployHUB')), equals(parameters('hubType'), 'VNET')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location')))).outputs.azFwIp.value, 'none')]"
+    },
+    "VWAN_AzFwPublicIp": {
+      "type": "array",
+      "value": "[if(and(and(parameters('deployFirewallInHub'), parameters('deployHUB')), equals(parameters('hubType'), 'VWAN')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}-VWAN', parameters('hubRgName'), parameters('location')))).outputs.vWanFwPublicIP.value, createArray())]"
     },
     "HubVnetID": {
       "type": "string",
-      "value": "[if(parameters('deployHUB'), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}', parameters('hubRgName'), parameters('location')))).outputs.hubVnetID.value, 'none')]"
+      "value": "[if(and(parameters('deployHUB'), equals(parameters('hubType'), 'VNET')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location')))).outputs.hubVnetID.value, 'none')]"
     },
     "HubVnetAddressSpace": {
       "type": "string",
-      "value": "[if(parameters('deployHUB'), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}', parameters('hubRgName'), parameters('location')))).outputs.hubVnetAddressSpace.value, 'none')]"
+      "value": "[if(and(parameters('deployHUB'), equals(parameters('hubType'), 'VNET')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location')))).outputs.hubVnetAddressSpace.value, 'none')]"
     },
     "HubGatewayPublicIP": {
       "type": "string",
-      "value": "[if(parameters('deployGatewayInHub'), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}', parameters('hubRgName'), parameters('location')))).outputs.hubGatewayPublicIP.value, 'none')]"
+      "value": "[if(and(parameters('deployGatewayInHub'), equals(parameters('hubType'), 'VNET')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location')))).outputs.hubGatewayPublicIP.value, 'none')]"
     },
     "HubGatewayID": {
       "type": "string",
-      "value": "[if(parameters('deployGatewayInHub'), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}', parameters('hubRgName'), parameters('location')))).outputs.hubGatewayID.value, 'none')]"
+      "value": "[if(and(parameters('deployGatewayInHub'), equals(parameters('hubType'), 'VNET')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location')))).outputs.hubGatewayID.value, 'none')]"
+    },
+    "HubBgpPeeringAddress": {
+      "type": "string",
+      "value": "[if(and(parameters('deployGatewayInHub'), equals(parameters('hubType'), 'VNET')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location')))).outputs.HubGwBgpPeeringAddress.value, 'none')]"
+    },
+    "vWanHubID": {
+      "type": "string",
+      "value": "[if(and(parameters('deployHUB'), equals(parameters('hubType'), 'VWAN')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}-VWAN', parameters('hubRgName'), parameters('location')))).outputs.vWanHubID.value, 'none')]"
+    },
+    "vWanID": {
+      "type": "string",
+      "value": "[if(and(parameters('deployHUB'), equals(parameters('hubType'), 'VWAN')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}-VWAN', parameters('hubRgName'), parameters('location')))).outputs.vWanID.value, 'none')]"
+    },
+    "vWanVpnGwID": {
+      "type": "string",
+      "value": "[if(and(and(parameters('deployHUB'), parameters('deployGatewayInHub')), equals(parameters('hubType'), 'VWAN')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}-VWAN', parameters('hubRgName'), parameters('location')))).outputs.vWanVpnGwID.value, 'none')]"
+    },
+    "vWanVpnGwPip": {
+      "type": "array",
+      "value": "[if(and(and(parameters('deployHUB'), parameters('deployGatewayInHub')), equals(parameters('hubType'), 'VWAN')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}-VWAN', parameters('hubRgName'), parameters('location')))).outputs.vWanVpnGwPip.value, createArray())]"
+    },
+    "vWanVpnBgpIp": {
+      "type": "array",
+      "value": "[if(and(and(parameters('deployHUB'), parameters('deployGatewayInHub')), equals(parameters('hubType'), 'VWAN')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}-VWAN', parameters('hubRgName'), parameters('location')))).outputs.vpnGwBgpIp.value, createArray())]"
+    },
+    "vWanVpnBgpAsn": {
+      "type": "int",
+      "value": "[if(and(and(parameters('deployHUB'), parameters('deployGatewayInHub')), equals(parameters('hubType'), 'VWAN')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}-VWAN', parameters('hubRgName'), parameters('location')))).outputs.vpnGwBgpAsn.value, 0)]"
+    },
+    "vWanHubAddressSpace": {
+      "type": "string",
+      "value": "[if(and(parameters('deployHUB'), equals(parameters('hubType'), 'VWAN')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}-VWAN', parameters('hubRgName'), parameters('location')))).outputs.vWanHubAddressSpace.value, 'none')]"
     },
     "OnPremVnetAddressSpace": {
       "type": "string",
@@ -4148,6 +5683,10 @@
     "OnPremGatewayID": {
       "type": "string",
       "value": "[if(parameters('deployGatewayinOnPrem'), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}', parameters('onpremRgName'), parameters('location')))).outputs.OnPremGatewayID.value, 'none')]"
+    },
+    "OnPremBgpPeeringAddress": {
+      "type": "string",
+      "value": "[if(parameters('deployGatewayinOnPrem'), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}', parameters('onpremRgName'), parameters('location')))).outputs.OnPremGwBgpPeeringAddress.value, 'none')]"
     },
     "SpokeVnets": {
       "type": "array",
