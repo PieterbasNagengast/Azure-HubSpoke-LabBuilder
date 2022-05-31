@@ -74,7 +74,6 @@ module vpngateway 'modules/vwanvpngateway.bicep' = if (deployGatewayInHub) {
     location: location
     vpnGwName: gatewayName
     vWanHubID: vwan.outputs.vWanHubID
-    tagsByResource: tagsByResource
   }
 }
 

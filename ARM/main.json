@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1272.37030",
-      "templateHash": "1083962438561226383"
+      "templateHash": "18344211728309324632"
     }
   },
   "parameters": {
@@ -1883,6 +1883,9 @@
           },
           "deployGatewayInHub": {
             "value": "[and(parameters('deployGatewayInHub'), equals(parameters('hubType'), 'VWAN'))]"
+          },
+          "tagsByResource": {
+            "value": "[parameters('tagsByResource')]"
           }
         },
         "template": {
@@ -1892,7 +1895,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1272.37030",
-              "templateHash": "4138921950350622314"
+              "templateHash": "6022670826885063503"
             }
           },
           "parameters": {
@@ -1967,7 +1970,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1272.37030",
-                      "templateHash": "631465296845133679"
+                      "templateHash": "6040531444929936888"
                     }
                   },
                   "parameters": {
@@ -2017,7 +2020,6 @@
                           "id": "[resourceId('Microsoft.Network/virtualWans', parameters('vWanName'))]"
                         }
                       },
-                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/virtualHubs'), parameters('tagsByResource')['Microsoft.Network/virtualHubs'], createObject())]",
                       "dependsOn": [
                         "[resourceId('Microsoft.Network/virtualWans', parameters('vWanName'))]"
                       ]
@@ -2420,9 +2422,6 @@
                   },
                   "vWanHubID": {
                     "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('vWanName'))).outputs.vWanHubID.value]"
-                  },
-                  "tagsByResource": {
-                    "value": "[parameters('tagsByResource')]"
                   }
                 },
                 "template": {
@@ -2432,7 +2431,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1272.37030",
-                      "templateHash": "6298597786445432225"
+                      "templateHash": "6375147052164896541"
                     }
                   },
                   "parameters": {
@@ -2450,10 +2449,6 @@
                       "defaultValue": 1,
                       "maxValue": 25,
                       "minValue": 1
-                    },
-                    "tagsByResource": {
-                      "type": "object",
-                      "defaultValue": {}
                     }
                   },
                   "resources": [
@@ -2470,8 +2465,7 @@
                         "virtualHub": {
                           "id": "[parameters('vWanHubID')]"
                         }
-                      },
-                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/vpnGateways'), parameters('tagsByResource')['Microsoft.Network/vpnGateways'], createObject())]"
+                      }
                     }
                   ],
                   "outputs": {

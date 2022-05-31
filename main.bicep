@@ -156,6 +156,7 @@ module vwan 'vWanResourceGroup.bicep' = if (deployHUB && hubType == 'VWAN') {
     deployFirewallrules: deployFirewallrules && hubType == 'VWAN'
     hubRgName: hubRgName
     deployGatewayInHub: deployGatewayInHub && hubType == 'VWAN'
+    tagsByResource: tagsByResource
   }
 }
 

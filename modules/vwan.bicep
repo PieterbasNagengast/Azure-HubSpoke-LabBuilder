@@ -28,7 +28,6 @@ resource vWanHub 'Microsoft.Network/virtualHubs@2021-05-01' = {
       id: vWan.id
     }    
   }
-  tags: contains(tagsByResource, 'Microsoft.Network/virtualHubs') ? tagsByResource['Microsoft.Network/virtualHubs'] : {}
 }
 
 output vWanID string = vWan.id
