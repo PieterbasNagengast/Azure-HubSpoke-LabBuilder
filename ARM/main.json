@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1272.37030",
-      "templateHash": "18115052615774331580"
+      "templateHash": "6392316549219506210"
     }
   },
   "parameters": {
@@ -222,6 +222,12 @@
       "defaultValue": true,
       "metadata": {
         "description": "Deploy Site-to-Site VPN connection between OnPrem and Hub Gateways"
+      }
+    },
+    "sharedKey": {
+      "type": "secureString",
+      "metadata": {
+        "description": "Site-to-Site ShareKey"
       }
     },
     "onpremBgp": {
@@ -4844,6 +4850,9 @@
           },
           "OnPremBgpPeeringAddress": {
             "value": "[if(and(and(parameters('deployGatewayinOnPrem'), parameters('onpremBgp')), equals(parameters('hubType'), 'VNET')), reference(subscriptionResourceId('Microsoft.Resources/deployments', format('{0}-{1}', parameters('onpremRgName'), parameters('location')))).outputs.OnPremGwBgpPeeringAddress.value, 'none')]"
+          },
+          "sharedKey": {
+            "value": "[if(parameters('deploySiteToSite'), parameters('sharedKey'), 'none')]"
           }
         },
         "template": {
@@ -4853,7 +4862,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1272.37030",
-              "templateHash": "17941406941262460071"
+              "templateHash": "7917945844475590318"
             }
           },
           "parameters": {
@@ -4861,8 +4870,7 @@
               "type": "string"
             },
             "sharedKey": {
-              "type": "secureString",
-              "defaultValue": "[uniqueString(newGuid())]"
+              "type": "secureString"
             },
             "enableBgp": {
               "type": "bool"
@@ -4966,7 +4974,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1272.37030",
-                      "templateHash": "8256015463481748434"
+                      "templateHash": "43870093113975152"
                     }
                   },
                   "parameters": {
@@ -5020,7 +5028,7 @@
                     },
                     {
                       "type": "Microsoft.Network/connections",
-                      "apiVersion": "2021-05-01",
+                      "apiVersion": "2020-07-01",
                       "name": "[parameters('connectionName')]",
                       "location": "[parameters('location')]",
                       "properties": {
@@ -5101,7 +5109,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1272.37030",
-                      "templateHash": "8256015463481748434"
+                      "templateHash": "43870093113975152"
                     }
                   },
                   "parameters": {
@@ -5155,7 +5163,7 @@
                     },
                     {
                       "type": "Microsoft.Network/connections",
-                      "apiVersion": "2021-05-01",
+                      "apiVersion": "2020-07-01",
                       "name": "[parameters('connectionName')]",
                       "location": "[parameters('location')]",
                       "properties": {
@@ -5245,6 +5253,9 @@
           },
           "deployFirewallInHub": {
             "value": "[and(parameters('deployFirewallInHub'), equals(parameters('hubType'), 'VWAN'))]"
+          },
+          "sharedKey": {
+            "value": "[if(parameters('deploySiteToSite'), parameters('sharedKey'), 'none')]"
           }
         },
         "template": {
@@ -5254,7 +5265,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1272.37030",
-              "templateHash": "11982609107281298280"
+              "templateHash": "14656931240548222680"
             }
           },
           "parameters": {
@@ -5262,8 +5273,7 @@
               "type": "string"
             },
             "sharedKey": {
-              "type": "secureString",
-              "defaultValue": "[uniqueString(newGuid())]"
+              "type": "secureString"
             },
             "OnPremRgName": {
               "type": "string"
@@ -5542,7 +5552,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1272.37030",
-                      "templateHash": "8256015463481748434"
+                      "templateHash": "43870093113975152"
                     }
                   },
                   "parameters": {
@@ -5596,7 +5606,7 @@
                     },
                     {
                       "type": "Microsoft.Network/connections",
-                      "apiVersion": "2021-05-01",
+                      "apiVersion": "2020-07-01",
                       "name": "[parameters('connectionName')]",
                       "location": "[parameters('location')]",
                       "properties": {

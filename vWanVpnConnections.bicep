@@ -2,7 +2,7 @@ targetScope = 'subscription'
 
 param location string
 @secure()
-param sharedKey string = uniqueString(newGuid())
+param sharedKey string
 
 param OnPremRgName string
 param HubRgName string

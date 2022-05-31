@@ -88,3 +88,5 @@ resource vpnconnection 'Microsoft.Network/vpnGateways/vpnConnections@2021-05-01'
     ]
   }
 }
+
+

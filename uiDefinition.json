@@ -351,6 +351,20 @@
 							"visible": "[and(equals(steps('OnPrem').deployGatewayInOnPrem,true),equals(steps('OnPrem').deployOnPrem,true))]"
 						},
 						{
+							"name": "sharedKey",
+							"type": "Microsoft.Common.TextBox",
+							"label": "Site-to-Site Shared key",
+							"defaultValue": "",
+							"toolTip": "Use only allowed characters",
+							"placeholder": "",
+							"multiLine": false,
+							"constraints": {
+								"required": true,
+								"validations": []
+							},
+							"visible": "[equals(steps('OnPrem').deploySite2Site,true)]"
+						},
+						{
 							"name": "deploySite2SiteInfo",
 							"type": "Microsoft.Common.InfoBox",
 							"options": {
@@ -556,7 +570,8 @@
 				"deployGatewayinOnPrem": "[coalesce(steps('OnPrem').deployGatewayInOnPrem,false)]",
 				"onpremBgp": "[coalesce(steps('OnPrem').onpremBgp,false)]",
 				"onpremBgpAsn": "[steps('OnPrem').onpremBgpAsn]",
-				"deploySiteToSite": "[coalesce(steps('OnPrem').deploySite2Site,false)]"
+				"deploySiteToSite": "[coalesce(steps('OnPrem').deploySite2Site,false)]",
+				"sharedKey": "[steps('OnPrem').sharedKey]"
 			},
 			"kind": "Subscription",
 			"subscriptionId": "[steps('basics').resourceScope.subscription.id]",

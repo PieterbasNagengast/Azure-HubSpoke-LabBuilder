@@ -105,6 +105,10 @@ param deployGatewayinOnPrem bool = true
 @description('Deploy Site-to-Site VPN connection between OnPrem and Hub Gateways')
 param deploySiteToSite bool = true
 
+@description('Site-to-Site ShareKey')
+@secure()
+param sharedKey string
+
 @description('Enable BGP on OnPrem Gateway')
 param onpremBgp bool = true
 
@@ -244,6 +248,7 @@ module s2s 'VpnConnections.bicep' = if (deployGatewayInHub && deployGatewayinOnP
     HubBgpPeeringAddress: deployGatewayInHub && hubBgp && hubType == 'VNET' ? hubVnet.outputs.HubGwBgpPeeringAddress : 'none'
     OnPremBgpAsn: onpremBgpAsn
     OnPremBgpPeeringAddress: deployGatewayinOnPrem && onpremBgp && hubType == 'VNET' ? onprem.outputs.OnPremGwBgpPeeringAddress : 'none'
+    sharedKey: deploySiteToSite ? sharedKey : 'none'
   }
 }
 
@@ -265,6 +270,7 @@ module vwans2s 'vWanVpnConnections.bicep' = if (deployGatewayInHub && deployGate
     HubRgName: deployHUB ? hubRgName : 'none'
     tagsByResource: tagsByResource
     deployFirewallInHub: deployFirewallInHub && hubType == 'VWAN'
+    sharedKey: deploySiteToSite ? sharedKey : 'none'
   }
 }
 
