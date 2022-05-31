@@ -388,7 +388,7 @@
 							"constraints": {
 								"required": false
 							},
-							"visible": "[and(coalesce(steps('HubVNET').deployHUB,false),equals(steps('HubVNET').VNETorVWAN,'VNET'))]"
+							"visible": "[coalesce(steps('HubVNET').deployHUB,false)]"
 						},
 						{
 							"name": "deployVMsInSpokes",
