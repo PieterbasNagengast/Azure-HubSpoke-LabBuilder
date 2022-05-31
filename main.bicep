@@ -107,7 +107,7 @@ param deploySiteToSite bool = true
 
 @description('Site-to-Site ShareKey')
 @secure()
-param sharedKey string
+param sharedKey string = ''
 
 @description('Enable BGP on OnPrem Gateway')
 param onpremBgp bool = true
