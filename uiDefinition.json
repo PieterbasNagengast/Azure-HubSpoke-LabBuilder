@@ -530,8 +530,6 @@
 								"Microsoft.Network/localNetworkGateways",
 								"Microsoft.Network/connections",
 								"Microsoft.Network/virtualWans",
-								"Microsoft.Network/virtualHubs",
-								"Microsoft.Network/vpnGateways",
 								"Microsoft.Resources/subscriptions/resourceGroups"
 							]
 						}

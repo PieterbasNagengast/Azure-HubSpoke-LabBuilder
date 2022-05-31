@@ -4,7 +4,6 @@ param vpnGwName string
 @minValue(1)
 @maxValue(25)
 param vpnGwScaleUnits int = 1
-param tagsByResource object = {}
 
 resource vpngw 'Microsoft.Network/vpnGateways@2021-05-01' = {
   name: vpnGwName
@@ -18,7 +17,6 @@ resource vpngw 'Microsoft.Network/vpnGateways@2021-05-01' = {
     id: vWanHubID
    }
   }
-  tags: contains(tagsByResource, 'Microsoft.Network/vpnGateways') ? tagsByResource['Microsoft.Network/vpnGateways'] : {}
 }
 
 output vpnGwID string = vpngw.id
