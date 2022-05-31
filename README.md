@@ -1,4 +1,4 @@
-<h1>Hub & Spoke playground - LAB Builder</h1>
+<h1>Hub or Azure Virtual WAN & Spoke playground - LAB Builder</h1>
 
 ## Table of contents
 
@@ -7,7 +7,8 @@
 - [Introduction](#introduction)
 - [Description](#description)
 - [LAB Builder scenario's](#lab-builder-scenarios)
-- [Topology drawing](#topology-drawing)
+- [Topology drawing - Hub & Spoke](#topology-drawing---hub--spoke)
+- [Topology drawing - Azure Virtual WAN](#topology-drawing---azure-virtual-wan)
 - [Deployment Steps](#deployment-steps)
 - [Deployment notes](#deployment-notes)
 - [Resource Names](#resource-names)
@@ -33,9 +34,9 @@ With that in mind I've created a "Hub & Spoke playground Lab builder" so you'll 
 
 ## Description
 
-With this 'Hub & Spoke playground - LAB Builder' you'll be able to deploy Hub & Spoke topologies in various ways.
+With this 'Hub & Spoke playground - LAB Builder' you'll be able to deploy Hub & Spoke topologies in various ways incl. Azure Virtual WAN.
 
-Optionaly you can deploy Azure Firewall (Standard or Premium) in Hub VNET incl. Route table, deploy Virtual Machine in Hub VNET and/or Spoke VNET's and deploy Bastion Host in Hub VNET and/or Spoke VNET's. Optional deploy default Azure Firewall rule Collection group which enables spoke-to-spoke and internet traffic.
+Optionaly you can deploy Azure Firewall (Standard or Premium) in the Hub (VNET or vWAN) incl. Route table, deploy Virtual Machine in Hub VNET and/or Spoke VNET's and deploy Bastion Host in Hub VNET and/or Spoke VNET's. Optional deploy default Azure Firewall rule Collection group which enables spoke-to-spoke and internet traffic.
 
 On deployemnt you can specify the amount of Spoke VNET's to be deployed. VNET peerings will be deployed if both Hub and Spoke(s) are selected for deployement.
 
@@ -46,22 +47,27 @@ To simulate OnPrem hybrid connectivity you can optionaly deploy a 'OnPrem' VNET.
 With LABbuilder you can deploy 4 **main** scenario's.
 
 1. Only deploy **Spoke(s)**
-2. Only deploy **Hub**
-3. Deploy **Hub and Spoke(s)**
-4. Deploy **Hub and Spoke(s)** and **OnPrem** simulating Hybrid connectivity
+2. Only deploy **VNET Hub** or **Azure Virtual Hub**
+3. Deploy **Hub or vWAN Hub and Spoke(s)**
+4. Deploy **Hub or vWAN Hub and Spoke(s)** and **OnPrem** simulating Hybrid connectivity
 
 Within these **main** scenario's there are multiple options:
 
 |Scenrio|What gets deployed|
 |-|-|
 |**1. Only deploy Spokes**|- Resource Group (rg-Spoke#)<br>- Virtual Network (VNET-Spoke#)<br>- Network Security Group (NSG-Spoke#) linked to 'Default' Subnet<br>- Subnet (Default)<br>- [optional] Subnet (AzureBastionSubnet)<br>- [optional] Subnet (AzureFirewallSubnet)<br>- [optional] Azure Bastion Host (Bastion-Spoke#) incl. Public IP<br>- [optional] Azure Virtual Machine (Windows)<br><br>*Only in combination with Firewall in Hub:*<br>- Route table (RT-Hub) linked to 'Default' Subnet, with default route to Azure Firewall|
-|**2. Only deploy Hub**|- Resource Group (rg-Hub)<br>- Virtual Network (VNET-Hub)<br>- Network Security Group (NSG-Hub) linked to 'Default' Subnet<br>- Subnet (Default)<br>- [optional] Subnet (AzureBastionSubnet)<br>- [optional] Subnet (AzureFirewallSubnet)<br><br>- [optional] Subnet (GatewaySubnet)<br>- [optional] Azure Bastion Host (Bastion-Hub) incl. Public IP <br>- [optional] Azure Firewall (AzFw) incl. Public IP<br>- [optional] Azure Firewall Policy (AzFwPolicy)<br>- [optional] Azure Firewall Policy rule Collection Group<br>- [optional] Azure Virtual Machine (Windows)<br>- [optional] Virtual Network Gateway<br><br>*Only in combination with Firewall in Hub:*<br>- Route table (RT-Hub) linked to 'Default' Subnet, with default route to Azure Firewall|
-|**3. Deploy Hub and Spokes**|includes all from scenario 1 and 2, incl:<br>- VNET Peerings|
-|**4. Deploy Hub and Spokes + OnPrem**|includes all from scenario 1, 2 and 3 incl:<br>- Resource Group (rg-OnPrem)<br>- Virtual Network (VNET-OnPrem)<br>- Network Security Group (NSG-OnPrem) linked to 'Default' Subnet<br>- Subnet (Default)<br>- [optional] Subnet (AzureBastionSubnet)<br>- [optional] Subnet (GatewaySubnet)<br>- [optional] Azure Bastion Host (Bastion-Hub) incl. Public IP<br>- [optional] Azure Virtual Machine (Windows)<br><br>*Only in combination with Hub:*<br>- [optional] Site-to-Site VPN Connection to Hub Gateway
+|**2. Only deploy Hub or vWAN Hub**|- Resource Group (rg-Hub)<br>- Virtual Network (VNET-Hub)<br>- Network Security Group (NSG-Hub) linked to 'Default' Subnet<br>- Subnet (Default)<br>- [optional] Subnet (AzureBastionSubnet)<br>- [optional] Subnet (AzureFirewallSubnet)<br><br>- [optional] Subnet (GatewaySubnet)<br>- [optional] Azure Bastion Host (Bastion-Hub) incl. Public IP <br>- [optional] Azure Firewall (AzFw) incl. Public IP<br>- [optional] Azure Firewall Policy (AzFwPolicy)<br>- [optional] Azure Firewall Policy rule Collection Group<br>- [optional] Azure Virtual Machine (Windows)<br>- [optional] Virtual Network Gateway<br><br>*Only in combination with Firewall in Hub:*<br>- Route table (RT-Hub) linked to 'Default' Subnet, with default route to Azure Firewall|
+|**3. Deploy Hub or vWAN Hub and Spokes**|includes all from scenario 1 and 2, incl:<br>- VNET Peerings|
+|**4. Deploy Hub or vWAN Hub and Spokes + OnPrem**|includes all from scenario 1, 2 and 3 incl:<br>- Resource Group (rg-OnPrem)<br>- Virtual Network (VNET-OnPrem)<br>- Network Security Group (NSG-OnPrem) linked to 'Default' Subnet<br>- Subnet (Default)<br>- [optional] Subnet (AzureBastionSubnet)<br>- [optional] Subnet (GatewaySubnet)<br>- [optional] Azure Bastion Host (Bastion-Hub) incl. Public IP<br>- [optional] Azure Virtual Machine (Windows)<br><br>*Only in combination with Hub:*<br>- [optional] Site-to-Site VPN Connection to Hub Gateway
 
-## Topology drawing
+## Topology drawing - Hub & Spoke
 
 ![LabBuilderTopology](images/LabBuilder.svg)
+
+## Topology drawing - Azure Virtual WAN
+
+![LabBuilderTopology-vWAN](/images/LabBuilder-vWAN.svg)
+
 
 ## Deployment Steps
 
@@ -77,11 +83,13 @@ Within these **main** scenario's there are multiple options:
 
 ## Deployment notes
 
+- VNET Connections will be deployed when vWAN Hub and Spokes are selected
 - VNET Peering will be deployed when Hub and Spoke are selected
 - ICMPv4 Firewall rule will be enabled on Virtual Machines
 - Windows VM image is Windows Server 2022 Datacenter Gen2
 - Linux VM image is Ubuntu Server 22.04 LTS Gen2
-- Route tables incl. Default route will be deployed if Azure Firewall is selected (0.0.0.0/0 -> Azure Firewall)
+- Route table incl. Default routes (Private and Public) will be deployed in vWAN Hub if Azure Firewall is selected.  
+- Route tables (UDR's) incl. Default route will be deployed if Azure Firewall is selected (0.0.0.0/0 -> Azure Firewall)
 - Network Security group will be deplyed to 'default' subnets only
 - At deployemt use a /16 subnet. every VNET (Hub and Spoke VNET's) will get a /24 subnet
 - Hub VNET will always get the first available /24 subnet. eg. 172.16.0.0/24
@@ -104,6 +112,12 @@ Within these **main** scenario's there are multiple options:
 |AzureFirewallSubnet|x.x.0.64/26|Only applicable for Hub VNET with Azure Firewall selected|
 |AzureBastionSubnet|x.x.0.128/27|Only when Bastion is selected|
 |GatewaySubnet|x.x.0.160/27|Only when Gateway is selected|
+
+*Azure virtual WAN Hub subnet:*
+
+|Subnet Name|Subnet address range|notes|
+|-|-|-|
+|n/a|x.x.0.0/24||
 
 *OnPrem VNET subnets:*
 
@@ -166,10 +180,10 @@ Within these **main** scenario's there are multiple options:
 |osType|string|Windows|Virtual machine OS Type. Windows or Linux|
 |vmSize|string|Standard_B2s|Virtual machine SKU size|
 
-
 ### ~~Backlog~~... whishlist items
 
-- Choose between Azure vWAN and Hub & Spoke
+- ~~BGP support for VPN site-to-site~~
+- ~~Choose between Azure vWAN and Hub & Spoke~~
 - ~~Add default Firewall Network & Application rules~~
 - ~~Deploy separate VNET (simulate OnPrem) and deploy VPN gateways including Site-to-Site tunnel~~
 - ~~remove static Resource Group names~~

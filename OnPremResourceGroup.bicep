@@ -13,6 +13,9 @@ param vmSize string
 param tagsByResource object
 param osType string
 
+param vpnGwEnebaleBgp bool
+param vpnGwBgpAsn int
+
 var vnetName = 'VNET-OnPrem'
 var vmName = 'VM-OnPrem'
 var nsgName = 'NSG-OnPrem'
@@ -27,6 +30,7 @@ var gatewaySubnetPrefix = replace(vnetAddressSpace, '0/24', '160/27')
 resource onpremrg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   name: OnPremRgName
   location: location
+  tags: contains(tagsByResource, 'Microsoft.Resources/subscriptions/resourceGroups') ? tagsByResource['Microsoft.Resources/subscriptions/resourceGroups'] : {}
 }
 
 module vnet 'modules/vnet.bicep' = {
@@ -90,9 +94,13 @@ module vpngw 'modules/vpngateway.bicep' = if (deployGatewayInOnPrem) {
     vpnGatewayName: gatewayName
     vpnGatewaySubnetID: deployGatewayInOnPrem ? vnet.outputs.gatewaySubnetID : ''
     tagsByResource: tagsByResource
+    vpnGatewayBgpAsn: vpnGwEnebaleBgp ? vpnGwBgpAsn : 65515
+    vpnGatewayEnableBgp: vpnGwEnebaleBgp
   }
 }
 
 output OnPremGatewayPublicIP string = deployGatewayInOnPrem ? vpngw.outputs.vpnGwPublicIP : 'none'
 output OnPremGatewayID string = deployGatewayInOnPrem ? vpngw.outputs.vpnGwID : 'none'
 output OnPremAddressSpace string = vnetAddressSpace
+output OnPremGwBgpPeeringAddress string = deployGatewayInOnPrem ? vpngw.outputs.vpnGwBgpPeeringAddress : 'none'
+output OnPremGwBgpAsn int = deployGatewayInOnPrem && vpnGwEnebaleBgp ? vpngw.outputs.vpnGwAsn : 0

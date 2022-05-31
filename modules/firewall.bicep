@@ -1,9 +1,17 @@
 param firewallName string
 param location string
-param azfwSKUname string = 'AZFW_VNet'
+@allowed([
+  'Standard'
+  'Premium'
+])
 param azfwTier string
-param azfwsubnetid string
+param azfwsubnetid string = ''
 param tagsByResource object = {}
+param vWanID string = ''
+param vWanAzFwPublicIPcount int = 1
+param deployInVWan bool = false
+
+var azfwSKUname = deployInVWan ? 'AZFW_Hub' : 'AZFW_VNet'
 
 var pipName = '${firewallName}-pip'
 var firewallPolicyName = '${firewallName}-policy'
@@ -18,9 +26,9 @@ resource azfw 'Microsoft.Network/azureFirewalls@2021-05-01' = {
       tier: azfwTier
     }
     firewallPolicy: {
-       id: azfwpolicy.id
+      id: azfwpolicy.id
     }
-    ipConfigurations: [
+    ipConfigurations: deployInVWan ? null : [
       {
         properties: {
           publicIPAddress: {
@@ -33,9 +41,16 @@ resource azfw 'Microsoft.Network/azureFirewalls@2021-05-01' = {
         name: 'ipconfig1'
       }
     ]
+    virtualHub: deployInVWan ? {
+      id: vWanID
+    } : null
+    hubIPAddresses: deployInVWan ? {
+      publicIPs: {
+        count: vWanAzFwPublicIPcount
+      }
+    } : null
   }
   tags: contains(tagsByResource, 'Microsoft.Network/azureFirewalls') ? tagsByResource['Microsoft.Network/azureFirewalls'] : {}
-
 }
 
 resource azfwpolicy 'Microsoft.Network/firewallPolicies@2021-05-01' = {
@@ -47,10 +62,9 @@ resource azfwpolicy 'Microsoft.Network/firewallPolicies@2021-05-01' = {
     }
   }
   tags: contains(tagsByResource, 'Microsoft.Network/firewallPolicies') ? tagsByResource['Microsoft.Network/firewallPolicies'] : {}
-
 }
 
-resource azfwpip 'Microsoft.Network/publicIPAddresses@2021-05-01' = {
+resource azfwpip 'Microsoft.Network/publicIPAddresses@2021-05-01' = if (!deployInVWan) {
   name: pipName
   location: location
   properties: {
@@ -62,8 +76,9 @@ resource azfwpip 'Microsoft.Network/publicIPAddresses@2021-05-01' = {
     name: 'Standard'
   }
   tags: contains(tagsByResource, 'Microsoft.Network/publicIPAddresses') ? tagsByResource['Microsoft.Network/publicIPAddresses'] : {}
-
 }
 
-output azFwIP string = azfw.properties.ipConfigurations[0].properties.privateIPAddress
+output azFwIP string = deployInVWan ? 'None' : azfw.properties.ipConfigurations[0].properties.privateIPAddress
+output azFwIPvWan array = deployInVWan ? azfw.properties.hubIPAddresses.publicIPs.addresses : []
+output azFwID string = azfw.id
 output azFwPolicyName string = azfwpolicy.name

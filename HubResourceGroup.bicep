@@ -17,6 +17,9 @@ param tagsByResource object
 param osType string
 param AllSpokeAddressSpaces array
 
+param vpnGwEnebaleBgp bool
+param vpnGwBgpAsn int
+
 var vnetAddressSpace = replace(AddressSpace, '/16', '/24')
 var defaultSubnetPrefix = replace(vnetAddressSpace, '/24', '/26')
 var firewallSubnetPrefix = replace(vnetAddressSpace, '0/24', '64/26')
@@ -35,6 +38,7 @@ var gatewayName = 'Gateway-Hub'
 resource hubrg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   name: hubRgName
   location: location
+  tags: contains(tagsByResource, 'Microsoft.Resources/subscriptions/resourceGroups') ? tagsByResource['Microsoft.Resources/subscriptions/resourceGroups'] : {}
 }
 
 module vnet 'modules/vnet.bicep' = {
@@ -98,6 +102,7 @@ module firewall 'modules/firewall.bicep' = if (deployFirewallInHub) {
   scope: hubrg
   name: 'hubFirewall'
   params: {
+    deployInVWan: false
     location: location
     firewallName: firewallName
     azfwsubnetid: deployFirewallInHub ? vnet.outputs.firewallSubnetID : ''
@@ -153,6 +158,8 @@ module vpngw 'modules/vpngateway.bicep' = if (deployGatewayInHub) {
     vpnGatewayName: gatewayName
     vpnGatewaySubnetID: deployGatewayInHub ? vnet.outputs.gatewaySubnetID : ''
     tagsByResource: tagsByResource
+    vpnGatewayBgpAsn: vpnGwEnebaleBgp ? vpnGwBgpAsn : 65515
+    vpnGatewayEnableBgp: vpnGwEnebaleBgp
   }
 }
 
@@ -183,3 +190,4 @@ output hubVnetAddressSpace string = vnetAddressSpace
 output hubDefaultSubnetPrefix string = defaultSubnetPrefix
 output hubGatewayPublicIP string = deployGatewayInHub ? vpngw.outputs.vpnGwPublicIP : 'none'
 output hubGatewayID string = deployGatewayInHub ? vpngw.outputs.vpnGwID : 'none'
+output HubGwBgpPeeringAddress string = deployGatewayInHub ? vpngw.outputs.vpnGwBgpPeeringAddress : 'none'

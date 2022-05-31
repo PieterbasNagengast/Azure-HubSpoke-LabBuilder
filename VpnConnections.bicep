@@ -2,12 +2,15 @@ targetScope = 'subscription'
 
 param location string
 @secure()
-param sharedKey string = uniqueString(newGuid())
+param sharedKey string
+param enableBgp bool
 param tagsByResource object
 
 //OnPrem
 param OnPremGatewayID string
 param OnPremRgName string
+param OnPremBgpAsn int
+param OnPremBgpPeeringAddress string
 param HubGatewayPublicIP string
 param HubLocalGatewayName string
 param HubAddressPrefixes array
@@ -15,6 +18,8 @@ param HubAddressPrefixes array
 //Hub
 param HubGatewayID string
 param HubRgName string
+param HubBgpAsn int
+param HubBgpPeeringAddress string
 param OnPremGatewayPublicIP string 
 param OnPremLocalGatewayName string 
 param OnPremAddressPrefixes array
@@ -35,6 +40,9 @@ module onprem2hub 'modules/vpnconnection.bicep' = {
     sharedKey: sharedKey
     VpnGatewayID: OnPremGatewayID
     tagsByResource: tagsByResource
+    enableBgp: enableBgp
+    BgpAsn: HubBgpAsn
+    BgpPeeringAddress: HubBgpPeeringAddress
   }
 }
 
@@ -54,5 +62,8 @@ module hub2onprem 'modules/vpnconnection.bicep' = {
     sharedKey:sharedKey
     VpnGatewayID: HubGatewayID
     tagsByResource: tagsByResource
+    enableBgp: enableBgp
+    BgpAsn: OnPremBgpAsn
+    BgpPeeringAddress: OnPremBgpPeeringAddress
   }
 }

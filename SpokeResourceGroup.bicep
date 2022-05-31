@@ -30,6 +30,7 @@ var bastionSubnetPrefix = replace(vnetAddressSpace, '0/24', '128/27')
 resource spokerg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   name: '${spokeRgNamePrefix}${counter}'
   location: location
+  tags: contains(tagsByResource, 'Microsoft.Resources/subscriptions/resourceGroups') ? tagsByResource['Microsoft.Resources/subscriptions/resourceGroups'] : {}
 }
 
 module vnet 'modules/vnet.bicep' = {

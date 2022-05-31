@@ -47,6 +47,27 @@
 							"visible": true
 						},
 						{
+							"name": "VNETorVWAN",
+							"type": "Microsoft.Common.OptionsGroup",
+							"label": "Hub as vWAN or VNET",
+							"defaultValue": "VNET",
+							"toolTip": "Deploy Hub as Virtual or in traditional VNET?",
+							"constraints": {
+								"allowedValues": [
+									{
+										"label": "VNET",
+										"value": "VNET"
+									},
+									{
+										"label": "VWAN",
+										"value": "VWAN"
+									}
+								],
+								"required": true
+							},
+							"visible": "[equals(steps('HubVNET').deployHUB,true)]"
+						},
+						{
 							"name": "hubRgName",
 							"type": "Microsoft.Common.TextBox",
 							"label": "Hub Resource Group Name",
@@ -74,7 +95,7 @@
 							"constraints": {
 								"required": false
 							},
-							"visible": "[equals(steps('HubVNET').deployHUB,true)]"
+							"visible": "[and(equals(steps('HubVNET').deployHUB,true),equals(steps('HubVNET').VNETorVWAN,'VNET'))]"
 						},
 						{
 							"name": "deployGatewayInHub",
@@ -86,6 +107,40 @@
 								"required": false
 							},
 							"visible": "[equals(steps('HubVNET').deployHUB,true)]"
+						},
+						{
+							"name": "hubBgp",
+							"type": "Microsoft.Common.CheckBox",
+							"label": "Enable BGP",
+							"defaultValue": false,
+							"toolTip": "Enable BGP on VPN Gateway",
+							"constraints": {
+								"required": false
+							},
+							"visible": "[and(equals(steps('HubVNET').deployHUB,true),equals(steps('HubVNET').deployGatewayInHub,true))]"
+						},
+						{
+							"name": "hubBgpAsn",
+							"type": "Microsoft.Common.TextBox",
+							"label": "Hub BGP ASN",
+							"defaultValue": "65515",
+							"toolTip": "Use only allowed characters",
+							"placeholder": "",
+							"multiLine": false,
+							"constraints": {
+								"required": true,
+								"validations": [
+									{
+										"regex": "\\b\\d{5}\\b",
+										"message": "Only 5 digit mumber"
+									},
+									{
+										"isValid": "[or(and(equals(steps('HubVNET').hubBgpAsn,'65515'),equals(steps('HubVNET').VNETorVWAN,'VWAN')),and(not(equals(steps('HubVNET').hubBgpAsn,'65515')),equals(steps('HubVNET').VNETorVWAN,'VNET')))]",
+										"message": "Cannot change BGP ASN. Azure Virtual vWAN requires BGP ASN 65515"
+									}
+								]
+							},
+							"visible": "[and(equals(steps('HubVNET').deployHUB,true),equals(steps('HubVNET').deployGatewayInHub,true),equals(steps('HubVNET').hubBgp,true))]"
 						},
 						{
 							"name": "deployFirewallInHub",
@@ -251,6 +306,40 @@
 							"visible": "[equals(steps('OnPrem').deployOnPrem,true)]"
 						},
 						{
+							"name": "onpremBgp",
+							"type": "Microsoft.Common.CheckBox",
+							"label": "Enable BGP",
+							"defaultValue": false,
+							"toolTip": "Enable BGP on VPN Gateway",
+							"constraints": {
+								"required": false
+							},
+							"visible": "[and(equals(steps('OnPrem').deployOnPrem,true),equals(steps('OnPrem').deployGatewayInOnPrem,true))]"
+						},
+						{
+							"name": "onpremBgpAsn",
+							"type": "Microsoft.Common.TextBox",
+							"label": "OnPrem BGP ASN",
+							"defaultValue": "65010",
+							"toolTip": "Use only allowed characters",
+							"placeholder": "",
+							"multiLine": false,
+							"constraints": {
+								"required": true,
+								"validations": [
+									{
+										"regex": "\\b\\d{5}\\b",
+										"message": "Only 5 digit mumber"
+									},
+									{
+										"isValid": "[not(equals(steps('HubVNET').hubBgpAsn, steps('OnPrem').onpremBgpAsn))]",
+										"message": "(vWan) Hub and OnPrem BGP ASN's cannot be the same"
+									}
+								]
+							},
+							"visible": "[and(equals(steps('OnPrem').deployOnPrem,true),equals(steps('OnPrem').deployGatewayInOnPrem,true),equals(steps('OnPrem').onpremBgp,true))]"
+						},
+						{
 							"name": "deploySite2Site",
 							"type": "Microsoft.Common.CheckBox",
 							"label": "Deploy Site-to-Site connection between Hub and OnPrem Gateways",
@@ -260,6 +349,20 @@
 								"required": false
 							},
 							"visible": "[and(equals(steps('OnPrem').deployGatewayInOnPrem,true),equals(steps('OnPrem').deployOnPrem,true))]"
+						},
+						{
+							"name": "sharedKey",
+							"type": "Microsoft.Common.TextBox",
+							"label": "Site-to-Site Shared key",
+							"defaultValue": "",
+							"toolTip": "Use only allowed characters",
+							"placeholder": "",
+							"multiLine": false,
+							"constraints": {
+								"required": true,
+								"validations": []
+							},
+							"visible": "[equals(steps('OnPrem').deploySite2Site,true)]"
 						},
 						{
 							"name": "deploySite2SiteInfo",
@@ -309,7 +412,7 @@
 							},
 							"visible": "[coalesce(steps('OnPrem').deployOnPrem,false)]"
 						},
-												{
+						{
 							"name": "noVirtualMachines",
 							"type": "Microsoft.Common.InfoBox",
 							"options": {
@@ -425,7 +528,11 @@
 								"Microsoft.Network/virtualNetworkGateways",
 								"Microsoft.Network/publicIPAddresses",
 								"Microsoft.Network/localNetworkGateways",
-								"Microsoft.Network/connections"
+								"Microsoft.Network/connections",
+								"Microsoft.Network/virtualWans",
+								"Microsoft.Network/virtualHubs",
+								"Microsoft.Network/vpnGateways",
+								"Microsoft.Resources/subscriptions/resourceGroups"
 							]
 						}
 					]
@@ -443,22 +550,28 @@
 				"deployVMinOnPrem": "[coalesce(steps('VirtualMachines').deployVMinOnPrem,false)]",
 				"osType": "[steps('VirtualMachines').osType]",
 				"vmSize": "[steps('VirtualMachines').vmSize]",
-				"deploySpokes": "[steps('SpokeVNETs').deploySpokes]",
+				"deploySpokes": "[coalesce(steps('SpokeVNETs').deploySpokes,false)]",
 				"amountOfSpokes": "[steps('SpokeVNETs').amountOfSpokes]",
-				"deployBastionInSpoke": "[steps('SpokeVNETs').deployBastionInSpoke]",
-				"deployHUB": "[steps('HubVNET').deployHUB]",
+				"deployBastionInSpoke": "[coalesce(steps('SpokeVNETs').deployBastionInSpoke,false)]",
+				"deployHUB": "[coalesce(steps('HubVNET').deployHUB,false)]",
+				"hubType": "[steps('HubVNET').VNETorVWAN]",
 				"hubRgName": "[steps('HubVNET').hubRgName]",
-				"deployBastionInHub": "[steps('HubVNET').deployBastionInHub]",
+				"deployBastionInHub": "[coalesce(steps('HubVNET').deployBastionInHub,false)]",
 				"deployGatewayInHub": "[or(steps('HubVNET').deployGatewayInHub,steps('OnPrem').deploySite2Site)]",
-				"deployFirewallInHub": "[steps('HubVNET').deployFirewallInHub]",
+				"hubBgp": "[coalesce(steps('HubVNET').hubBgp,false)]",
+				"hubBgpAsn": "[steps('HubVNET').hubBgpAsn]",
+				"deployFirewallInHub": "[coalesce(steps('HubVNET').deployFirewallInHub,false)]",
 				"AzureFirewallTier": "[steps('HubVNET').AzureFirewallTier]",
 				"spokeRgNamePrefix": "[steps('SpokeVNETs').spokeRgNamePrefix]",
-				"deployFirewallrules": "[steps('HubVNET').deployFirewallrules]",
-				"deployOnPrem": "[steps('OnPrem').deployOnPrem]",
+				"deployFirewallrules": "[coalesce(steps('HubVNET').deployFirewallrules,false)]",
+				"deployOnPrem": "[coalesce(steps('OnPrem').deployOnPrem,false)]",
 				"onpremRgName": "[steps('OnPrem').OnPremRgName]",
-				"deployBastionInOnPrem": "[steps('OnPrem').deployBastionInOnPrem]",
-				"deployGatewayinOnPrem": "[steps('OnPrem').deployGatewayInOnPrem]",
-				"deploySiteToSite": "[steps('OnPrem').deploySite2Site]"
+				"deployBastionInOnPrem": "[coalesce(steps('OnPrem').deployBastionInOnPrem,false)]",
+				"deployGatewayinOnPrem": "[coalesce(steps('OnPrem').deployGatewayInOnPrem,false)]",
+				"onpremBgp": "[coalesce(steps('OnPrem').onpremBgp,false)]",
+				"onpremBgpAsn": "[steps('OnPrem').onpremBgpAsn]",
+				"deploySiteToSite": "[coalesce(steps('OnPrem').deploySite2Site,false)]",
+				"sharedKey": "[steps('OnPrem').sharedKey]"
 			},
 			"kind": "Subscription",
 			"subscriptionId": "[steps('basics').resourceScope.subscription.id]",

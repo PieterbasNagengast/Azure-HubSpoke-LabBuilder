@@ -5,6 +5,8 @@ param vpnGatewaySKU string = 'VpnGw1'
 param vpnGatewayType string = 'Vpn'
 param vpnGatewayVPNtype string = 'RouteBased'
 param vpnGatewayGen string = 'Generation1'
+param vpnGatewayEnableBgp bool
+param vpnGatewayBgpAsn int
 param tagsByResource object = {}
 
 var pipName = '${vpnGatewayName}-pip'
@@ -15,7 +17,10 @@ resource vpngw 'Microsoft.Network/virtualNetworkGateways@2021-05-01' = {
   properties: {
     gatewayType: vpnGatewayType
     vpnType: vpnGatewayVPNtype
-    enableBgp: false
+    enableBgp: vpnGatewayEnableBgp
+    bgpSettings: {
+      asn: vpnGatewayBgpAsn
+    }
     sku: {
       name: vpnGatewaySKU
       tier: vpnGatewaySKU
@@ -56,3 +61,6 @@ resource vpngwpip 'Microsoft.Network/publicIPAddresses@2021-05-01' = {
 
 output vpnGwPublicIP string = vpngwpip.properties.ipAddress
 output vpnGwID string = vpngw.id
+output vpnGwBgpPeeringAddress string = vpngw.properties.bgpSettings.bgpPeeringAddress
+output vpnGwName string = vpngw.name
+output vpnGwAsn int = vpngw.properties.bgpSettings.asn
