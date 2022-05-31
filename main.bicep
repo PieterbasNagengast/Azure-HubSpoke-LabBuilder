@@ -81,7 +81,7 @@ param AzureFirewallTier string = 'Standard'
 param deployFirewallrules bool = true
 
 @description('Enable BGP on Hub Gateway')
-param hubBgp bool = false
+param hubBgp bool = true
 
 @description('Hub BGP ASN')
 param hubBgpAsn int = 65515
@@ -109,13 +109,13 @@ param deploySiteToSite bool = true
 param onpremBgp bool = true
 
 @description('OnPrem BGP ASN')
-param onpremBgpAsn int = 65011
+param onpremBgpAsn int = 65020
 
 // Create array of all Address Spaces used for site-to-site connection from Hub to OnPrem
-var AllAddressSpaces = [for i in range(0, amountOfSpokes + 1): replace(AddressSpace,'0.0/16','${i}.0/24')]
+var AllAddressSpaces = [for i in range(0, amountOfSpokes + 1): replace(AddressSpace, '0.0/16', '${i}.0/24')]
 
 // Create array of all Spoke Address Spaces used to set routes on VPN Gateway rout table in Hub
-var AllSpokeAddressSpaces = [for i in range(1, amountOfSpokes): replace(AddressSpace,'0.0/16','${i}.0/24')]
+var AllSpokeAddressSpaces = [for i in range(1, amountOfSpokes): replace(AddressSpace, '0.0/16', '${i}.0/24')]
 
 // Deploy Hub VNET including VM, Bastion Host, Route Table, Network Security group and Azure Firewall
 module hubVnet 'HubResourceGroup.bicep' = if (deployHUB && hubType == 'VNET') {
@@ -136,7 +136,7 @@ module hubVnet 'HubResourceGroup.bicep' = if (deployHUB && hubType == 'VNET') {
     tagsByResource: tagsByResource
     osType: osType
     AllSpokeAddressSpaces: AllSpokeAddressSpaces
-    vpnGwBgpAsn: hubBgp ? hubBgpAsn : 0
+    vpnGwBgpAsn: hubBgp ? hubBgpAsn : 65515
     vpnGwEnebaleBgp: hubBgp
   }
 }
@@ -154,7 +154,6 @@ module vwan 'vWanResourceGroup.bicep' = if (deployHUB && hubType == 'VWAN') {
     deployGatewayInHub: deployGatewayInHub && hubType == 'VWAN'
   }
 }
-
 
 // Deploy Spoke VNET's including VM, Bastion Host, Route Table, Network Security group
 module spokeVnets 'SpokeResourceGroup.bicep' = [for i in range(1, amountOfSpokes): if (deploySpokes) {
@@ -180,9 +179,9 @@ module spokeVnets 'SpokeResourceGroup.bicep' = [for i in range(1, amountOfSpokes
 
 // VNET Peerings
 module vnetPeerings 'Vnetpeerings.bicep' = [for i in range(0, amountOfSpokes): if (deployHUB && deploySpokes && hubType == 'VNET') {
-  name: '${hubRgName}-VnetPeering${i+1}-${location}'
+  name: '${hubRgName}-VnetPeering${i + 1}-${location}'
   params: {
-    HubResourceGroupName: deployHUB && deploySpokes && hubType == 'VNET'? hubVnet.outputs.HubResourceGroupName : 'No VNET peering'
+    HubResourceGroupName: deployHUB && deploySpokes && hubType == 'VNET' ? hubVnet.outputs.HubResourceGroupName : 'No VNET peering'
     SpokeResourceGroupName: deployHUB && deploySpokes && hubType == 'VNET' ? spokeVnets[i].outputs.spokeResourceGroupName : 'No peering'
     HubVnetName: deployHUB && deploySpokes && hubType == 'VNET' ? hubVnet.outputs.hubVnetName : 'No VNET peering'
     SpokeVnetID: deployHUB && deploySpokes && hubType == 'VNET' ? spokeVnets[i].outputs.spokeVnetID : 'No VNET peering'
@@ -194,7 +193,7 @@ module vnetPeerings 'Vnetpeerings.bicep' = [for i in range(0, amountOfSpokes): i
 
 // VNET Connections to Azure vWAN
 module vnetConnections 'VnetConnections.bicep' = [for i in range(0, amountOfSpokes): if (deployHUB && deploySpokes && hubType == 'VWAN') {
-  name: '${hubRgName}-VnetConnection${i+1}-${location}'
+  name: '${hubRgName}-VnetConnection${i + 1}-${location}'
   params: {
     HubResourceGroupName: deployHUB && deploySpokes && hubType == 'VWAN' ? vwan.outputs.HubResourceGroupName : 'No VNET peering'
     SpokeVnetID: deployHUB && deploySpokes && hubType == 'VWAN' ? spokeVnets[i].outputs.spokeVnetID : 'No VNET peering'
@@ -219,14 +218,14 @@ module onprem 'OnPremResourceGroup.bicep' = if (deployOnPrem) {
     vmSize: vmSize
     tagsByResource: tagsByResource
     osType: osType
-    vpnGwBgpAsn: onpremBgp ? onpremBgpAsn : 0
+    vpnGwBgpAsn: onpremBgp ? onpremBgpAsn : 65515
     vpnGwEnebaleBgp: onpremBgp
   }
 }
 
 // Deploy S2s VPN from OnPrem Gateway to Hub Gateway
-module s2s 'VpnConnections.bicep' = if(deployGatewayInHub && deployGatewayinOnPrem && deploySiteToSite && hubType == 'VNET') {
-  name:'${hubRgName}-s2s-Hub-OnPrem-${location}'
+module s2s 'VpnConnections.bicep' = if (deployGatewayInHub && deployGatewayinOnPrem && deploySiteToSite && hubType == 'VNET') {
+  name: '${hubRgName}-s2s-Hub-OnPrem-${location}'
   params: {
     location: location
     HubRgName: deployHUB && hubType == 'VNET' ? hubRgName : 'none'
@@ -249,12 +248,12 @@ module s2s 'VpnConnections.bicep' = if(deployGatewayInHub && deployGatewayinOnPr
 }
 
 // Deploy s2s VPN from OnPrem Gateway to vWan Hub Gateway
-module vwans2s 'vWanVpnConnections.bicep' = if(deployGatewayInHub && deployGatewayinOnPrem && deploySiteToSite && hubType == 'VWAN') {
-  name:'${hubRgName}-s2s-Hub-vWan-OnPrem-${location}'
+module vwans2s 'vWanVpnConnections.bicep' = if (deployGatewayInHub && deployGatewayinOnPrem && deploySiteToSite && hubType == 'VWAN') {
+  name: '${hubRgName}-s2s-Hub-vWan-OnPrem-${location}'
   params: {
     location: location
     vwanGatewayName: deployHUB && deployGatewayInHub && hubType == 'VWAN' ? vwan.outputs.vpnGwName : 'none'
-    vwanLinkBgpAsn: deployOnPrem && deployGatewayinOnPrem && onpremBgp ? onprem.outputs.OnPremGwBgpAsn : 0
+    vwanLinkBgpAsn: deployOnPrem && deployGatewayinOnPrem && onpremBgp ? onprem.outputs.OnPremGwBgpAsn : 65515
     vwanLinkPublicIP: deployOnPrem && deployGatewayinOnPrem ? onprem.outputs.OnPremGatewayPublicIP : 'none'
     vwanVpnGwInfo: deployHUB && deployGatewayInHub && hubType == 'VWAN' ? vwan.outputs.vpnGwBgpIp : []
     vwanLinkBgpPeeringAddress: deployOnPrem && deployGatewayinOnPrem && onpremBgp && hubType == 'VWAN' ? onprem.outputs.OnPremGwBgpPeeringAddress : 'none'
@@ -265,6 +264,7 @@ module vwans2s 'vWanVpnConnections.bicep' = if(deployGatewayInHub && deployGatew
     OnPremRgName: deployOnPrem ? onpremRgName : 'none'
     HubRgName: deployHUB ? hubRgName : 'none'
     tagsByResource: tagsByResource
+    deployFirewallInHub: deployFirewallInHub && hubType == 'VWAN'
   }
 }
 

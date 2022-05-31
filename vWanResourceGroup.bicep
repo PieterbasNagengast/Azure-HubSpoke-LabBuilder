@@ -18,6 +18,7 @@ var gatewayName = 'Gateway-Hub'
 resource hubrg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   name: hubRgName
   location: location
+  tags: contains(tagsByResource, 'Microsoft.Resources/subscriptions/resourceGroups') ? tagsByResource['Microsoft.Resources/subscriptions/resourceGroups'] : {}
 }
 
 // Deploy vWan and vWan Hub
@@ -82,9 +83,9 @@ output vWanHubID string = vwan.outputs.vWanHubID
 output vWanID string = vwan.outputs.vWanID
 output vWanHubAddressSpace string = vwan.outputs.vWanHubAddressSpace
 output HubResourceGroupName string = hubrg.name
-output vWanVpnGwID string = vpngateway.outputs.vpnGwID
-output vWanVpnGwPip array = vpngateway.outputs.vpnGwPip
-output vWanFwPublicIP array = AzFirewall.outputs.azFwIPvWan
-output vpnGwBgpIp array = vpngateway.outputs.vpnGwBgpIp
-output vpnGwBgpAsn int = vpngateway.outputs.vpnGwBgpAsn
-output vpnGwName string = vpngateway.outputs.vpnGwName
+output vWanVpnGwID string = deployGatewayInHub ? vpngateway.outputs.vpnGwID : 'none'
+output vWanVpnGwPip array = deployGatewayInHub ? vpngateway.outputs.vpnGwPip : []
+output vWanFwPublicIP array = deployFirewallInHub ? AzFirewall.outputs.azFwIPvWan : []
+output vpnGwBgpIp array = deployGatewayInHub ? vpngateway.outputs.vpnGwBgpIp : []
+output vpnGwBgpAsn int = deployGatewayInHub ? vpngateway.outputs.vpnGwBgpAsn : 0
+output vpnGwName string = deployGatewayInHub ? vpngateway.outputs.vpnGwName : 'none'

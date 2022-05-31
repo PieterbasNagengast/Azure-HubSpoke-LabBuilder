@@ -41,14 +41,14 @@ resource azfw 'Microsoft.Network/azureFirewalls@2021-05-01' = {
         name: 'ipconfig1'
       }
     ]
-    virtualHub: !deployInVWan ? {} : {
+    virtualHub: deployInVWan ? {
       id: vWanID
-    }
-    hubIPAddresses: !deployInVWan ? {} : {
+    } : null
+    hubIPAddresses: deployInVWan ? {
       publicIPs: {
         count: vWanAzFwPublicIPcount
       }
-    }
+    } : null
   }
   tags: contains(tagsByResource, 'Microsoft.Network/azureFirewalls') ? tagsByResource['Microsoft.Network/azureFirewalls'] : {}
 }

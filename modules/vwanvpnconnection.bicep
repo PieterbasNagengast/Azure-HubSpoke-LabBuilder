@@ -9,6 +9,7 @@ param vwanGatewayName string
 @secure()
 param sharedKey string
 param tagsByResource object = {}
+param propagateToNoneRouteTable bool
 
 resource vpnsite 'Microsoft.Network/vpnSites@2021-05-01' = {
   name: vpnSiteName
@@ -56,11 +57,11 @@ resource vpnconnection 'Microsoft.Network/vpnGateways/vpnConnections@2021-05-01'
       propagatedRouteTables: {
         ids: [
           {
-            id: resourceId('Microsoft.Network/virtualHubs/hubRouteTables', vwanHubName, 'defaultRouteTable')
+            id: resourceId('Microsoft.Network/virtualHubs/hubRouteTables', vwanHubName, propagateToNoneRouteTable ? 'noneRouteTable' : 'defaultRouteTable')
           }
         ]
         labels: [
-          'default'
+          propagateToNoneRouteTable ? '' : 'default'
         ]
       }
       vnetRoutes: {

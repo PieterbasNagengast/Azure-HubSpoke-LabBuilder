@@ -16,6 +16,7 @@ param vwanHubName string
 param vwanGatewayName string
 param vwanVpnGwInfo array 
 param tagsByResource object = {}
+param deployFirewallInHub bool
 
 param OnPremVpnGwID string
 
@@ -38,6 +39,7 @@ module vpnvWan 'modules/vwanvpnconnection.bicep' = {
     vwanID: vwanID
     sharedKey: sharedKey
     tagsByResource: tagsByResource
+    propagateToNoneRouteTable: deployFirewallInHub
   }
 }
 
@@ -46,7 +48,6 @@ resource onpremrg 'Microsoft.Resources/resourceGroups@2021-04-01' existing = {
   name: OnPremRgName
 }
 
-@batchSize(1)
 module vpnOnPrem 'modules/vpnconnection.bicep' = [for (item, i) in vwanVpnGwInfo: {
   scope: onpremrg
   name: 'vpnconnection${i + 1}'

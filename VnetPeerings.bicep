@@ -18,8 +18,11 @@ module peeringToSpoke 'modules/vnetpeeering.bicep' = {
     peeringName: '${HubVnetName}/peeringToSpoke${counter+1}'
     remoteVnetID: SpokeVnetID
     useRemoteGateways: false
-    allowGatewayTransit: false
+    allowGatewayTransit: true
   }
+  dependsOn: [
+    peeringToHub
+  ]
 }
 
 resource spokerg 'Microsoft.Resources/resourceGroups@2021-04-01' existing = {
@@ -32,7 +35,7 @@ module peeringToHub 'modules/vnetpeeering.bicep' = {
   params: {
     peeringName: '${SpokeVnetName}/peeringToHub${counter+1}'
     remoteVnetID: HubVnetID
-    useRemoteGateways: false 
+    useRemoteGateways: true 
     allowGatewayTransit: false
   }
 }

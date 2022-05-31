@@ -18,9 +18,9 @@ resource vpngw 'Microsoft.Network/virtualNetworkGateways@2021-05-01' = {
     gatewayType: vpnGatewayType
     vpnType: vpnGatewayVPNtype
     enableBgp: vpnGatewayEnableBgp
-    bgpSettings: vpnGatewayEnableBgp ? {
+    bgpSettings: {
       asn: vpnGatewayBgpAsn
-    } : {}
+    }
     sku: {
       name: vpnGatewaySKU
       tier: vpnGatewaySKU

@@ -19,7 +19,7 @@ resource localNetworkGateway 'Microsoft.Network/localNetworkGateways@2021-05-01'
     bgpSettings: enableBgp ? {
       asn: BgpAsn
       bgpPeeringAddress: BgpPeeringAddress
-    } : {}
+    } : null
     localNetworkAddressSpace: enableBgp ? {} : {
       addressPrefixes: LocalGatewayAddressPrefixes
     }

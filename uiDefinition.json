@@ -135,7 +135,7 @@
 										"message": "Only 5 digit mumber"
 									},
 									{
-										"isValid": "[or(and(equals(steps('HubVNET').hubBgpAsn,'65515'),equals(steps('HubVNET').VNETorVWAN,'VWAN')),equals(steps('HubVNET').VNETorVWAN,'VNET'))]",
+										"isValid": "[or(and(equals(steps('HubVNET').hubBgpAsn,'65515'),equals(steps('HubVNET').VNETorVWAN,'VWAN')),and(not(equals(steps('HubVNET').hubBgpAsn,'65515')),equals(steps('HubVNET').VNETorVWAN,'VNET')))]",
 										"message": "Cannot change BGP ASN. Azure Virtual vWAN requires BGP ASN 65515"
 									}
 								]
@@ -514,7 +514,11 @@
 								"Microsoft.Network/virtualNetworkGateways",
 								"Microsoft.Network/publicIPAddresses",
 								"Microsoft.Network/localNetworkGateways",
-								"Microsoft.Network/connections"
+								"Microsoft.Network/connections",
+								"Microsoft.Network/virtualWans",
+								"Microsoft.Network/virtualHubs",
+								"Microsoft.Network/vpnGateways",
+								"Microsoft.Resources/subscriptions/resourceGroups"
 							]
 						}
 					]

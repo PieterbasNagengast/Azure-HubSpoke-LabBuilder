@@ -18,7 +18,7 @@ module vWanVnetConnection 'modules/vnetconnection.bicep' = {
     SpokeVnetID: SpokeVnetID
     vwanHubName: vwanHubName
     spokeName: spokeName
-    enableInternetSecurity: deployFirewallInHub
+    enableInternetSecurity: true
     propagateToNoneRouteTable: deployFirewallInHub
   }
 }
