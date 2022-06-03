@@ -29,7 +29,7 @@ jobs:
       max-parallel: 1
       matrix:
         scenarios: [scenario1.vnet.parameters.json]
-        mode: [validate,incremental]
+        mode: [validate,what-if,create]
 
     steps:
       - name: Checkout
@@ -45,7 +45,7 @@ jobs:
           subscriptionId: ${{ secrets.AZURE_CREDENTIALS.subscriptionid }}
           region: WestEurope
           template: main.bicep
-          parameters: 'ARM/params/${{ matrix.scenarios }}'
+          parameters: 'ARM/params/${{ matrix.scenarios }} adminUsername=${{ secrets.ADMINUSERNAME }} adminPassword=${{ secrets.ADMINPASSWORD }}'
           deploymentMode: ${{ matrix.mode }}
           deploymentName: 'LabBuilder-${{ matrix.mode }}'
           additionalArguments: '--verbose'
