@@ -2,9 +2,9 @@ name: 'Bicep Test and Validation'
 
 on:
   push:
-    branches: [ main ]
+    branches: none
   pull_request:
-    branches: [ main ]
+    branches: none
   workflow_dispatch:
 
 jobs:
@@ -12,17 +12,16 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        scenarios:
-          [
-            A1,
-            A2,
-            A3,
-            B1,
-            B2,
-            B3,
-          ]
+        scenarios: [A1,A2,A3,B1,B2,B3]
 
-steps:
-  - name: Checkout
-    uses: actions/checkout@v2.4.2
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.4.2
 
+      - name: GitHub Script
+        uses: actions/github-script@v6.1.0
+        with:
+          # The script to run
+          script: |
+            echo 'hello world, ${{ matrix.scenarios }}
+          
