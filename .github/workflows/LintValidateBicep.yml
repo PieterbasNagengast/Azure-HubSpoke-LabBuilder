@@ -47,6 +47,6 @@ jobs:
           template: main.bicep
           parameters: 'ARM/params/${{ matrix.scenarios }}'
           deploymentMode: ${{ matrix.mode }}
-          deploymentName: LabBuilderValidation
-      
+          deploymentName: 'LabBuilder-${{ matrix.mode }}'
+          additionalArguments: '--verbose'
          
