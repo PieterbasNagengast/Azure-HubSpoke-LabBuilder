@@ -14,8 +14,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2.4.2
+        
+      - name: Bicep Build
+        run: az bicep build --file main.bicep
 
   validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.4.2
+
+  deployments:
     runs-on: ubuntu-latest
     needs: lint
     strategy:
