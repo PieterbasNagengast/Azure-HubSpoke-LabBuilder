@@ -10,6 +10,19 @@ on:
 jobs:
   lint:
     runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.4.2
+
+      - name: GitHub Script
+        uses: actions/github-script@v6.1.0
+        with:
+          script: |
+            az bicep build --file main.bicep
+
+  validate:
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         scenarios: [A1,A2,A3,B1,B2,B3]
@@ -20,8 +33,4 @@ jobs:
 
       - name: GitHub Script
         uses: actions/github-script@v6.1.0
-        with:
-          # The script to run
-          script: |
-            echo 'hello world, ${{ matrix.scenarios }}
-          
+         
