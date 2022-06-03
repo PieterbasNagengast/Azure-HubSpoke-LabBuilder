@@ -29,7 +29,7 @@ jobs:
       max-parallel: 1
       matrix:
         scenarios: [scenario1.vnet.parameters.json]
-        mode: [validate,what-if,create]
+        mode: [Validate,Incremental]
 
     steps:
       - name: Checkout
