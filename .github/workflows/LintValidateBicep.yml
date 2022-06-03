@@ -1,0 +1,30 @@
+name: 'Bicep Test and Validation'
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        scenarios:
+          [
+            A1,
+            A2,
+            A3,
+            B1,
+            B2,
+            B3,
+          ]
+
+steps:
+- name: Bicep Lint test
+  script: |
+    echo 'testing: ${{ matrix.scenarios }}'
+
+
