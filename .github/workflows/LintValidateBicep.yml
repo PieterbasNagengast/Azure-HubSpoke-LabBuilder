@@ -63,7 +63,7 @@ jobs:
           subscriptionId: ${{ secrets.AZURE_CREDENTIALS.subscriptionid }}
           region: WestEurope
           template: main.bicep
-          parameters: ${{ matrix.scenarios }}
+          parameters: 'ARM/params/${{ matrix.scenarios }}'
           deploymentName: LabBuilderValidation
       
          
