@@ -193,6 +193,7 @@ module vnetPeerings 'VnetPeerings.bicep' = [for i in range(0, amountOfSpokes): i
     HubVnetID: deployHUB && deploySpokes && hubType == 'VNET' ? hubVnet.outputs.hubVnetID : 'No VNET peering'
     SpokeVnetName: deployHUB && deploySpokes && hubType == 'VNET' ? spokeVnets[i].outputs.spokeVnetName : 'No VNET peering'
     counter: i
+    GatewayDeployed: deployGatewayInHub
   }
 }]
 
