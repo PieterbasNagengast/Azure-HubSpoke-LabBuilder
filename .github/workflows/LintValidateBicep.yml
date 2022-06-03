@@ -15,11 +15,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2.4.2
 
-      - name: GitHub Script
-        uses: actions/github-script@v6.1.0
-        with:
-          script: |
-            az bicep build --file main.bicep
+      - name: Bicep Build
+        run: | 
+          az bicep build --file main.bicep
 
   validate:
     runs-on: ubuntu-latest
@@ -31,4 +29,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2.4.2
+        
+      - name: hello
+        run: |
+          echo "Hello world, ${{ matrix.scenarios }}"
+      
          
