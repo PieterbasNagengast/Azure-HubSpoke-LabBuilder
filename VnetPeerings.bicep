@@ -6,6 +6,7 @@ param SpokeVnetName string
 param HubVnetID string
 param SpokeVnetID string
 param counter int
+param GatewayDeployed bool
 
 resource hubrg 'Microsoft.Resources/resourceGroups@2021-04-01' existing = {
   name: HubResourceGroupName
@@ -18,7 +19,7 @@ module peeringToSpoke 'modules/vnetpeeering.bicep' = {
     peeringName: '${HubVnetName}/peeringToSpoke${counter+1}'
     remoteVnetID: SpokeVnetID
     useRemoteGateways: false
-    allowGatewayTransit: true
+    allowGatewayTransit: GatewayDeployed
   }
   dependsOn: [
     peeringToHub
@@ -35,7 +36,7 @@ module peeringToHub 'modules/vnetpeeering.bicep' = {
   params: {
     peeringName: '${SpokeVnetName}/peeringToHub${counter+1}'
     remoteVnetID: HubVnetID
-    useRemoteGateways: true 
+    useRemoteGateways: GatewayDeployed 
     allowGatewayTransit: false
   }
 }
