@@ -16,7 +16,9 @@ jobs:
         uses: actions/checkout@v2.4.2
         
       - name: Bicep Build
-        run: az bicep build --file main.bicep
+        run: |
+          az bicep version
+          az bicep build --file main.bicep
 
   validate:
     runs-on: ubuntu-latest
