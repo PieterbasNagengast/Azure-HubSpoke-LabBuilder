@@ -28,9 +28,19 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2.4.2
-      - uses: azure/login@v1
+      - name: Azure Login
+        uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Azure Deploy validation
+        uses: Azure/arm-deploy@v1.0.8
+        with:
+          scope: 'subscription'
+          subscriptionId: ${{ secrets.AZURE_CREDENTIALS.subscriptionid }}
+          region: WestEurope
+          template: main.bicep
+          deploymentMode: Validation
+          deploymentName: LabBuilderValidation
 
   deployments:
     runs-on: ubuntu-latest
