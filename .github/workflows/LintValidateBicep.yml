@@ -22,9 +22,11 @@ jobs:
           az bicep build --file main.bicep
 
   deployments:
+    name: 'Validate & Deploy'
     runs-on: ubuntu-latest
     needs: lint
     strategy:
+      max-parallel: 1
       matrix:
         scenarios: [scenario1.vnet.parameters.json]
         mode: [validate,incremental]
