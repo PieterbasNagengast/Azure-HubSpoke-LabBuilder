@@ -21,7 +21,11 @@
             "value": "WestEurope"
         },
         "tagsByResource": {
-            "value": {}
+            "value": {
+                "Microsoft.Resources/subscriptions/resourceGroups": {
+                    "LabBuilder": "Validation"
+                }
+            }
         },
         "deploySpokes": {
             "value": true
