@@ -23,7 +23,7 @@ jobs:
           az bicep build --file main.bicep
 
   VNETdeployments:
-    name: 'Validate & Deploy Scenarios'
+    name: 'VNET Scenarios'
     runs-on: ubuntu-latest
     needs: lint
     strategy:
@@ -42,7 +42,7 @@ jobs:
         uses: Azure/arm-deploy@v1.0.8
         with:
           scope: 'subscription'
-          subscriptionId: ${{ secrets.AZURE_CREDENTIALS.subscriptionid }}
+          subscriptionId: ${{ secrets.VNET_SUBSCRIPTION }}
           region: WestEurope
           template: main.bicep
           parameters: 'ARM/params/${{ matrix.scenarios }} adminUsername=${{ secrets.ADMINUSERNAME }} adminPassword=${{ secrets.ADMINPASSWORD }}'
@@ -52,16 +52,64 @@ jobs:
         uses: Azure/arm-deploy@v1.0.8
         with:
           scope: 'subscription'
-          subscriptionId: ${{ secrets.AZURE_CREDENTIALS.subscriptionid }}
+          subscriptionId: ${{ secrets.VNET_SUBSCRIPTION }}
           region: WestEurope
           template: main.bicep
           parameters: 'ARM/params/${{ matrix.scenarios }} adminUsername=${{ secrets.ADMINUSERNAME }} adminPassword=${{ secrets.ADMINPASSWORD }}'
           deploymentName: 'LabBuilderValidation-Deployment'
 
   VNETremoval:
-    name: 'Remove deployment'
+    name: 'Remove VNET deployment'
     runs-on: ubuntu-latest
     needs: VNETdeployments
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.4.2
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+VWANdeployments:
+    name: 'VWAN Scenarios'
+    runs-on: ubuntu-latest
+    needs: lint
+    strategy:
+      max-parallel: 1
+      matrix:
+        scenarios: []
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.4.2
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: 'Validation'
+        uses: Azure/arm-deploy@v1.0.8
+        with:
+          scope: 'subscription'
+          subscriptionId: ${{ secrets.VWAN_SUBSCRIPTION }}
+          region: WestEurope
+          template: main.bicep
+          parameters: 'ARM/params/${{ matrix.scenarios }} adminUsername=${{ secrets.ADMINUSERNAME }} adminPassword=${{ secrets.ADMINPASSWORD }}'
+          deploymentMode: 'validate'
+          deploymentName: 'LabBuilderValidation'
+      - name: 'Deployment'
+        uses: Azure/arm-deploy@v1.0.8
+        with:
+          scope: 'subscription'
+          subscriptionId: ${{ secrets.VWAN_SUBSCRIPTION }}
+          region: WestEurope
+          template: main.bicep
+          parameters: 'ARM/params/${{ matrix.scenarios }} adminUsername=${{ secrets.ADMINUSERNAME }} adminPassword=${{ secrets.ADMINPASSWORD }}'
+          deploymentName: 'LabBuilderValidation-Deployment'
+
+  VNETremoval:
+    name: 'Remove VWAN deployment'
+    runs-on: ubuntu-latest
+    needs: VWANdeployments
     steps:
       - name: Checkout
         uses: actions/checkout@v2.4.2
