@@ -164,4 +164,12 @@ jobs:
         run: |
           az bicep install
           az bicep version
-          az bicep build --file main.bicep
+          az bicep build --file main.bicep --outdir ARM/
+      
+      - name: Commit 
+        run: |
+          git config --global user.name 'PieterbasNagengast'
+          git add SubnetPolicy-MgmtGrp.json
+          git add SubnetPolicy-Sub.json
+          git commit -am "Auto commit by Github workflow"
+          git push
