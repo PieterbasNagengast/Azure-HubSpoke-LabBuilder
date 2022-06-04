@@ -7,6 +7,9 @@ on:
     branches: none
   workflow_dispatch:
 
+env:
+  REMOVE_DEPLOYMENTS: true
+
 jobs:
   lint:
     name: 'Bicep Build (Lint)'
@@ -29,7 +32,7 @@ jobs:
     strategy:
       max-parallel: 1
       matrix:
-        scenarios: [scenario1.vnet.parameters.json,scenario2.vnet.parameters.json]
+        scenarios: [scenario1.vnet.parameters.json]
 
     steps:
       - name: Checkout
@@ -47,7 +50,7 @@ jobs:
           template: main.bicep
           parameters: 'ARM/params/${{ matrix.scenarios }} adminUsername=${{ secrets.ADMINUSERNAME }} adminPassword=${{ secrets.ADMINPASSWORD }}'
           deploymentMode: 'validate'
-          deploymentName: 'LabBuilderValidation'
+          deploymentName: 'LabBuilderValidation-VNET'
       - name: 'Deployment'
         uses: Azure/arm-deploy@v1.0.8
         with:
@@ -56,7 +59,7 @@ jobs:
           region: WestEurope
           template: main.bicep
           parameters: 'ARM/params/${{ matrix.scenarios }} adminUsername=${{ secrets.ADMINUSERNAME }} adminPassword=${{ secrets.ADMINPASSWORD }}'
-          deploymentName: 'LabBuilderValidation-Deployment'
+          deploymentName: 'LabBuilderValidation-VNET'
 
   VNETremoval:
     name: 'Remove VNET deployment'
@@ -69,6 +72,13 @@ jobs:
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Get Resource Groups
+        run: |
+          az group list --tag LabBuilder=Validation --output table
+      - name: Delete Resource Groups
+        if: ${{ env.REMOVE_DEPLOYMENTS }}
+        run: | 
+          echo 'Removing deployments...'
 
   VWANdeployments:
     name: 'VWAN Scenarios'
@@ -95,7 +105,7 @@ jobs:
           template: main.bicep
           parameters: 'ARM/params/${{ matrix.scenarios }} adminUsername=${{ secrets.ADMINUSERNAME }} adminPassword=${{ secrets.ADMINPASSWORD }}'
           deploymentMode: 'validate'
-          deploymentName: 'LabBuilderValidation'
+          deploymentName: 'LabBuilderValidation-VWAN'
       - name: 'Deployment'
         uses: Azure/arm-deploy@v1.0.8
         with:
@@ -104,7 +114,7 @@ jobs:
           region: WestEurope
           template: main.bicep
           parameters: 'ARM/params/${{ matrix.scenarios }} adminUsername=${{ secrets.ADMINUSERNAME }} adminPassword=${{ secrets.ADMINPASSWORD }}'
-          deploymentName: 'LabBuilderValidation-Deployment'
+          deploymentName: 'LabBuilderValidation-VWAN'
 
   VWANremoval:
     name: 'Remove VWAN deployment'
@@ -117,3 +127,25 @@ jobs:
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Get Resource Groups
+        run: |
+          az group list --tag LabBuilder=Validation --output table
+      - name: Delete Resource Groups
+        if: ${{ env.REMOVE_DEPLOYMENTS }}
+        run: | 
+          echo 'Removing deployments...'
+
+  commit:
+    name: 'Bicep Build & Commit'
+    runs-on: ubuntu-latest
+    needs: VNETdeployments,VWANdeployments
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.4.2
+        
+      - name: Bicep Build
+        run: |
+          az bicep install
+          az bicep version
+          az bicep build --file main.bicep
