@@ -21,9 +21,6 @@ module peeringToSpoke 'modules/vnetpeeering.bicep' = {
     useRemoteGateways: false
     allowGatewayTransit: GatewayDeployed
   }
-  dependsOn: [
-    peeringToHub
-  ]
 }
 
 resource spokerg 'Microsoft.Resources/resourceGroups@2021-04-01' existing = {
@@ -39,4 +36,7 @@ module peeringToHub 'modules/vnetpeeering.bicep' = {
     useRemoteGateways: GatewayDeployed 
     allowGatewayTransit: false
   }
+  dependsOn: [
+    peeringToSpoke
+  ]
 }
