@@ -106,7 +106,7 @@ VWANdeployments:
           parameters: 'ARM/params/${{ matrix.scenarios }} adminUsername=${{ secrets.ADMINUSERNAME }} adminPassword=${{ secrets.ADMINPASSWORD }}'
           deploymentName: 'LabBuilderValidation-Deployment'
 
-  VNETremoval:
+  VWANremoval:
     name: 'Remove VWAN deployment'
     runs-on: ubuntu-latest
     needs: VWANdeployments
