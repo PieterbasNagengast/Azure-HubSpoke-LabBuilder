@@ -56,7 +56,7 @@ jobs:
           subscriptionId: ${{ secrets.VNET_SUBSCRIPTION }}
           region: WestEurope
           template: main.bicep
-          parameters: 'ARM/params/${{ matrix.scenarios }} adminUsername=${{ secrets.ADMINUSERNAME }} adminPassword=${{ secrets.ADMINPASSWORD }}'
+          parameters: 'ARM/params/${{ matrix.scenarios }} adminUsername=${{ secrets.ADMINUSERNAME }} adminPassword=${{ secrets.ADMINPASSWORD }} sharedKey=${{ secrets.SHAREDKEY }}'
           deploymentMode: 'validate'
           deploymentName: 'LabBuilderValidation-VNET'
       - name: 'Deployment'
@@ -66,7 +66,7 @@ jobs:
           subscriptionId: ${{ secrets.VNET_SUBSCRIPTION }}
           region: WestEurope
           template: main.bicep
-          parameters: 'ARM/params/${{ matrix.scenarios }} adminUsername=${{ secrets.ADMINUSERNAME }} adminPassword=${{ secrets.ADMINPASSWORD }}'
+          parameters: 'ARM/params/${{ matrix.scenarios }} adminUsername=${{ secrets.ADMINUSERNAME }} adminPassword=${{ secrets.ADMINPASSWORD }} sharedKey=${{ secrets.SHAREDKEY }}'
           deploymentName: 'LabBuilderValidation-VNET'
 
   VNETremoval:
@@ -115,7 +115,7 @@ jobs:
           subscriptionId: ${{ secrets.VWAN_SUBSCRIPTION }}
           region: WestEurope
           template: main.bicep
-          parameters: 'ARM/params/${{ matrix.scenarios }} adminUsername=${{ secrets.ADMINUSERNAME }} adminPassword=${{ secrets.ADMINPASSWORD }}'
+          parameters: 'ARM/params/${{ matrix.scenarios }} adminUsername=${{ secrets.ADMINUSERNAME }} adminPassword=${{ secrets.ADMINPASSWORD }} sharedKey=${{ secrets.SHAREDKEY }}'
           deploymentMode: 'validate'
           deploymentName: 'LabBuilderValidation-VWAN'
       - name: 'Deployment'
@@ -125,7 +125,7 @@ jobs:
           subscriptionId: ${{ secrets.VWAN_SUBSCRIPTION }}
           region: WestEurope
           template: main.bicep
-          parameters: 'ARM/params/${{ matrix.scenarios }} adminUsername=${{ secrets.ADMINUSERNAME }} adminPassword=${{ secrets.ADMINPASSWORD }}'
+          parameters: 'ARM/params/${{ matrix.scenarios }} adminUsername=${{ secrets.ADMINUSERNAME }} adminPassword=${{ secrets.ADMINPASSWORD }} sharedKey=${{ secrets.SHAREDKEY }}'
           deploymentName: 'LabBuilderValidation-VWAN'
 
   VWANremoval:

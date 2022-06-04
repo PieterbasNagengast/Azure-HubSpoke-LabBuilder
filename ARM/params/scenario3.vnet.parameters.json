@@ -1,0 +1,106 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "adminUsername": {
+            "value": ""
+        },
+        "adminPassword": {
+            "value": ""
+        },
+        "vmSize": {
+            "value": "Standard_B2s"
+        },
+        "osType": {
+            "value": "Windows"
+        },
+        "AddressSpace": {
+            "value": "172.16.0.0/16"
+        },
+        "location": {
+            "value": "WestEurope"
+        },
+        "tagsByResource": {
+            "value": {
+                "Microsoft.Resources/subscriptions/resourceGroups": {
+                    "LabBuilder": "Validation"
+                }
+            }
+        },
+        "deploySpokes": {
+            "value": true
+        },
+        "spokeRgNamePrefix": {
+            "value": "LabBuilderValidation-spoke"
+        },
+        "amountOfSpokes": {
+            "value": 2
+        },
+        "deployVMsInSpokes": {
+            "value": true
+        },
+        "deployBastionInSpoke": {
+            "value": true
+        },
+        "deployHUB": {
+            "value": true
+        },
+        "hubType": {
+            "value": "VNET"
+        },
+        "hubRgName": {
+            "value": "LabBuilderValidation-hub"
+        },
+        "deployBastionInHub": {
+            "value": true
+        },
+        "deployVMinHub": {
+            "value": true
+        },
+        "deployGatewayInHub": {
+            "value": false
+        },
+        "deployFirewallInHub": {
+            "value": false
+        },
+        "AzureFirewallTier": {
+            "value": "Standard"
+        },
+        "deployFirewallrules": {
+            "value": false
+        },
+        "hubBgp": {
+            "value": false
+        },
+        "hubBgpAsn": {
+            "value": 65515
+        },
+        "deployOnPrem": {
+            "value": true
+        },
+        "onpremRgName": {
+            "value": "LabBuilderValidation-onprem"
+        },
+        "deployBastionInOnPrem": {
+            "value": true
+        },
+        "deployVMinOnPrem": {
+            "value": true
+        },
+        "deployGatewayinOnPrem": {
+            "value": false
+        },
+        "deploySiteToSite": {
+            "value": false
+        },
+        "sharedKey": {
+            "value": ""
+        },
+        "onpremBgp": {
+            "value": false
+        },
+        "onpremBgpAsn": {
+            "value": 65020
+        }
+    }
+}
