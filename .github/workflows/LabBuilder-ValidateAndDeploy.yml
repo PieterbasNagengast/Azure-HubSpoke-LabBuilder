@@ -90,7 +90,7 @@ jobs:
       - name: Delete Resource Groups
         run: | 
           echo 'Removing deployments...'
-          az group list --tag LabBuilder=Validation --query "[].[name]" --output tsv | xargs -l az group delete --yes --name
+          az group list --tag LabBuilder=Validation --query "[].[name]" --output tsv | xargs -l az group delete --yes --no-wait --name
 
   VWANdeployments:
     name: 'VWAN Scenarios'
@@ -149,7 +149,7 @@ jobs:
       - name: Delete Resource Groups
         run: | 
           echo 'Removing deployments...'
-          az group list --tag LabBuilder=Validation --query "[].[name]" --output tsv | xargs -l az group delete --yes --name
+          az group list --tag LabBuilder=Validation --query "[].[name]" --output tsv | xargs -l az group delete --yes --no-wait --name
 
   commit:
     name: 'Bicep Build & Commit'
