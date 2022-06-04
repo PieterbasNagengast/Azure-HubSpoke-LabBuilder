@@ -77,7 +77,7 @@ jobs:
     strategy:
       max-parallel: 1
       matrix:
-        scenarios: []
+        scenarios: [scenario1.vwan.parameters.json]
 
     steps:
       - name: Checkout
