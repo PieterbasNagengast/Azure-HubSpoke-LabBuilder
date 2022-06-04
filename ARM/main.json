@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1272.37030",
-      "templateHash": "18344211728309324632"
+      "templateHash": "10421767914391842147"
     }
   },
   "parameters": {
@@ -3530,6 +3530,9 @@
           },
           "counter": {
             "value": "[range(0, parameters('amountOfSpokes'))[copyIndex()]]"
+          },
+          "GatewayDeployed": {
+            "value": "[parameters('deployGatewayInHub')]"
           }
         },
         "template": {
@@ -3539,7 +3542,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1272.37030",
-              "templateHash": "89039658678368096"
+              "templateHash": "11935622192802000333"
             }
           },
           "parameters": {
@@ -3563,6 +3566,9 @@
             },
             "counter": {
               "type": "int"
+            },
+            "GatewayDeployed": {
+              "type": "bool"
             }
           },
           "resources": [
@@ -3587,7 +3593,7 @@
                     "value": false
                   },
                   "allowGatewayTransit": {
-                    "value": true
+                    "value": "[parameters('GatewayDeployed')]"
                   }
                 },
                 "template": {
@@ -3597,7 +3603,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1272.37030",
-                      "templateHash": "7535118577974351196"
+                      "templateHash": "8190748004866178373"
                     }
                   },
                   "parameters": {
@@ -3612,16 +3618,89 @@
                       "defaultValue": true
                     },
                     "allowGatewayTransit": {
-                      "type": "bool",
-                      "defaultValue": true
+                      "type": "bool"
                     },
                     "allowVirtualNetworkAccess": {
                       "type": "bool",
                       "defaultValue": true
                     },
                     "useRemoteGateways": {
+                      "type": "bool"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+                      "apiVersion": "2021-05-01",
+                      "name": "[parameters('peeringName')]",
+                      "properties": {
+                        "remoteVirtualNetwork": {
+                          "id": "[parameters('remoteVnetID')]"
+                        },
+                        "allowForwardedTraffic": "[parameters('allowForwardedTraffic')]",
+                        "allowGatewayTransit": "[parameters('allowGatewayTransit')]",
+                        "allowVirtualNetworkAccess": "[parameters('allowVirtualNetworkAccess')]",
+                        "useRemoteGateways": "[parameters('useRemoteGateways')]"
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2020-10-01",
+              "name": "[format('peeringToHub{0}', add(parameters('counter'), 1))]",
+              "resourceGroup": "[parameters('SpokeResourceGroupName')]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "peeringName": {
+                    "value": "[format('{0}/peeringToHub{1}', parameters('SpokeVnetName'), add(parameters('counter'), 1))]"
+                  },
+                  "remoteVnetID": {
+                    "value": "[parameters('HubVnetID')]"
+                  },
+                  "useRemoteGateways": {
+                    "value": "[parameters('GatewayDeployed')]"
+                  },
+                  "allowGatewayTransit": {
+                    "value": false
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.4.1272.37030",
+                      "templateHash": "8190748004866178373"
+                    }
+                  },
+                  "parameters": {
+                    "remoteVnetID": {
+                      "type": "string"
+                    },
+                    "peeringName": {
+                      "type": "string"
+                    },
+                    "allowForwardedTraffic": {
                       "type": "bool",
                       "defaultValue": true
+                    },
+                    "allowGatewayTransit": {
+                      "type": "bool"
+                    },
+                    "allowVirtualNetworkAccess": {
+                      "type": "bool",
+                      "defaultValue": true
+                    },
+                    "useRemoteGateways": {
+                      "type": "bool"
                     }
                   },
                   "resources": [
@@ -3643,85 +3722,8 @@
                 }
               },
               "dependsOn": [
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('SpokeResourceGroupName')), 'Microsoft.Resources/deployments', format('peeringToHub{0}', add(parameters('counter'), 1)))]"
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HubResourceGroupName')), 'Microsoft.Resources/deployments', format('peeringToSpoke{0}', add(parameters('counter'), 1)))]"
               ]
-            },
-            {
-              "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-10-01",
-              "name": "[format('peeringToHub{0}', add(parameters('counter'), 1))]",
-              "resourceGroup": "[parameters('SpokeResourceGroupName')]",
-              "properties": {
-                "expressionEvaluationOptions": {
-                  "scope": "inner"
-                },
-                "mode": "Incremental",
-                "parameters": {
-                  "peeringName": {
-                    "value": "[format('{0}/peeringToHub{1}', parameters('SpokeVnetName'), add(parameters('counter'), 1))]"
-                  },
-                  "remoteVnetID": {
-                    "value": "[parameters('HubVnetID')]"
-                  },
-                  "useRemoteGateways": {
-                    "value": true
-                  },
-                  "allowGatewayTransit": {
-                    "value": false
-                  }
-                },
-                "template": {
-                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                  "contentVersion": "1.0.0.0",
-                  "metadata": {
-                    "_generator": {
-                      "name": "bicep",
-                      "version": "0.4.1272.37030",
-                      "templateHash": "7535118577974351196"
-                    }
-                  },
-                  "parameters": {
-                    "remoteVnetID": {
-                      "type": "string"
-                    },
-                    "peeringName": {
-                      "type": "string"
-                    },
-                    "allowForwardedTraffic": {
-                      "type": "bool",
-                      "defaultValue": true
-                    },
-                    "allowGatewayTransit": {
-                      "type": "bool",
-                      "defaultValue": true
-                    },
-                    "allowVirtualNetworkAccess": {
-                      "type": "bool",
-                      "defaultValue": true
-                    },
-                    "useRemoteGateways": {
-                      "type": "bool",
-                      "defaultValue": true
-                    }
-                  },
-                  "resources": [
-                    {
-                      "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
-                      "apiVersion": "2021-05-01",
-                      "name": "[parameters('peeringName')]",
-                      "properties": {
-                        "remoteVirtualNetwork": {
-                          "id": "[parameters('remoteVnetID')]"
-                        },
-                        "allowForwardedTraffic": "[parameters('allowForwardedTraffic')]",
-                        "allowGatewayTransit": "[parameters('allowGatewayTransit')]",
-                        "allowVirtualNetworkAccess": "[parameters('allowVirtualNetworkAccess')]",
-                        "useRemoteGateways": "[parameters('useRemoteGateways')]"
-                      }
-                    }
-                  ]
-                }
-              }
             }
           ]
         }
@@ -3737,7 +3739,9 @@
       "condition": "[and(and(parameters('deployHUB'), parameters('deploySpokes')), equals(parameters('hubType'), 'VWAN'))]",
       "copy": {
         "name": "vnetConnections",
-        "count": "[length(range(0, parameters('amountOfSpokes')))]"
+        "count": "[length(range(0, parameters('amountOfSpokes')))]",
+        "mode": "serial",
+        "batchSize": 1
       },
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
