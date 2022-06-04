@@ -23,7 +23,7 @@ jobs:
           az bicep build --file main.bicep
 
   deployments:
-    name: 'Validate & Deploy Scenario's'
+    name: 'Validate & Deploy Scenarios'
     runs-on: ubuntu-latest
     needs: lint
     strategy:
