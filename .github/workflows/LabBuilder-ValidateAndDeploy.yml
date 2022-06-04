@@ -7,9 +7,15 @@ on:
     branches: none
   workflow_dispatch:
 
-env:
-  REMOVE_VNET_DEPLOYMENTS: true
-  REMOVE_VWAN_DEPLOYMENTS: false
+inputs:
+  REMOVE_VNET_DEPLOYMENTS:
+    description: 'Remove VNET Deployment'
+    required: true
+    default: true
+  REMOVE_VWAN_DEPLOYMENTS:
+    description: 'Remove VWAN Deployment'
+    required: true
+    default: true
 
 jobs:
   lint:
