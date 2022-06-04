@@ -1,4 +1,4 @@
-name: 'LabBuilder - Lint, Validation and Deploy Scenario's'
+name: 'LabBuilder - Lint, Validation and Deploy Scenarios'
 
 on:
   push:
