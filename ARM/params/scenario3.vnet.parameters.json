@@ -17,9 +17,6 @@
         "AddressSpace": {
             "value": "172.16.0.0/16"
         },
-        "location": {
-            "value": "WestEurope"
-        },
         "tagsByResource": {
             "value": {
                 "Microsoft.Resources/subscriptions/resourceGroups": {
