@@ -70,7 +70,7 @@ jobs:
           deploymentName: 'LabBuilderValidation-VNET'
 
   VNETremoval:
-    if: env.REMOVE_VNET_DEPLOYMENTS
+    if: ${{ github.event.inputs.REMOVE_VNET_DEPLOYMENTS }}
     name: 'Remove VNET deployment'
     runs-on: ubuntu-latest
     needs: VNETdeployments
@@ -129,7 +129,7 @@ jobs:
           deploymentName: 'LabBuilderValidation-VWAN'
 
   VWANremoval:
-    if: env.REMOVE_VWAN_DEPLOYMENTS
+    if: ${{ github.event.inputs.REMOVE_VWAN_DEPLOYMENTS }}
     name: 'Remove VWAN deployment'
     runs-on: ubuntu-latest
     needs: VWANdeployments
