@@ -40,7 +40,15 @@ jobs:
     strategy:
       max-parallel: 1
       matrix:
-        scenarios: [scenario1.vnet.parameters.json]
+        scenarios: 
+          [
+            scenario1.vnet.parameters.json,
+            scenario2.vnet.parameters.json,
+            scenario3.vnet.parameters.json,
+            scenario4.vnet.parameters.json,
+            scenario5.vnet.parameters.json,
+            scenario6.vnet.parameters.json
+          ]
 
     steps:
       - name: Checkout
@@ -99,7 +107,15 @@ jobs:
     strategy:
       max-parallel: 1
       matrix:
-        scenarios: [scenario1.vwan.parameters.json]
+        scenarios: 
+          [
+            scenario1.vwan.parameters.json,
+            scenario2.vwan.parameters.json,
+            scenario3.vwan.parameters.json,
+            scenario4.vwan.parameters.json,
+            scenario5.vwan.parameters.json,
+            scenario6.vwan.parameters.json
+          ]
 
     steps:
       - name: Checkout
