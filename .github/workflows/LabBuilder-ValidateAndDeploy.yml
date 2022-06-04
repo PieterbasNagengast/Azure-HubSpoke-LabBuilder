@@ -6,16 +6,17 @@ on:
   pull_request:
     branches: none
   workflow_dispatch:
-
-inputs:
-  REMOVE_VNET_DEPLOYMENTS:
-    description: 'Remove VNET Deployment'
-    required: true
-    default: true
-  REMOVE_VWAN_DEPLOYMENTS:
-    description: 'Remove VWAN Deployment'
-    required: true
-    default: true
+    inputs:
+      REMOVE_VNET_DEPLOYMENTS:
+        description: 'Remove VNET Deployment'
+        required: true
+        default: true
+        type: boolean
+      REMOVE_VWAN_DEPLOYMENTS:
+        description: 'Remove VWAN Deployment'
+        required: true
+        default: true
+        type: boolean
 
 jobs:
   lint:
