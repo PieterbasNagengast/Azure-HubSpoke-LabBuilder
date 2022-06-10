@@ -60,6 +60,7 @@ resource azfwpolicy 'Microsoft.Network/firewallPolicies@2021-05-01' = {
     sku: {
       tier: azfwTier
     }
+    threatIntelMode: 'Alert'
   }
   tags: contains(tagsByResource, 'Microsoft.Network/firewallPolicies') ? tagsByResource['Microsoft.Network/firewallPolicies'] : {}
 }

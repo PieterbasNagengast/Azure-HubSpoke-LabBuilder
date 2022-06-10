@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1272.37030",
-      "templateHash": "10421767914391842147"
+      "templateHash": "6963318175909127362"
     }
   },
   "parameters": {
@@ -332,7 +332,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1272.37030",
-              "templateHash": "1455985007191898137"
+              "templateHash": "6159796660656504532"
             }
           },
           "parameters": {
@@ -1042,7 +1042,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1272.37030",
-                      "templateHash": "152961075228764026"
+                      "templateHash": "16460631289536220742"
                     }
                   },
                   "parameters": {
@@ -1118,7 +1118,8 @@
                       "properties": {
                         "sku": {
                           "tier": "[parameters('azfwTier')]"
-                        }
+                        },
+                        "threatIntelMode": "Alert"
                       },
                       "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/firewallPolicies'), parameters('tagsByResource')['Microsoft.Network/firewallPolicies'], createObject())]"
                     },
@@ -1895,7 +1896,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1272.37030",
-              "templateHash": "6022670826885063503"
+              "templateHash": "13458314379098737952"
             }
           },
           "parameters": {
@@ -2087,7 +2088,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1272.37030",
-                      "templateHash": "152961075228764026"
+                      "templateHash": "16460631289536220742"
                     }
                   },
                   "parameters": {
@@ -2163,7 +2164,8 @@
                       "properties": {
                         "sku": {
                           "tier": "[parameters('azfwTier')]"
-                        }
+                        },
+                        "threatIntelMode": "Alert"
                       },
                       "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/firewallPolicies'), parameters('tagsByResource')['Microsoft.Network/firewallPolicies'], createObject())]"
                     },
