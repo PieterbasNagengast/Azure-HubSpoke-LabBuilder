@@ -76,7 +76,7 @@ module nsg 'modules/nsg.bicep' = {
 
 module bastion 'modules/bastion.bicep' = if (deployBastionInSpoke) {
   scope: spokerg
-  name: 'bastion'
+  name: bastionName
   params: {
     location: location
     subnetID: deployBastionInSpoke ? vnet.outputs.bastionSubnetID : ''

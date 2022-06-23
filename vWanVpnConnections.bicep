@@ -20,8 +20,13 @@ param deployFirewallInHub bool
 
 param OnPremVpnGwID string
 
+// subscriptions
+param hubSubscriptionID string
+param onPremSubscriptionID string
+
 // vWAN VPN Site and VPN Connection
 resource hubrg 'Microsoft.Resources/resourceGroups@2021-04-01' existing = {
+  scope: subscription(hubSubscriptionID)
   name: HubRgName
 }
 
@@ -45,6 +50,7 @@ module vpnvWan 'modules/vwanvpnconnection.bicep' = {
 
 // OnPrem VPN Local Gateway and Connection
 resource onpremrg 'Microsoft.Resources/resourceGroups@2021-04-01' existing = {
+  scope: subscription(onPremSubscriptionID)
   name: OnPremRgName
 }
 

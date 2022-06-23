@@ -7,8 +7,11 @@ param HubVnetID string
 param SpokeVnetID string
 param counter int
 param GatewayDeployed bool
+param hubSubscriptionID string
+param spokeSubscriptionID string
 
 resource hubrg 'Microsoft.Resources/resourceGroups@2021-04-01' existing = {
+  scope: subscription(hubSubscriptionID)
   name: HubResourceGroupName
 }
 
@@ -24,6 +27,7 @@ module peeringToSpoke 'modules/vnetpeeering.bicep' = {
 }
 
 resource spokerg 'Microsoft.Resources/resourceGroups@2021-04-01' existing = {
+  scope: subscription(spokeSubscriptionID)
   name: SpokeResourceGroupName
 }
 

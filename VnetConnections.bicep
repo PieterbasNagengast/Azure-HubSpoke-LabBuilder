@@ -4,10 +4,12 @@ param SpokeVnetID string
 param HubResourceGroupName string
 param counter int
 param deployFirewallInHub bool
+param hubSubscriptionID string
 
 var spokeName = split(SpokeVnetID,'/')[8]
 
 resource hubrg 'Microsoft.Resources/resourceGroups@2021-04-01' existing = {
+  scope: subscription(hubSubscriptionID)
   name: HubResourceGroupName
 }
 

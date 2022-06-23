@@ -47,6 +47,19 @@
 							"visible": true
 						},
 						{
+							"name": "hubSubSection",
+							"type": "Microsoft.Common.Section",
+							"label": "HUB Deployment settings:",
+							"elements": [
+								{
+									"type": "Microsoft.Common.SubscriptionSelector",
+									"name": "hubSubscriptionID",
+									"label": "Hub subscription"
+								}
+							],
+							"visible": "[equals(steps('HubVNET').deployHUB,true)]"
+						},
+						{
 							"name": "VNETorVWAN",
 							"type": "Microsoft.Common.OptionsGroup",
 							"label": "Hub as vWAN or VNET",
@@ -203,6 +216,19 @@
 							"visible": true
 						},
 						{
+							"name": "spokeSubSection",
+							"type": "Microsoft.Common.Section",
+							"label": "Spoke Deployment settings:",
+							"elements": [
+								{
+									"type": "Microsoft.Common.SubscriptionSelector",
+									"name": "spokeSubscriptionID",
+									"label": "Spoke subscription"
+								}
+							],
+							"visible": "[equals(steps('SpokeVNETs').deploySpokes,true)]"
+						},
+						{
 							"name": "spokeRgNamePrefix",
 							"type": "Microsoft.Common.TextBox",
 							"label": "Spoke Resource Group prefix Name",
@@ -263,6 +289,19 @@
 								"required": false
 							},
 							"visible": true
+						},
+						{
+							"name": "onPremSubSection",
+							"type": "Microsoft.Common.Section",
+							"label": "OnPrem Deployment settings:",
+							"elements": [
+								{
+									"type": "Microsoft.Common.SubscriptionSelector",
+									"name": "onPremSubscriptionID",
+									"label": "OnPrem subscription"
+								}
+							],
+							"visible": "[equals(steps('OnPrem').deployOnPrem,true)]"
 						},
 						{
 							"name": "OnPremRgName",
@@ -569,7 +608,10 @@
 				"onpremBgp": "[coalesce(steps('OnPrem').onpremBgp,false)]",
 				"onpremBgpAsn": "[steps('OnPrem').onpremBgpAsn]",
 				"deploySiteToSite": "[coalesce(steps('OnPrem').deploySite2Site,false)]",
-				"sharedKey": "[steps('OnPrem').sharedKey]"
+				"sharedKey": "[steps('OnPrem').sharedKey]",
+				"hubSubscriptionID": "[steps('HubVNET').hubSubSection.hubSubscriptionID.subscriptionId]",
+				"spokeSubscriptionID": "[steps('SpokeVNETs').spokeSubSection.spokeSubscriptionID.subscriptionId]",
+				"onPremSubscriptionID": "[steps('OnPrem').onPremSubSection.onPremSubscriptionID.subscriptionId]"
 			},
 			"kind": "Subscription",
 			"subscriptionId": "[steps('basics').resourceScope.subscription.id]",
