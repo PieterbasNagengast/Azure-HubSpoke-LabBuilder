@@ -1,7 +1,11 @@
 param location string
 param bastionName string
 param subnetID string
-param bastionSku string = 'Basic'
+@allowed([
+  'Basic'
+  'Standard'
+])
+param bastionSku string
 param tagsByResource object = {}
 
 resource bastion 'Microsoft.Network/bastionHosts@2021-03-01' = {
@@ -26,7 +30,6 @@ resource bastion 'Microsoft.Network/bastionHosts@2021-03-01' = {
     name: bastionSku
   }
   tags: contains(tagsByResource, 'Microsoft.Network/bastionHosts') ? tagsByResource['Microsoft.Network/bastionHosts'] : {}
-
 }
 
 resource bastionpip 'Microsoft.Network/publicIPAddresses@2021-05-01' = {

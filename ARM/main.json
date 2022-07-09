@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1272.37030",
-      "templateHash": "3647822484069128235"
+      "templateHash": "6445020766052703615"
     }
   },
   "parameters": {
@@ -44,14 +44,28 @@
         "description": "Admin Password for VM"
       }
     },
-    "vmSize": {
+    "vmSizeHub": {
       "type": "string",
       "defaultValue": "Standard_B2s",
       "metadata": {
-        "description": "Virtual Machine SKU. Default = Standard_B2s"
+        "description": "Hub Virtual Machine SKU. Default = Standard_B2s"
       }
     },
-    "osType": {
+    "vmSizeSpoke": {
+      "type": "string",
+      "defaultValue": "Standard_B2s",
+      "metadata": {
+        "description": "Spoke Virtual Machine SKU. Default = Standard_B2s"
+      }
+    },
+    "vmSizeOnPrem": {
+      "type": "string",
+      "defaultValue": "Standard_B2s",
+      "metadata": {
+        "description": "OnPrem Virtual Machine SKU. Default = Standard_B2s"
+      }
+    },
+    "osTypeHub": {
       "type": "string",
       "defaultValue": "Windows",
       "allowedValues": [
@@ -59,7 +73,29 @@
         "Windows"
       ],
       "metadata": {
-        "description": "Virtual Machine OS type. Windows or Linux. Default = Windows"
+        "description": "Hub Virtual Machine OS type. Windows or Linux. Default = Windows"
+      }
+    },
+    "osTypeSpoke": {
+      "type": "string",
+      "defaultValue": "Windows",
+      "allowedValues": [
+        "Linux",
+        "Windows"
+      ],
+      "metadata": {
+        "description": "Spoke Virtual Machine(s) OS type. Windows or Linux. Default = Windows"
+      }
+    },
+    "osTypeOnPrem": {
+      "type": "string",
+      "defaultValue": "Windows",
+      "allowedValues": [
+        "Linux",
+        "Windows"
+      ],
+      "metadata": {
+        "description": "OnPrem Virtual Machine OS type. Windows or Linux. Default = Windows"
       }
     },
     "AddressSpace": {
@@ -118,6 +154,17 @@
         "description": "Deploy Bastion Host in every Spoke VNET"
       }
     },
+    "bastionInSpokeSKU": {
+      "type": "string",
+      "defaultValue": "Basic",
+      "allowedValues": [
+        "Basic",
+        "Standard"
+      ],
+      "metadata": {
+        "description": "Spoke Bastion SKU"
+      }
+    },
     "deployHUB": {
       "type": "bool",
       "defaultValue": true,
@@ -148,6 +195,17 @@
       "defaultValue": false,
       "metadata": {
         "description": "Deploy Bastion Host in Hub VNET"
+      }
+    },
+    "bastionInHubSKU": {
+      "type": "string",
+      "defaultValue": "Basic",
+      "allowedValues": [
+        "Basic",
+        "Standard"
+      ],
+      "metadata": {
+        "description": "Hub Bastion SKU"
       }
     },
     "deployVMinHub": {
@@ -189,6 +247,13 @@
         "description": "Deploy Firewall policy Rule Collection group which allows spoke-to-spoke and internet traffic"
       }
     },
+    "deployUDRs": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Dploy route tables (UDR's) to VM subnet(s) in Hub and Spokes"
+      }
+    },
     "hubBgp": {
       "type": "bool",
       "defaultValue": true,
@@ -222,6 +287,17 @@
       "defaultValue": true,
       "metadata": {
         "description": "Deploy Bastion Host in OnPrem VNET"
+      }
+    },
+    "bastionInOnPremSKU": {
+      "type": "string",
+      "defaultValue": "Basic",
+      "allowedValues": [
+        "Basic",
+        "Standard"
+      ],
+      "metadata": {
+        "description": "OnPrem Bastion SKU"
       }
     },
     "deployVMinOnPrem": {
@@ -329,13 +405,13 @@
             "value": "[and(parameters('deployGatewayInHub'), equals(parameters('hubType'), 'VNET'))]"
           },
           "vmSize": {
-            "value": "[parameters('vmSize')]"
+            "value": "[parameters('vmSizeHub')]"
           },
           "tagsByResource": {
             "value": "[parameters('tagsByResource')]"
           },
           "osType": {
-            "value": "[parameters('osType')]"
+            "value": "[parameters('osTypeHub')]"
           },
           "AllSpokeAddressSpaces": {
             "value": "[variables('AllSpokeAddressSpaces')]"
@@ -345,6 +421,12 @@
           },
           "vpnGwEnebaleBgp": {
             "value": "[parameters('hubBgp')]"
+          },
+          "deployUDRs": {
+            "value": "[parameters('deployUDRs')]"
+          },
+          "bastionSku": {
+            "value": "[parameters('bastionInHubSKU')]"
           }
         },
         "template": {
@@ -354,7 +436,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1272.37030",
-              "templateHash": "6159796660656504532"
+              "templateHash": "15554627215506730145"
             }
           },
           "parameters": {
@@ -366,6 +448,9 @@
             },
             "deployBastionInHub": {
               "type": "bool"
+            },
+            "bastionSku": {
+              "type": "string"
             },
             "adminUsername": {
               "type": "string"
@@ -386,6 +471,9 @@
               "type": "string"
             },
             "deployFirewallrules": {
+              "type": "bool"
+            },
+            "deployUDRs": {
               "type": "bool"
             },
             "deployGatewayInHub": {
@@ -454,7 +542,7 @@
                     "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'nsg')).outputs.nsgID.value]"
                   },
                   "rtDefID": {
-                    "value": "[if(parameters('deployFirewallInHub'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'routeTable-Default')).outputs.rtID.value, 'none')]"
+                    "value": "[if(and(parameters('deployFirewallInHub'), parameters('deployUDRs')), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'routeTable-Default')).outputs.rtID.value, 'none')]"
                   },
                   "rtGwID": {
                     "value": "[if(and(parameters('deployFirewallInHub'), parameters('deployGatewayInHub')), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'routeTable-VPNGW')).outputs.rtID.value, 'none')]"
@@ -943,6 +1031,9 @@
                   },
                   "tagsByResource": {
                     "value": "[parameters('tagsByResource')]"
+                  },
+                  "bastionSku": {
+                    "value": "[parameters('bastionSku')]"
                   }
                 },
                 "template": {
@@ -952,7 +1043,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1272.37030",
-                      "templateHash": "5044095659750055874"
+                      "templateHash": "5886547612277966671"
                     }
                   },
                   "parameters": {
@@ -967,7 +1058,10 @@
                     },
                     "bastionSku": {
                       "type": "string",
-                      "defaultValue": "Basic"
+                      "allowedValues": [
+                        "Basic",
+                        "Standard"
+                      ]
                     },
                     "tagsByResource": {
                       "type": "object",
@@ -1310,7 +1404,7 @@
               ]
             },
             {
-              "condition": "[parameters('deployFirewallInHub')]",
+              "condition": "[and(parameters('deployFirewallInHub'), parameters('deployUDRs'))]",
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2020-10-01",
               "name": "routeTable-Default",
@@ -1386,7 +1480,7 @@
               ]
             },
             {
-              "condition": "[parameters('deployFirewallInHub')]",
+              "condition": "[and(parameters('deployFirewallInHub'), parameters('deployUDRs'))]",
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2020-10-01",
               "name": "RouteToInternet",
@@ -1401,10 +1495,10 @@
                     "value": "0.0.0.0/0"
                   },
                   "routeName": {
-                    "value": "[if(parameters('deployFirewallInHub'), format('{0}/toInternet', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'routeTable-Default')).outputs.rtName.value), 'dummy')]"
+                    "value": "[if(and(parameters('deployFirewallInHub'), parameters('deployUDRs')), format('{0}/toInternet', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'routeTable-Default')).outputs.rtName.value), 'dummy1')]"
                   },
                   "routeNextHopIpAddress": {
-                    "value": "[if(parameters('deployFirewallInHub'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'hubFirewall')).outputs.azFwIP.value, '1.2.3.4')]"
+                    "value": "[if(and(parameters('deployFirewallInHub'), parameters('deployUDRs')), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'hubFirewall')).outputs.azFwIP.value, '1.2.3.4')]"
                   }
                 },
                 "template": {
@@ -1453,7 +1547,7 @@
               ]
             },
             {
-              "condition": "[parameters('deployFirewallInHub')]",
+              "condition": "[and(parameters('deployFirewallInHub'), parameters('deployUDRs'))]",
               "copy": {
                 "name": "routeDefault2",
                 "count": "[length(parameters('AllSpokeAddressSpaces'))]"
@@ -1472,10 +1566,10 @@
                     "value": "[parameters('AllSpokeAddressSpaces')[copyIndex()]]"
                   },
                   "routeName": {
-                    "value": "[if(parameters('deployFirewallInHub'), format('{0}/LocalRoute{1}', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'routeTable-Default')).outputs.rtName.value, copyIndex()), 'dummy')]"
+                    "value": "[if(and(parameters('deployFirewallInHub'), parameters('deployUDRs')), format('{0}/LocalRoute{1}', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'routeTable-Default')).outputs.rtName.value, copyIndex()), 'dummy2')]"
                   },
                   "routeNextHopIpAddress": {
-                    "value": "[if(parameters('deployFirewallInHub'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'hubFirewall')).outputs.azFwIP.value, '1.2.3.4')]"
+                    "value": "[if(and(parameters('deployFirewallInHub'), parameters('deployUDRs')), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'hubFirewall')).outputs.azFwIP.value, '1.2.3.4')]"
                   }
                 },
                 "template": {
@@ -1689,7 +1783,7 @@
               ]
             },
             {
-              "condition": "[and(parameters('deployFirewallInHub'), parameters('deployGatewayInHub'))]",
+              "condition": "[and(and(parameters('deployFirewallInHub'), parameters('deployGatewayInHub')), parameters('deployUDRs'))]",
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2020-10-01",
               "name": "routeTable-VPNGW",
@@ -1762,7 +1856,7 @@
               ]
             },
             {
-              "condition": "[and(parameters('deployFirewallInHub'), parameters('deployGatewayInHub'))]",
+              "condition": "[and(and(parameters('deployFirewallInHub'), parameters('deployGatewayInHub')), parameters('deployUDRs'))]",
               "copy": {
                 "name": "routeVPNgw",
                 "count": "[length(concat(parameters('AllSpokeAddressSpaces'), array(variables('defaultSubnetPrefix'))))]"
@@ -1781,10 +1875,10 @@
                     "value": "[concat(parameters('AllSpokeAddressSpaces'), array(variables('defaultSubnetPrefix')))[copyIndex()]]"
                   },
                   "routeName": {
-                    "value": "[if(and(parameters('deployFirewallInHub'), parameters('deployGatewayInHub')), format('{0}/LocalRoute{1}', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'routeTable-VPNGW')).outputs.rtName.value, copyIndex()), 'dummy')]"
+                    "value": "[if(and(and(parameters('deployFirewallInHub'), parameters('deployGatewayInHub')), parameters('deployUDRs')), format('{0}/LocalRoute{1}', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'routeTable-VPNGW')).outputs.rtName.value, copyIndex()), 'dummy3')]"
                   },
                   "routeNextHopIpAddress": {
-                    "value": "[if(parameters('deployFirewallInHub'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'hubFirewall')).outputs.azFwIP.value, '1.2.3.4')]"
+                    "value": "[if(and(parameters('deployFirewallInHub'), parameters('deployUDRs')), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'hubFirewall')).outputs.azFwIP.value, '1.2.3.4')]"
                   }
                 },
                 "template": {
@@ -2623,16 +2717,22 @@
             "value": "[parameters('spokeRgNamePrefix')]"
           },
           "vmSize": {
-            "value": "[parameters('vmSize')]"
+            "value": "[parameters('vmSizeSpoke')]"
           },
           "tagsByResource": {
             "value": "[parameters('tagsByResource')]"
           },
           "osType": {
-            "value": "[parameters('osType')]"
+            "value": "[parameters('osTypeSpoke')]"
           },
           "hubDefaultSubnetPrefix": {
             "value": "[if(and(parameters('deployHUB'), equals(parameters('hubType'), 'VNET')), reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location')))).outputs.hubDefaultSubnetPrefix.value, 'Not deployed')]"
+          },
+          "deployUDRs": {
+            "value": "[parameters('deployUDRs')]"
+          },
+          "bastionSku": {
+            "value": "[parameters('bastionInSpokeSKU')]"
           }
         },
         "template": {
@@ -2642,7 +2742,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1272.37030",
-              "templateHash": "6749083492864350606"
+              "templateHash": "4410623329111262833"
             }
           },
           "parameters": {
@@ -2658,6 +2758,9 @@
             "deployBastionInSpoke": {
               "type": "bool"
             },
+            "bastionSku": {
+              "type": "string"
+            },
             "adminUsername": {
               "type": "string"
             },
@@ -2668,6 +2771,9 @@
               "type": "bool"
             },
             "deployFirewallInHub": {
+              "type": "bool"
+            },
+            "deployUDRs": {
               "type": "bool"
             },
             "AzureFirewallpip": {
@@ -2731,7 +2837,7 @@
                     "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))), 'Microsoft.Resources/deployments', variables('nsgName'))).outputs.nsgID.value]"
                   },
                   "rtDefID": {
-                    "value": "[if(and(parameters('deployFirewallInHub'), parameters('HubDeployed')), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))), 'Microsoft.Resources/deployments', variables('rtName'))).outputs.rtID.value, 'none')]"
+                    "value": "[if(and(and(parameters('deployFirewallInHub'), parameters('HubDeployed')), parameters('deployUDRs')), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))), 'Microsoft.Resources/deployments', variables('rtName'))).outputs.rtID.value, 'none')]"
                   },
                   "vnetname": {
                     "value": "[variables('vnetName')]"
@@ -3204,6 +3310,9 @@
                   },
                   "tagsByResource": {
                     "value": "[parameters('tagsByResource')]"
+                  },
+                  "bastionSku": {
+                    "value": "[parameters('bastionSku')]"
                   }
                 },
                 "template": {
@@ -3213,7 +3322,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1272.37030",
-                      "templateHash": "5044095659750055874"
+                      "templateHash": "5886547612277966671"
                     }
                   },
                   "parameters": {
@@ -3228,7 +3337,10 @@
                     },
                     "bastionSku": {
                       "type": "string",
-                      "defaultValue": "Basic"
+                      "allowedValues": [
+                        "Basic",
+                        "Standard"
+                      ]
                     },
                     "tagsByResource": {
                       "type": "object",
@@ -3288,7 +3400,7 @@
               ]
             },
             {
-              "condition": "[and(parameters('deployFirewallInHub'), parameters('HubDeployed'))]",
+              "condition": "[and(and(parameters('deployFirewallInHub'), parameters('HubDeployed')), parameters('deployUDRs'))]",
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2020-10-01",
               "name": "[variables('rtName')]",
@@ -3364,7 +3476,7 @@
               ]
             },
             {
-              "condition": "[and(parameters('deployFirewallInHub'), parameters('HubDeployed'))]",
+              "condition": "[and(and(parameters('deployFirewallInHub'), parameters('HubDeployed')), parameters('deployUDRs'))]",
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2020-10-01",
               "name": "RouteToInternet",
@@ -3379,10 +3491,10 @@
                     "value": "0.0.0.0/0"
                   },
                   "routeName": {
-                    "value": "[if(and(parameters('deployFirewallInHub'), parameters('HubDeployed')), format('{0}/toInternet', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))), 'Microsoft.Resources/deployments', variables('rtName'))).outputs.rtName.value), 'none')]"
+                    "value": "[if(and(and(parameters('deployFirewallInHub'), parameters('HubDeployed')), parameters('deployUDRs')), format('{0}/toInternet', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))), 'Microsoft.Resources/deployments', variables('rtName'))).outputs.rtName.value), 'dummy1')]"
                   },
                   "routeNextHopIpAddress": {
-                    "value": "[if(and(parameters('deployFirewallInHub'), parameters('HubDeployed')), parameters('AzureFirewallpip'), '1.2.3.4')]"
+                    "value": "[if(and(and(parameters('deployFirewallInHub'), parameters('HubDeployed')), parameters('deployUDRs')), parameters('AzureFirewallpip'), '1.2.3.4')]"
                   }
                 },
                 "template": {
@@ -3430,7 +3542,7 @@
               ]
             },
             {
-              "condition": "[and(parameters('deployFirewallInHub'), parameters('HubDeployed'))]",
+              "condition": "[and(and(parameters('deployFirewallInHub'), parameters('HubDeployed')), parameters('deployUDRs'))]",
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2020-10-01",
               "name": "RouteToLocal",
@@ -3445,10 +3557,10 @@
                     "value": "[parameters('hubDefaultSubnetPrefix')]"
                   },
                   "routeName": {
-                    "value": "[if(and(parameters('deployFirewallInHub'), parameters('HubDeployed')), format('{0}/toHubDefaultSubnet', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))), 'Microsoft.Resources/deployments', variables('rtName'))).outputs.rtName.value), 'none')]"
+                    "value": "[if(and(and(parameters('deployFirewallInHub'), parameters('HubDeployed')), parameters('deployUDRs')), format('{0}/toHubDefaultSubnet', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))), 'Microsoft.Resources/deployments', variables('rtName'))).outputs.rtName.value), 'dummy2')]"
                   },
                   "routeNextHopIpAddress": {
-                    "value": "[if(and(parameters('deployFirewallInHub'), parameters('HubDeployed')), parameters('AzureFirewallpip'), '1.2.3.4')]"
+                    "value": "[if(and(and(parameters('deployFirewallInHub'), parameters('HubDeployed')), parameters('deployUDRs')), parameters('AzureFirewallpip'), '1.2.3.4')]"
                   }
                 },
                 "template": {
@@ -3982,19 +4094,22 @@
             "value": "[parameters('onpremRgName')]"
           },
           "vmSize": {
-            "value": "[parameters('vmSize')]"
+            "value": "[parameters('vmSizeOnPrem')]"
           },
           "tagsByResource": {
             "value": "[parameters('tagsByResource')]"
           },
           "osType": {
-            "value": "[parameters('osType')]"
+            "value": "[parameters('osTypeOnPrem')]"
           },
           "vpnGwBgpAsn": {
             "value": "[if(parameters('onpremBgp'), parameters('onpremBgpAsn'), 65515)]"
           },
           "vpnGwEnebaleBgp": {
             "value": "[parameters('onpremBgp')]"
+          },
+          "bastionSku": {
+            "value": "[parameters('bastionInOnPremSKU')]"
           }
         },
         "template": {
@@ -4004,7 +4119,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1272.37030",
-              "templateHash": "12174010047221042742"
+              "templateHash": "6790167175835417825"
             }
           },
           "parameters": {
@@ -4016,6 +4131,9 @@
             },
             "deployBastionInOnPrem": {
               "type": "bool"
+            },
+            "bastionSku": {
+              "type": "string"
             },
             "adminUsername": {
               "type": "string"
@@ -4563,6 +4681,9 @@
                   },
                   "tagsByResource": {
                     "value": "[parameters('tagsByResource')]"
+                  },
+                  "bastionSku": {
+                    "value": "[parameters('bastionSku')]"
                   }
                 },
                 "template": {
@@ -4572,7 +4693,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1272.37030",
-                      "templateHash": "5044095659750055874"
+                      "templateHash": "5886547612277966671"
                     }
                   },
                   "parameters": {
@@ -4587,7 +4708,10 @@
                     },
                     "bastionSku": {
                       "type": "string",
-                      "defaultValue": "Basic"
+                      "allowedValues": [
+                        "Basic",
+                        "Standard"
+                      ]
                     },
                     "tagsByResource": {
                       "type": "object",

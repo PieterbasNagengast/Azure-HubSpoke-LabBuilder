@@ -18,15 +18,34 @@ param adminUsername string = ''
 @secure()
 param adminPassword string = ''
 
-@description('Virtual Machine SKU. Default = Standard_B2s')
-param vmSize string = 'Standard_B2s'
+@description('Hub Virtual Machine SKU. Default = Standard_B2s')
+param vmSizeHub string = 'Standard_B2s'
 
-@description('Virtual Machine OS type. Windows or Linux. Default = Windows')
+@description('Spoke Virtual Machine SKU. Default = Standard_B2s')
+param vmSizeSpoke string = 'Standard_B2s'
+
+@description('OnPrem Virtual Machine SKU. Default = Standard_B2s')
+param vmSizeOnPrem string = 'Standard_B2s'
+
+@description('Hub Virtual Machine OS type. Windows or Linux. Default = Windows')
 @allowed([
   'Linux'
   'Windows'
 ])
-param osType string = 'Windows'
+param osTypeHub string = 'Windows'
+
+@description('Spoke Virtual Machine(s) OS type. Windows or Linux. Default = Windows')
+@allowed([
+  'Linux'
+  'Windows'
+])
+param osTypeSpoke string = 'Windows'
+@description('OnPrem Virtual Machine OS type. Windows or Linux. Default = Windows')
+@allowed([
+  'Linux'
+  'Windows'
+])
+param osTypeOnPrem string = 'Windows'
 
 // Shared parameters
 @description('IP Address space used for VNETs in deployment. Only enter a /16 subnet. Default = 172.16.0.0/16')
@@ -54,6 +73,13 @@ param deployVMsInSpokes bool = true
 @description('Deploy Bastion Host in every Spoke VNET')
 param deployBastionInSpoke bool = false
 
+@description('Spoke Bastion SKU')
+@allowed([
+  'Basic'
+  'Standard'
+])
+param bastionInSpokeSKU string = 'Basic'
+
 // Hub VNET Parameters
 @description('Deploy Hub')
 param deployHUB bool = true
@@ -70,6 +96,13 @@ param hubRgName string = 'rg-hub'
 
 @description('Deploy Bastion Host in Hub VNET')
 param deployBastionInHub bool = false
+
+@description('Hub Bastion SKU')
+@allowed([
+  'Basic'
+  'Standard'
+])
+param bastionInHubSKU string = 'Basic'
 
 @description('Deploy VM in Hub VNET')
 param deployVMinHub bool = false
@@ -90,6 +123,9 @@ param AzureFirewallTier string = 'Standard'
 @description('Deploy Firewall policy Rule Collection group which allows spoke-to-spoke and internet traffic')
 param deployFirewallrules bool = true
 
+@description('Dploy route tables (UDR\'s) to VM subnet(s) in Hub and Spokes')
+param deployUDRs bool = true
+
 @description('Enable BGP on Hub Gateway')
 param hubBgp bool = true
 
@@ -105,6 +141,13 @@ param onpremRgName string = 'rg-onprem'
 
 @description('Deploy Bastion Host in OnPrem VNET')
 param deployBastionInOnPrem bool = true
+
+@description('OnPrem Bastion SKU')
+@allowed([
+  'Basic'
+  'Standard'
+])
+param bastionInOnPremSKU string = 'Basic'
 
 @description('Deploy VM in OnPrem VNET')
 param deployVMinOnPrem bool = true
@@ -147,12 +190,14 @@ module hubVnet 'HubResourceGroup.bicep' = if (deployHUB && hubType == 'VNET') {
     hubRgName: hubRgName
     deployFirewallrules: deployFirewallrules && hubType == 'VNET'
     deployGatewayInHub: deployGatewayInHub && hubType == 'VNET'
-    vmSize: vmSize
+    vmSize: vmSizeHub
     tagsByResource: tagsByResource
-    osType: osType
+    osType: osTypeHub
     AllSpokeAddressSpaces: AllSpokeAddressSpaces
     vpnGwBgpAsn: hubBgp ? hubBgpAsn : 65515
     vpnGwEnebaleBgp: hubBgp
+    deployUDRs: deployUDRs
+    bastionSku: bastionInHubSKU
   }
 }
 
@@ -188,10 +233,12 @@ module spokeVnets 'SpokeResourceGroup.bicep' = [for i in range(1, amountOfSpokes
     AzureFirewallpip: deployHUB && hubType == 'VNET' ? hubVnet.outputs.azFwIp : 'Not deployed'
     HubDeployed: deployHUB && hubType == 'VNET'
     spokeRgNamePrefix: spokeRgNamePrefix
-    vmSize: vmSize
+    vmSize: vmSizeSpoke
     tagsByResource: tagsByResource
-    osType: osType
+    osType: osTypeSpoke
     hubDefaultSubnetPrefix: deployHUB && hubType == 'VNET' ? hubVnet.outputs.hubDefaultSubnetPrefix : 'Not deployed'
+    deployUDRs: deployUDRs
+    bastionSku: bastionInSpokeSKU
   }
 }]
 
@@ -241,11 +288,12 @@ module onprem 'OnPremResourceGroup.bicep' = if (deployOnPrem) {
     deployGatewayInOnPrem: deployGatewayinOnPrem
     deployVMsInOnPrem: deployVMinOnPrem
     OnPremRgName: onpremRgName
-    vmSize: vmSize
+    vmSize: vmSizeOnPrem
     tagsByResource: tagsByResource
-    osType: osType
+    osType: osTypeOnPrem
     vpnGwBgpAsn: onpremBgp ? onpremBgpAsn : 65515
     vpnGwEnebaleBgp: onpremBgp
+    bastionSku: bastionInOnPremSKU
   }
 }
 

@@ -4,11 +4,13 @@ param location string
 param AddressSpace string
 param counter int
 param deployBastionInSpoke bool
+param bastionSku string
 param adminUsername string
 @secure()
 param adminPassword string
 param deployVMsInSpokes bool
 param deployFirewallInHub bool
+param deployUDRs bool
 param AzureFirewallpip string
 param HubDeployed bool
 param spokeRgNamePrefix string
@@ -40,7 +42,7 @@ module vnet 'modules/vnet.bicep' = {
     location: location
     vnetAddressSpcae: vnetAddressSpace
     nsgID: nsg.outputs.nsgID
-    rtDefID: deployFirewallInHub && HubDeployed ? rt.outputs.rtID : 'none'
+    rtDefID: deployFirewallInHub && HubDeployed && deployUDRs ? rt.outputs.rtID : 'none'
     vnetname: vnetName
     defaultSubnetPrefix: defaultSubnetPrefix
     bastionSubnetPrefix: deployBastionInSpoke ? bastionSubnetPrefix : ''
@@ -82,10 +84,11 @@ module bastion 'modules/bastion.bicep' = if (deployBastionInSpoke) {
     subnetID: deployBastionInSpoke ? vnet.outputs.bastionSubnetID : ''
     bastionName: bastionName
     tagsByResource: tagsByResource
+    bastionSku: bastionSku
   }
 }
 
-module rt 'modules/routetable.bicep' = if (deployFirewallInHub && HubDeployed) {
+module rt 'modules/routetable.bicep' = if (deployFirewallInHub && HubDeployed && deployUDRs) {
   scope: spokerg
   name: rtName
   params: {
@@ -95,23 +98,23 @@ module rt 'modules/routetable.bicep' = if (deployFirewallInHub && HubDeployed) {
   }
 }
 
-module route1 'modules/route.bicep' = if (deployFirewallInHub && HubDeployed) {
+module route1 'modules/route.bicep' = if (deployFirewallInHub && HubDeployed && deployUDRs) {
   scope: spokerg
   name: 'RouteToInternet'
   params: {
     routeAddressPrefix: '0.0.0.0/0'
-    routeName: deployFirewallInHub && HubDeployed ? '${rt.outputs.rtName}/toInternet' : 'none'
-    routeNextHopIpAddress: deployFirewallInHub && HubDeployed ? AzureFirewallpip : '1.2.3.4'
+    routeName: deployFirewallInHub && HubDeployed && deployUDRs ? '${rt.outputs.rtName}/toInternet' : 'dummy1'
+    routeNextHopIpAddress: deployFirewallInHub && HubDeployed && deployUDRs ? AzureFirewallpip : '1.2.3.4'
   }
 }
 
-module route2 'modules/route.bicep' = if (deployFirewallInHub && HubDeployed) {
+module route2 'modules/route.bicep' = if (deployFirewallInHub && HubDeployed && deployUDRs) {
   scope: spokerg
   name: 'RouteToLocal'
   params: {
     routeAddressPrefix: hubDefaultSubnetPrefix
-    routeName: deployFirewallInHub && HubDeployed ? '${rt.outputs.rtName}/toHubDefaultSubnet' : 'none'
-    routeNextHopIpAddress: deployFirewallInHub && HubDeployed ? AzureFirewallpip : '1.2.3.4'
+    routeName: deployFirewallInHub && HubDeployed && deployUDRs ? '${rt.outputs.rtName}/toHubDefaultSubnet' : 'dummy2'
+    routeNextHopIpAddress: deployFirewallInHub && HubDeployed && deployUDRs ? AzureFirewallpip : '1.2.3.4'
   }
 }
 
