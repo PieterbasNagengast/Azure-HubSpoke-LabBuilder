@@ -203,6 +203,7 @@ Within these **main** scenario's there are multiple options (but not limited to 
 - Multi Subscription deployment. You can now specify different Subscriptions for HUB, Spokes and Onprem deployments
 - Virtual machine Sizes. You can now specify different VM Sizes for HUB, Spokes and OnPrem deployments
 - Vitual machine Os Types. You can now specify Windows or Linux for HUB, Spokes and OnPrem deployments
+- Bastion Host SKU Types. You van noew specify Bastion SKU Basic or Standard for HUB, Spokes and OnPrem deployments
 - Updated this ReadMe file
 
 ### June 2022 updates
