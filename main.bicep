@@ -262,7 +262,7 @@ module vnetPeerings 'VnetPeerings.bicep' = [for i in range(0, amountOfSpokes): i
 
 // VNET Connections to Azure vWAN
 @batchSize(1)
-module vnetConnections 'VnetConnections.bicep' = [for i in range(0, amountOfSpokes): if (deployHUB && deploySpokes && hubType == 'VWAN') {
+module vnetConnections 'vWanVnetConnections.bicep' = [for i in range(0, amountOfSpokes): if (deployHUB && deploySpokes && hubType == 'VWAN') {
   scope: subscription(hubSubscriptionID)
   name: '${hubRgName}-VnetConnection${i + 1}-${location}'
   params: {
