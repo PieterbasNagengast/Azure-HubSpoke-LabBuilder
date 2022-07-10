@@ -7,14 +7,18 @@
 - [Table of contents](#table-of-contents)
 - [Deploy to Azure](#deploy-to-azure)
 - [Description](#description)
-- [LAB Builder scenario's](#lab-builder-scenarios)
-- [Topology drawing - Hub & Spoke](#topology-drawing---hub--spoke)
-- [Topology drawing - Azure Virtual WAN](#topology-drawing---azure-virtual-wan)
+- [Scenario's](#scenarios)
+  - [Topology drawing - Hub & Spoke](#topology-drawing---hub--spoke)
+  - [Topology drawing - Azure Virtual WAN](#topology-drawing---azure-virtual-wan)
 - [Deployment notes](#deployment-notes)
-- [Resource Names](#resource-names)
-- [Appendix](#appendix)
-  - [Parameters](#parameters)
-  - [~~Backlog~~... whishlist items](#backlog-whishlist-items)
+  - [General](#general)
+  - [Subnet Ip Address range usage](#subnet-ip-address-range-usage)
+  - [Resource Names](#resource-names)
+- [Parameters overview](#parameters-overview)
+- [Updates](#updates)
+  - [July 2022 updates](#july-2022-updates)
+  - [June 2022 updates](#june-2022-updates)
+  - [May 2022 updates](#may-2022-updates)
 
 ## Deploy to Azure
 
@@ -46,9 +50,9 @@ Optionaly you can deploy:
 
 *** To simulate OnPrem hybrid connectivity you can optionaly deploy a 'OnPrem' VNET. Optionaly deploy a Bastion Host, Virtual Machine and Virtual Network Gateway in the OnPrem VNET. When a Hub is also deployed with a VPN Gateway you can optionaly deploy a site-to-site VPN connection.
 
-## LAB Builder scenario's
+## Scenario's
 
-With LABbuilder you can deploy 4 **main** scenario's.
+With LAB Builder you can deploy 4 **main** scenario's.
 
 1. Only deploy **Spoke(s)**
 2. Only deploy **VNET Hub** or **Azure Virtual Hub**
@@ -64,15 +68,17 @@ Within these **main** scenario's there are multiple options (but not limited to 
 |**3. Deploy Hub or vWAN Hub and Spokes**|includes all from scenario 1 and 2, incl:<br>- VNET Peerings|
 |**4. Deploy Hub or vWAN Hub and Spokes + OnPrem**|includes all from scenario 1, 2 and 3 incl:<br>- Resource Group (rg-OnPrem)<br>- Virtual Network (VNET-OnPrem)<br>- Network Security Group (NSG-OnPrem) linked to 'Default' Subnet<br>- Subnet (Default)<br>- [optional] Subnet (AzureBastionSubnet)<br>- [optional] Subnet (GatewaySubnet)<br>- [optional] Azure Bastion Host (Bastion-Hub) incl. Public IP<br>- [optional] Azure Virtual Machine (Windows)<br><br>*Only in combination with Hub:*<br>- [optional] Site-to-Site VPN Connection to Hub Gateway
 
-## Topology drawing - Hub & Spoke
+### Topology drawing - Hub & Spoke
 
 ![LabBuilderTopology](images/LabBuilder.svg)
 
-## Topology drawing - Azure Virtual WAN
+### Topology drawing - Azure Virtual WAN
 
 ![LabBuilderTopology-vWAN](/images/LabBuilder-vWAN.svg)
 
 ## Deployment notes
+
+### General
 
 - VNET Connections will be deployed when vWAN Hub and Spokes are selected
 - VNET Peering will be deployed when Hub and Spoke are selected
@@ -87,6 +93,8 @@ Within these **main** scenario's there are multiple options (but not limited to 
 - Spoke(s) VNET gets subsequent subnets. eg. 172.16.1.0/24, 172.16.2.0/24 etc.
 - OnPrem VNET will always get the latest available /24 subnet. eg. 172.16.255.0/24
 - see subnet details:
+
+### Subnet Ip Address range usage
 
 *Spoke VNET's subnets:*
 
@@ -118,7 +126,7 @@ Within these **main** scenario's there are multiple options (but not limited to 
 |AzureBastionSubnet|x.x.255.128/27|Only when Bastion is selected|
 |GatewaySubnet|x.x.255.160/27|Only when Gateway is selected|
 
-## Resource Names
+### Resource Names
 
 |Type|Name|
 |-|-|
@@ -140,9 +148,7 @@ Within these **main** scenario's there are multiple options (but not limited to 
 |OnPrem Network Security Group|NSG-OnPrem|
 |OnPrem Virtual Network gateway|Gateway-OnPrem|
 
-## Appendix
-
-### Parameters
+## Parameters overview
 
 | Parameter Name | Type | Description | DefaultValue | Possible values |
 | :-- | :-- | :-- | :-- | :-- |
@@ -190,17 +196,28 @@ Within these **main** scenario's there are multiple options (but not limited to 
 | `vmSizeOnPrem` | string | OnPrem Virtual Machine SKU. Default = Standard_B2s | Standard_B2s |  |
 | `vmSizeSpoke` | string | Spoke Virtual Machine SKU. Default = Standard_B2s | Standard_B2s |  |
 
-### ~~Backlog~~... whishlist items
+## Updates
 
-- ~~BGP support for VPN site-to-site~~
-- ~~Choose between Azure vWAN and Hub & Spoke~~
-- ~~Add default Firewall Network & Application rules~~
-- ~~Deploy separate VNET (simulate OnPrem) and deploy VPN gateways including Site-to-Site tunnel~~
-- ~~remove static Resource Group names~~
-- ~~use CIDR notation as Address Space (Instead of first two octets)~~
-- ~~Virtual machine OS Type. Windows and Linux support~~
-- ~~Virtual Machine SKU size selection~~
-- ~~Virtual machine boot diagnostics (Managed storage account)~~
-- ~~Virtual machine delete option of Disk and Nic~~
-- ~~Tags support for resources deployed~~
-- etc...
+### July 2022 updates
+
+- Multi Subscription deployment. You can now specify different Subscriptions for HUB, Spokes and Onprem deployments
+- Virtual machine Sizes. You can now specify different VM Sizes for HUB, Spokes and OnPrem deployments
+- Vitual machine Os Types. You can now specify Windows or Linux for HUB, Spokes and OnPrem deployments
+- Updated this ReadMe file
+
+### June 2022 updates
+
+- BGP support for VPN site-to-site (VNET and vWAN)
+- Azure Virtual WAN support. Choose between Azure vWAN or VNET for Hub deployments
+
+### May 2022 updates
+
+- Add default Firewall Network & Application rules
+- Deploy separate VNET (simulate OnPrem) and deploy VPN gateways including Site-to-Site tunnel
+- remove static Resource Group names
+- use CIDR notation as Address Space (Instead of first two octets
+- Virtual machine OS Type. Windows and Linux support
+- Virtual Machine SKU size selection
+- Virtual machine boot diagnostics (Managed storage account)
+- Virtual machine delete option of Disk and Nic
+- Tags support for resources deployed
