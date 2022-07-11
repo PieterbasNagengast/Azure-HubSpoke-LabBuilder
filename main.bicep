@@ -244,7 +244,6 @@ module spokeVnets 'SpokeResourceGroup.bicep' = [for i in range(1, amountOfSpokes
 
 // VNET Peerings
 module vnetPeerings 'VnetPeerings.bicep' = [for i in range(0, amountOfSpokes): if (deployHUB && deploySpokes && hubType == 'VNET') {
-  scope: subscription(hubSubscriptionID)
   name: '${hubRgName}-VnetPeering${i + 1}-${location}'
   params: {
     HubResourceGroupName: deployHUB && deploySpokes && hubType == 'VNET' ? hubVnet.outputs.HubResourceGroupName : 'No VNET peering'
@@ -263,7 +262,6 @@ module vnetPeerings 'VnetPeerings.bicep' = [for i in range(0, amountOfSpokes): i
 // VNET Connections to Azure vWAN
 @batchSize(1)
 module vnetConnections 'vWanVnetConnections.bicep' = [for i in range(0, amountOfSpokes): if (deployHUB && deploySpokes && hubType == 'VWAN') {
-  scope: subscription(hubSubscriptionID)
   name: '${hubRgName}-VnetConnection${i + 1}-${location}'
   params: {
     HubResourceGroupName: deployHUB && deploySpokes && hubType == 'VWAN' ? vwan.outputs.HubResourceGroupName : 'No VNET peering'
@@ -299,7 +297,6 @@ module onprem 'OnPremResourceGroup.bicep' = if (deployOnPrem) {
 
 // Deploy S2s VPN from OnPrem Gateway to Hub Gateway
 module s2s 'VpnConnections.bicep' = if (deployGatewayInHub && deployGatewayinOnPrem && deploySiteToSite && hubType == 'VNET') {
-  scope: subscription(hubSubscriptionID)
   name: '${hubRgName}-s2s-Hub-OnPrem-${location}'
   params: {
     location: location
@@ -327,7 +324,6 @@ module s2s 'VpnConnections.bicep' = if (deployGatewayInHub && deployGatewayinOnP
 
 // Deploy s2s VPN from OnPrem Gateway to vWan Hub Gateway
 module vwans2s 'vWanVpnConnections.bicep' = if (deployGatewayInHub && deployGatewayinOnPrem && deploySiteToSite && hubType == 'VWAN') {
-  scope: subscription(hubSubscriptionID)
   name: '${hubRgName}-s2s-Hub-vWan-OnPrem-${location}'
   params: {
     location: location

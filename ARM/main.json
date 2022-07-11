@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1272.37030",
-      "templateHash": "6445020766052703615"
+      "templateHash": "1749383516940494870"
     }
   },
   "parameters": {
@@ -3641,7 +3641,6 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
       "name": "[format('{0}-VnetPeering{1}-{2}', parameters('hubRgName'), add(range(0, parameters('amountOfSpokes'))[copyIndex()], 1), parameters('location'))]",
-      "subscriptionId": "[parameters('hubSubscriptionID')]",
       "location": "[deployment().location]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -3899,7 +3898,6 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
       "name": "[format('{0}-VnetConnection{1}-{2}', parameters('hubRgName'), add(range(0, parameters('amountOfSpokes'))[copyIndex()], 1), parameters('location'))]",
-      "subscriptionId": "[parameters('hubSubscriptionID')]",
       "location": "[deployment().location]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -4966,7 +4964,6 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
       "name": "[format('{0}-s2s-Hub-OnPrem-{1}', parameters('hubRgName'), parameters('location'))]",
-      "subscriptionId": "[parameters('hubSubscriptionID')]",
       "location": "[deployment().location]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -5393,7 +5390,6 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
       "name": "[format('{0}-s2s-Hub-vWan-OnPrem-{1}', parameters('hubRgName'), parameters('location'))]",
-      "subscriptionId": "[parameters('hubSubscriptionID')]",
       "location": "[deployment().location]",
       "properties": {
         "expressionEvaluationOptions": {
