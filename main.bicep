@@ -1,5 +1,15 @@
 targetScope = 'subscription'
 
+// Subscriptions
+@description('SubscriptionID for HUB deployemnt')
+param hubSubscriptionID string = subscription().subscriptionId
+
+@description('SubscriptionID for Spoke deployemnt')
+param spokeSubscriptionID string = subscription().subscriptionId
+
+@description('SubscriptionID for OnPrem deployemnt')
+param onPremSubscriptionID string = subscription().subscriptionId
+
 // Virtual Machine parameters
 @description('Admin username for VM')
 param adminUsername string = ''
@@ -8,15 +18,34 @@ param adminUsername string = ''
 @secure()
 param adminPassword string = ''
 
-@description('Virtual Machine SKU. Default = Standard_B2s')
-param vmSize string = 'Standard_B2s'
+@description('Hub Virtual Machine SKU. Default = Standard_B2s')
+param vmSizeHub string = 'Standard_B2s'
 
-@description('Virtual Machine OS type. Windows or Linux. Default = Windows')
+@description('Spoke Virtual Machine SKU. Default = Standard_B2s')
+param vmSizeSpoke string = 'Standard_B2s'
+
+@description('OnPrem Virtual Machine SKU. Default = Standard_B2s')
+param vmSizeOnPrem string = 'Standard_B2s'
+
+@description('Hub Virtual Machine OS type. Windows or Linux. Default = Windows')
 @allowed([
   'Linux'
   'Windows'
 ])
-param osType string = 'Windows'
+param osTypeHub string = 'Windows'
+
+@description('Spoke Virtual Machine(s) OS type. Windows or Linux. Default = Windows')
+@allowed([
+  'Linux'
+  'Windows'
+])
+param osTypeSpoke string = 'Windows'
+@description('OnPrem Virtual Machine OS type. Windows or Linux. Default = Windows')
+@allowed([
+  'Linux'
+  'Windows'
+])
+param osTypeOnPrem string = 'Windows'
 
 // Shared parameters
 @description('IP Address space used for VNETs in deployment. Only enter a /16 subnet. Default = 172.16.0.0/16')
@@ -44,6 +73,13 @@ param deployVMsInSpokes bool = true
 @description('Deploy Bastion Host in every Spoke VNET')
 param deployBastionInSpoke bool = false
 
+@description('Spoke Bastion SKU')
+@allowed([
+  'Basic'
+  'Standard'
+])
+param bastionInSpokeSKU string = 'Basic'
+
 // Hub VNET Parameters
 @description('Deploy Hub')
 param deployHUB bool = true
@@ -60,6 +96,13 @@ param hubRgName string = 'rg-hub'
 
 @description('Deploy Bastion Host in Hub VNET')
 param deployBastionInHub bool = false
+
+@description('Hub Bastion SKU')
+@allowed([
+  'Basic'
+  'Standard'
+])
+param bastionInHubSKU string = 'Basic'
 
 @description('Deploy VM in Hub VNET')
 param deployVMinHub bool = false
@@ -80,6 +123,9 @@ param AzureFirewallTier string = 'Standard'
 @description('Deploy Firewall policy Rule Collection group which allows spoke-to-spoke and internet traffic')
 param deployFirewallrules bool = true
 
+@description('Dploy route tables (UDR\'s) to VM subnet(s) in Hub and Spokes')
+param deployUDRs bool = true
+
 @description('Enable BGP on Hub Gateway')
 param hubBgp bool = true
 
@@ -95,6 +141,13 @@ param onpremRgName string = 'rg-onprem'
 
 @description('Deploy Bastion Host in OnPrem VNET')
 param deployBastionInOnPrem bool = true
+
+@description('OnPrem Bastion SKU')
+@allowed([
+  'Basic'
+  'Standard'
+])
+param bastionInOnPremSKU string = 'Basic'
 
 @description('Deploy VM in OnPrem VNET')
 param deployVMinOnPrem bool = true
@@ -123,6 +176,7 @@ var AllSpokeAddressSpaces = [for i in range(1, amountOfSpokes): replace(AddressS
 
 // Deploy Hub VNET including VM, Bastion Host, Route Table, Network Security group and Azure Firewall
 module hubVnet 'HubResourceGroup.bicep' = if (deployHUB && hubType == 'VNET') {
+  scope: subscription(hubSubscriptionID)
   name: '${hubRgName}-${location}-VNET'
   params: {
     deployBastionInHub: deployBastionInHub && hubType == 'VNET'
@@ -136,17 +190,20 @@ module hubVnet 'HubResourceGroup.bicep' = if (deployHUB && hubType == 'VNET') {
     hubRgName: hubRgName
     deployFirewallrules: deployFirewallrules && hubType == 'VNET'
     deployGatewayInHub: deployGatewayInHub && hubType == 'VNET'
-    vmSize: vmSize
+    vmSize: vmSizeHub
     tagsByResource: tagsByResource
-    osType: osType
+    osType: osTypeHub
     AllSpokeAddressSpaces: AllSpokeAddressSpaces
     vpnGwBgpAsn: hubBgp ? hubBgpAsn : 65515
     vpnGwEnebaleBgp: hubBgp
+    deployUDRs: deployUDRs
+    bastionSku: bastionInHubSKU
   }
 }
 
 //  Deploy Azure vWAN with vWAN Hub and Azure Firewall
 module vwan 'vWanResourceGroup.bicep' = if (deployHUB && hubType == 'VWAN') {
+  scope: subscription(hubSubscriptionID)
   name: '${hubRgName}-${location}-VWAN'
   params: {
     location: location
@@ -162,6 +219,7 @@ module vwan 'vWanResourceGroup.bicep' = if (deployHUB && hubType == 'VWAN') {
 
 // Deploy Spoke VNET's including VM, Bastion Host, Route Table, Network Security group
 module spokeVnets 'SpokeResourceGroup.bicep' = [for i in range(1, amountOfSpokes): if (deploySpokes) {
+  scope: subscription(spokeSubscriptionID)
   name: '${spokeRgNamePrefix}${i}-${location}'
   params: {
     location: location
@@ -175,10 +233,12 @@ module spokeVnets 'SpokeResourceGroup.bicep' = [for i in range(1, amountOfSpokes
     AzureFirewallpip: deployHUB && hubType == 'VNET' ? hubVnet.outputs.azFwIp : 'Not deployed'
     HubDeployed: deployHUB && hubType == 'VNET'
     spokeRgNamePrefix: spokeRgNamePrefix
-    vmSize: vmSize
+    vmSize: vmSizeSpoke
     tagsByResource: tagsByResource
-    osType: osType
+    osType: osTypeSpoke
     hubDefaultSubnetPrefix: deployHUB && hubType == 'VNET' ? hubVnet.outputs.hubDefaultSubnetPrefix : 'Not deployed'
+    deployUDRs: deployUDRs
+    bastionSku: bastionInSpokeSKU
   }
 }]
 
@@ -194,12 +254,14 @@ module vnetPeerings 'VnetPeerings.bicep' = [for i in range(0, amountOfSpokes): i
     SpokeVnetName: deployHUB && deploySpokes && hubType == 'VNET' ? spokeVnets[i].outputs.spokeVnetName : 'No VNET peering'
     counter: i
     GatewayDeployed: deployGatewayInHub
+    hubSubscriptionID: hubSubscriptionID
+    spokeSubscriptionID: spokeSubscriptionID
   }
 }]
 
 // VNET Connections to Azure vWAN
 @batchSize(1)
-module vnetConnections 'VnetConnections.bicep' = [for i in range(0, amountOfSpokes): if (deployHUB && deploySpokes && hubType == 'VWAN') {
+module vnetConnections 'vWanVnetConnections.bicep' = [for i in range(0, amountOfSpokes): if (deployHUB && deploySpokes && hubType == 'VWAN') {
   name: '${hubRgName}-VnetConnection${i + 1}-${location}'
   params: {
     HubResourceGroupName: deployHUB && deploySpokes && hubType == 'VWAN' ? vwan.outputs.HubResourceGroupName : 'No VNET peering'
@@ -207,11 +269,13 @@ module vnetConnections 'VnetConnections.bicep' = [for i in range(0, amountOfSpok
     vwanHubName: deployHUB && deploySpokes && hubType == 'VWAN' ? vwan.outputs.vwanHubName : 'No VNET peering'
     deployFirewallInHub: deployFirewallInHub && hubType == 'VWAN'
     counter: i
+    hubSubscriptionID: hubSubscriptionID
   }
 }]
 
 // Deploy OnPrem VNET including VM, Bastion, Network Security Group and Virtual Network Gateway
 module onprem 'OnPremResourceGroup.bicep' = if (deployOnPrem) {
+  scope: subscription(onPremSubscriptionID)
   name: '${onpremRgName}-${location}'
   params: {
     location: location
@@ -222,11 +286,12 @@ module onprem 'OnPremResourceGroup.bicep' = if (deployOnPrem) {
     deployGatewayInOnPrem: deployGatewayinOnPrem
     deployVMsInOnPrem: deployVMinOnPrem
     OnPremRgName: onpremRgName
-    vmSize: vmSize
+    vmSize: vmSizeOnPrem
     tagsByResource: tagsByResource
-    osType: osType
+    osType: osTypeOnPrem
     vpnGwBgpAsn: onpremBgp ? onpremBgpAsn : 65515
     vpnGwEnebaleBgp: onpremBgp
+    bastionSku: bastionInOnPremSKU
   }
 }
 
@@ -252,6 +317,8 @@ module s2s 'VpnConnections.bicep' = if (deployGatewayInHub && deployGatewayinOnP
     OnPremBgpAsn: onpremBgpAsn
     OnPremBgpPeeringAddress: deployGatewayinOnPrem && onpremBgp && hubType == 'VNET' ? onprem.outputs.OnPremGwBgpPeeringAddress : 'none'
     sharedKey: deploySiteToSite ? sharedKey : 'none'
+    hubSubscriptionID: hubSubscriptionID
+    onPremSubscriptionID: onPremSubscriptionID
   }
 }
 
@@ -274,6 +341,8 @@ module vwans2s 'vWanVpnConnections.bicep' = if (deployGatewayInHub && deployGate
     tagsByResource: tagsByResource
     deployFirewallInHub: deployFirewallInHub && hubType == 'VWAN'
     sharedKey: deploySiteToSite ? sharedKey : 'none'
+    hubSubscriptionID: hubSubscriptionID
+    onPremSubscriptionID: onPremSubscriptionID
   }
 }
 

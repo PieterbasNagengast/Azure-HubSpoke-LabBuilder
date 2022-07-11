@@ -3,6 +3,7 @@ targetScope = 'subscription'
 param location string
 param AddressSpace string
 param deployBastionInHub bool
+param bastionSku string
 param adminUsername string
 @secure()
 param adminPassword string
@@ -11,6 +12,7 @@ param deployFirewallInHub bool
 param AzureFirewallTier string
 param hubRgName string
 param deployFirewallrules bool
+param deployUDRs bool
 param deployGatewayInHub bool
 param vmSize string
 param tagsByResource object
@@ -48,7 +50,7 @@ module vnet 'modules/vnet.bicep' = {
     location: location
     vnetAddressSpcae: vnetAddressSpace
     nsgID: nsg.outputs.nsgID
-    rtDefID: deployFirewallInHub ? rtDefault.outputs.rtID : 'none'
+    rtDefID: deployFirewallInHub && deployUDRs ? rtDefault.outputs.rtID : 'none'
     rtGwID: deployFirewallInHub && deployGatewayInHub? rtvpngw.outputs.rtID : 'none'
     vnetname: hubVnetName
     defaultSubnetPrefix: defaultSubnetPrefix
@@ -95,6 +97,7 @@ module bastion 'modules/bastion.bicep' = if (deployBastionInHub) {
     subnetID: deployBastionInHub ? vnet.outputs.bastionSubnetID : ''
     bastionName: bastionName
     tagsByResource: tagsByResource
+    bastionSku: bastionSku
   }
 }
 
@@ -120,7 +123,7 @@ module firewallrules 'modules/firewallpolicyrules.bicep' = if (deployFirewallrul
   }
 }
 
-module rtDefault 'modules/routetable.bicep' = if (deployFirewallInHub) {
+module rtDefault 'modules/routetable.bicep' = if (deployFirewallInHub && deployUDRs) {
   scope: hubrg
   name: 'routeTable-Default'
   params: {
@@ -130,23 +133,23 @@ module rtDefault 'modules/routetable.bicep' = if (deployFirewallInHub) {
   }
 }
 
-module routeDefault1 'modules/route.bicep' = if (deployFirewallInHub) {
+module routeDefault1 'modules/route.bicep' = if (deployFirewallInHub && deployUDRs) {
   scope: hubrg
   name: 'RouteToInternet'
   params: {
     routeAddressPrefix: '0.0.0.0/0'
-    routeName: deployFirewallInHub ? '${rtDefault.outputs.rtName}/toInternet' : 'dummy'
-    routeNextHopIpAddress: deployFirewallInHub ? firewall.outputs.azFwIP : '1.2.3.4'
+    routeName: deployFirewallInHub && deployUDRs ? '${rtDefault.outputs.rtName}/toInternet' : 'dummy1'
+    routeNextHopIpAddress: deployFirewallInHub && deployUDRs ? firewall.outputs.azFwIP : '1.2.3.4'
   }
 }
 
-module routeDefault2 'modules/route.bicep' = [for (addressRange, i) in AllSpokeAddressSpaces : if (deployFirewallInHub) {
+module routeDefault2 'modules/route.bicep' = [for (addressRange, i) in AllSpokeAddressSpaces : if (deployFirewallInHub && deployUDRs) {
   scope: hubrg
   name: 'RouteToLocal${i}'
   params: {
     routeAddressPrefix: addressRange
-    routeName: deployFirewallInHub ? '${rtDefault.outputs.rtName}/LocalRoute${i}' : 'dummy'
-    routeNextHopIpAddress: deployFirewallInHub ? firewall.outputs.azFwIP : '1.2.3.4'
+    routeName: deployFirewallInHub && deployUDRs ? '${rtDefault.outputs.rtName}/LocalRoute${i}' : 'dummy2'
+    routeNextHopIpAddress: deployFirewallInHub && deployUDRs ? firewall.outputs.azFwIP : '1.2.3.4'
   }
 }]
 
@@ -163,7 +166,7 @@ module vpngw 'modules/vpngateway.bicep' = if (deployGatewayInHub) {
   }
 }
 
-module rtvpngw 'modules/routetable.bicep' = if (deployFirewallInHub && deployGatewayInHub) {
+module rtvpngw 'modules/routetable.bicep' = if (deployFirewallInHub && deployGatewayInHub && deployUDRs) {
   scope: hubrg
   name: 'routeTable-VPNGW'
   params: {
@@ -172,13 +175,13 @@ module rtvpngw 'modules/routetable.bicep' = if (deployFirewallInHub && deployGat
   }
 }
 
-module routeVPNgw 'modules/route.bicep' = [for (addressRange, i) in concat(AllSpokeAddressSpaces,array(defaultSubnetPrefix)) : if (deployFirewallInHub && deployGatewayInHub) {
+module routeVPNgw 'modules/route.bicep' = [for (addressRange, i) in concat(AllSpokeAddressSpaces,array(defaultSubnetPrefix)) : if (deployFirewallInHub && deployGatewayInHub && deployUDRs) {
   scope: hubrg
   name: 'Route-vpngw${i}'
   params: {
     routeAddressPrefix: addressRange
-    routeName: deployFirewallInHub && deployGatewayInHub ? '${rtvpngw.outputs.rtName}/LocalRoute${i}' : 'dummy'
-    routeNextHopIpAddress: deployFirewallInHub ? firewall.outputs.azFwIP : '1.2.3.4'
+    routeName: deployFirewallInHub && deployGatewayInHub && deployUDRs ? '${rtvpngw.outputs.rtName}/LocalRoute${i}' : 'dummy3'
+    routeNextHopIpAddress: deployFirewallInHub && deployUDRs ? firewall.outputs.azFwIP : '1.2.3.4'
   }
 }]
 

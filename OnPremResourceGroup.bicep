@@ -3,6 +3,7 @@ targetScope = 'subscription'
 param location string
 param AddressSpace string 
 param deployBastionInOnPrem bool
+param bastionSku string
 param adminUsername string
 @secure()
 param adminPassword string
@@ -83,6 +84,7 @@ module bastion 'modules/bastion.bicep' = if (deployBastionInOnPrem) {
     subnetID: deployBastionInOnPrem ? vnet.outputs.bastionSubnetID : ''
     bastionName: bastionName
     tagsByResource: tagsByResource
+    bastionSku: bastionSku
   }
 }
 

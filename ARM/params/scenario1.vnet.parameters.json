@@ -8,12 +8,6 @@
         "adminPassword": {
             "value": ""
         },
-        "vmSize": {
-            "value": "Standard_B2s"
-        },
-        "osType": {
-            "value": "Windows"
-        },
         "AddressSpace": {
             "value": "172.16.0.0/16"
         },

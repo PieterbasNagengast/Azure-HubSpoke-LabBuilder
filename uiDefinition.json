@@ -47,6 +47,19 @@
 							"visible": true
 						},
 						{
+							"name": "hubSubSection",
+							"type": "Microsoft.Common.Section",
+							"label": "HUB Deployment settings:",
+							"elements": [
+								{
+									"type": "Microsoft.Common.SubscriptionSelector",
+									"name": "hubSubscriptionID",
+									"label": "Hub subscription"
+								}
+							],
+							"visible": "[equals(steps('HubVNET').deployHUB,true)]"
+						},
+						{
 							"name": "VNETorVWAN",
 							"type": "Microsoft.Common.OptionsGroup",
 							"label": "Hub as vWAN or VNET",
@@ -96,6 +109,27 @@
 								"required": false
 							},
 							"visible": "[and(equals(steps('HubVNET').deployHUB,true),equals(steps('HubVNET').VNETorVWAN,'VNET'))]"
+						},
+						{
+							"name": "bastionInHubSKU",
+							"type": "Microsoft.Common.DropDown",
+							"label": "Azure Bastion SKU",
+							"defaultValue": "Basic",
+							"toolTip": "Azure Bastion SKU: Basic or Standard",
+							"constraints": {
+								"required": false,
+								"allowedValues": [
+									{
+										"label": "Standard",
+										"value": "Standard"
+									},
+									{
+										"label": "Basic",
+										"value": "Basic"
+									}
+								]
+							},
+							"visible": "[equals(steps('HubVNET').deployBastionInHub,true)]"
 						},
 						{
 							"name": "deployGatewayInHub",
@@ -184,6 +218,17 @@
 								"required": false
 							},
 							"visible": "[and(equals(steps('HubVNET').deployHUB,true),equals(steps('HubVNET').deployFirewallInHub,true))]"
+						},
+						{
+							"name": "deployUDRs",
+							"type": "Microsoft.Common.CheckBox",
+							"label": "Deploy route tables (UDR's) to VM subnet(s) in Hub and Spokes",
+							"defaultValue": true,
+							"toolTip": "Deploy route tables (UDR's) to VM subnet(s) in Hub and Spokes",
+							"constraints": {
+								"required": false
+							},
+							"visible": "[and(equals(steps('HubVNET').deployHUB,true),equals(steps('HubVNET').deployFirewallInHub,true))]"
 						}
 					]
 				},
@@ -201,6 +246,19 @@
 								"required": false
 							},
 							"visible": true
+						},
+						{
+							"name": "spokeSubSection",
+							"type": "Microsoft.Common.Section",
+							"label": "Spoke Deployment settings:",
+							"elements": [
+								{
+									"type": "Microsoft.Common.SubscriptionSelector",
+									"name": "spokeSubscriptionID",
+									"label": "Spoke subscription"
+								}
+							],
+							"visible": "[equals(steps('SpokeVNETs').deploySpokes,true)]"
 						},
 						{
 							"name": "spokeRgNamePrefix",
@@ -246,6 +304,27 @@
 								"required": false
 							},
 							"visible": "[equals(steps('SpokeVNETs').deploySpokes,true)]"
+						},
+						{
+							"name": "bastionInSpokeSKU",
+							"type": "Microsoft.Common.DropDown",
+							"label": "Azure Bastion SKU",
+							"defaultValue": "Basic",
+							"toolTip": "Azure Bastion SKU: Basic or Standard",
+							"constraints": {
+								"required": false,
+								"allowedValues": [
+									{
+										"label": "Standard",
+										"value": "Standard"
+									},
+									{
+										"label": "Basic",
+										"value": "Basic"
+									}
+								]
+							},
+							"visible": "[equals(steps('SpokeVNETs').deployBastionInSpoke,true)]"
 						}
 					]
 				},
@@ -263,6 +342,19 @@
 								"required": false
 							},
 							"visible": true
+						},
+						{
+							"name": "onPremSubSection",
+							"type": "Microsoft.Common.Section",
+							"label": "OnPrem Deployment settings:",
+							"elements": [
+								{
+									"type": "Microsoft.Common.SubscriptionSelector",
+									"name": "onPremSubscriptionID",
+									"label": "OnPrem subscription"
+								}
+							],
+							"visible": "[equals(steps('OnPrem').deployOnPrem,true)]"
 						},
 						{
 							"name": "OnPremRgName",
@@ -293,6 +385,27 @@
 								"required": false
 							},
 							"visible": "[equals(steps('OnPrem').deployOnPrem,true)]"
+						},
+						{
+							"name": "bastionInOnPremSKU",
+							"type": "Microsoft.Common.DropDown",
+							"label": "Azure Bastion SKU",
+							"defaultValue": "Basic",
+							"toolTip": "Azure Bastion SKU: Basic or Standard",
+							"constraints": {
+								"required": false,
+								"allowedValues": [
+									{
+										"label": "Standard",
+										"value": "Standard"
+									},
+									{
+										"label": "Basic",
+										"value": "Basic"
+									}
+								]
+							},
+							"visible": "[equals(steps('OnPrem').deployBastionInOnPrem,true)]"
 						},
 						{
 							"name": "deployGatewayInOnPrem",
@@ -416,58 +529,160 @@
 							"name": "noVirtualMachines",
 							"type": "Microsoft.Common.InfoBox",
 							"options": {
-								"text": "Virtual machine deployments requires at least that deployemtn for Hub, Spokes or OnPrem is selected!",
+								"text": "Virtual machine deployments requires at least that deployment for Hub, Spokes or OnPrem is selected!",
 								"style": "Info"
 							},
 							"visible": "[and(equals(steps('HubVNET').deployHUB,false),equals(steps('SpokeVNETs').deploySpokes,false),equals(steps('OnPrem').deployOnPrem,false))]"
 						},
 						{
-							"name": "osType",
-							"type": "Microsoft.Common.OptionsGroup",
-							"label": "Virtual Machine OS Type",
-							"defaultValue": "Windows",
-							"toolTip": "Virtual Machine OS type. Windows or Linux. Default = Windows",
-							"constraints": {
-								"allowedValues": [
-									{
-										"label": "Windows",
-										"value": "Windows"
-									},
-									{
-										"label": "Linux",
-										"value": "Linux"
-									}
-								],
-								"required": true
-							},
-							"visible": "[or(equals(steps('VirtualMachines').deployVMsInSpokes,true),equals(steps('VirtualMachines').deployVMinHub,true),equals(steps('VirtualMachines').deployVMinOnPrem,true))]"
-						},
-						{
 							"name": "VMosTypeInfo",
 							"type": "Microsoft.Common.InfoBox",
 							"options": {
-								"text": "Windows = Windows Server 2022 Datacenter - Gen2, Linux = Ubuntu Server 22.04 LTS Gen2",
+								"text": "OS types: Windows = Windows Server 2022 Datacenter - Gen2, Linux = Ubuntu Server 22.04 LTS Gen2",
 								"style": "Info"
 							},
 							"visible": "[or(equals(steps('VirtualMachines').deployVMsInSpokes,true),equals(steps('VirtualMachines').deployVMinHub,true),equals(steps('VirtualMachines').deployVMinOnPrem,true))]"
 						},
 						{
-							"name": "vmSize",
-							"type": "Microsoft.Compute.SizeSelector",
-							"label": "Virtual Machine SKU Size",
-							"toolTip": "Virtual Machine SKU Siz. Default = Standard_B2s",
-							"recommendedSizes": [
-								"Standard_B2s"
+							"name": "HubvmSizeSection",
+							"type": "Microsoft.Common.Section",
+							"label": "Hub Virtual Machines settings:",
+							"elements": [
+								{
+									"name": "osType",
+									"type": "Microsoft.Common.OptionsGroup",
+									"label": "Virtual Machine OS Type (Hub)",
+									"defaultValue": "Windows",
+									"toolTip": "Virtual Machine OS type. Windows or Linux. Default = Windows",
+									"constraints": {
+										"allowedValues": [
+											{
+												"label": "Windows",
+												"value": "Windows"
+											},
+											{
+												"label": "Linux",
+												"value": "Linux"
+											}
+										],
+										"required": true
+									},
+									"visible": true
+								},
+								{
+									"name": "vmSize",
+									"type": "Microsoft.Compute.SizeSelector",
+									"label": "Virtual Machine SKU Size (Hub)",
+									"toolTip": "Virtual Machine SKU Siz. Default = Standard_B2s",
+									"recommendedSizes": [
+										"Standard_B2s"
+									],
+									"constraints": {
+										"allowedSizes": []
+									},
+									"options": {
+										"hideDiskTypeFilter": false
+									},
+									"osPlatform": "Windows",
+									"count": 1,
+									"visible": true
+								}
 							],
-							"constraints": {
-								"allowedSizes": []
-							},
-							"options": {
-								"hideDiskTypeFilter": false
-							},
-							"osPlatform": "Windows",
-							"count": 1,
-							"visible": "[or(equals(steps('VirtualMachines').deployVMsInSpokes,true),equals(steps('VirtualMachines').deployVMinHub,true),equals(steps('VirtualMachines').deployVMinOnPrem,true))]"
+							"visible": "[equals(steps('VirtualMachines').deployVMinHub,true)]"
+						},
+						{
+							"name": "SpokevmSizeSection",
+							"type": "Microsoft.Common.Section",
+							"label": "Spoke Virtual Machines settings:",
+							"elements": [
+								{
+									"name": "osType",
+									"type": "Microsoft.Common.OptionsGroup",
+									"label": "Virtual Machine OS Type (Spokes)",
+									"defaultValue": "Windows",
+									"toolTip": "Virtual Machine OS type. Windows or Linux. Default = Windows",
+									"constraints": {
+										"allowedValues": [
+											{
+												"label": "Windows",
+												"value": "Windows"
+											},
+											{
+												"label": "Linux",
+												"value": "Linux"
+											}
+										],
+										"required": true
+									},
+									"visible": true
+								},
+								{
+									"name": "vmSize",
+									"type": "Microsoft.Compute.SizeSelector",
+									"label": "Virtual Machine SKU Size (Spokes)",
+									"toolTip": "Virtual Machine SKU Siz. Default = Standard_B2s",
+									"recommendedSizes": [
+										"Standard_B2s"
+									],
+									"constraints": {
+										"allowedSizes": []
+									},
+									"options": {
+										"hideDiskTypeFilter": false
+									},
+									"osPlatform": "Windows",
+									"count": "[steps('SpokeVNETs').amountOfSpokes]",
+									"visible": true
+								}
+							],
+							"visible": "[equals(steps('VirtualMachines').deployVMsInSpokes,true)]"
+						},
+						{
+							"name": "OnPremvmSizeSection",
+							"type": "Microsoft.Common.Section",
+							"label": "OnPrem Virtual Machines settings:",
+							"elements": [
+								{
+									"name": "osType",
+									"type": "Microsoft.Common.OptionsGroup",
+									"label": "Virtual Machine OS Type (OnPrem)",
+									"defaultValue": "Windows",
+									"toolTip": "Virtual Machine OS type. Windows or Linux. Default = Windows",
+									"constraints": {
+										"allowedValues": [
+											{
+												"label": "Windows",
+												"value": "Windows"
+											},
+											{
+												"label": "Linux",
+												"value": "Linux"
+											}
+										],
+										"required": true
+									},
+									"visible": true
+								},
+								{
+									"name": "vmSize",
+									"type": "Microsoft.Compute.SizeSelector",
+									"label": "Virtual Machine SKU Size (OnPrem)",
+									"toolTip": "Virtual Machine SKU Siz. Default = Standard_B2s",
+									"recommendedSizes": [
+										"Standard_B2s"
+									],
+									"constraints": {
+										"allowedSizes": []
+									},
+									"options": {
+										"hideDiskTypeFilter": false
+									},
+									"osPlatform": "Windows",
+									"count": 1,
+									"visible": true
+								}
+							],
+							"visible": "[equals(steps('VirtualMachines').deployVMinOnPrem,true)]"
 						},
 						{
 							"name": "VMUserAccountInfo",
@@ -546,8 +761,6 @@
 				"deployVMsInSpokes": "[coalesce(steps('VirtualMachines').deployVMsInSpokes,false)]",
 				"deployVMinHub": "[coalesce(steps('VirtualMachines').deployVMinHub,false)]",
 				"deployVMinOnPrem": "[coalesce(steps('VirtualMachines').deployVMinOnPrem,false)]",
-				"osType": "[steps('VirtualMachines').osType]",
-				"vmSize": "[steps('VirtualMachines').vmSize]",
 				"deploySpokes": "[coalesce(steps('SpokeVNETs').deploySpokes,false)]",
 				"amountOfSpokes": "[steps('SpokeVNETs').amountOfSpokes]",
 				"deployBastionInSpoke": "[coalesce(steps('SpokeVNETs').deployBastionInSpoke,false)]",
@@ -560,6 +773,7 @@
 				"hubBgpAsn": "[steps('HubVNET').hubBgpAsn]",
 				"deployFirewallInHub": "[coalesce(steps('HubVNET').deployFirewallInHub,false)]",
 				"AzureFirewallTier": "[steps('HubVNET').AzureFirewallTier]",
+				"deployUDRs": "[steps('HubVNET').deployUDRs]",
 				"spokeRgNamePrefix": "[steps('SpokeVNETs').spokeRgNamePrefix]",
 				"deployFirewallrules": "[coalesce(steps('HubVNET').deployFirewallrules,false)]",
 				"deployOnPrem": "[coalesce(steps('OnPrem').deployOnPrem,false)]",
@@ -569,7 +783,19 @@
 				"onpremBgp": "[coalesce(steps('OnPrem').onpremBgp,false)]",
 				"onpremBgpAsn": "[steps('OnPrem').onpremBgpAsn]",
 				"deploySiteToSite": "[coalesce(steps('OnPrem').deploySite2Site,false)]",
-				"sharedKey": "[steps('OnPrem').sharedKey]"
+				"sharedKey": "[steps('OnPrem').sharedKey]",
+				"hubSubscriptionID": "[steps('HubVNET').hubSubSection.hubSubscriptionID.subscriptionId]",
+				"spokeSubscriptionID": "[steps('SpokeVNETs').spokeSubSection.spokeSubscriptionID.subscriptionId]",
+				"onPremSubscriptionID": "[steps('OnPrem').onPremSubSection.onPremSubscriptionID.subscriptionId]",
+				"bastionInHubSKU": "[steps('HubVNET').bastionInHubSKU]",
+				"bastionInSpokeSKU": "[steps('SpokeVNETs').bastionInSpokeSKU]",
+				"bastionInOnPremSKU": "[steps('OnPrem').bastionInOnPremSKU]",
+				"vmSizeHub": "[steps('VirtualMachines').HubvmSizeSection.vmSize]",
+				"vmSizeSpoke": "[steps('VirtualMachines').SpokevmSizeSection.vmSize]",
+				"vmSizeOnPrem": "[steps('VirtualMachines').OnPremvmSizeSection.vmSize]",
+				"osTypeHub": "[steps('VirtualMachines').HubvmSizeSection.osType]",
+				"osTypeSpoke": "[steps('VirtualMachines').SpokevmSizeSection.osType]",
+				"osTypeOnPrem": "[steps('VirtualMachines').OnPremvmSizeSection.osType]"
 			},
 			"kind": "Subscription",
 			"subscriptionId": "[steps('basics').resourceScope.subscription.id]",
