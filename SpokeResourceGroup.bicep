@@ -19,6 +19,8 @@ param tagsByResource object
 param osType string
 param hubDefaultSubnetPrefix string
 
+param diagnosticWorkspaceId string
+
 var vnetName = 'VNET-Spoke${counter}'
 var vmName = 'VM-Spoke${counter}'
 var rtName = 'RT-Spoke${counter}'
@@ -48,6 +50,7 @@ module vnet 'modules/vnet.bicep' = {
     bastionSubnetPrefix: deployBastionInSpoke ? bastionSubnetPrefix : ''
     deployBastionSubnet: deployBastionInSpoke
     tagsByResource: tagsByResource
+    diagnosticWorkspaceId: diagnosticWorkspaceId
   }
 }
 
@@ -63,6 +66,7 @@ module vm 'modules/vm.bicep' = if (deployVMsInSpokes) {
     vmSize: vmSize
     tagsByResource: tagsByResource
     osType: osType
+    diagnosticWorkspaceId: diagnosticWorkspaceId
   }
 }
 
@@ -73,6 +77,7 @@ module nsg 'modules/nsg.bicep' = {
     location: location
     nsgName: nsgName
     tagsByResource: tagsByResource
+    diagnosticWorkspaceId: diagnosticWorkspaceId
   }
 }
 
@@ -85,6 +90,7 @@ module bastion 'modules/bastion.bicep' = if (deployBastionInSpoke) {
     bastionName: bastionName
     tagsByResource: tagsByResource
     bastionSku: bastionSku
+    diagnosticWorkspaceId: diagnosticWorkspaceId
   }
 }
 

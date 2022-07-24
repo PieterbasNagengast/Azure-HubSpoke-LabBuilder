@@ -57,6 +57,9 @@ param location string = deployment().location
 @description('Tags by resource types')
 param tagsByResource object = {}
 
+@description('LogAnalytics Workspace resourceID')
+param diagnosticWorkspaceId string = ''
+
 // Spoke VNET Parameters
 @description('Deploy Spoke VNETs')
 param deploySpokes bool = true
@@ -68,7 +71,7 @@ param spokeRgNamePrefix string = 'rg-spoke'
 param amountOfSpokes int = 2
 
 @description('Deploy VM in every Spoke VNET')
-param deployVMsInSpokes bool = true
+param deployVMsInSpokes bool = false
 
 @description('Deploy Bastion Host in every Spoke VNET')
 param deployBastionInSpoke bool = false
@@ -89,13 +92,13 @@ param deployHUB bool = true
   'VNET'
   'VWAN'
 ])
-param hubType string = 'VWAN'
+param hubType string = 'VNET'
 
 @description('Hub resource group pre-fix name')
 param hubRgName string = 'rg-hub'
 
 @description('Deploy Bastion Host in Hub VNET')
-param deployBastionInHub bool = false
+param deployBastionInHub bool = true
 
 @description('Hub Bastion SKU')
 @allowed([
@@ -105,7 +108,7 @@ param deployBastionInHub bool = false
 param bastionInHubSKU string = 'Basic'
 
 @description('Deploy VM in Hub VNET')
-param deployVMinHub bool = false
+param deployVMinHub bool = true
 
 @description('Deploy Virtual Network Gateway in Hub VNET')
 param deployGatewayInHub bool = true
@@ -121,26 +124,26 @@ param deployFirewallInHub bool = true
 param AzureFirewallTier string = 'Standard'
 
 @description('Deploy Firewall policy Rule Collection group which allows spoke-to-spoke and internet traffic')
-param deployFirewallrules bool = true
+param deployFirewallrules bool = false
 
 @description('Dploy route tables (UDR\'s) to VM subnet(s) in Hub and Spokes')
 param deployUDRs bool = true
 
 @description('Enable BGP on Hub Gateway')
-param hubBgp bool = true
+param hubBgp bool = false
 
 @description('Hub BGP ASN')
 param hubBgpAsn int = 65515
 
 // OnPrem parameters\
 @description('Deploy Virtual Network Gateway in OnPrem')
-param deployOnPrem bool = true
+param deployOnPrem bool = false
 
 @description('OnPrem Resource Group Name')
 param onpremRgName string = 'rg-onprem'
 
 @description('Deploy Bastion Host in OnPrem VNET')
-param deployBastionInOnPrem bool = true
+param deployBastionInOnPrem bool = false
 
 @description('OnPrem Bastion SKU')
 @allowed([
@@ -150,20 +153,20 @@ param deployBastionInOnPrem bool = true
 param bastionInOnPremSKU string = 'Basic'
 
 @description('Deploy VM in OnPrem VNET')
-param deployVMinOnPrem bool = true
+param deployVMinOnPrem bool = false
 
 @description('Deploy Virtual Network Gateway in OnPrem VNET')
-param deployGatewayinOnPrem bool = true
+param deployGatewayinOnPrem bool = false
 
 @description('Deploy Site-to-Site VPN connection between OnPrem and Hub Gateways')
-param deploySiteToSite bool = true
+param deploySiteToSite bool = false
 
 @description('Site-to-Site ShareKey')
 @secure()
 param sharedKey string = ''
 
 @description('Enable BGP on OnPrem Gateway')
-param onpremBgp bool = true
+param onpremBgp bool = false
 
 @description('OnPrem BGP ASN')
 param onpremBgpAsn int = 65020
@@ -198,6 +201,7 @@ module hubVnet 'HubResourceGroup.bicep' = if (deployHUB && hubType == 'VNET') {
     vpnGwEnebaleBgp: hubBgp
     deployUDRs: deployUDRs
     bastionSku: bastionInHubSKU
+    diagnosticWorkspaceId: diagnosticWorkspaceId
   }
 }
 
@@ -214,6 +218,7 @@ module vwan 'vWanResourceGroup.bicep' = if (deployHUB && hubType == 'VWAN') {
     hubRgName: hubRgName
     deployGatewayInHub: deployGatewayInHub && hubType == 'VWAN'
     tagsByResource: tagsByResource
+    diagnosticWorkspaceId: diagnosticWorkspaceId
   }
 }
 
@@ -239,6 +244,7 @@ module spokeVnets 'SpokeResourceGroup.bicep' = [for i in range(1, amountOfSpokes
     hubDefaultSubnetPrefix: deployHUB && hubType == 'VNET' ? hubVnet.outputs.hubDefaultSubnetPrefix : 'Not deployed'
     deployUDRs: deployUDRs
     bastionSku: bastionInSpokeSKU
+    diagnosticWorkspaceId: diagnosticWorkspaceId
   }
 }]
 
@@ -292,6 +298,7 @@ module onprem 'OnPremResourceGroup.bicep' = if (deployOnPrem) {
     vpnGwBgpAsn: onpremBgp ? onpremBgpAsn : 65515
     vpnGwEnebaleBgp: onpremBgp
     bastionSku: bastionInOnPremSKU
+    diagnosticWorkspaceId: diagnosticWorkspaceId
   }
 }
 

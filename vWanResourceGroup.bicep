@@ -9,6 +9,8 @@ param deployFirewallrules bool
 param deployGatewayInHub bool
 param tagsByResource object = {}
 
+param diagnosticWorkspaceId string
+
 var vnetAddressSpace = replace(AddressSpace, '/16', '/24')
 
 var vWanName = 'vWAN'
@@ -44,6 +46,7 @@ module AzFirewall 'modules/firewall.bicep' = if (deployFirewallInHub) {
     vWanID: vwan.outputs.vWanHubID
     location: location
     tagsByResource: tagsByResource
+    diagnosticWorkspaceId: diagnosticWorkspaceId
   }
 }
 

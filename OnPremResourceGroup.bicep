@@ -17,6 +17,8 @@ param osType string
 param vpnGwEnebaleBgp bool
 param vpnGwBgpAsn int
 
+param diagnosticWorkspaceId string
+
 var vnetName = 'VNET-OnPrem'
 var vmName = 'VM-OnPrem'
 var nsgName = 'NSG-OnPrem'
@@ -48,6 +50,7 @@ module vnet 'modules/vnet.bicep' = {
     deployBastionSubnet: deployBastionInOnPrem
     deployGatewaySubnet: true
     tagsByResource: tagsByResource
+    diagnosticWorkspaceId: diagnosticWorkspaceId
   }
 }
 
@@ -63,6 +66,7 @@ module vm 'modules/vm.bicep' = if (deployVMsInOnPrem) {
     vmSize: vmSize
     tagsByResource: tagsByResource
     osType: osType
+    diagnosticWorkspaceId: diagnosticWorkspaceId
   }
 }
 
@@ -73,6 +77,7 @@ module nsg 'modules/nsg.bicep' = {
     location: location
     nsgName: nsgName
     tagsByResource: tagsByResource
+    diagnosticWorkspaceId: diagnosticWorkspaceId
   }
 }
 
@@ -85,6 +90,7 @@ module bastion 'modules/bastion.bicep' = if (deployBastionInOnPrem) {
     bastionName: bastionName
     tagsByResource: tagsByResource
     bastionSku: bastionSku
+    diagnosticWorkspaceId: diagnosticWorkspaceId
   }
 }
 
@@ -98,6 +104,7 @@ module vpngw 'modules/vpngateway.bicep' = if (deployGatewayInOnPrem) {
     tagsByResource: tagsByResource
     vpnGatewayBgpAsn: vpnGwEnebaleBgp ? vpnGwBgpAsn : 65515
     vpnGatewayEnableBgp: vpnGwEnebaleBgp
+    diagnosticWorkspaceId: diagnosticWorkspaceId
   }
 }
 

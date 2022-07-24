@@ -13,6 +13,8 @@ param deployFirewallSubnet bool = false
 param deployGatewaySubnet bool = false
 param tagsByResource object = {}
 
+param diagnosticWorkspaceId string
+
 var defaultSubnet = [
   {
     name: 'default'
@@ -66,6 +68,27 @@ resource vnet 'Microsoft.Network/virtualNetworks@2021-05-01' = {
     subnets: concat(defaultSubnet, bastionSubnet, firewallSubnet, gatewaySubnet)
   }
   tags: contains(tagsByResource, 'Microsoft.Network/virtualNetworks') ? tagsByResource['Microsoft.Network/virtualNetworks'] : {}
+}
+
+resource vnet_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (!empty(diagnosticWorkspaceId))  {
+  name: 'LabBuilder-diagnosticSettings'
+  properties: {
+    workspaceId: !empty(diagnosticWorkspaceId) ? diagnosticWorkspaceId : null
+    metrics: [
+      {
+        category: 'AllMetrics'
+        enabled: true
+      }
+    ]
+    logs: [
+      {
+        category: null
+        categoryGroup: 'allLogs'
+        enabled: true
+      }
+    ]
+  }
+  scope: vnet
 }
 
 output vnetName string = vnet.name

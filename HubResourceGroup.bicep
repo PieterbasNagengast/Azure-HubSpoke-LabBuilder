@@ -22,6 +22,8 @@ param AllSpokeAddressSpaces array
 param vpnGwEnebaleBgp bool
 param vpnGwBgpAsn int
 
+param diagnosticWorkspaceId string
+
 var vnetAddressSpace = replace(AddressSpace, '/16', '/24')
 var defaultSubnetPrefix = replace(vnetAddressSpace, '/24', '/26')
 var firewallSubnetPrefix = replace(vnetAddressSpace, '0/24', '64/26')
@@ -61,6 +63,7 @@ module vnet 'modules/vnet.bicep' = {
     deployFirewallSubnet: deployFirewallInHub
     deployGatewaySubnet: deployGatewayInHub
     tagsByResource: tagsByResource
+    diagnosticWorkspaceId: diagnosticWorkspaceId
   }
 }
 
@@ -76,6 +79,7 @@ module vm 'modules/vm.bicep' = if (deployVMinHub) {
     vmSize: vmSize
     tagsByResource: tagsByResource
     osType: osType
+    diagnosticWorkspaceId: diagnosticWorkspaceId
   }
 }
 
@@ -86,6 +90,7 @@ module nsg 'modules/nsg.bicep' = {
     location: location
     nsgName: nsgName
     tagsByResource: tagsByResource
+    diagnosticWorkspaceId: diagnosticWorkspaceId
   }
 }
 
@@ -98,6 +103,7 @@ module bastion 'modules/bastion.bicep' = if (deployBastionInHub) {
     bastionName: bastionName
     tagsByResource: tagsByResource
     bastionSku: bastionSku
+    diagnosticWorkspaceId: diagnosticWorkspaceId
   }
 }
 
@@ -111,6 +117,7 @@ module firewall 'modules/firewall.bicep' = if (deployFirewallInHub) {
     azfwsubnetid: deployFirewallInHub ? vnet.outputs.firewallSubnetID : ''
     azfwTier: AzureFirewallTier
     tagsByResource: tagsByResource
+    diagnosticWorkspaceId: diagnosticWorkspaceId
   }
 }
 
@@ -163,6 +170,7 @@ module vpngw 'modules/vpngateway.bicep' = if (deployGatewayInHub) {
     tagsByResource: tagsByResource
     vpnGatewayBgpAsn: vpnGwEnebaleBgp ? vpnGwBgpAsn : 65515
     vpnGatewayEnableBgp: vpnGwEnebaleBgp
+    diagnosticWorkspaceId: diagnosticWorkspaceId
   }
 }
 

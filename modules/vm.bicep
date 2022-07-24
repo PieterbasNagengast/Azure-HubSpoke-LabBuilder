@@ -9,6 +9,8 @@ param storageType string = 'StandardSSD_LRS'
 param osType string = 'Windows'
 param tagsByResource object = {}
 
+param diagnosticWorkspaceId string
+
 var EnableICMPv4 = 'netsh advfirewall firewall add rule name="ICMP Allow incoming V4 echo request" protocol="icmpv4:8,any" dir=in action=allow'
 
 var Windows = {
@@ -87,6 +89,20 @@ resource nic 'Microsoft.Network/networkInterfaces@2021-05-01' = {
     ]
   }
   tags: contains(tagsByResource, 'Microsoft.Compute/virtualMachines') ? tagsByResource['Microsoft.Compute/virtualMachines'] : {}
+}
+
+resource nic_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (!empty(diagnosticWorkspaceId))  {
+  name: 'LabBuilder-diagnosticSettings'
+  properties: {
+    workspaceId: !empty(diagnosticWorkspaceId) ? diagnosticWorkspaceId : null
+    metrics: [
+      {
+        category: 'AllMetrics'
+        enabled: true
+      }
+    ]
+  }
+  scope: nic
 }
 
 module run 'runcommand.bicep' = if (osType == 'Windows') {
