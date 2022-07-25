@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1272.37030",
-      "templateHash": "1749383516940494870"
+      "templateHash": "11080676007750092775"
     }
   },
   "parameters": {
@@ -119,6 +119,13 @@
         "description": "Tags by resource types"
       }
     },
+    "diagnosticWorkspaceId": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "LogAnalytics Workspace resourceID"
+      }
+    },
     "deploySpokes": {
       "type": "bool",
       "defaultValue": true,
@@ -142,7 +149,7 @@
     },
     "deployVMsInSpokes": {
       "type": "bool",
-      "defaultValue": true,
+      "defaultValue": false,
       "metadata": {
         "description": "Deploy VM in every Spoke VNET"
       }
@@ -174,7 +181,7 @@
     },
     "hubType": {
       "type": "string",
-      "defaultValue": "VWAN",
+      "defaultValue": "VNET",
       "allowedValues": [
         "VNET",
         "VWAN"
@@ -192,7 +199,7 @@
     },
     "deployBastionInHub": {
       "type": "bool",
-      "defaultValue": false,
+      "defaultValue": true,
       "metadata": {
         "description": "Deploy Bastion Host in Hub VNET"
       }
@@ -210,7 +217,7 @@
     },
     "deployVMinHub": {
       "type": "bool",
-      "defaultValue": false,
+      "defaultValue": true,
       "metadata": {
         "description": "Deploy VM in Hub VNET"
       }
@@ -242,7 +249,7 @@
     },
     "deployFirewallrules": {
       "type": "bool",
-      "defaultValue": true,
+      "defaultValue": false,
       "metadata": {
         "description": "Deploy Firewall policy Rule Collection group which allows spoke-to-spoke and internet traffic"
       }
@@ -256,7 +263,7 @@
     },
     "hubBgp": {
       "type": "bool",
-      "defaultValue": true,
+      "defaultValue": false,
       "metadata": {
         "description": "Enable BGP on Hub Gateway"
       }
@@ -270,7 +277,7 @@
     },
     "deployOnPrem": {
       "type": "bool",
-      "defaultValue": true,
+      "defaultValue": false,
       "metadata": {
         "description": "Deploy Virtual Network Gateway in OnPrem"
       }
@@ -284,7 +291,7 @@
     },
     "deployBastionInOnPrem": {
       "type": "bool",
-      "defaultValue": true,
+      "defaultValue": false,
       "metadata": {
         "description": "Deploy Bastion Host in OnPrem VNET"
       }
@@ -302,21 +309,21 @@
     },
     "deployVMinOnPrem": {
       "type": "bool",
-      "defaultValue": true,
+      "defaultValue": false,
       "metadata": {
         "description": "Deploy VM in OnPrem VNET"
       }
     },
     "deployGatewayinOnPrem": {
       "type": "bool",
-      "defaultValue": true,
+      "defaultValue": false,
       "metadata": {
         "description": "Deploy Virtual Network Gateway in OnPrem VNET"
       }
     },
     "deploySiteToSite": {
       "type": "bool",
-      "defaultValue": true,
+      "defaultValue": false,
       "metadata": {
         "description": "Deploy Site-to-Site VPN connection between OnPrem and Hub Gateways"
       }
@@ -330,7 +337,7 @@
     },
     "onpremBgp": {
       "type": "bool",
-      "defaultValue": true,
+      "defaultValue": false,
       "metadata": {
         "description": "Enable BGP on OnPrem Gateway"
       }
@@ -427,6 +434,9 @@
           },
           "bastionSku": {
             "value": "[parameters('bastionInHubSKU')]"
+          },
+          "diagnosticWorkspaceId": {
+            "value": "[parameters('diagnosticWorkspaceId')]"
           }
         },
         "template": {
@@ -436,7 +446,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1272.37030",
-              "templateHash": "15554627215506730145"
+              "templateHash": "14178003010063329201"
             }
           },
           "parameters": {
@@ -496,6 +506,9 @@
             },
             "vpnGwBgpAsn": {
               "type": "int"
+            },
+            "diagnosticWorkspaceId": {
+              "type": "string"
             }
           },
           "variables": {
@@ -573,6 +586,9 @@
                   },
                   "tagsByResource": {
                     "value": "[parameters('tagsByResource')]"
+                  },
+                  "diagnosticWorkspaceId": {
+                    "value": "[parameters('diagnosticWorkspaceId')]"
                   }
                 },
                 "template": {
@@ -582,7 +598,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1272.37030",
-                      "templateHash": "15972562488758076476"
+                      "templateHash": "8014591023754079762"
                     }
                   },
                   "parameters": {
@@ -636,6 +652,9 @@
                     "tagsByResource": {
                       "type": "object",
                       "defaultValue": {}
+                    },
+                    "diagnosticWorkspaceId": {
+                      "type": "string"
                     }
                   },
                   "variables": {
@@ -670,6 +689,32 @@
                         "subnets": "[concat(variables('defaultSubnet'), variables('bastionSubnet'), variables('firewallSubnet'), variables('gatewaySubnet'))]"
                       },
                       "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/virtualNetworks'), parameters('tagsByResource')['Microsoft.Network/virtualNetworks'], createObject())]"
+                    },
+                    {
+                      "condition": "[not(empty(parameters('diagnosticWorkspaceId')))]",
+                      "type": "Microsoft.Insights/diagnosticSettings",
+                      "apiVersion": "2021-05-01-preview",
+                      "scope": "[format('Microsoft.Network/virtualNetworks/{0}', parameters('vnetname'))]",
+                      "name": "LabBuilder-diagnosticSettings",
+                      "properties": {
+                        "workspaceId": "[if(not(empty(parameters('diagnosticWorkspaceId'))), parameters('diagnosticWorkspaceId'), null())]",
+                        "metrics": [
+                          {
+                            "category": "AllMetrics",
+                            "enabled": true
+                          }
+                        ],
+                        "logs": [
+                          {
+                            "category": null,
+                            "categoryGroup": "allLogs",
+                            "enabled": true
+                          }
+                        ]
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetname'))]"
+                      ]
                     }
                   ],
                   "outputs": {
@@ -742,6 +787,9 @@
                   },
                   "osType": {
                     "value": "[parameters('osType')]"
+                  },
+                  "diagnosticWorkspaceId": {
+                    "value": "[parameters('diagnosticWorkspaceId')]"
                   }
                 },
                 "template": {
@@ -751,7 +799,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1272.37030",
-                      "templateHash": "8734156456072154768"
+                      "templateHash": "2926004502711751286"
                     }
                   },
                   "parameters": {
@@ -784,6 +832,9 @@
                     "tagsByResource": {
                       "type": "object",
                       "defaultValue": {}
+                    },
+                    "diagnosticWorkspaceId": {
+                      "type": "string"
                     }
                   },
                   "variables": {
@@ -869,6 +920,25 @@
                         ]
                       },
                       "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Compute/virtualMachines'), parameters('tagsByResource')['Microsoft.Compute/virtualMachines'], createObject())]"
+                    },
+                    {
+                      "condition": "[not(empty(parameters('diagnosticWorkspaceId')))]",
+                      "type": "Microsoft.Insights/diagnosticSettings",
+                      "apiVersion": "2021-05-01-preview",
+                      "scope": "[format('Microsoft.Network/networkInterfaces/{0}', format('{0}-nic', parameters('vmName')))]",
+                      "name": "LabBuilder-diagnosticSettings",
+                      "properties": {
+                        "workspaceId": "[if(not(empty(parameters('diagnosticWorkspaceId'))), parameters('diagnosticWorkspaceId'), null())]",
+                        "metrics": [
+                          {
+                            "category": "AllMetrics",
+                            "enabled": true
+                          }
+                        ]
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/networkInterfaces', format('{0}-nic', parameters('vmName')))]"
+                      ]
                     },
                     {
                       "condition": "[equals(parameters('osType'), 'Windows')]",
@@ -963,6 +1033,9 @@
                   },
                   "tagsByResource": {
                     "value": "[parameters('tagsByResource')]"
+                  },
+                  "diagnosticWorkspaceId": {
+                    "value": "[parameters('diagnosticWorkspaceId')]"
                   }
                 },
                 "template": {
@@ -972,7 +1045,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1272.37030",
-                      "templateHash": "4986852817278939313"
+                      "templateHash": "16615476720503244617"
                     }
                   },
                   "parameters": {
@@ -985,6 +1058,9 @@
                     "tagsByResource": {
                       "type": "object",
                       "defaultValue": {}
+                    },
+                    "diagnosticWorkspaceId": {
+                      "type": "string"
                     }
                   },
                   "resources": [
@@ -994,6 +1070,26 @@
                       "name": "[parameters('nsgName')]",
                       "location": "[parameters('location')]",
                       "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/networkSecurityGroups'), parameters('tagsByResource')['Microsoft.Network/networkSecurityGroups'], createObject())]"
+                    },
+                    {
+                      "condition": "[not(empty(parameters('diagnosticWorkspaceId')))]",
+                      "type": "Microsoft.Insights/diagnosticSettings",
+                      "apiVersion": "2021-05-01-preview",
+                      "scope": "[format('Microsoft.Network/networkSecurityGroups/{0}', parameters('nsgName'))]",
+                      "name": "LabBuilder-diagnosticSettings",
+                      "properties": {
+                        "workspaceId": "[if(not(empty(parameters('diagnosticWorkspaceId'))), parameters('diagnosticWorkspaceId'), null())]",
+                        "logs": [
+                          {
+                            "category": null,
+                            "categoryGroup": "allLogs",
+                            "enabled": true
+                          }
+                        ]
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('nsgName'))]"
+                      ]
                     }
                   ],
                   "outputs": {
@@ -1034,6 +1130,9 @@
                   },
                   "bastionSku": {
                     "value": "[parameters('bastionSku')]"
+                  },
+                  "diagnosticWorkspaceId": {
+                    "value": "[parameters('diagnosticWorkspaceId')]"
                   }
                 },
                 "template": {
@@ -1043,7 +1142,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1272.37030",
-                      "templateHash": "5886547612277966671"
+                      "templateHash": "12812295167671976968"
                     }
                   },
                   "parameters": {
@@ -1066,6 +1165,9 @@
                     "tagsByResource": {
                       "type": "object",
                       "defaultValue": {}
+                    },
+                    "diagnosticWorkspaceId": {
+                      "type": "string"
                     }
                   },
                   "resources": [
@@ -1098,6 +1200,32 @@
                       ]
                     },
                     {
+                      "condition": "[not(empty(parameters('diagnosticWorkspaceId')))]",
+                      "type": "Microsoft.Insights/diagnosticSettings",
+                      "apiVersion": "2021-05-01-preview",
+                      "scope": "[format('Microsoft.Network/bastionHosts/{0}', parameters('bastionName'))]",
+                      "name": "LabBuilder-diagnosticSettings",
+                      "properties": {
+                        "workspaceId": "[if(not(empty(parameters('diagnosticWorkspaceId'))), parameters('diagnosticWorkspaceId'), null())]",
+                        "metrics": [
+                          {
+                            "category": "AllMetrics",
+                            "enabled": true
+                          }
+                        ],
+                        "logs": [
+                          {
+                            "category": null,
+                            "categoryGroup": "allLogs",
+                            "enabled": true
+                          }
+                        ]
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/bastionHosts', parameters('bastionName'))]"
+                      ]
+                    },
+                    {
                       "type": "Microsoft.Network/publicIPAddresses",
                       "apiVersion": "2021-05-01",
                       "name": "[format('{0}-pip', parameters('bastionName'))]",
@@ -1111,6 +1239,32 @@
                         "name": "Standard"
                       },
                       "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/publicIPAddresses'), parameters('tagsByResource')['Microsoft.Network/publicIPAddresses'], createObject())]"
+                    },
+                    {
+                      "condition": "[not(empty(parameters('diagnosticWorkspaceId')))]",
+                      "type": "Microsoft.Insights/diagnosticSettings",
+                      "apiVersion": "2021-05-01-preview",
+                      "scope": "[format('Microsoft.Network/publicIPAddresses/{0}', format('{0}-pip', parameters('bastionName')))]",
+                      "name": "LabBuilder-diagnosticSettings",
+                      "properties": {
+                        "workspaceId": "[if(not(empty(parameters('diagnosticWorkspaceId'))), parameters('diagnosticWorkspaceId'), null())]",
+                        "metrics": [
+                          {
+                            "category": "AllMetrics",
+                            "enabled": true
+                          }
+                        ],
+                        "logs": [
+                          {
+                            "category": null,
+                            "categoryGroup": "allLogs",
+                            "enabled": true
+                          }
+                        ]
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/publicIPAddresses', format('{0}-pip', parameters('bastionName')))]"
+                      ]
                     }
                   ]
                 }
@@ -1149,6 +1303,9 @@
                   },
                   "tagsByResource": {
                     "value": "[parameters('tagsByResource')]"
+                  },
+                  "diagnosticWorkspaceId": {
+                    "value": "[parameters('diagnosticWorkspaceId')]"
                   }
                 },
                 "template": {
@@ -1158,7 +1315,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1272.37030",
-                      "templateHash": "16460631289536220742"
+                      "templateHash": "7280300972588935510"
                     }
                   },
                   "parameters": {
@@ -1194,6 +1351,9 @@
                     "deployInVWan": {
                       "type": "bool",
                       "defaultValue": false
+                    },
+                    "diagnosticWorkspaceId": {
+                      "type": "string"
                     }
                   },
                   "variables": {
@@ -1227,6 +1387,32 @@
                       ]
                     },
                     {
+                      "condition": "[not(empty(parameters('diagnosticWorkspaceId')))]",
+                      "type": "Microsoft.Insights/diagnosticSettings",
+                      "apiVersion": "2021-05-01-preview",
+                      "scope": "[format('Microsoft.Network/azureFirewalls/{0}', parameters('firewallName'))]",
+                      "name": "LabBuilder-diagnosticSettings",
+                      "properties": {
+                        "workspaceId": "[if(not(empty(parameters('diagnosticWorkspaceId'))), parameters('diagnosticWorkspaceId'), null())]",
+                        "metrics": [
+                          {
+                            "category": "AllMetrics",
+                            "enabled": true
+                          }
+                        ],
+                        "logs": [
+                          {
+                            "category": null,
+                            "categoryGroup": "allLogs",
+                            "enabled": true
+                          }
+                        ]
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/azureFirewalls', parameters('firewallName'))]"
+                      ]
+                    },
+                    {
                       "type": "Microsoft.Network/firewallPolicies",
                       "apiVersion": "2021-05-01",
                       "name": "[variables('firewallPolicyName')]",
@@ -1254,6 +1440,32 @@
                         "name": "Standard"
                       },
                       "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/publicIPAddresses'), parameters('tagsByResource')['Microsoft.Network/publicIPAddresses'], createObject())]"
+                    },
+                    {
+                      "condition": "[not(empty(parameters('diagnosticWorkspaceId')))]",
+                      "type": "Microsoft.Insights/diagnosticSettings",
+                      "apiVersion": "2021-05-01-preview",
+                      "scope": "[format('Microsoft.Network/publicIPAddresses/{0}', variables('pipName'))]",
+                      "name": "LabBuilder-diagnosticSettings",
+                      "properties": {
+                        "workspaceId": "[if(not(empty(parameters('diagnosticWorkspaceId'))), parameters('diagnosticWorkspaceId'), null())]",
+                        "metrics": [
+                          {
+                            "category": "AllMetrics",
+                            "enabled": true
+                          }
+                        ],
+                        "logs": [
+                          {
+                            "category": null,
+                            "categoryGroup": "allLogs",
+                            "enabled": true
+                          }
+                        ]
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/publicIPAddresses', variables('pipName'))]"
+                      ]
                     }
                   ],
                   "outputs": {
@@ -1646,6 +1858,9 @@
                   },
                   "vpnGatewayEnableBgp": {
                     "value": "[parameters('vpnGwEnebaleBgp')]"
+                  },
+                  "diagnosticWorkspaceId": {
+                    "value": "[parameters('diagnosticWorkspaceId')]"
                   }
                 },
                 "template": {
@@ -1655,7 +1870,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1272.37030",
-                      "templateHash": "13332477170440770040"
+                      "templateHash": "842354501875211415"
                     }
                   },
                   "parameters": {
@@ -1693,6 +1908,9 @@
                     "tagsByResource": {
                       "type": "object",
                       "defaultValue": {}
+                    },
+                    "diagnosticWorkspaceId": {
+                      "type": "string"
                     }
                   },
                   "variables": {
@@ -1738,6 +1956,32 @@
                       ]
                     },
                     {
+                      "condition": "[not(empty(parameters('diagnosticWorkspaceId')))]",
+                      "type": "Microsoft.Insights/diagnosticSettings",
+                      "apiVersion": "2021-05-01-preview",
+                      "scope": "[format('Microsoft.Network/virtualNetworkGateways/{0}', parameters('vpnGatewayName'))]",
+                      "name": "LabBuilder-diagnosticSettings",
+                      "properties": {
+                        "workspaceId": "[if(not(empty(parameters('diagnosticWorkspaceId'))), parameters('diagnosticWorkspaceId'), null())]",
+                        "metrics": [
+                          {
+                            "category": "AllMetrics",
+                            "enabled": true
+                          }
+                        ],
+                        "logs": [
+                          {
+                            "category": null,
+                            "categoryGroup": "allLogs",
+                            "enabled": true
+                          }
+                        ]
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/virtualNetworkGateways', parameters('vpnGatewayName'))]"
+                      ]
+                    },
+                    {
                       "type": "Microsoft.Network/publicIPAddresses",
                       "apiVersion": "2021-05-01",
                       "name": "[variables('pipName')]",
@@ -1751,6 +1995,32 @@
                         "name": "Standard"
                       },
                       "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/publicIPAddresses'), parameters('tagsByResource')['Microsoft.Network/publicIPAddresses'], createObject())]"
+                    },
+                    {
+                      "condition": "[not(empty(parameters('diagnosticWorkspaceId')))]",
+                      "type": "Microsoft.Insights/diagnosticSettings",
+                      "apiVersion": "2021-05-01-preview",
+                      "scope": "[format('Microsoft.Network/publicIPAddresses/{0}', variables('pipName'))]",
+                      "name": "LabBuilder-diagnosticSettings",
+                      "properties": {
+                        "workspaceId": "[if(not(empty(parameters('diagnosticWorkspaceId'))), parameters('diagnosticWorkspaceId'), null())]",
+                        "metrics": [
+                          {
+                            "category": "AllMetrics",
+                            "enabled": true
+                          }
+                        ],
+                        "logs": [
+                          {
+                            "category": null,
+                            "categoryGroup": "allLogs",
+                            "enabled": true
+                          }
+                        ]
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/publicIPAddresses', variables('pipName'))]"
+                      ]
                     }
                   ],
                   "outputs": {
@@ -2004,6 +2274,9 @@
           },
           "tagsByResource": {
             "value": "[parameters('tagsByResource')]"
+          },
+          "diagnosticWorkspaceId": {
+            "value": "[parameters('diagnosticWorkspaceId')]"
           }
         },
         "template": {
@@ -2013,7 +2286,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1272.37030",
-              "templateHash": "13458314379098737952"
+              "templateHash": "14272836037133658041"
             }
           },
           "parameters": {
@@ -2041,6 +2314,9 @@
             "tagsByResource": {
               "type": "object",
               "defaultValue": {}
+            },
+            "diagnosticWorkspaceId": {
+              "type": "string"
             }
           },
           "variables": {
@@ -2196,6 +2472,9 @@
                   },
                   "tagsByResource": {
                     "value": "[parameters('tagsByResource')]"
+                  },
+                  "diagnosticWorkspaceId": {
+                    "value": "[parameters('diagnosticWorkspaceId')]"
                   }
                 },
                 "template": {
@@ -2205,7 +2484,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1272.37030",
-                      "templateHash": "16460631289536220742"
+                      "templateHash": "7280300972588935510"
                     }
                   },
                   "parameters": {
@@ -2241,6 +2520,9 @@
                     "deployInVWan": {
                       "type": "bool",
                       "defaultValue": false
+                    },
+                    "diagnosticWorkspaceId": {
+                      "type": "string"
                     }
                   },
                   "variables": {
@@ -2274,6 +2556,32 @@
                       ]
                     },
                     {
+                      "condition": "[not(empty(parameters('diagnosticWorkspaceId')))]",
+                      "type": "Microsoft.Insights/diagnosticSettings",
+                      "apiVersion": "2021-05-01-preview",
+                      "scope": "[format('Microsoft.Network/azureFirewalls/{0}', parameters('firewallName'))]",
+                      "name": "LabBuilder-diagnosticSettings",
+                      "properties": {
+                        "workspaceId": "[if(not(empty(parameters('diagnosticWorkspaceId'))), parameters('diagnosticWorkspaceId'), null())]",
+                        "metrics": [
+                          {
+                            "category": "AllMetrics",
+                            "enabled": true
+                          }
+                        ],
+                        "logs": [
+                          {
+                            "category": null,
+                            "categoryGroup": "allLogs",
+                            "enabled": true
+                          }
+                        ]
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/azureFirewalls', parameters('firewallName'))]"
+                      ]
+                    },
+                    {
                       "type": "Microsoft.Network/firewallPolicies",
                       "apiVersion": "2021-05-01",
                       "name": "[variables('firewallPolicyName')]",
@@ -2301,6 +2609,32 @@
                         "name": "Standard"
                       },
                       "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/publicIPAddresses'), parameters('tagsByResource')['Microsoft.Network/publicIPAddresses'], createObject())]"
+                    },
+                    {
+                      "condition": "[not(empty(parameters('diagnosticWorkspaceId')))]",
+                      "type": "Microsoft.Insights/diagnosticSettings",
+                      "apiVersion": "2021-05-01-preview",
+                      "scope": "[format('Microsoft.Network/publicIPAddresses/{0}', variables('pipName'))]",
+                      "name": "LabBuilder-diagnosticSettings",
+                      "properties": {
+                        "workspaceId": "[if(not(empty(parameters('diagnosticWorkspaceId'))), parameters('diagnosticWorkspaceId'), null())]",
+                        "metrics": [
+                          {
+                            "category": "AllMetrics",
+                            "enabled": true
+                          }
+                        ],
+                        "logs": [
+                          {
+                            "category": null,
+                            "categoryGroup": "allLogs",
+                            "enabled": true
+                          }
+                        ]
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/publicIPAddresses', variables('pipName'))]"
+                      ]
                     }
                   ],
                   "outputs": {
@@ -2733,6 +3067,9 @@
           },
           "bastionSku": {
             "value": "[parameters('bastionInSpokeSKU')]"
+          },
+          "diagnosticWorkspaceId": {
+            "value": "[parameters('diagnosticWorkspaceId')]"
           }
         },
         "template": {
@@ -2742,7 +3079,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1272.37030",
-              "templateHash": "4410623329111262833"
+              "templateHash": "17982335537389655378"
             }
           },
           "parameters": {
@@ -2795,6 +3132,9 @@
               "type": "string"
             },
             "hubDefaultSubnetPrefix": {
+              "type": "string"
+            },
+            "diagnosticWorkspaceId": {
               "type": "string"
             }
           },
@@ -2853,6 +3193,9 @@
                   },
                   "tagsByResource": {
                     "value": "[parameters('tagsByResource')]"
+                  },
+                  "diagnosticWorkspaceId": {
+                    "value": "[parameters('diagnosticWorkspaceId')]"
                   }
                 },
                 "template": {
@@ -2862,7 +3205,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1272.37030",
-                      "templateHash": "15972562488758076476"
+                      "templateHash": "8014591023754079762"
                     }
                   },
                   "parameters": {
@@ -2916,6 +3259,9 @@
                     "tagsByResource": {
                       "type": "object",
                       "defaultValue": {}
+                    },
+                    "diagnosticWorkspaceId": {
+                      "type": "string"
                     }
                   },
                   "variables": {
@@ -2950,6 +3296,32 @@
                         "subnets": "[concat(variables('defaultSubnet'), variables('bastionSubnet'), variables('firewallSubnet'), variables('gatewaySubnet'))]"
                       },
                       "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/virtualNetworks'), parameters('tagsByResource')['Microsoft.Network/virtualNetworks'], createObject())]"
+                    },
+                    {
+                      "condition": "[not(empty(parameters('diagnosticWorkspaceId')))]",
+                      "type": "Microsoft.Insights/diagnosticSettings",
+                      "apiVersion": "2021-05-01-preview",
+                      "scope": "[format('Microsoft.Network/virtualNetworks/{0}', parameters('vnetname'))]",
+                      "name": "LabBuilder-diagnosticSettings",
+                      "properties": {
+                        "workspaceId": "[if(not(empty(parameters('diagnosticWorkspaceId'))), parameters('diagnosticWorkspaceId'), null())]",
+                        "metrics": [
+                          {
+                            "category": "AllMetrics",
+                            "enabled": true
+                          }
+                        ],
+                        "logs": [
+                          {
+                            "category": null,
+                            "categoryGroup": "allLogs",
+                            "enabled": true
+                          }
+                        ]
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetname'))]"
+                      ]
                     }
                   ],
                   "outputs": {
@@ -3021,6 +3393,9 @@
                   },
                   "osType": {
                     "value": "[parameters('osType')]"
+                  },
+                  "diagnosticWorkspaceId": {
+                    "value": "[parameters('diagnosticWorkspaceId')]"
                   }
                 },
                 "template": {
@@ -3030,7 +3405,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1272.37030",
-                      "templateHash": "8734156456072154768"
+                      "templateHash": "2926004502711751286"
                     }
                   },
                   "parameters": {
@@ -3063,6 +3438,9 @@
                     "tagsByResource": {
                       "type": "object",
                       "defaultValue": {}
+                    },
+                    "diagnosticWorkspaceId": {
+                      "type": "string"
                     }
                   },
                   "variables": {
@@ -3148,6 +3526,25 @@
                         ]
                       },
                       "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Compute/virtualMachines'), parameters('tagsByResource')['Microsoft.Compute/virtualMachines'], createObject())]"
+                    },
+                    {
+                      "condition": "[not(empty(parameters('diagnosticWorkspaceId')))]",
+                      "type": "Microsoft.Insights/diagnosticSettings",
+                      "apiVersion": "2021-05-01-preview",
+                      "scope": "[format('Microsoft.Network/networkInterfaces/{0}', format('{0}-nic', parameters('vmName')))]",
+                      "name": "LabBuilder-diagnosticSettings",
+                      "properties": {
+                        "workspaceId": "[if(not(empty(parameters('diagnosticWorkspaceId'))), parameters('diagnosticWorkspaceId'), null())]",
+                        "metrics": [
+                          {
+                            "category": "AllMetrics",
+                            "enabled": true
+                          }
+                        ]
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/networkInterfaces', format('{0}-nic', parameters('vmName')))]"
+                      ]
                     },
                     {
                       "condition": "[equals(parameters('osType'), 'Windows')]",
@@ -3242,6 +3639,9 @@
                   },
                   "tagsByResource": {
                     "value": "[parameters('tagsByResource')]"
+                  },
+                  "diagnosticWorkspaceId": {
+                    "value": "[parameters('diagnosticWorkspaceId')]"
                   }
                 },
                 "template": {
@@ -3251,7 +3651,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1272.37030",
-                      "templateHash": "4986852817278939313"
+                      "templateHash": "16615476720503244617"
                     }
                   },
                   "parameters": {
@@ -3264,6 +3664,9 @@
                     "tagsByResource": {
                       "type": "object",
                       "defaultValue": {}
+                    },
+                    "diagnosticWorkspaceId": {
+                      "type": "string"
                     }
                   },
                   "resources": [
@@ -3273,6 +3676,26 @@
                       "name": "[parameters('nsgName')]",
                       "location": "[parameters('location')]",
                       "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/networkSecurityGroups'), parameters('tagsByResource')['Microsoft.Network/networkSecurityGroups'], createObject())]"
+                    },
+                    {
+                      "condition": "[not(empty(parameters('diagnosticWorkspaceId')))]",
+                      "type": "Microsoft.Insights/diagnosticSettings",
+                      "apiVersion": "2021-05-01-preview",
+                      "scope": "[format('Microsoft.Network/networkSecurityGroups/{0}', parameters('nsgName'))]",
+                      "name": "LabBuilder-diagnosticSettings",
+                      "properties": {
+                        "workspaceId": "[if(not(empty(parameters('diagnosticWorkspaceId'))), parameters('diagnosticWorkspaceId'), null())]",
+                        "logs": [
+                          {
+                            "category": null,
+                            "categoryGroup": "allLogs",
+                            "enabled": true
+                          }
+                        ]
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('nsgName'))]"
+                      ]
                     }
                   ],
                   "outputs": {
@@ -3313,6 +3736,9 @@
                   },
                   "bastionSku": {
                     "value": "[parameters('bastionSku')]"
+                  },
+                  "diagnosticWorkspaceId": {
+                    "value": "[parameters('diagnosticWorkspaceId')]"
                   }
                 },
                 "template": {
@@ -3322,7 +3748,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1272.37030",
-                      "templateHash": "5886547612277966671"
+                      "templateHash": "12812295167671976968"
                     }
                   },
                   "parameters": {
@@ -3345,6 +3771,9 @@
                     "tagsByResource": {
                       "type": "object",
                       "defaultValue": {}
+                    },
+                    "diagnosticWorkspaceId": {
+                      "type": "string"
                     }
                   },
                   "resources": [
@@ -3377,6 +3806,32 @@
                       ]
                     },
                     {
+                      "condition": "[not(empty(parameters('diagnosticWorkspaceId')))]",
+                      "type": "Microsoft.Insights/diagnosticSettings",
+                      "apiVersion": "2021-05-01-preview",
+                      "scope": "[format('Microsoft.Network/bastionHosts/{0}', parameters('bastionName'))]",
+                      "name": "LabBuilder-diagnosticSettings",
+                      "properties": {
+                        "workspaceId": "[if(not(empty(parameters('diagnosticWorkspaceId'))), parameters('diagnosticWorkspaceId'), null())]",
+                        "metrics": [
+                          {
+                            "category": "AllMetrics",
+                            "enabled": true
+                          }
+                        ],
+                        "logs": [
+                          {
+                            "category": null,
+                            "categoryGroup": "allLogs",
+                            "enabled": true
+                          }
+                        ]
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/bastionHosts', parameters('bastionName'))]"
+                      ]
+                    },
+                    {
                       "type": "Microsoft.Network/publicIPAddresses",
                       "apiVersion": "2021-05-01",
                       "name": "[format('{0}-pip', parameters('bastionName'))]",
@@ -3390,6 +3845,32 @@
                         "name": "Standard"
                       },
                       "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/publicIPAddresses'), parameters('tagsByResource')['Microsoft.Network/publicIPAddresses'], createObject())]"
+                    },
+                    {
+                      "condition": "[not(empty(parameters('diagnosticWorkspaceId')))]",
+                      "type": "Microsoft.Insights/diagnosticSettings",
+                      "apiVersion": "2021-05-01-preview",
+                      "scope": "[format('Microsoft.Network/publicIPAddresses/{0}', format('{0}-pip', parameters('bastionName')))]",
+                      "name": "LabBuilder-diagnosticSettings",
+                      "properties": {
+                        "workspaceId": "[if(not(empty(parameters('diagnosticWorkspaceId'))), parameters('diagnosticWorkspaceId'), null())]",
+                        "metrics": [
+                          {
+                            "category": "AllMetrics",
+                            "enabled": true
+                          }
+                        ],
+                        "logs": [
+                          {
+                            "category": null,
+                            "categoryGroup": "allLogs",
+                            "enabled": true
+                          }
+                        ]
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/publicIPAddresses', format('{0}-pip', parameters('bastionName')))]"
+                      ]
                     }
                   ]
                 }
@@ -4108,6 +4589,9 @@
           },
           "bastionSku": {
             "value": "[parameters('bastionInOnPremSKU')]"
+          },
+          "diagnosticWorkspaceId": {
+            "value": "[parameters('diagnosticWorkspaceId')]"
           }
         },
         "template": {
@@ -4117,7 +4601,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1272.37030",
-              "templateHash": "6790167175835417825"
+              "templateHash": "14585165597840152084"
             }
           },
           "parameters": {
@@ -4162,6 +4646,9 @@
             },
             "vpnGwBgpAsn": {
               "type": "int"
+            },
+            "diagnosticWorkspaceId": {
+              "type": "string"
             }
           },
           "variables": {
@@ -4223,6 +4710,9 @@
                   },
                   "tagsByResource": {
                     "value": "[parameters('tagsByResource')]"
+                  },
+                  "diagnosticWorkspaceId": {
+                    "value": "[parameters('diagnosticWorkspaceId')]"
                   }
                 },
                 "template": {
@@ -4232,7 +4722,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1272.37030",
-                      "templateHash": "15972562488758076476"
+                      "templateHash": "8014591023754079762"
                     }
                   },
                   "parameters": {
@@ -4286,6 +4776,9 @@
                     "tagsByResource": {
                       "type": "object",
                       "defaultValue": {}
+                    },
+                    "diagnosticWorkspaceId": {
+                      "type": "string"
                     }
                   },
                   "variables": {
@@ -4320,6 +4813,32 @@
                         "subnets": "[concat(variables('defaultSubnet'), variables('bastionSubnet'), variables('firewallSubnet'), variables('gatewaySubnet'))]"
                       },
                       "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/virtualNetworks'), parameters('tagsByResource')['Microsoft.Network/virtualNetworks'], createObject())]"
+                    },
+                    {
+                      "condition": "[not(empty(parameters('diagnosticWorkspaceId')))]",
+                      "type": "Microsoft.Insights/diagnosticSettings",
+                      "apiVersion": "2021-05-01-preview",
+                      "scope": "[format('Microsoft.Network/virtualNetworks/{0}', parameters('vnetname'))]",
+                      "name": "LabBuilder-diagnosticSettings",
+                      "properties": {
+                        "workspaceId": "[if(not(empty(parameters('diagnosticWorkspaceId'))), parameters('diagnosticWorkspaceId'), null())]",
+                        "metrics": [
+                          {
+                            "category": "AllMetrics",
+                            "enabled": true
+                          }
+                        ],
+                        "logs": [
+                          {
+                            "category": null,
+                            "categoryGroup": "allLogs",
+                            "enabled": true
+                          }
+                        ]
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetname'))]"
+                      ]
                     }
                   ],
                   "outputs": {
@@ -4390,6 +4909,9 @@
                   },
                   "osType": {
                     "value": "[parameters('osType')]"
+                  },
+                  "diagnosticWorkspaceId": {
+                    "value": "[parameters('diagnosticWorkspaceId')]"
                   }
                 },
                 "template": {
@@ -4399,7 +4921,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1272.37030",
-                      "templateHash": "8734156456072154768"
+                      "templateHash": "2926004502711751286"
                     }
                   },
                   "parameters": {
@@ -4432,6 +4954,9 @@
                     "tagsByResource": {
                       "type": "object",
                       "defaultValue": {}
+                    },
+                    "diagnosticWorkspaceId": {
+                      "type": "string"
                     }
                   },
                   "variables": {
@@ -4517,6 +5042,25 @@
                         ]
                       },
                       "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Compute/virtualMachines'), parameters('tagsByResource')['Microsoft.Compute/virtualMachines'], createObject())]"
+                    },
+                    {
+                      "condition": "[not(empty(parameters('diagnosticWorkspaceId')))]",
+                      "type": "Microsoft.Insights/diagnosticSettings",
+                      "apiVersion": "2021-05-01-preview",
+                      "scope": "[format('Microsoft.Network/networkInterfaces/{0}', format('{0}-nic', parameters('vmName')))]",
+                      "name": "LabBuilder-diagnosticSettings",
+                      "properties": {
+                        "workspaceId": "[if(not(empty(parameters('diagnosticWorkspaceId'))), parameters('diagnosticWorkspaceId'), null())]",
+                        "metrics": [
+                          {
+                            "category": "AllMetrics",
+                            "enabled": true
+                          }
+                        ]
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/networkInterfaces', format('{0}-nic', parameters('vmName')))]"
+                      ]
                     },
                     {
                       "condition": "[equals(parameters('osType'), 'Windows')]",
@@ -4611,6 +5155,9 @@
                   },
                   "tagsByResource": {
                     "value": "[parameters('tagsByResource')]"
+                  },
+                  "diagnosticWorkspaceId": {
+                    "value": "[parameters('diagnosticWorkspaceId')]"
                   }
                 },
                 "template": {
@@ -4620,7 +5167,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1272.37030",
-                      "templateHash": "4986852817278939313"
+                      "templateHash": "16615476720503244617"
                     }
                   },
                   "parameters": {
@@ -4633,6 +5180,9 @@
                     "tagsByResource": {
                       "type": "object",
                       "defaultValue": {}
+                    },
+                    "diagnosticWorkspaceId": {
+                      "type": "string"
                     }
                   },
                   "resources": [
@@ -4642,6 +5192,26 @@
                       "name": "[parameters('nsgName')]",
                       "location": "[parameters('location')]",
                       "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/networkSecurityGroups'), parameters('tagsByResource')['Microsoft.Network/networkSecurityGroups'], createObject())]"
+                    },
+                    {
+                      "condition": "[not(empty(parameters('diagnosticWorkspaceId')))]",
+                      "type": "Microsoft.Insights/diagnosticSettings",
+                      "apiVersion": "2021-05-01-preview",
+                      "scope": "[format('Microsoft.Network/networkSecurityGroups/{0}', parameters('nsgName'))]",
+                      "name": "LabBuilder-diagnosticSettings",
+                      "properties": {
+                        "workspaceId": "[if(not(empty(parameters('diagnosticWorkspaceId'))), parameters('diagnosticWorkspaceId'), null())]",
+                        "logs": [
+                          {
+                            "category": null,
+                            "categoryGroup": "allLogs",
+                            "enabled": true
+                          }
+                        ]
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('nsgName'))]"
+                      ]
                     }
                   ],
                   "outputs": {
@@ -4682,6 +5252,9 @@
                   },
                   "bastionSku": {
                     "value": "[parameters('bastionSku')]"
+                  },
+                  "diagnosticWorkspaceId": {
+                    "value": "[parameters('diagnosticWorkspaceId')]"
                   }
                 },
                 "template": {
@@ -4691,7 +5264,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1272.37030",
-                      "templateHash": "5886547612277966671"
+                      "templateHash": "12812295167671976968"
                     }
                   },
                   "parameters": {
@@ -4714,6 +5287,9 @@
                     "tagsByResource": {
                       "type": "object",
                       "defaultValue": {}
+                    },
+                    "diagnosticWorkspaceId": {
+                      "type": "string"
                     }
                   },
                   "resources": [
@@ -4746,6 +5322,32 @@
                       ]
                     },
                     {
+                      "condition": "[not(empty(parameters('diagnosticWorkspaceId')))]",
+                      "type": "Microsoft.Insights/diagnosticSettings",
+                      "apiVersion": "2021-05-01-preview",
+                      "scope": "[format('Microsoft.Network/bastionHosts/{0}', parameters('bastionName'))]",
+                      "name": "LabBuilder-diagnosticSettings",
+                      "properties": {
+                        "workspaceId": "[if(not(empty(parameters('diagnosticWorkspaceId'))), parameters('diagnosticWorkspaceId'), null())]",
+                        "metrics": [
+                          {
+                            "category": "AllMetrics",
+                            "enabled": true
+                          }
+                        ],
+                        "logs": [
+                          {
+                            "category": null,
+                            "categoryGroup": "allLogs",
+                            "enabled": true
+                          }
+                        ]
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/bastionHosts', parameters('bastionName'))]"
+                      ]
+                    },
+                    {
                       "type": "Microsoft.Network/publicIPAddresses",
                       "apiVersion": "2021-05-01",
                       "name": "[format('{0}-pip', parameters('bastionName'))]",
@@ -4759,6 +5361,32 @@
                         "name": "Standard"
                       },
                       "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/publicIPAddresses'), parameters('tagsByResource')['Microsoft.Network/publicIPAddresses'], createObject())]"
+                    },
+                    {
+                      "condition": "[not(empty(parameters('diagnosticWorkspaceId')))]",
+                      "type": "Microsoft.Insights/diagnosticSettings",
+                      "apiVersion": "2021-05-01-preview",
+                      "scope": "[format('Microsoft.Network/publicIPAddresses/{0}', format('{0}-pip', parameters('bastionName')))]",
+                      "name": "LabBuilder-diagnosticSettings",
+                      "properties": {
+                        "workspaceId": "[if(not(empty(parameters('diagnosticWorkspaceId'))), parameters('diagnosticWorkspaceId'), null())]",
+                        "metrics": [
+                          {
+                            "category": "AllMetrics",
+                            "enabled": true
+                          }
+                        ],
+                        "logs": [
+                          {
+                            "category": null,
+                            "categoryGroup": "allLogs",
+                            "enabled": true
+                          }
+                        ]
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/publicIPAddresses', format('{0}-pip', parameters('bastionName')))]"
+                      ]
                     }
                   ]
                 }
@@ -4797,6 +5425,9 @@
                   },
                   "vpnGatewayEnableBgp": {
                     "value": "[parameters('vpnGwEnebaleBgp')]"
+                  },
+                  "diagnosticWorkspaceId": {
+                    "value": "[parameters('diagnosticWorkspaceId')]"
                   }
                 },
                 "template": {
@@ -4806,7 +5437,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1272.37030",
-                      "templateHash": "13332477170440770040"
+                      "templateHash": "842354501875211415"
                     }
                   },
                   "parameters": {
@@ -4844,6 +5475,9 @@
                     "tagsByResource": {
                       "type": "object",
                       "defaultValue": {}
+                    },
+                    "diagnosticWorkspaceId": {
+                      "type": "string"
                     }
                   },
                   "variables": {
@@ -4889,6 +5523,32 @@
                       ]
                     },
                     {
+                      "condition": "[not(empty(parameters('diagnosticWorkspaceId')))]",
+                      "type": "Microsoft.Insights/diagnosticSettings",
+                      "apiVersion": "2021-05-01-preview",
+                      "scope": "[format('Microsoft.Network/virtualNetworkGateways/{0}', parameters('vpnGatewayName'))]",
+                      "name": "LabBuilder-diagnosticSettings",
+                      "properties": {
+                        "workspaceId": "[if(not(empty(parameters('diagnosticWorkspaceId'))), parameters('diagnosticWorkspaceId'), null())]",
+                        "metrics": [
+                          {
+                            "category": "AllMetrics",
+                            "enabled": true
+                          }
+                        ],
+                        "logs": [
+                          {
+                            "category": null,
+                            "categoryGroup": "allLogs",
+                            "enabled": true
+                          }
+                        ]
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/virtualNetworkGateways', parameters('vpnGatewayName'))]"
+                      ]
+                    },
+                    {
                       "type": "Microsoft.Network/publicIPAddresses",
                       "apiVersion": "2021-05-01",
                       "name": "[variables('pipName')]",
@@ -4902,6 +5562,32 @@
                         "name": "Standard"
                       },
                       "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/publicIPAddresses'), parameters('tagsByResource')['Microsoft.Network/publicIPAddresses'], createObject())]"
+                    },
+                    {
+                      "condition": "[not(empty(parameters('diagnosticWorkspaceId')))]",
+                      "type": "Microsoft.Insights/diagnosticSettings",
+                      "apiVersion": "2021-05-01-preview",
+                      "scope": "[format('Microsoft.Network/publicIPAddresses/{0}', variables('pipName'))]",
+                      "name": "LabBuilder-diagnosticSettings",
+                      "properties": {
+                        "workspaceId": "[if(not(empty(parameters('diagnosticWorkspaceId'))), parameters('diagnosticWorkspaceId'), null())]",
+                        "metrics": [
+                          {
+                            "category": "AllMetrics",
+                            "enabled": true
+                          }
+                        ],
+                        "logs": [
+                          {
+                            "category": null,
+                            "categoryGroup": "allLogs",
+                            "enabled": true
+                          }
+                        ]
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/publicIPAddresses', variables('pipName'))]"
+                      ]
                     }
                   ],
                   "outputs": {
