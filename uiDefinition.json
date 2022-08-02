@@ -745,7 +745,8 @@
 								"Microsoft.Network/localNetworkGateways",
 								"Microsoft.Network/connections",
 								"Microsoft.Network/virtualWans",
-								"Microsoft.Resources/subscriptions/resourceGroups"
+								"Microsoft.Resources/subscriptions/resourceGroups",
+								"Microsoft.OperationalInsights/workspaces"
 							]
 						}
 					]
