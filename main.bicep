@@ -57,11 +57,8 @@ param location string = deployment().location
 @description('Tags by resource types')
 param tagsByResource object = {}
 
-@description('Deploy LogAnalytics Workspace')
-param deployLaw bool = false
-
-@description('OnPrem Resource Group Name')
-param mgmtRgName string = 'rg-mgmt'
+@description('LogAnalytics Workspace resourceID')
+param diagnosticWorkspaceId string = ''
 
 // Spoke VNET Parameters
 @description('Deploy Spoke VNETs')
@@ -180,17 +177,6 @@ var AllAddressSpaces = [for i in range(0, amountOfSpokes + 1): replace(AddressSp
 // Create array of all Spoke Address Spaces used to set routes on VPN Gateway rout table in Hub
 var AllSpokeAddressSpaces = [for i in range(1, amountOfSpokes): replace(AddressSpace, '0.0/16', '${i}.0/24')]
 
-
-// Deploy management resource group for e.g. Log Analytics
-module mgmt 'MgmtResourceGroup.bicep' = if (deployLaw)  {
-  name: '${mgmtRgName}-${location}-Mgmt'
-  params: {
-    location: location
-    mgmtRgName: mgmtRgName
-    tagsByResource: tagsByResource
-  }
-}
-
 // Deploy Hub VNET including VM, Bastion Host, Route Table, Network Security group and Azure Firewall
 module hubVnet 'HubResourceGroup.bicep' = if (deployHUB && hubType == 'VNET') {
   scope: subscription(hubSubscriptionID)
@@ -215,7 +201,7 @@ module hubVnet 'HubResourceGroup.bicep' = if (deployHUB && hubType == 'VNET') {
     vpnGwEnebaleBgp: hubBgp
     deployUDRs: deployUDRs
     bastionSku: bastionInHubSKU
-    diagnosticWorkspaceId: mgmt.outputs.LawResourceID
+    diagnosticWorkspaceId: diagnosticWorkspaceId
   }
 }
 
@@ -232,7 +218,7 @@ module vwan 'vWanResourceGroup.bicep' = if (deployHUB && hubType == 'VWAN') {
     hubRgName: hubRgName
     deployGatewayInHub: deployGatewayInHub && hubType == 'VWAN'
     tagsByResource: tagsByResource
-    diagnosticWorkspaceId: mgmt.outputs.LawResourceID
+    diagnosticWorkspaceId: diagnosticWorkspaceId
   }
 }
 
@@ -258,7 +244,7 @@ module spokeVnets 'SpokeResourceGroup.bicep' = [for i in range(1, amountOfSpokes
     hubDefaultSubnetPrefix: deployHUB && hubType == 'VNET' ? hubVnet.outputs.hubDefaultSubnetPrefix : 'Not deployed'
     deployUDRs: deployUDRs
     bastionSku: bastionInSpokeSKU
-    diagnosticWorkspaceId: mgmt.outputs.LawResourceID
+    diagnosticWorkspaceId: diagnosticWorkspaceId
   }
 }]
 
@@ -312,7 +298,7 @@ module onprem 'OnPremResourceGroup.bicep' = if (deployOnPrem) {
     vpnGwBgpAsn: onpremBgp ? onpremBgpAsn : 65515
     vpnGwEnebaleBgp: onpremBgp
     bastionSku: bastionInOnPremSKU
-    diagnosticWorkspaceId: mgmt.outputs.LawResourceID
+    diagnosticWorkspaceId: diagnosticWorkspaceId
   }
 }
 
@@ -390,5 +376,3 @@ output SpokeVnets array = [for i in range(0, amountOfSpokes): deploySpokes ? {
   SpokeVnetId: spokeVnets[i].outputs.spokeVnetID
   SpokeVnetAddressSpace: spokeVnets[i].outputs.spokeVnetAddressSpace
 } : 'none']
-output lawName string = deployLaw ? mgmt.outputs.LawName : 'none'
-output lawResourceID string = deployLaw ? mgmt.outputs.LawResourceID : 'none'
