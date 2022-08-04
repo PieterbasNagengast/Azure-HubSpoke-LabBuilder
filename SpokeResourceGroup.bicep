@@ -128,3 +128,4 @@ output spokeVnetID string = vnet.outputs.vnetID
 output spokeVnetAddressSpace string = vnetAddressSpace
 output spokeResourceGroupName string = spokerg.name
 output spokeVnetName string = vnet.outputs.vnetName
+output spokeVmResourceID string = deployVMsInSpokes ? vm.outputs.vmResourceID : 'none'

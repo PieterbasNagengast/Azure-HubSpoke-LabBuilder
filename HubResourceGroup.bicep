@@ -202,3 +202,4 @@ output hubDefaultSubnetPrefix string = defaultSubnetPrefix
 output hubGatewayPublicIP string = deployGatewayInHub ? vpngw.outputs.vpnGwPublicIP : 'none'
 output hubGatewayID string = deployGatewayInHub ? vpngw.outputs.vpnGwID : 'none'
 output HubGwBgpPeeringAddress string = deployGatewayInHub ? vpngw.outputs.vpnGwBgpPeeringAddress : 'none'
+output HubVmResourceID string = deployVMinHub ? vm.outputs.vmResourceID : 'none'

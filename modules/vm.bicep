@@ -113,3 +113,5 @@ module run 'runcommand.bicep' = if (osType == 'Windows') {
     vmName: vm.name
   }
 }
+
+output vmResourceID string = vm.id

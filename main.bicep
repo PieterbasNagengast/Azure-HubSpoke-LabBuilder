@@ -376,3 +376,5 @@ output SpokeVnets array = [for i in range(0, amountOfSpokes): deploySpokes ? {
   SpokeVnetId: spokeVnets[i].outputs.spokeVnetID
   SpokeVnetAddressSpace: spokeVnets[i].outputs.spokeVnetAddressSpace
 } : 'none']
+output SpokeVmIDs array = [for i in range(0, amountOfSpokes): deploySpokes && deployVMsInSpokes ? spokeVnets[i].outputs.spokeVmResourceID : 'none']
+output HubVmID array = [ deployHUB && deployVMinHub ? hubVnet.outputs.HubVmResourceID : 'none' ]
