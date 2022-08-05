@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.8.9.13224",
-      "templateHash": "7070318716329741303"
+      "templateHash": "10953307121848677789"
     }
   },
   "parameters": {
@@ -446,7 +446,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.8.9.13224",
-              "templateHash": "13622034124933988652"
+              "templateHash": "5133621573253776061"
             }
           },
           "parameters": {
@@ -799,7 +799,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.8.9.13224",
-                      "templateHash": "1041489909203399685"
+                      "templateHash": "8928157586525447195"
                     }
                   },
                   "parameters": {
@@ -901,6 +901,7 @@
                       ]
                     },
                     {
+                      "condition": "[not(empty(parameters('diagnosticWorkspaceId')))]",
                       "type": "Microsoft.Compute/virtualMachines/extensions",
                       "apiVersion": "2021-07-01",
                       "name": "[format('{0}/{1}', parameters('vmName'), 'MicrosoftMonitoringAgent')]",
@@ -3111,7 +3112,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.8.9.13224",
-              "templateHash": "5639288316637047928"
+              "templateHash": "4870743547679789402"
             }
           },
           "parameters": {
@@ -3437,7 +3438,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.8.9.13224",
-                      "templateHash": "1041489909203399685"
+                      "templateHash": "8928157586525447195"
                     }
                   },
                   "parameters": {
@@ -3539,6 +3540,7 @@
                       ]
                     },
                     {
+                      "condition": "[not(empty(parameters('diagnosticWorkspaceId')))]",
                       "type": "Microsoft.Compute/virtualMachines/extensions",
                       "apiVersion": "2021-07-01",
                       "name": "[format('{0}/{1}', parameters('vmName'), 'MicrosoftMonitoringAgent')]",
@@ -4665,7 +4667,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.8.9.13224",
-              "templateHash": "14690171069448333470"
+              "templateHash": "14250164005930762473"
             }
           },
           "parameters": {
@@ -4985,7 +4987,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.8.9.13224",
-                      "templateHash": "1041489909203399685"
+                      "templateHash": "8928157586525447195"
                     }
                   },
                   "parameters": {
@@ -5087,6 +5089,7 @@
                       ]
                     },
                     {
+                      "condition": "[not(empty(parameters('diagnosticWorkspaceId')))]",
                       "type": "Microsoft.Compute/virtualMachines/extensions",
                       "apiVersion": "2021-07-01",
                       "name": "[format('{0}/{1}', parameters('vmName'), 'MicrosoftMonitoringAgent')]",

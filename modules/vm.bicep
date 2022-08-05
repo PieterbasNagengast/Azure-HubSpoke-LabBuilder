@@ -22,8 +22,8 @@ var Windows = {
 
 var Linux = {
   publisher: 'Canonical'
-  offer: '0001-com-ubuntu-server-jammy' 
-  sku: '22_04-lts-gen2' 
+  offer: '0001-com-ubuntu-server-jammy'
+  sku: '22_04-lts-gen2'
   version: 'latest'
 }
 
@@ -63,20 +63,20 @@ resource vm 'Microsoft.Compute/virtualMachines@2021-11-01' = {
       vmSize: vmSize
     }
     diagnosticsProfile: {
-       bootDiagnostics: {
-          enabled: true
-       }
+      bootDiagnostics: {
+        enabled: true
+      }
     }
   }
   tags: contains(tagsByResource, 'Microsoft.Compute/virtualMachines') ? tagsByResource['Microsoft.Compute/virtualMachines'] : {}
 }
 
-resource workspace 'Microsoft.OperationalInsights/workspaces@2021-12-01-preview' existing = {
-  name: last(split(diagnosticWorkspaceId,'/'))
-  scope: az.resourceGroup(split(diagnosticWorkspaceId,'/')[2],split(diagnosticWorkspaceId,'/')[4])
+resource workspace 'Microsoft.OperationalInsights/workspaces@2021-12-01-preview' existing = if (!empty(diagnosticWorkspaceId)) {
+  name: last(split(diagnosticWorkspaceId, '/'))
+  scope: az.resourceGroup(split(diagnosticWorkspaceId, '/')[2], split(diagnosticWorkspaceId, '/')[4])
 }
 
-resource extension 'Microsoft.Compute/virtualMachines/extensions@2021-07-01' = {
+resource extension 'Microsoft.Compute/virtualMachines/extensions@2021-07-01' = if (!empty(diagnosticWorkspaceId)) {
   name: 'MicrosoftMonitoringAgent'
   parent: vm
   location: location
@@ -115,7 +115,7 @@ resource nic 'Microsoft.Network/networkInterfaces@2021-05-01' = {
   tags: contains(tagsByResource, 'Microsoft.Compute/virtualMachines') ? tagsByResource['Microsoft.Compute/virtualMachines'] : {}
 }
 
-resource nic_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (!empty(diagnosticWorkspaceId))  {
+resource nic_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (!empty(diagnosticWorkspaceId)) {
   name: 'LabBuilder-diagnosticSettings'
   properties: {
     workspaceId: !empty(diagnosticWorkspaceId) ? diagnosticWorkspaceId : null
