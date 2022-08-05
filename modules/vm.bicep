@@ -76,7 +76,7 @@ resource workspace 'Microsoft.OperationalInsights/workspaces@2021-12-01-preview'
   scope: az.resourceGroup(split(diagnosticWorkspaceId, '/')[2], split(diagnosticWorkspaceId, '/')[4])
 }
 
-resource extension 'Microsoft.Compute/virtualMachines/extensions@2021-07-01' = if (!empty(diagnosticWorkspaceId)) {
+resource mmaextension 'Microsoft.Compute/virtualMachines/extensions@2021-07-01' = if (!empty(diagnosticWorkspaceId)) {
   name: 'MicrosoftMonitoringAgent'
   parent: vm
   location: location
@@ -87,10 +87,10 @@ resource extension 'Microsoft.Compute/virtualMachines/extensions@2021-07-01' = i
     autoUpgradeMinorVersion: true
     enableAutomaticUpgrade: false
     settings: {
-      workspaceId: workspace.id
+      workspaceId: !empty(diagnosticWorkspaceId) ? reference(workspace.id, workspace.apiVersion).customerId : 'none'
     }
     protectedSettings: {
-      workspaceKey: workspace.listkeys().primarySharedKey
+      workspaceKey: !empty(diagnosticWorkspaceId) ? workspace.listkeys().primarySharedKey : 'none'
     }
   }
 }
