@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.8.9.13224",
-      "templateHash": "4305555120927000545"
+      "templateHash": "7070318716329741303"
     }
   },
   "parameters": {
@@ -446,7 +446,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.8.9.13224",
-              "templateHash": "15196582563619098205"
+              "templateHash": "13622034124933988652"
             }
           },
           "parameters": {
@@ -799,7 +799,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.8.9.13224",
-                      "templateHash": "7773318463548521580"
+                      "templateHash": "1041489909203399685"
                     }
                   },
                   "parameters": {
@@ -898,6 +898,28 @@
                       "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Compute/virtualMachines'), parameters('tagsByResource')['Microsoft.Compute/virtualMachines'], createObject())]",
                       "dependsOn": [
                         "[resourceId('Microsoft.Network/networkInterfaces', format('{0}-nic', parameters('vmName')))]"
+                      ]
+                    },
+                    {
+                      "type": "Microsoft.Compute/virtualMachines/extensions",
+                      "apiVersion": "2021-07-01",
+                      "name": "[format('{0}/{1}', parameters('vmName'), 'MicrosoftMonitoringAgent')]",
+                      "location": "[parameters('location')]",
+                      "properties": {
+                        "publisher": "Microsoft.EnterpriseCloud.Monitoring",
+                        "type": "MicrosoftMonitoringAgent",
+                        "typeHandlerVersion": "1.0",
+                        "autoUpgradeMinorVersion": true,
+                        "enableAutomaticUpgrade": false,
+                        "settings": {
+                          "workspaceId": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('diagnosticWorkspaceId'), '/')[2], split(parameters('diagnosticWorkspaceId'), '/')[4]), 'Microsoft.OperationalInsights/workspaces', last(split(parameters('diagnosticWorkspaceId'), '/')))]"
+                        },
+                        "protectedSettings": {
+                          "workspaceKey": "[listkeys(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('diagnosticWorkspaceId'), '/')[2], split(parameters('diagnosticWorkspaceId'), '/')[4]), 'Microsoft.OperationalInsights/workspaces', last(split(parameters('diagnosticWorkspaceId'), '/'))), '2021-12-01-preview').primarySharedKey]"
+                        }
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
                       ]
                     },
                     {
@@ -3089,7 +3111,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.8.9.13224",
-              "templateHash": "13423916762326848407"
+              "templateHash": "5639288316637047928"
             }
           },
           "parameters": {
@@ -3415,7 +3437,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.8.9.13224",
-                      "templateHash": "7773318463548521580"
+                      "templateHash": "1041489909203399685"
                     }
                   },
                   "parameters": {
@@ -3514,6 +3536,28 @@
                       "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Compute/virtualMachines'), parameters('tagsByResource')['Microsoft.Compute/virtualMachines'], createObject())]",
                       "dependsOn": [
                         "[resourceId('Microsoft.Network/networkInterfaces', format('{0}-nic', parameters('vmName')))]"
+                      ]
+                    },
+                    {
+                      "type": "Microsoft.Compute/virtualMachines/extensions",
+                      "apiVersion": "2021-07-01",
+                      "name": "[format('{0}/{1}', parameters('vmName'), 'MicrosoftMonitoringAgent')]",
+                      "location": "[parameters('location')]",
+                      "properties": {
+                        "publisher": "Microsoft.EnterpriseCloud.Monitoring",
+                        "type": "MicrosoftMonitoringAgent",
+                        "typeHandlerVersion": "1.0",
+                        "autoUpgradeMinorVersion": true,
+                        "enableAutomaticUpgrade": false,
+                        "settings": {
+                          "workspaceId": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('diagnosticWorkspaceId'), '/')[2], split(parameters('diagnosticWorkspaceId'), '/')[4]), 'Microsoft.OperationalInsights/workspaces', last(split(parameters('diagnosticWorkspaceId'), '/')))]"
+                        },
+                        "protectedSettings": {
+                          "workspaceKey": "[listkeys(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('diagnosticWorkspaceId'), '/')[2], split(parameters('diagnosticWorkspaceId'), '/')[4]), 'Microsoft.OperationalInsights/workspaces', last(split(parameters('diagnosticWorkspaceId'), '/'))), '2021-12-01-preview').primarySharedKey]"
+                        }
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
                       ]
                     },
                     {
@@ -4621,7 +4665,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.8.9.13224",
-              "templateHash": "7881629680928607210"
+              "templateHash": "14690171069448333470"
             }
           },
           "parameters": {
@@ -4941,7 +4985,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.8.9.13224",
-                      "templateHash": "7773318463548521580"
+                      "templateHash": "1041489909203399685"
                     }
                   },
                   "parameters": {
@@ -5040,6 +5084,28 @@
                       "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Compute/virtualMachines'), parameters('tagsByResource')['Microsoft.Compute/virtualMachines'], createObject())]",
                       "dependsOn": [
                         "[resourceId('Microsoft.Network/networkInterfaces', format('{0}-nic', parameters('vmName')))]"
+                      ]
+                    },
+                    {
+                      "type": "Microsoft.Compute/virtualMachines/extensions",
+                      "apiVersion": "2021-07-01",
+                      "name": "[format('{0}/{1}', parameters('vmName'), 'MicrosoftMonitoringAgent')]",
+                      "location": "[parameters('location')]",
+                      "properties": {
+                        "publisher": "Microsoft.EnterpriseCloud.Monitoring",
+                        "type": "MicrosoftMonitoringAgent",
+                        "typeHandlerVersion": "1.0",
+                        "autoUpgradeMinorVersion": true,
+                        "enableAutomaticUpgrade": false,
+                        "settings": {
+                          "workspaceId": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('diagnosticWorkspaceId'), '/')[2], split(parameters('diagnosticWorkspaceId'), '/')[4]), 'Microsoft.OperationalInsights/workspaces', last(split(parameters('diagnosticWorkspaceId'), '/')))]"
+                        },
+                        "protectedSettings": {
+                          "workspaceKey": "[listkeys(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('diagnosticWorkspaceId'), '/')[2], split(parameters('diagnosticWorkspaceId'), '/')[4]), 'Microsoft.OperationalInsights/workspaces', last(split(parameters('diagnosticWorkspaceId'), '/'))), '2021-12-01-preview').primarySharedKey]"
+                        }
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
                       ]
                     },
                     {

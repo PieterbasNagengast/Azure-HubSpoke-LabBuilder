@@ -71,6 +71,30 @@ resource vm 'Microsoft.Compute/virtualMachines@2021-11-01' = {
   tags: contains(tagsByResource, 'Microsoft.Compute/virtualMachines') ? tagsByResource['Microsoft.Compute/virtualMachines'] : {}
 }
 
+resource workspace 'Microsoft.OperationalInsights/workspaces@2021-12-01-preview' existing = {
+  name: last(split(diagnosticWorkspaceId,'/'))
+  scope: az.resourceGroup(split(diagnosticWorkspaceId,'/')[2],split(diagnosticWorkspaceId,'/')[4])
+}
+
+resource extension 'Microsoft.Compute/virtualMachines/extensions@2021-07-01' = {
+  name: 'MicrosoftMonitoringAgent'
+  parent: vm
+  location: location
+  properties: {
+    publisher: 'Microsoft.EnterpriseCloud.Monitoring'
+    type: 'MicrosoftMonitoringAgent'
+    typeHandlerVersion: '1.0'
+    autoUpgradeMinorVersion: true
+    enableAutomaticUpgrade: false
+    settings: {
+      workspaceId: workspace.id
+    }
+    protectedSettings: {
+      workspaceKey: workspace.listkeys().primarySharedKey
+    }
+  }
+}
+
 resource nic 'Microsoft.Network/networkInterfaces@2021-05-01' = {
   name: '${vmName}-nic'
   location: location
