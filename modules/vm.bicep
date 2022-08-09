@@ -71,7 +71,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2021-11-01' = {
   tags: contains(tagsByResource, 'Microsoft.Compute/virtualMachines') ? tagsByResource['Microsoft.Compute/virtualMachines'] : {}
 }
 
-resource workspace 'Microsoft.OperationalInsights/workspaces@2021-12-01-preview' existing = if (!empty(diagnosticWorkspaceId)) {
+resource workspace 'Microsoft.OperationalInsights/workspaces@2021-06-01' existing = if (!empty(diagnosticWorkspaceId)) {
   name: last(split(diagnosticWorkspaceId, '/'))
   scope: az.resourceGroup(split(diagnosticWorkspaceId, '/')[2], split(diagnosticWorkspaceId, '/')[4])
 }

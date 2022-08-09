@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.8.9.13224",
-      "templateHash": "1541327489019955916"
+      "templateHash": "7972769812862329151"
     }
   },
   "parameters": {
@@ -446,7 +446,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.8.9.13224",
-              "templateHash": "7857542965997895962"
+              "templateHash": "14977038840193523641"
             }
           },
           "parameters": {
@@ -799,7 +799,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.8.9.13224",
-                      "templateHash": "9344517610493648853"
+                      "templateHash": "562873544578414935"
                     }
                   },
                   "parameters": {
@@ -913,10 +913,10 @@
                         "autoUpgradeMinorVersion": true,
                         "enableAutomaticUpgrade": false,
                         "settings": {
-                          "workspaceId": "[if(not(empty(parameters('diagnosticWorkspaceId'))), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('diagnosticWorkspaceId'), '/')[2], split(parameters('diagnosticWorkspaceId'), '/')[4]), 'Microsoft.OperationalInsights/workspaces', last(split(parameters('diagnosticWorkspaceId'), '/'))), '2021-12-01-preview').customerId, 'none')]"
+                          "workspaceId": "[if(not(empty(parameters('diagnosticWorkspaceId'))), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('diagnosticWorkspaceId'), '/')[2], split(parameters('diagnosticWorkspaceId'), '/')[4]), 'Microsoft.OperationalInsights/workspaces', last(split(parameters('diagnosticWorkspaceId'), '/'))), '2021-06-01').customerId, 'none')]"
                         },
                         "protectedSettings": {
-                          "workspaceKey": "[if(not(empty(parameters('diagnosticWorkspaceId'))), listkeys(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('diagnosticWorkspaceId'), '/')[2], split(parameters('diagnosticWorkspaceId'), '/')[4]), 'Microsoft.OperationalInsights/workspaces', last(split(parameters('diagnosticWorkspaceId'), '/'))), '2021-12-01-preview').primarySharedKey, 'none')]"
+                          "workspaceKey": "[if(not(empty(parameters('diagnosticWorkspaceId'))), listkeys(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('diagnosticWorkspaceId'), '/')[2], split(parameters('diagnosticWorkspaceId'), '/')[4]), 'Microsoft.OperationalInsights/workspaces', last(split(parameters('diagnosticWorkspaceId'), '/'))), '2021-06-01').primarySharedKey, 'none')]"
                         }
                       },
                       "dependsOn": [
@@ -3112,7 +3112,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.8.9.13224",
-              "templateHash": "14963977691727550198"
+              "templateHash": "5758019067615184518"
             }
           },
           "parameters": {
@@ -3438,7 +3438,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.8.9.13224",
-                      "templateHash": "9344517610493648853"
+                      "templateHash": "562873544578414935"
                     }
                   },
                   "parameters": {
@@ -3552,10 +3552,10 @@
                         "autoUpgradeMinorVersion": true,
                         "enableAutomaticUpgrade": false,
                         "settings": {
-                          "workspaceId": "[if(not(empty(parameters('diagnosticWorkspaceId'))), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('diagnosticWorkspaceId'), '/')[2], split(parameters('diagnosticWorkspaceId'), '/')[4]), 'Microsoft.OperationalInsights/workspaces', last(split(parameters('diagnosticWorkspaceId'), '/'))), '2021-12-01-preview').customerId, 'none')]"
+                          "workspaceId": "[if(not(empty(parameters('diagnosticWorkspaceId'))), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('diagnosticWorkspaceId'), '/')[2], split(parameters('diagnosticWorkspaceId'), '/')[4]), 'Microsoft.OperationalInsights/workspaces', last(split(parameters('diagnosticWorkspaceId'), '/'))), '2021-06-01').customerId, 'none')]"
                         },
                         "protectedSettings": {
-                          "workspaceKey": "[if(not(empty(parameters('diagnosticWorkspaceId'))), listkeys(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('diagnosticWorkspaceId'), '/')[2], split(parameters('diagnosticWorkspaceId'), '/')[4]), 'Microsoft.OperationalInsights/workspaces', last(split(parameters('diagnosticWorkspaceId'), '/'))), '2021-12-01-preview').primarySharedKey, 'none')]"
+                          "workspaceKey": "[if(not(empty(parameters('diagnosticWorkspaceId'))), listkeys(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('diagnosticWorkspaceId'), '/')[2], split(parameters('diagnosticWorkspaceId'), '/')[4]), 'Microsoft.OperationalInsights/workspaces', last(split(parameters('diagnosticWorkspaceId'), '/'))), '2021-06-01').primarySharedKey, 'none')]"
                         }
                       },
                       "dependsOn": [
@@ -4667,7 +4667,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.8.9.13224",
-              "templateHash": "2814450907171996916"
+              "templateHash": "18107662185577689697"
             }
           },
           "parameters": {
@@ -4987,7 +4987,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.8.9.13224",
-                      "templateHash": "9344517610493648853"
+                      "templateHash": "562873544578414935"
                     }
                   },
                   "parameters": {
@@ -5101,10 +5101,10 @@
                         "autoUpgradeMinorVersion": true,
                         "enableAutomaticUpgrade": false,
                         "settings": {
-                          "workspaceId": "[if(not(empty(parameters('diagnosticWorkspaceId'))), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('diagnosticWorkspaceId'), '/')[2], split(parameters('diagnosticWorkspaceId'), '/')[4]), 'Microsoft.OperationalInsights/workspaces', last(split(parameters('diagnosticWorkspaceId'), '/'))), '2021-12-01-preview').customerId, 'none')]"
+                          "workspaceId": "[if(not(empty(parameters('diagnosticWorkspaceId'))), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('diagnosticWorkspaceId'), '/')[2], split(parameters('diagnosticWorkspaceId'), '/')[4]), 'Microsoft.OperationalInsights/workspaces', last(split(parameters('diagnosticWorkspaceId'), '/'))), '2021-06-01').customerId, 'none')]"
                         },
                         "protectedSettings": {
-                          "workspaceKey": "[if(not(empty(parameters('diagnosticWorkspaceId'))), listkeys(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('diagnosticWorkspaceId'), '/')[2], split(parameters('diagnosticWorkspaceId'), '/')[4]), 'Microsoft.OperationalInsights/workspaces', last(split(parameters('diagnosticWorkspaceId'), '/'))), '2021-12-01-preview').primarySharedKey, 'none')]"
+                          "workspaceKey": "[if(not(empty(parameters('diagnosticWorkspaceId'))), listkeys(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('diagnosticWorkspaceId'), '/')[2], split(parameters('diagnosticWorkspaceId'), '/')[4]), 'Microsoft.OperationalInsights/workspaces', last(split(parameters('diagnosticWorkspaceId'), '/'))), '2021-06-01').primarySharedKey, 'none')]"
                         }
                       },
                       "dependsOn": [
