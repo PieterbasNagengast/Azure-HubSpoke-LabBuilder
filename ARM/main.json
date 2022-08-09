@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.8.9.13224",
-      "templateHash": "7972769812862329151"
+      "templateHash": "13924804965774445422"
     }
   },
   "parameters": {
@@ -446,7 +446,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.8.9.13224",
-              "templateHash": "14977038840193523641"
+              "templateHash": "2459542022232712137"
             }
           },
           "parameters": {
@@ -1749,7 +1749,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.8.9.13224",
-                      "templateHash": "4965702790083748756"
+                      "templateHash": "16924761411334381622"
                     }
                   },
                   "parameters": {
@@ -1770,7 +1770,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.Network/routeTables/routes",
-                      "apiVersion": "2021-05-01",
+                      "apiVersion": "2021-03-01",
                       "name": "[parameters('routeName')]",
                       "properties": {
                         "nextHopType": "[parameters('routeNextHopType')]",
@@ -1820,7 +1820,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.8.9.13224",
-                      "templateHash": "4965702790083748756"
+                      "templateHash": "16924761411334381622"
                     }
                   },
                   "parameters": {
@@ -1841,7 +1841,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.Network/routeTables/routes",
-                      "apiVersion": "2021-05-01",
+                      "apiVersion": "2021-03-01",
                       "name": "[parameters('routeName')]",
                       "properties": {
                         "nextHopType": "[parameters('routeNextHopType')]",
@@ -2187,7 +2187,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.8.9.13224",
-                      "templateHash": "4965702790083748756"
+                      "templateHash": "16924761411334381622"
                     }
                   },
                   "parameters": {
@@ -2208,7 +2208,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.Network/routeTables/routes",
-                      "apiVersion": "2021-05-01",
+                      "apiVersion": "2021-03-01",
                       "name": "[parameters('routeName')]",
                       "properties": {
                         "nextHopType": "[parameters('routeNextHopType')]",
@@ -3112,7 +3112,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.8.9.13224",
-              "templateHash": "5758019067615184518"
+              "templateHash": "15261814557177620487"
             }
           },
           "parameters": {
@@ -4047,7 +4047,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.8.9.13224",
-                      "templateHash": "4965702790083748756"
+                      "templateHash": "16924761411334381622"
                     }
                   },
                   "parameters": {
@@ -4068,7 +4068,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.Network/routeTables/routes",
-                      "apiVersion": "2021-05-01",
+                      "apiVersion": "2021-03-01",
                       "name": "[parameters('routeName')]",
                       "properties": {
                         "nextHopType": "[parameters('routeNextHopType')]",
@@ -4113,7 +4113,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.8.9.13224",
-                      "templateHash": "4965702790083748756"
+                      "templateHash": "16924761411334381622"
                     }
                   },
                   "parameters": {
@@ -4134,7 +4134,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.Network/routeTables/routes",
-                      "apiVersion": "2021-05-01",
+                      "apiVersion": "2021-03-01",
                       "name": "[parameters('routeName')]",
                       "properties": {
                         "nextHopType": "[parameters('routeNextHopType')]",
