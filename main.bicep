@@ -124,7 +124,7 @@ param deployFirewallInHub bool = true
 param AzureFirewallTier string = 'Standard'
 
 @description('Deploy Firewall policy Rule Collection group which allows spoke-to-spoke and internet traffic')
-param deployFirewallrules bool = false
+param deployFirewallrules bool = true
 
 @description('Dploy route tables (UDR\'s) to VM subnet(s) in Hub and Spokes')
 param deployUDRs bool = true
@@ -376,5 +376,3 @@ output SpokeVnets array = [for i in range(0, amountOfSpokes): deploySpokes ? {
   SpokeVnetId: spokeVnets[i].outputs.spokeVnetID
   SpokeVnetAddressSpace: spokeVnets[i].outputs.spokeVnetAddressSpace
 } : 'none']
-output SpokeVmIDs array = [for i in range(0, amountOfSpokes): deploySpokes && deployVMsInSpokes ? spokeVnets[i].outputs.spokeVmResourceID : 'none']
-output HubVmID array = [ deployHUB && deployVMinHub ? hubVnet.outputs.HubVmResourceID : 'none' ]

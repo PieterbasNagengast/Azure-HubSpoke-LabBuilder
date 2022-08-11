@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.8.9.13224",
-      "templateHash": "13924804965774445422"
+      "templateHash": "7885740245095057094"
     }
   },
   "parameters": {
@@ -249,7 +249,7 @@
     },
     "deployFirewallrules": {
       "type": "bool",
-      "defaultValue": false,
+      "defaultValue": true,
       "metadata": {
         "description": "Deploy Firewall policy Rule Collection group which allows spoke-to-spoke and internet traffic"
       }
@@ -6703,19 +6703,6 @@
         "count": "[length(range(0, parameters('amountOfSpokes')))]",
         "input": "[if(parameters('deploySpokes'), createObject('SpokeVnetId', reference(subscriptionResourceId(parameters('spokeSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]], parameters('location'))), '2020-10-01').outputs.spokeVnetID.value, 'SpokeVnetAddressSpace', reference(subscriptionResourceId(parameters('spokeSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]], parameters('location'))), '2020-10-01').outputs.spokeVnetAddressSpace.value), 'none')]"
       }
-    },
-    "SpokeVmIDs": {
-      "type": "array",
-      "copy": {
-        "count": "[length(range(0, parameters('amountOfSpokes')))]",
-        "input": "[if(and(parameters('deploySpokes'), parameters('deployVMsInSpokes')), reference(subscriptionResourceId(parameters('spokeSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]], parameters('location'))), '2020-10-01').outputs.spokeVmResourceID.value, 'none')]"
-      }
-    },
-    "HubVmID": {
-      "type": "array",
-      "value": [
-        "[if(and(parameters('deployHUB'), parameters('deployVMinHub')), reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))), '2020-10-01').outputs.HubVmResourceID.value, 'none')]"
-      ]
     }
   }
 }
