@@ -8,6 +8,7 @@ param hubRgName string
 param deployFirewallrules bool
 param deployGatewayInHub bool
 param tagsByResource object = {}
+param firewallDNSproxy bool
 
 param diagnosticWorkspaceId string
 
@@ -47,6 +48,7 @@ module AzFirewall 'modules/firewall.bicep' = if (deployFirewallInHub) {
     location: location
     tagsByResource: tagsByResource
     diagnosticWorkspaceId: diagnosticWorkspaceId
+    firewallDNSproxy: firewallDNSproxy
   }
 }
 

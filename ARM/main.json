@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.8.9.13224",
-      "templateHash": "12619690422823305390"
+      "templateHash": "2231779684698640701"
     }
   },
   "parameters": {
@@ -2319,6 +2319,9 @@
           "AzureFirewallTier": {
             "value": "[parameters('AzureFirewallTier')]"
           },
+          "firewallDNSproxy": {
+            "value": "[parameters('firewallDNSproxy')]"
+          },
           "deployFirewallrules": {
             "value": "[and(parameters('deployFirewallrules'), equals(parameters('hubType'), 'VWAN'))]"
           },
@@ -2342,7 +2345,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.8.9.13224",
-              "templateHash": "1040695771600239753"
+              "templateHash": "9655248006842406681"
             }
           },
           "parameters": {
@@ -2370,6 +2373,9 @@
             "tagsByResource": {
               "type": "object",
               "defaultValue": {}
+            },
+            "firewallDNSproxy": {
+              "type": "bool"
             },
             "diagnosticWorkspaceId": {
               "type": "string"
@@ -2531,6 +2537,9 @@
                   },
                   "diagnosticWorkspaceId": {
                     "value": "[parameters('diagnosticWorkspaceId')]"
+                  },
+                  "firewallDNSproxy": {
+                    "value": "[parameters('firewallDNSproxy')]"
                   }
                 },
                 "template": {

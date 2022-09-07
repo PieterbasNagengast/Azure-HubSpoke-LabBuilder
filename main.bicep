@@ -218,6 +218,7 @@ module vwan 'vWanResourceGroup.bicep' = if (deployHUB && hubType == 'VWAN') {
     deployFirewallInHub: deployFirewallInHub && hubType == 'VWAN'
     AddressSpace: AddressSpace
     AzureFirewallTier: AzureFirewallTier
+    firewallDNSproxy: firewallDNSproxy
     deployFirewallrules: deployFirewallrules && hubType == 'VWAN'
     hubRgName: hubRgName
     deployGatewayInHub: deployGatewayInHub && hubType == 'VWAN'
