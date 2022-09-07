@@ -16,6 +16,7 @@
   - [Resource Names](#resource-names)
 - [Parameters overview](#parameters-overview)
 - [Updates](#updates)
+  - [September 2022 updates](#september-2022-updates)
   - [July 2022 updates](#july-2022-updates)
   - [June 2022 updates](#june-2022-updates)
   - [May 2022 updates](#may-2022-updates)
@@ -175,6 +176,8 @@ Within these **main** scenario's there are multiple options (but not limited to 
 | `deployVMinHub` | bool | Deploy VM in Hub VNET | False |  |
 | `deployVMinOnPrem` | bool | Deploy VM in OnPrem VNET | True |  |
 | `deployVMsInSpokes` | bool | Deploy VM in every Spoke VNET | True |  |
+| `diagnosticWorkspaceId` | string | Workspace ID of exsisting LogAnalytics Workspace | | |
+| `firewallDNSproxy` | bool | Enable Azure Firewall DNS proxy | False | |
 | `hubBgp` | bool | Enable BGP on Hub Gateway | True |  |
 | `hubBgpAsn` | int | Hub BGP ASN | 65515 |  |
 | `hubRgName` | string | Hub resource group pre-fix name | rg-hub |  |
@@ -197,6 +200,12 @@ Within these **main** scenario's there are multiple options (but not limited to 
 | `vmSizeSpoke` | string | Spoke Virtual Machine SKU. Default = Standard_B2s | Standard_B2s |  |
 
 ## Updates
+
+### September 2022 updates
+
+- Enable Azure Firewall DNS proxy and set VNET DNS to Firewall IP address
+- Enable Diagnostic settings to log to existing LogAnalytics workspace
+- Deploy Microsoft Monitoring agent if existing LogAnalytics is selected
 
 ### July 2022 updates
 
@@ -222,3 +231,5 @@ Within these **main** scenario's there are multiple options (but not limited to 
 - Virtual machine boot diagnostics (Managed storage account)
 - Virtual machine delete option of Disk and Nic
 - Tags support for resources deployed
+
+

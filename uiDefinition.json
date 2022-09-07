@@ -28,6 +28,22 @@
 								"validationMessage": "The value must match a /16 subnet. 10.[0-255].0.0/16 or 172.[16-31].0.0/16 or 192.168.0.0/16"
 							},
 							"visible": true
+						},
+						{
+							"name": "useLaw",
+							"type": "Microsoft.Common.CheckBox",
+							"label": "Enable Diagnostic settings on resources",
+							"defaultValue": false,
+							"constraints": {
+								"required": false
+							}
+						},
+						{
+							"name": "lawSelector",
+							"type": "Microsoft.Solutions.ResourceSelector",
+							"label": "LogAnalytics Workspace",
+							"resourceType": "Microsoft.OperationalInsights/workspaces",
+							"visible": "[equals(steps('basics').useLaw,true)]"
 						}
 					]
 				},
@@ -807,7 +823,8 @@
 				"vmSizeOnPrem": "[steps('VirtualMachines').OnPremvmSizeSection.vmSize]",
 				"osTypeHub": "[steps('VirtualMachines').HubvmSizeSection.osType]",
 				"osTypeSpoke": "[steps('VirtualMachines').SpokevmSizeSection.osType]",
-				"osTypeOnPrem": "[steps('VirtualMachines').OnPremvmSizeSection.osType]"
+				"osTypeOnPrem": "[steps('VirtualMachines').OnPremvmSizeSection.osType]",
+				"diagnosticWorkspaceId": "[steps('basics').lawSelector.id]"
 			},
 			"kind": "Subscription",
 			"subscriptionId": "[steps('basics').resourceScope.subscription.id]",
