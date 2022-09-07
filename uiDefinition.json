@@ -209,6 +209,17 @@
 							"visible": "[and(equals(steps('HubVNET').deployHUB,true),equals(steps('HubVNET').deployFirewallInHub,true))]"
 						},
 						{
+							"name": "AzureFirewallDNSproxy",
+							"type": "Microsoft.Common.CheckBox",
+							"label": "Enable Azure Firewall DNS Proxy",
+							"defaultValue": false,
+							"toolTip": "Enable Azure Firewall DNS Proxy",
+							"constraints": {
+								"required": false
+							},
+							"visible": "[and(equals(steps('HubVNET').deployHUB,true),equals(steps('HubVNET').deployFirewallInHub,true))]"
+						},
+						{
 							"name": "deployFirewallrules",
 							"type": "Microsoft.Common.CheckBox",
 							"label": "Deploy Firewall policy rules",
@@ -776,6 +787,7 @@
 				"deployUDRs": "[steps('HubVNET').deployUDRs]",
 				"spokeRgNamePrefix": "[steps('SpokeVNETs').spokeRgNamePrefix]",
 				"deployFirewallrules": "[coalesce(steps('HubVNET').deployFirewallrules,false)]",
+				"AzureFirewallDNSproxy": "[coalesce(steps('HubVNET').AzureFirewallDNSproxy,false)]",
 				"deployOnPrem": "[coalesce(steps('OnPrem').deployOnPrem,false)]",
 				"onpremRgName": "[steps('OnPrem').OnPremRgName]",
 				"deployBastionInOnPrem": "[coalesce(steps('OnPrem').deployBastionInOnPrem,false)]",

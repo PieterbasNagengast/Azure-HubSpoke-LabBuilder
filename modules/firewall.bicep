@@ -10,7 +10,7 @@ param tagsByResource object = {}
 param vWanID string = ''
 param vWanAzFwPublicIPcount int = 1
 param deployInVWan bool = false
-
+param firewallDNSproxy bool = false
 param diagnosticWorkspaceId string
 
 var azfwSKUname = deployInVWan ? 'AZFW_Hub' : 'AZFW_VNet'
@@ -84,6 +84,9 @@ resource azfwpolicy 'Microsoft.Network/firewallPolicies@2021-05-01' = {
       tier: azfwTier
     }
     threatIntelMode: 'Alert'
+    dnsSettings: {
+      enableProxy: firewallDNSproxy
+    }
   }
   tags: contains(tagsByResource, 'Microsoft.Network/firewallPolicies') ? tagsByResource['Microsoft.Network/firewallPolicies'] : {}
 }

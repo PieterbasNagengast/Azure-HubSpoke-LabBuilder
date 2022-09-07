@@ -18,6 +18,7 @@ param vmSize string
 param tagsByResource object
 param osType string
 param AllSpokeAddressSpaces array
+param firewallDNSproxy bool
 
 param vpnGwEnebaleBgp bool
 param vpnGwBgpAsn int
@@ -118,6 +119,7 @@ module firewall 'modules/firewall.bicep' = if (deployFirewallInHub) {
     azfwTier: AzureFirewallTier
     tagsByResource: tagsByResource
     diagnosticWorkspaceId: diagnosticWorkspaceId
+    firewallDNSproxy: firewallDNSproxy
   }
 }
 

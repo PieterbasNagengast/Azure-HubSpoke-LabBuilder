@@ -126,6 +126,9 @@ param AzureFirewallTier string = 'Standard'
 @description('Deploy Firewall policy Rule Collection group which allows spoke-to-spoke and internet traffic')
 param deployFirewallrules bool = true
 
+@description('Enable Azure Firewall DNS Proxy')
+param firewallDNSproxy bool = false
+
 @description('Dploy route tables (UDR\'s) to VM subnet(s) in Hub and Spokes')
 param deployUDRs bool = true
 
@@ -202,6 +205,7 @@ module hubVnet 'HubResourceGroup.bicep' = if (deployHUB && hubType == 'VNET') {
     deployUDRs: deployUDRs
     bastionSku: bastionInHubSKU
     diagnosticWorkspaceId: diagnosticWorkspaceId
+    firewallDNSproxy: firewallDNSproxy
   }
 }
 
