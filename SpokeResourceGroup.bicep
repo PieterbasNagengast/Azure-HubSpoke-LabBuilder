@@ -18,6 +18,7 @@ param vmSize string
 param tagsByResource object
 param osType string
 param hubDefaultSubnetPrefix string
+param firewallDNSproxy bool
 
 param diagnosticWorkspaceId string
 
@@ -27,7 +28,7 @@ var rtName = 'RT-Spoke${counter}'
 var nsgName = 'NSG-Spoke${counter}'
 var bastionName = 'Bastion-Spoke${counter}'
 
-var vnetAddressSpace = replace(AddressSpace,'0.0/16', '${counter}.0/24')
+var vnetAddressSpace = replace(AddressSpace, '0.0/16', '${counter}.0/24')
 var defaultSubnetPrefix = replace(vnetAddressSpace, '/24', '/26')
 var bastionSubnetPrefix = replace(vnetAddressSpace, '0/24', '128/27')
 
@@ -51,6 +52,8 @@ module vnet 'modules/vnet.bicep' = {
     deployBastionSubnet: deployBastionInSpoke
     tagsByResource: tagsByResource
     diagnosticWorkspaceId: diagnosticWorkspaceId
+    firewallDNSproxy: firewallDNSproxy
+    azFwIp: AzureFirewallpip
   }
 }
 

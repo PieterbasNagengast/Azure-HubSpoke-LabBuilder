@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.8.9.13224",
-      "templateHash": "2231779684698640701"
+      "templateHash": "7616893103012108043"
     }
   },
   "parameters": {
@@ -456,7 +456,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.8.9.13224",
-              "templateHash": "278307652476533412"
+              "templateHash": "17573261707049675130"
             }
           },
           "parameters": {
@@ -530,6 +530,7 @@
             "firewallSubnetPrefix": "[replace(variables('vnetAddressSpace'), '0/24', '64/26')]",
             "bastionSubnetPrefix": "[replace(variables('vnetAddressSpace'), '0/24', '128/27')]",
             "gatewaySubnetPrefix": "[replace(variables('vnetAddressSpace'), '0/24', '160/27')]",
+            "firewallIP": "[replace(variables('firewallSubnetPrefix'), '64/26', '68')]",
             "vmName": "VM-Hub",
             "nsgName": "NSG-Hub",
             "bastionName": "Bastion-Hub",
@@ -602,6 +603,12 @@
                   },
                   "diagnosticWorkspaceId": {
                     "value": "[parameters('diagnosticWorkspaceId')]"
+                  },
+                  "azFwIp": {
+                    "value": "[variables('firewallIP')]"
+                  },
+                  "firewallDNSproxy": {
+                    "value": "[parameters('firewallDNSproxy')]"
                   }
                 },
                 "template": {
@@ -611,7 +618,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.8.9.13224",
-                      "templateHash": "83679691839837816"
+                      "templateHash": "15536615309523010479"
                     }
                   },
                   "parameters": {
@@ -666,6 +673,14 @@
                       "type": "object",
                       "defaultValue": {}
                     },
+                    "firewallDNSproxy": {
+                      "type": "bool",
+                      "defaultValue": false
+                    },
+                    "azFwIp": {
+                      "type": "string",
+                      "defaultValue": ""
+                    },
                     "diagnosticWorkspaceId": {
                       "type": "string"
                     }
@@ -694,6 +709,11 @@
                       "name": "[parameters('vnetname')]",
                       "location": "[parameters('location')]",
                       "properties": {
+                        "dhcpOptions": {
+                          "dnsServers": [
+                            "[if(parameters('firewallDNSproxy'), parameters('azFwIp'), '')]"
+                          ]
+                        },
                         "addressSpace": {
                           "addressPrefixes": [
                             "[parameters('vnetAddressSpcae')]"
@@ -3142,6 +3162,9 @@
           },
           "diagnosticWorkspaceId": {
             "value": "[parameters('diagnosticWorkspaceId')]"
+          },
+          "firewallDNSproxy": {
+            "value": "[parameters('firewallDNSproxy')]"
           }
         },
         "template": {
@@ -3151,7 +3174,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.8.9.13224",
-              "templateHash": "15261814557177620487"
+              "templateHash": "1003915639544483306"
             }
           },
           "parameters": {
@@ -3205,6 +3228,9 @@
             },
             "hubDefaultSubnetPrefix": {
               "type": "string"
+            },
+            "firewallDNSproxy": {
+              "type": "bool"
             },
             "diagnosticWorkspaceId": {
               "type": "string"
@@ -3268,6 +3294,12 @@
                   },
                   "diagnosticWorkspaceId": {
                     "value": "[parameters('diagnosticWorkspaceId')]"
+                  },
+                  "firewallDNSproxy": {
+                    "value": "[parameters('firewallDNSproxy')]"
+                  },
+                  "azFwIp": {
+                    "value": "[parameters('AzureFirewallpip')]"
                   }
                 },
                 "template": {
@@ -3277,7 +3309,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.8.9.13224",
-                      "templateHash": "83679691839837816"
+                      "templateHash": "15536615309523010479"
                     }
                   },
                   "parameters": {
@@ -3332,6 +3364,14 @@
                       "type": "object",
                       "defaultValue": {}
                     },
+                    "firewallDNSproxy": {
+                      "type": "bool",
+                      "defaultValue": false
+                    },
+                    "azFwIp": {
+                      "type": "string",
+                      "defaultValue": ""
+                    },
                     "diagnosticWorkspaceId": {
                       "type": "string"
                     }
@@ -3360,6 +3400,11 @@
                       "name": "[parameters('vnetname')]",
                       "location": "[parameters('location')]",
                       "properties": {
+                        "dhcpOptions": {
+                          "dnsServers": [
+                            "[if(parameters('firewallDNSproxy'), parameters('azFwIp'), '')]"
+                          ]
+                        },
                         "addressSpace": {
                           "addressPrefixes": [
                             "[parameters('vnetAddressSpcae')]"
@@ -4706,7 +4751,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.8.9.13224",
-              "templateHash": "18107662185577689697"
+              "templateHash": "3806974578434604084"
             }
           },
           "parameters": {
@@ -4827,7 +4872,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.8.9.13224",
-                      "templateHash": "83679691839837816"
+                      "templateHash": "15536615309523010479"
                     }
                   },
                   "parameters": {
@@ -4882,6 +4927,14 @@
                       "type": "object",
                       "defaultValue": {}
                     },
+                    "firewallDNSproxy": {
+                      "type": "bool",
+                      "defaultValue": false
+                    },
+                    "azFwIp": {
+                      "type": "string",
+                      "defaultValue": ""
+                    },
                     "diagnosticWorkspaceId": {
                       "type": "string"
                     }
@@ -4910,6 +4963,11 @@
                       "name": "[parameters('vnetname')]",
                       "location": "[parameters('location')]",
                       "properties": {
+                        "dhcpOptions": {
+                          "dnsServers": [
+                            "[if(parameters('firewallDNSproxy'), parameters('azFwIp'), '')]"
+                          ]
+                        },
                         "addressSpace": {
                           "addressPrefixes": [
                             "[parameters('vnetAddressSpcae')]"

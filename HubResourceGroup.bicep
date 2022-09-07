@@ -30,6 +30,7 @@ var defaultSubnetPrefix = replace(vnetAddressSpace, '/24', '/26')
 var firewallSubnetPrefix = replace(vnetAddressSpace, '0/24', '64/26')
 var bastionSubnetPrefix = replace(vnetAddressSpace, '0/24', '128/27')
 var gatewaySubnetPrefix = replace(vnetAddressSpace, '0/24', '160/27')
+var firewallIP = replace(firewallSubnetPrefix, '64/26', '68')
 
 var vmName = 'VM-Hub'
 var nsgName = 'NSG-Hub'
@@ -65,6 +66,8 @@ module vnet 'modules/vnet.bicep' = {
     deployGatewaySubnet: deployGatewayInHub
     tagsByResource: tagsByResource
     diagnosticWorkspaceId: diagnosticWorkspaceId
+    azFwIp: firewallIP
+    firewallDNSproxy: firewallDNSproxy
   }
 }
 

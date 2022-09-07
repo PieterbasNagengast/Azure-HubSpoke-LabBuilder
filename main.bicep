@@ -250,6 +250,7 @@ module spokeVnets 'SpokeResourceGroup.bicep' = [for i in range(1, amountOfSpokes
     deployUDRs: deployUDRs
     bastionSku: bastionInSpokeSKU
     diagnosticWorkspaceId: diagnosticWorkspaceId
+    firewallDNSproxy: firewallDNSproxy
   }
 }]
 

@@ -12,6 +12,8 @@ param deployBastionSubnet bool = false
 param deployFirewallSubnet bool = false
 param deployGatewaySubnet bool = false
 param tagsByResource object = {}
+param firewallDNSproxy bool = false
+param azFwIp string = ''
 
 param diagnosticWorkspaceId string
 
@@ -60,6 +62,11 @@ resource vnet 'Microsoft.Network/virtualNetworks@2021-05-01' = {
   name: vnetname
   location: location
   properties: {
+    dhcpOptions:{
+      dnsServers: [
+        firewallDNSproxy ? azFwIp : ''
+      ]
+    }
     addressSpace: {
       addressPrefixes: [
         vnetAddressSpcae
