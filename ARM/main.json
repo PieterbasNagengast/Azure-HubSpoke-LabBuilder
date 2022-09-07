@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.8.9.13224",
-      "templateHash": "7885740245095057094"
+      "templateHash": "12619690422823305390"
     }
   },
   "parameters": {
@@ -254,6 +254,13 @@
         "description": "Deploy Firewall policy Rule Collection group which allows spoke-to-spoke and internet traffic"
       }
     },
+    "firewallDNSproxy": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Enable Azure Firewall DNS Proxy"
+      }
+    },
     "deployUDRs": {
       "type": "bool",
       "defaultValue": true,
@@ -437,6 +444,9 @@
           },
           "diagnosticWorkspaceId": {
             "value": "[parameters('diagnosticWorkspaceId')]"
+          },
+          "firewallDNSproxy": {
+            "value": "[parameters('firewallDNSproxy')]"
           }
         },
         "template": {
@@ -446,7 +456,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.8.9.13224",
-              "templateHash": "2459542022232712137"
+              "templateHash": "278307652476533412"
             }
           },
           "parameters": {
@@ -500,6 +510,9 @@
             },
             "AllSpokeAddressSpaces": {
               "type": "array"
+            },
+            "firewallDNSproxy": {
+              "type": "bool"
             },
             "vpnGwEnebaleBgp": {
               "type": "bool"
@@ -1335,6 +1348,9 @@
                   },
                   "diagnosticWorkspaceId": {
                     "value": "[parameters('diagnosticWorkspaceId')]"
+                  },
+                  "firewallDNSproxy": {
+                    "value": "[parameters('firewallDNSproxy')]"
                   }
                 },
                 "template": {
@@ -1344,7 +1360,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.8.9.13224",
-                      "templateHash": "3727433071216799800"
+                      "templateHash": "6317012942832855533"
                     }
                   },
                   "parameters": {
@@ -1378,6 +1394,10 @@
                       "defaultValue": 1
                     },
                     "deployInVWan": {
+                      "type": "bool",
+                      "defaultValue": false
+                    },
+                    "firewallDNSproxy": {
                       "type": "bool",
                       "defaultValue": false
                     },
@@ -1450,7 +1470,10 @@
                         "sku": {
                           "tier": "[parameters('azfwTier')]"
                         },
-                        "threatIntelMode": "Alert"
+                        "threatIntelMode": "Alert",
+                        "dnsSettings": {
+                          "enableProxy": "[parameters('firewallDNSproxy')]"
+                        }
                       },
                       "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/firewallPolicies'), parameters('tagsByResource')['Microsoft.Network/firewallPolicies'], createObject())]"
                     },
@@ -2319,7 +2342,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.8.9.13224",
-              "templateHash": "4779831404959992469"
+              "templateHash": "1040695771600239753"
             }
           },
           "parameters": {
@@ -2517,7 +2540,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.8.9.13224",
-                      "templateHash": "3727433071216799800"
+                      "templateHash": "6317012942832855533"
                     }
                   },
                   "parameters": {
@@ -2551,6 +2574,10 @@
                       "defaultValue": 1
                     },
                     "deployInVWan": {
+                      "type": "bool",
+                      "defaultValue": false
+                    },
+                    "firewallDNSproxy": {
                       "type": "bool",
                       "defaultValue": false
                     },
@@ -2623,7 +2650,10 @@
                         "sku": {
                           "tier": "[parameters('azfwTier')]"
                         },
-                        "threatIntelMode": "Alert"
+                        "threatIntelMode": "Alert",
+                        "dnsSettings": {
+                          "enableProxy": "[parameters('firewallDNSproxy')]"
+                        }
                       },
                       "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/firewallPolicies'), parameters('tagsByResource')['Microsoft.Network/firewallPolicies'], createObject())]"
                     },
