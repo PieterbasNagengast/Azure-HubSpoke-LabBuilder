@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.8.9.13224",
-      "templateHash": "7616893103012108043"
+      "templateHash": "4493263467873358660"
     }
   },
   "parameters": {
@@ -456,7 +456,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.8.9.13224",
-              "templateHash": "17573261707049675130"
+              "templateHash": "1056329733192539765"
             }
           },
           "parameters": {
@@ -832,7 +832,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.8.9.13224",
-                      "templateHash": "562873544578414935"
+                      "templateHash": "14149726310931524118"
                     }
                   },
                   "parameters": {
@@ -872,6 +872,9 @@
                   },
                   "variables": {
                     "EnableICMPv4": "netsh advfirewall firewall add rule name=\"ICMP Allow incoming V4 echo request\" protocol=\"icmpv4:8,any\" dir=in action=allow",
+                    "AmaExtensionName": "[if(equals(parameters('osType'), 'Windows'), 'AzureMonitorWindowsAgent', 'AzureMonitorLinuxAgent')]",
+                    "AmaExtensionType": "[if(equals(parameters('osType'), 'Windows'), 'AzureMonitorWindowsAgent', 'AzureMonitorLinuxAgent')]",
+                    "AmaExtensionVersion": "1.0",
                     "Windows": {
                       "publisher": "MicrosoftWindowsServer",
                       "offer": "WindowsServer",
@@ -892,6 +895,9 @@
                       "apiVersion": "2021-11-01",
                       "name": "[parameters('vmName')]",
                       "location": "[parameters('location')]",
+                      "identity": {
+                        "type": "SystemAssigned"
+                      },
                       "properties": {
                         "osProfile": {
                           "computerName": "[parameters('vmName')]",
@@ -935,24 +941,74 @@
                     },
                     {
                       "condition": "[not(empty(parameters('diagnosticWorkspaceId')))]",
-                      "type": "Microsoft.Compute/virtualMachines/extensions",
-                      "apiVersion": "2021-07-01",
-                      "name": "[format('{0}/{1}', parameters('vmName'), 'MicrosoftMonitoringAgent')]",
+                      "type": "Microsoft.Insights/dataCollectionRules",
+                      "apiVersion": "2021-04-01",
+                      "name": "[format('MSVMI-{0}', split(parameters('diagnosticWorkspaceId'), '/')[8])]",
                       "location": "[parameters('location')]",
                       "properties": {
-                        "publisher": "Microsoft.EnterpriseCloud.Monitoring",
-                        "type": "MicrosoftMonitoringAgent",
-                        "typeHandlerVersion": "1.0",
-                        "autoUpgradeMinorVersion": true,
-                        "enableAutomaticUpgrade": false,
-                        "settings": {
-                          "workspaceId": "[if(not(empty(parameters('diagnosticWorkspaceId'))), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('diagnosticWorkspaceId'), '/')[2], split(parameters('diagnosticWorkspaceId'), '/')[4]), 'Microsoft.OperationalInsights/workspaces', last(split(parameters('diagnosticWorkspaceId'), '/'))), '2021-06-01').customerId, 'none')]"
+                        "description": "Data collection rule for VM Insights.",
+                        "dataSources": {
+                          "performanceCounters": [
+                            {
+                              "name": "VMInsightsPerfCounters",
+                              "streams": [
+                                "Microsoft-InsightsMetrics"
+                              ],
+                              "samplingFrequencyInSeconds": 60,
+                              "counterSpecifiers": [
+                                "\\VmInsights\\DetailedMetrics"
+                              ]
+                            }
+                          ]
                         },
-                        "protectedSettings": {
-                          "workspaceKey": "[if(not(empty(parameters('diagnosticWorkspaceId'))), listkeys(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('diagnosticWorkspaceId'), '/')[2], split(parameters('diagnosticWorkspaceId'), '/')[4]), 'Microsoft.OperationalInsights/workspaces', last(split(parameters('diagnosticWorkspaceId'), '/'))), '2021-06-01').primarySharedKey, 'none')]"
-                        }
+                        "destinations": {
+                          "logAnalytics": [
+                            {
+                              "name": "VMInsightsPerf-Logs-Dest",
+                              "workspaceResourceId": "[parameters('diagnosticWorkspaceId')]"
+                            }
+                          ]
+                        },
+                        "dataFlows": [
+                          {
+                            "streams": [
+                              "Microsoft-InsightsMetrics"
+                            ],
+                            "destinations": [
+                              "VMInsightsPerf-Logs-Dest"
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "condition": "[not(empty(parameters('diagnosticWorkspaceId')))]",
+                      "type": "Microsoft.Compute/virtualMachines/extensions",
+                      "apiVersion": "2022-03-01",
+                      "name": "[format('{0}/{1}', parameters('vmName'), variables('AmaExtensionName'))]",
+                      "location": "[parameters('location')]",
+                      "properties": {
+                        "publisher": "Microsoft.Azure.Monitor",
+                        "type": "[variables('AmaExtensionType')]",
+                        "typeHandlerVersion": "[variables('AmaExtensionVersion')]",
+                        "autoUpgradeMinorVersion": true
                       },
                       "dependsOn": [
+                        "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
+                      ]
+                    },
+                    {
+                      "condition": "[not(empty(parameters('diagnosticWorkspaceId')))]",
+                      "type": "Microsoft.Insights/dataCollectionRuleAssociations",
+                      "apiVersion": "2021-04-01",
+                      "scope": "[format('Microsoft.Compute/virtualMachines/{0}', parameters('vmName'))]",
+                      "name": "VMInsights-Dcr-Association",
+                      "properties": {
+                        "dataCollectionRuleId": "[resourceId('Microsoft.Insights/dataCollectionRules', format('MSVMI-{0}', split(parameters('diagnosticWorkspaceId'), '/')[8]))]",
+                        "description": "Association of data collection rule for VM Insights."
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Insights/dataCollectionRules', format('MSVMI-{0}', split(parameters('diagnosticWorkspaceId'), '/')[8]))]",
                         "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
                       ]
                     },
@@ -3174,7 +3230,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.8.9.13224",
-              "templateHash": "1003915639544483306"
+              "templateHash": "5348761389814058249"
             }
           },
           "parameters": {
@@ -3522,7 +3578,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.8.9.13224",
-                      "templateHash": "562873544578414935"
+                      "templateHash": "14149726310931524118"
                     }
                   },
                   "parameters": {
@@ -3562,6 +3618,9 @@
                   },
                   "variables": {
                     "EnableICMPv4": "netsh advfirewall firewall add rule name=\"ICMP Allow incoming V4 echo request\" protocol=\"icmpv4:8,any\" dir=in action=allow",
+                    "AmaExtensionName": "[if(equals(parameters('osType'), 'Windows'), 'AzureMonitorWindowsAgent', 'AzureMonitorLinuxAgent')]",
+                    "AmaExtensionType": "[if(equals(parameters('osType'), 'Windows'), 'AzureMonitorWindowsAgent', 'AzureMonitorLinuxAgent')]",
+                    "AmaExtensionVersion": "1.0",
                     "Windows": {
                       "publisher": "MicrosoftWindowsServer",
                       "offer": "WindowsServer",
@@ -3582,6 +3641,9 @@
                       "apiVersion": "2021-11-01",
                       "name": "[parameters('vmName')]",
                       "location": "[parameters('location')]",
+                      "identity": {
+                        "type": "SystemAssigned"
+                      },
                       "properties": {
                         "osProfile": {
                           "computerName": "[parameters('vmName')]",
@@ -3625,24 +3687,74 @@
                     },
                     {
                       "condition": "[not(empty(parameters('diagnosticWorkspaceId')))]",
-                      "type": "Microsoft.Compute/virtualMachines/extensions",
-                      "apiVersion": "2021-07-01",
-                      "name": "[format('{0}/{1}', parameters('vmName'), 'MicrosoftMonitoringAgent')]",
+                      "type": "Microsoft.Insights/dataCollectionRules",
+                      "apiVersion": "2021-04-01",
+                      "name": "[format('MSVMI-{0}', split(parameters('diagnosticWorkspaceId'), '/')[8])]",
                       "location": "[parameters('location')]",
                       "properties": {
-                        "publisher": "Microsoft.EnterpriseCloud.Monitoring",
-                        "type": "MicrosoftMonitoringAgent",
-                        "typeHandlerVersion": "1.0",
-                        "autoUpgradeMinorVersion": true,
-                        "enableAutomaticUpgrade": false,
-                        "settings": {
-                          "workspaceId": "[if(not(empty(parameters('diagnosticWorkspaceId'))), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('diagnosticWorkspaceId'), '/')[2], split(parameters('diagnosticWorkspaceId'), '/')[4]), 'Microsoft.OperationalInsights/workspaces', last(split(parameters('diagnosticWorkspaceId'), '/'))), '2021-06-01').customerId, 'none')]"
+                        "description": "Data collection rule for VM Insights.",
+                        "dataSources": {
+                          "performanceCounters": [
+                            {
+                              "name": "VMInsightsPerfCounters",
+                              "streams": [
+                                "Microsoft-InsightsMetrics"
+                              ],
+                              "samplingFrequencyInSeconds": 60,
+                              "counterSpecifiers": [
+                                "\\VmInsights\\DetailedMetrics"
+                              ]
+                            }
+                          ]
                         },
-                        "protectedSettings": {
-                          "workspaceKey": "[if(not(empty(parameters('diagnosticWorkspaceId'))), listkeys(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('diagnosticWorkspaceId'), '/')[2], split(parameters('diagnosticWorkspaceId'), '/')[4]), 'Microsoft.OperationalInsights/workspaces', last(split(parameters('diagnosticWorkspaceId'), '/'))), '2021-06-01').primarySharedKey, 'none')]"
-                        }
+                        "destinations": {
+                          "logAnalytics": [
+                            {
+                              "name": "VMInsightsPerf-Logs-Dest",
+                              "workspaceResourceId": "[parameters('diagnosticWorkspaceId')]"
+                            }
+                          ]
+                        },
+                        "dataFlows": [
+                          {
+                            "streams": [
+                              "Microsoft-InsightsMetrics"
+                            ],
+                            "destinations": [
+                              "VMInsightsPerf-Logs-Dest"
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "condition": "[not(empty(parameters('diagnosticWorkspaceId')))]",
+                      "type": "Microsoft.Compute/virtualMachines/extensions",
+                      "apiVersion": "2022-03-01",
+                      "name": "[format('{0}/{1}', parameters('vmName'), variables('AmaExtensionName'))]",
+                      "location": "[parameters('location')]",
+                      "properties": {
+                        "publisher": "Microsoft.Azure.Monitor",
+                        "type": "[variables('AmaExtensionType')]",
+                        "typeHandlerVersion": "[variables('AmaExtensionVersion')]",
+                        "autoUpgradeMinorVersion": true
                       },
                       "dependsOn": [
+                        "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
+                      ]
+                    },
+                    {
+                      "condition": "[not(empty(parameters('diagnosticWorkspaceId')))]",
+                      "type": "Microsoft.Insights/dataCollectionRuleAssociations",
+                      "apiVersion": "2021-04-01",
+                      "scope": "[format('Microsoft.Compute/virtualMachines/{0}', parameters('vmName'))]",
+                      "name": "VMInsights-Dcr-Association",
+                      "properties": {
+                        "dataCollectionRuleId": "[resourceId('Microsoft.Insights/dataCollectionRules', format('MSVMI-{0}', split(parameters('diagnosticWorkspaceId'), '/')[8]))]",
+                        "description": "Association of data collection rule for VM Insights."
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Insights/dataCollectionRules', format('MSVMI-{0}', split(parameters('diagnosticWorkspaceId'), '/')[8]))]",
                         "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
                       ]
                     },
@@ -4751,7 +4863,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.8.9.13224",
-              "templateHash": "3806974578434604084"
+              "templateHash": "8489844305362992280"
             }
           },
           "parameters": {
@@ -5084,7 +5196,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.8.9.13224",
-                      "templateHash": "562873544578414935"
+                      "templateHash": "14149726310931524118"
                     }
                   },
                   "parameters": {
@@ -5124,6 +5236,9 @@
                   },
                   "variables": {
                     "EnableICMPv4": "netsh advfirewall firewall add rule name=\"ICMP Allow incoming V4 echo request\" protocol=\"icmpv4:8,any\" dir=in action=allow",
+                    "AmaExtensionName": "[if(equals(parameters('osType'), 'Windows'), 'AzureMonitorWindowsAgent', 'AzureMonitorLinuxAgent')]",
+                    "AmaExtensionType": "[if(equals(parameters('osType'), 'Windows'), 'AzureMonitorWindowsAgent', 'AzureMonitorLinuxAgent')]",
+                    "AmaExtensionVersion": "1.0",
                     "Windows": {
                       "publisher": "MicrosoftWindowsServer",
                       "offer": "WindowsServer",
@@ -5144,6 +5259,9 @@
                       "apiVersion": "2021-11-01",
                       "name": "[parameters('vmName')]",
                       "location": "[parameters('location')]",
+                      "identity": {
+                        "type": "SystemAssigned"
+                      },
                       "properties": {
                         "osProfile": {
                           "computerName": "[parameters('vmName')]",
@@ -5187,24 +5305,74 @@
                     },
                     {
                       "condition": "[not(empty(parameters('diagnosticWorkspaceId')))]",
-                      "type": "Microsoft.Compute/virtualMachines/extensions",
-                      "apiVersion": "2021-07-01",
-                      "name": "[format('{0}/{1}', parameters('vmName'), 'MicrosoftMonitoringAgent')]",
+                      "type": "Microsoft.Insights/dataCollectionRules",
+                      "apiVersion": "2021-04-01",
+                      "name": "[format('MSVMI-{0}', split(parameters('diagnosticWorkspaceId'), '/')[8])]",
                       "location": "[parameters('location')]",
                       "properties": {
-                        "publisher": "Microsoft.EnterpriseCloud.Monitoring",
-                        "type": "MicrosoftMonitoringAgent",
-                        "typeHandlerVersion": "1.0",
-                        "autoUpgradeMinorVersion": true,
-                        "enableAutomaticUpgrade": false,
-                        "settings": {
-                          "workspaceId": "[if(not(empty(parameters('diagnosticWorkspaceId'))), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('diagnosticWorkspaceId'), '/')[2], split(parameters('diagnosticWorkspaceId'), '/')[4]), 'Microsoft.OperationalInsights/workspaces', last(split(parameters('diagnosticWorkspaceId'), '/'))), '2021-06-01').customerId, 'none')]"
+                        "description": "Data collection rule for VM Insights.",
+                        "dataSources": {
+                          "performanceCounters": [
+                            {
+                              "name": "VMInsightsPerfCounters",
+                              "streams": [
+                                "Microsoft-InsightsMetrics"
+                              ],
+                              "samplingFrequencyInSeconds": 60,
+                              "counterSpecifiers": [
+                                "\\VmInsights\\DetailedMetrics"
+                              ]
+                            }
+                          ]
                         },
-                        "protectedSettings": {
-                          "workspaceKey": "[if(not(empty(parameters('diagnosticWorkspaceId'))), listkeys(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', split(parameters('diagnosticWorkspaceId'), '/')[2], split(parameters('diagnosticWorkspaceId'), '/')[4]), 'Microsoft.OperationalInsights/workspaces', last(split(parameters('diagnosticWorkspaceId'), '/'))), '2021-06-01').primarySharedKey, 'none')]"
-                        }
+                        "destinations": {
+                          "logAnalytics": [
+                            {
+                              "name": "VMInsightsPerf-Logs-Dest",
+                              "workspaceResourceId": "[parameters('diagnosticWorkspaceId')]"
+                            }
+                          ]
+                        },
+                        "dataFlows": [
+                          {
+                            "streams": [
+                              "Microsoft-InsightsMetrics"
+                            ],
+                            "destinations": [
+                              "VMInsightsPerf-Logs-Dest"
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "condition": "[not(empty(parameters('diagnosticWorkspaceId')))]",
+                      "type": "Microsoft.Compute/virtualMachines/extensions",
+                      "apiVersion": "2022-03-01",
+                      "name": "[format('{0}/{1}', parameters('vmName'), variables('AmaExtensionName'))]",
+                      "location": "[parameters('location')]",
+                      "properties": {
+                        "publisher": "Microsoft.Azure.Monitor",
+                        "type": "[variables('AmaExtensionType')]",
+                        "typeHandlerVersion": "[variables('AmaExtensionVersion')]",
+                        "autoUpgradeMinorVersion": true
                       },
                       "dependsOn": [
+                        "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
+                      ]
+                    },
+                    {
+                      "condition": "[not(empty(parameters('diagnosticWorkspaceId')))]",
+                      "type": "Microsoft.Insights/dataCollectionRuleAssociations",
+                      "apiVersion": "2021-04-01",
+                      "scope": "[format('Microsoft.Compute/virtualMachines/{0}', parameters('vmName'))]",
+                      "name": "VMInsights-Dcr-Association",
+                      "properties": {
+                        "dataCollectionRuleId": "[resourceId('Microsoft.Insights/dataCollectionRules', format('MSVMI-{0}', split(parameters('diagnosticWorkspaceId'), '/')[8]))]",
+                        "description": "Association of data collection rule for VM Insights."
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Insights/dataCollectionRules', format('MSVMI-{0}', split(parameters('diagnosticWorkspaceId'), '/')[8]))]",
                         "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
                       ]
                     },
