@@ -13,6 +13,10 @@ param diagnosticWorkspaceId string
 
 var EnableICMPv4 = 'netsh advfirewall firewall add rule name="ICMP Allow incoming V4 echo request" protocol="icmpv4:8,any" dir=in action=allow'
 
+var AmaExtensionName = osType == 'Windows' ? 'AzureMonitorWindowsAgent' : 'AzureMonitorLinuxAgent'
+var AmaExtensionType = osType == 'Windows' ? 'AzureMonitorWindowsAgent' : 'AzureMonitorLinuxAgent'
+var AmaExtensionVersion = '1.0'
+
 var Windows = {
   publisher: 'MicrosoftWindowsServer'
   offer: 'WindowsServer'
@@ -32,6 +36,9 @@ var imagereference = (osType == 'Windows') ? Windows : (osType == 'Linux') ? Lin
 resource vm 'Microsoft.Compute/virtualMachines@2021-11-01' = {
   name: vmName
   location: location
+  identity: {
+    type: 'SystemAssigned'
+  }
   properties: {
     osProfile: {
       computerName: vmName
@@ -71,27 +78,64 @@ resource vm 'Microsoft.Compute/virtualMachines@2021-11-01' = {
   tags: contains(tagsByResource, 'Microsoft.Compute/virtualMachines') ? tagsByResource['Microsoft.Compute/virtualMachines'] : {}
 }
 
-resource workspace 'Microsoft.OperationalInsights/workspaces@2021-06-01' existing = if (!empty(diagnosticWorkspaceId)) {
-  name: last(split(diagnosticWorkspaceId, '/'))
-  scope: az.resourceGroup(split(diagnosticWorkspaceId, '/')[2], split(diagnosticWorkspaceId, '/')[4])
+resource dcr 'Microsoft.Insights/dataCollectionRules@2021-04-01' = if (!empty(diagnosticWorkspaceId)) {
+  name: 'MSVMI-${split(diagnosticWorkspaceId, '/')[8]}'
+  location: location
+  properties: {
+    description: 'Data collection rule for VM Insights.'
+    dataSources: {
+      performanceCounters: [
+        {
+          name: 'VMInsightsPerfCounters'
+          streams: [
+            'Microsoft-InsightsMetrics'
+          ]
+          samplingFrequencyInSeconds: 60
+          counterSpecifiers: [
+            '\\VmInsights\\DetailedMetrics'
+          ]
+        }
+      ]
+    }
+    destinations: {
+      logAnalytics: [
+        {
+          name: 'VMInsightsPerf-Logs-Dest'
+          workspaceResourceId: diagnosticWorkspaceId
+        }
+      ]
+    }
+    dataFlows: [
+      {
+        streams: [
+          'Microsoft-InsightsMetrics'
+        ]
+        destinations: [
+          'VMInsightsPerf-Logs-Dest'
+        ]
+      }
+    ]
+  }
 }
 
-resource mmaextension 'Microsoft.Compute/virtualMachines/extensions@2021-07-01' = if (!empty(diagnosticWorkspaceId)) {
-  name: 'MicrosoftMonitoringAgent'
+resource amaextension 'Microsoft.Compute/virtualMachines/extensions@2022-03-01' = if (!empty(diagnosticWorkspaceId)) {
+  name: AmaExtensionName
   parent: vm
   location: location
   properties: {
-    publisher: 'Microsoft.EnterpriseCloud.Monitoring'
-    type: 'MicrosoftMonitoringAgent'
-    typeHandlerVersion: '1.0'
+    publisher: 'Microsoft.Azure.Monitor'
+    type: AmaExtensionType
+    typeHandlerVersion: AmaExtensionVersion
     autoUpgradeMinorVersion: true
-    enableAutomaticUpgrade: false
-    settings: {
-      workspaceId: !empty(diagnosticWorkspaceId) ? reference(workspace.id, workspace.apiVersion).customerId : 'none'
-    }
-    protectedSettings: {
-      workspaceKey: !empty(diagnosticWorkspaceId) ? workspace.listkeys().primarySharedKey : 'none'
-    }
+  }
+}
+
+resource dcrassociation 'Microsoft.Insights/dataCollectionRuleAssociations@2021-04-01' = if (!empty(diagnosticWorkspaceId)) {
+  name: 'VMInsights-Dcr-Association'
+  scope: vm
+  properties: {
+    dataCollectionRuleId: dcr.id
+    description: 'Association of data collection rule for VM Insights.'
   }
 }
 
