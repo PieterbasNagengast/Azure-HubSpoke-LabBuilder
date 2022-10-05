@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.8.9.13224",
-      "templateHash": "1389549255409053435"
+      "templateHash": "14996217604698361550"
     }
   },
   "parameters": {
@@ -456,7 +456,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.8.9.13224",
-              "templateHash": "10621078247647466960"
+              "templateHash": "13172507157658637390"
             }
           },
           "parameters": {
@@ -618,7 +618,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.8.9.13224",
-                      "templateHash": "15536615309523010479"
+                      "templateHash": "11166567599134158542"
                     }
                   },
                   "parameters": {
@@ -710,9 +710,7 @@
                       "location": "[parameters('location')]",
                       "properties": {
                         "dhcpOptions": {
-                          "dnsServers": [
-                            "[if(parameters('firewallDNSproxy'), parameters('azFwIp'), '')]"
-                          ]
+                          "dnsServers": "[if(parameters('firewallDNSproxy'), array(parameters('azFwIp')), createArray())]"
                         },
                         "addressSpace": {
                           "addressPrefixes": [
@@ -3293,7 +3291,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.8.9.13224",
-              "templateHash": "3678025068048277065"
+              "templateHash": "2001275340954811402"
             }
           },
           "parameters": {
@@ -3431,7 +3429,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.8.9.13224",
-                      "templateHash": "15536615309523010479"
+                      "templateHash": "11166567599134158542"
                     }
                   },
                   "parameters": {
@@ -3523,9 +3521,7 @@
                       "location": "[parameters('location')]",
                       "properties": {
                         "dhcpOptions": {
-                          "dnsServers": [
-                            "[if(parameters('firewallDNSproxy'), parameters('azFwIp'), '')]"
-                          ]
+                          "dnsServers": "[if(parameters('firewallDNSproxy'), array(parameters('azFwIp')), createArray())]"
                         },
                         "addressSpace": {
                           "addressPrefixes": [
@@ -4895,7 +4891,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.8.9.13224",
-              "templateHash": "13953385692659582780"
+              "templateHash": "128004169727692602"
             }
           },
           "parameters": {
@@ -5019,7 +5015,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.8.9.13224",
-                      "templateHash": "15536615309523010479"
+                      "templateHash": "11166567599134158542"
                     }
                   },
                   "parameters": {
@@ -5111,9 +5107,7 @@
                       "location": "[parameters('location')]",
                       "properties": {
                         "dhcpOptions": {
-                          "dnsServers": [
-                            "[if(parameters('firewallDNSproxy'), parameters('azFwIp'), '')]"
-                          ]
+                          "dnsServers": "[if(parameters('firewallDNSproxy'), array(parameters('azFwIp')), createArray())]"
                         },
                         "addressSpace": {
                           "addressPrefixes": [
