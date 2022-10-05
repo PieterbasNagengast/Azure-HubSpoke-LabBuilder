@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.8.9.13224",
-      "templateHash": "4493263467873358660"
+      "templateHash": "1389549255409053435"
     }
   },
   "parameters": {
@@ -446,7 +446,7 @@
             "value": "[parameters('diagnosticWorkspaceId')]"
           },
           "firewallDNSproxy": {
-            "value": "[parameters('firewallDNSproxy')]"
+            "value": "[and(parameters('firewallDNSproxy'), parameters('deployFirewallInHub'))]"
           }
         },
         "template": {
@@ -456,7 +456,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.8.9.13224",
-              "templateHash": "1056329733192539765"
+              "templateHash": "10621078247647466960"
             }
           },
           "parameters": {
@@ -786,6 +786,98 @@
               ]
             },
             {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2020-10-01",
+              "name": "dcr-vminsights",
+              "resourceGroup": "[parameters('hubRgName')]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "diagnosticWorkspaceId": {
+                    "value": "[parameters('diagnosticWorkspaceId')]"
+                  },
+                  "location": {
+                    "value": "[parameters('location')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.8.9.13224",
+                      "templateHash": "7656208950668135380"
+                    }
+                  },
+                  "parameters": {
+                    "location": {
+                      "type": "string"
+                    },
+                    "diagnosticWorkspaceId": {
+                      "type": "string"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "condition": "[not(empty(parameters('diagnosticWorkspaceId')))]",
+                      "type": "Microsoft.Insights/dataCollectionRules",
+                      "apiVersion": "2021-04-01",
+                      "name": "[format('MSVMI-{0}', split(parameters('diagnosticWorkspaceId'), '/')[8])]",
+                      "location": "[parameters('location')]",
+                      "properties": {
+                        "description": "Data collection rule for VM Insights.",
+                        "dataSources": {
+                          "performanceCounters": [
+                            {
+                              "name": "VMInsightsPerfCounters",
+                              "streams": [
+                                "Microsoft-InsightsMetrics"
+                              ],
+                              "samplingFrequencyInSeconds": 60,
+                              "counterSpecifiers": [
+                                "\\VmInsights\\DetailedMetrics"
+                              ]
+                            }
+                          ]
+                        },
+                        "destinations": {
+                          "logAnalytics": [
+                            {
+                              "name": "VMInsightsPerf-Logs-Dest",
+                              "workspaceResourceId": "[parameters('diagnosticWorkspaceId')]"
+                            }
+                          ]
+                        },
+                        "dataFlows": [
+                          {
+                            "streams": [
+                              "Microsoft-InsightsMetrics"
+                            ],
+                            "destinations": [
+                              "VMInsightsPerf-Logs-Dest"
+                            ]
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "outputs": {
+                    "dcrID": {
+                      "type": "string",
+                      "value": "[resourceId('Microsoft.Insights/dataCollectionRules', format('MSVMI-{0}', split(parameters('diagnosticWorkspaceId'), '/')[8]))]"
+                    }
+                  }
+                }
+              },
+              "dependsOn": [
+                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('hubRgName'))]"
+              ]
+            },
+            {
               "condition": "[parameters('deployVMinHub')]",
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2020-10-01",
@@ -823,6 +915,9 @@
                   },
                   "diagnosticWorkspaceId": {
                     "value": "[parameters('diagnosticWorkspaceId')]"
+                  },
+                  "dcrID": {
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'dcr-vminsights')).outputs.dcrID.value]"
                   }
                 },
                 "template": {
@@ -832,7 +927,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.8.9.13224",
-                      "templateHash": "14149726310931524118"
+                      "templateHash": "9869502841802119248"
                     }
                   },
                   "parameters": {
@@ -865,6 +960,9 @@
                     "tagsByResource": {
                       "type": "object",
                       "defaultValue": {}
+                    },
+                    "dcrID": {
+                      "type": "string"
                     },
                     "diagnosticWorkspaceId": {
                       "type": "string"
@@ -941,48 +1039,6 @@
                     },
                     {
                       "condition": "[not(empty(parameters('diagnosticWorkspaceId')))]",
-                      "type": "Microsoft.Insights/dataCollectionRules",
-                      "apiVersion": "2021-04-01",
-                      "name": "[format('MSVMI-{0}', split(parameters('diagnosticWorkspaceId'), '/')[8])]",
-                      "location": "[parameters('location')]",
-                      "properties": {
-                        "description": "Data collection rule for VM Insights.",
-                        "dataSources": {
-                          "performanceCounters": [
-                            {
-                              "name": "VMInsightsPerfCounters",
-                              "streams": [
-                                "Microsoft-InsightsMetrics"
-                              ],
-                              "samplingFrequencyInSeconds": 60,
-                              "counterSpecifiers": [
-                                "\\VmInsights\\DetailedMetrics"
-                              ]
-                            }
-                          ]
-                        },
-                        "destinations": {
-                          "logAnalytics": [
-                            {
-                              "name": "VMInsightsPerf-Logs-Dest",
-                              "workspaceResourceId": "[parameters('diagnosticWorkspaceId')]"
-                            }
-                          ]
-                        },
-                        "dataFlows": [
-                          {
-                            "streams": [
-                              "Microsoft-InsightsMetrics"
-                            ],
-                            "destinations": [
-                              "VMInsightsPerf-Logs-Dest"
-                            ]
-                          }
-                        ]
-                      }
-                    },
-                    {
-                      "condition": "[not(empty(parameters('diagnosticWorkspaceId')))]",
                       "type": "Microsoft.Compute/virtualMachines/extensions",
                       "apiVersion": "2022-03-01",
                       "name": "[format('{0}/{1}', parameters('vmName'), variables('AmaExtensionName'))]",
@@ -1004,11 +1060,10 @@
                       "scope": "[format('Microsoft.Compute/virtualMachines/{0}', parameters('vmName'))]",
                       "name": "VMInsights-Dcr-Association",
                       "properties": {
-                        "dataCollectionRuleId": "[resourceId('Microsoft.Insights/dataCollectionRules', format('MSVMI-{0}', split(parameters('diagnosticWorkspaceId'), '/')[8]))]",
+                        "dataCollectionRuleId": "[parameters('dcrID')]",
                         "description": "Association of data collection rule for VM Insights."
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Insights/dataCollectionRules', format('MSVMI-{0}', split(parameters('diagnosticWorkspaceId'), '/')[8]))]",
                         "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
                       ]
                     },
@@ -1128,6 +1183,7 @@
                 }
               },
               "dependsOn": [
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'dcr-vminsights')]",
                 "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('hubRgName'))]",
                 "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'hubvnet')]"
               ]
@@ -2365,6 +2421,10 @@
             "HubVmResourceID": {
               "type": "string",
               "value": "[if(parameters('deployVMinHub'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'virtualMachine'), '2020-10-01').outputs.vmResourceID.value, 'none')]"
+            },
+            "dcrvminsightsID": {
+              "type": "string",
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'dcr-vminsights')).outputs.dcrID.value]"
             }
           }
         }
@@ -3220,7 +3280,10 @@
             "value": "[parameters('diagnosticWorkspaceId')]"
           },
           "firewallDNSproxy": {
-            "value": "[parameters('firewallDNSproxy')]"
+            "value": "[and(parameters('firewallDNSproxy'), parameters('deployFirewallInHub'))]"
+          },
+          "dcrID": {
+            "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))), '2020-10-01').outputs.dcrvminsightsID.value]"
           }
         },
         "template": {
@@ -3230,7 +3293,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.8.9.13224",
-              "templateHash": "5348761389814058249"
+              "templateHash": "3678025068048277065"
             }
           },
           "parameters": {
@@ -3289,6 +3352,9 @@
               "type": "bool"
             },
             "diagnosticWorkspaceId": {
+              "type": "string"
+            },
+            "dcrID": {
               "type": "string"
             }
           },
@@ -3569,6 +3635,9 @@
                   },
                   "diagnosticWorkspaceId": {
                     "value": "[parameters('diagnosticWorkspaceId')]"
+                  },
+                  "dcrID": {
+                    "value": "[parameters('dcrID')]"
                   }
                 },
                 "template": {
@@ -3578,7 +3647,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.8.9.13224",
-                      "templateHash": "14149726310931524118"
+                      "templateHash": "9869502841802119248"
                     }
                   },
                   "parameters": {
@@ -3611,6 +3680,9 @@
                     "tagsByResource": {
                       "type": "object",
                       "defaultValue": {}
+                    },
+                    "dcrID": {
+                      "type": "string"
                     },
                     "diagnosticWorkspaceId": {
                       "type": "string"
@@ -3687,48 +3759,6 @@
                     },
                     {
                       "condition": "[not(empty(parameters('diagnosticWorkspaceId')))]",
-                      "type": "Microsoft.Insights/dataCollectionRules",
-                      "apiVersion": "2021-04-01",
-                      "name": "[format('MSVMI-{0}', split(parameters('diagnosticWorkspaceId'), '/')[8])]",
-                      "location": "[parameters('location')]",
-                      "properties": {
-                        "description": "Data collection rule for VM Insights.",
-                        "dataSources": {
-                          "performanceCounters": [
-                            {
-                              "name": "VMInsightsPerfCounters",
-                              "streams": [
-                                "Microsoft-InsightsMetrics"
-                              ],
-                              "samplingFrequencyInSeconds": 60,
-                              "counterSpecifiers": [
-                                "\\VmInsights\\DetailedMetrics"
-                              ]
-                            }
-                          ]
-                        },
-                        "destinations": {
-                          "logAnalytics": [
-                            {
-                              "name": "VMInsightsPerf-Logs-Dest",
-                              "workspaceResourceId": "[parameters('diagnosticWorkspaceId')]"
-                            }
-                          ]
-                        },
-                        "dataFlows": [
-                          {
-                            "streams": [
-                              "Microsoft-InsightsMetrics"
-                            ],
-                            "destinations": [
-                              "VMInsightsPerf-Logs-Dest"
-                            ]
-                          }
-                        ]
-                      }
-                    },
-                    {
-                      "condition": "[not(empty(parameters('diagnosticWorkspaceId')))]",
                       "type": "Microsoft.Compute/virtualMachines/extensions",
                       "apiVersion": "2022-03-01",
                       "name": "[format('{0}/{1}', parameters('vmName'), variables('AmaExtensionName'))]",
@@ -3750,11 +3780,10 @@
                       "scope": "[format('Microsoft.Compute/virtualMachines/{0}', parameters('vmName'))]",
                       "name": "VMInsights-Dcr-Association",
                       "properties": {
-                        "dataCollectionRuleId": "[resourceId('Microsoft.Insights/dataCollectionRules', format('MSVMI-{0}', split(parameters('diagnosticWorkspaceId'), '/')[8]))]",
+                        "dataCollectionRuleId": "[parameters('dcrID')]",
                         "description": "Association of data collection rule for VM Insights."
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Insights/dataCollectionRules', format('MSVMI-{0}', split(parameters('diagnosticWorkspaceId'), '/')[8]))]",
                         "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
                       ]
                     },
@@ -4854,6 +4883,9 @@
           },
           "diagnosticWorkspaceId": {
             "value": "[parameters('diagnosticWorkspaceId')]"
+          },
+          "dcrID": {
+            "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))), '2020-10-01').outputs.dcrvminsightsID.value]"
           }
         },
         "template": {
@@ -4863,7 +4895,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.8.9.13224",
-              "templateHash": "8489844305362992280"
+              "templateHash": "13953385692659582780"
             }
           },
           "parameters": {
@@ -4910,6 +4942,9 @@
               "type": "int"
             },
             "diagnosticWorkspaceId": {
+              "type": "string"
+            },
+            "dcrID": {
               "type": "string"
             }
           },
@@ -5187,6 +5222,9 @@
                   },
                   "diagnosticWorkspaceId": {
                     "value": "[parameters('diagnosticWorkspaceId')]"
+                  },
+                  "dcrID": {
+                    "value": "[parameters('dcrID')]"
                   }
                 },
                 "template": {
@@ -5196,7 +5234,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.8.9.13224",
-                      "templateHash": "14149726310931524118"
+                      "templateHash": "9869502841802119248"
                     }
                   },
                   "parameters": {
@@ -5229,6 +5267,9 @@
                     "tagsByResource": {
                       "type": "object",
                       "defaultValue": {}
+                    },
+                    "dcrID": {
+                      "type": "string"
                     },
                     "diagnosticWorkspaceId": {
                       "type": "string"
@@ -5305,48 +5346,6 @@
                     },
                     {
                       "condition": "[not(empty(parameters('diagnosticWorkspaceId')))]",
-                      "type": "Microsoft.Insights/dataCollectionRules",
-                      "apiVersion": "2021-04-01",
-                      "name": "[format('MSVMI-{0}', split(parameters('diagnosticWorkspaceId'), '/')[8])]",
-                      "location": "[parameters('location')]",
-                      "properties": {
-                        "description": "Data collection rule for VM Insights.",
-                        "dataSources": {
-                          "performanceCounters": [
-                            {
-                              "name": "VMInsightsPerfCounters",
-                              "streams": [
-                                "Microsoft-InsightsMetrics"
-                              ],
-                              "samplingFrequencyInSeconds": 60,
-                              "counterSpecifiers": [
-                                "\\VmInsights\\DetailedMetrics"
-                              ]
-                            }
-                          ]
-                        },
-                        "destinations": {
-                          "logAnalytics": [
-                            {
-                              "name": "VMInsightsPerf-Logs-Dest",
-                              "workspaceResourceId": "[parameters('diagnosticWorkspaceId')]"
-                            }
-                          ]
-                        },
-                        "dataFlows": [
-                          {
-                            "streams": [
-                              "Microsoft-InsightsMetrics"
-                            ],
-                            "destinations": [
-                              "VMInsightsPerf-Logs-Dest"
-                            ]
-                          }
-                        ]
-                      }
-                    },
-                    {
-                      "condition": "[not(empty(parameters('diagnosticWorkspaceId')))]",
                       "type": "Microsoft.Compute/virtualMachines/extensions",
                       "apiVersion": "2022-03-01",
                       "name": "[format('{0}/{1}', parameters('vmName'), variables('AmaExtensionName'))]",
@@ -5368,11 +5367,10 @@
                       "scope": "[format('Microsoft.Compute/virtualMachines/{0}', parameters('vmName'))]",
                       "name": "VMInsights-Dcr-Association",
                       "properties": {
-                        "dataCollectionRuleId": "[resourceId('Microsoft.Insights/dataCollectionRules', format('MSVMI-{0}', split(parameters('diagnosticWorkspaceId'), '/')[8]))]",
+                        "dataCollectionRuleId": "[parameters('dcrID')]",
                         "description": "Association of data collection rule for VM Insights."
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.Insights/dataCollectionRules', format('MSVMI-{0}', split(parameters('diagnosticWorkspaceId'), '/')[8]))]",
                         "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
                       ]
                     },
@@ -6003,7 +6001,10 @@
             }
           }
         }
-      }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location')))]"
+      ]
     },
     {
       "condition": "[and(and(and(parameters('deployGatewayInHub'), parameters('deployGatewayinOnPrem')), parameters('deploySiteToSite')), equals(parameters('hubType'), 'VNET'))]",

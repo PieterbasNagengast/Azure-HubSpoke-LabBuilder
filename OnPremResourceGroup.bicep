@@ -19,6 +19,8 @@ param vpnGwBgpAsn int
 
 param diagnosticWorkspaceId string
 
+param dcrID string
+
 var vnetName = 'VNET-OnPrem'
 var vmName = 'VM-OnPrem'
 var nsgName = 'NSG-OnPrem'
@@ -67,6 +69,7 @@ module vm 'modules/vm.bicep' = if (deployVMsInOnPrem) {
     tagsByResource: tagsByResource
     osType: osType
     diagnosticWorkspaceId: diagnosticWorkspaceId
+    dcrID: dcrID
   }
 }
 

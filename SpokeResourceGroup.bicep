@@ -22,6 +22,8 @@ param firewallDNSproxy bool
 
 param diagnosticWorkspaceId string
 
+param dcrID string
+
 var vnetName = 'VNET-Spoke${counter}'
 var vmName = 'VM-Spoke${counter}'
 var rtName = 'RT-Spoke${counter}'
@@ -70,6 +72,7 @@ module vm 'modules/vm.bicep' = if (deployVMsInSpokes) {
     tagsByResource: tagsByResource
     osType: osType
     diagnosticWorkspaceId: diagnosticWorkspaceId
+    dcrID: dcrID
   }
 }
 

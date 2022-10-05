@@ -205,7 +205,7 @@ module hubVnet 'HubResourceGroup.bicep' = if (deployHUB && hubType == 'VNET') {
     deployUDRs: deployUDRs
     bastionSku: bastionInHubSKU
     diagnosticWorkspaceId: diagnosticWorkspaceId
-    firewallDNSproxy: firewallDNSproxy
+    firewallDNSproxy: firewallDNSproxy && deployFirewallInHub
   }
 }
 
@@ -250,7 +250,8 @@ module spokeVnets 'SpokeResourceGroup.bicep' = [for i in range(1, amountOfSpokes
     deployUDRs: deployUDRs
     bastionSku: bastionInSpokeSKU
     diagnosticWorkspaceId: diagnosticWorkspaceId
-    firewallDNSproxy: firewallDNSproxy
+    firewallDNSproxy: firewallDNSproxy && deployFirewallInHub
+    dcrID: hubVnet.outputs.dcrvminsightsID    
   }
 }]
 
@@ -305,6 +306,7 @@ module onprem 'OnPremResourceGroup.bicep' = if (deployOnPrem) {
     vpnGwEnebaleBgp: onpremBgp
     bastionSku: bastionInOnPremSKU
     diagnosticWorkspaceId: diagnosticWorkspaceId
+    dcrID: hubVnet.outputs.dcrvminsightsID
   }
 }
 

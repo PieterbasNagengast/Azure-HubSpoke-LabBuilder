@@ -8,6 +8,7 @@ param vmSize string
 param storageType string = 'StandardSSD_LRS'
 param osType string = 'Windows'
 param tagsByResource object = {}
+param dcrID string
 
 param diagnosticWorkspaceId string
 
@@ -78,45 +79,6 @@ resource vm 'Microsoft.Compute/virtualMachines@2021-11-01' = {
   tags: contains(tagsByResource, 'Microsoft.Compute/virtualMachines') ? tagsByResource['Microsoft.Compute/virtualMachines'] : {}
 }
 
-resource dcr 'Microsoft.Insights/dataCollectionRules@2021-04-01' = if (!empty(diagnosticWorkspaceId)) {
-  name: 'MSVMI-${split(diagnosticWorkspaceId, '/')[8]}'
-  location: location
-  properties: {
-    description: 'Data collection rule for VM Insights.'
-    dataSources: {
-      performanceCounters: [
-        {
-          name: 'VMInsightsPerfCounters'
-          streams: [
-            'Microsoft-InsightsMetrics'
-          ]
-          samplingFrequencyInSeconds: 60
-          counterSpecifiers: [
-            '\\VmInsights\\DetailedMetrics'
-          ]
-        }
-      ]
-    }
-    destinations: {
-      logAnalytics: [
-        {
-          name: 'VMInsightsPerf-Logs-Dest'
-          workspaceResourceId: diagnosticWorkspaceId
-        }
-      ]
-    }
-    dataFlows: [
-      {
-        streams: [
-          'Microsoft-InsightsMetrics'
-        ]
-        destinations: [
-          'VMInsightsPerf-Logs-Dest'
-        ]
-      }
-    ]
-  }
-}
 
 resource amaextension 'Microsoft.Compute/virtualMachines/extensions@2022-03-01' = if (!empty(diagnosticWorkspaceId)) {
   name: AmaExtensionName
@@ -134,7 +96,7 @@ resource dcrassociation 'Microsoft.Insights/dataCollectionRuleAssociations@2021-
   name: 'VMInsights-Dcr-Association'
   scope: vm
   properties: {
-    dataCollectionRuleId: dcr.id
+    dataCollectionRuleId: dcrID
     description: 'Association of data collection rule for VM Insights.'
   }
 }
