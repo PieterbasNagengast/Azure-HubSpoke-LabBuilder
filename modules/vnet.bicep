@@ -63,9 +63,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2021-05-01' = {
   location: location
   properties: {
     dhcpOptions:{
-      dnsServers: [
-        firewallDNSproxy ? azFwIp : ''
-      ]
+      dnsServers: firewallDNSproxy ? array(azFwIp) : []
     }
     addressSpace: {
       addressPrefixes: [
