@@ -71,12 +71,13 @@ module vnet 'modules/vnet.bicep' = {
   }
 }
 
-module dcrvminsights 'modules/dcrvminsights.bicep' = {
+module dcrvminsights 'modules/dcrvminsights.bicep' = if (!empty(diagnosticWorkspaceId)) {
   scope: hubrg
   name: 'dcr-vminsights'
   params: {
     diagnosticWorkspaceId: diagnosticWorkspaceId 
     location: location
+    tagsByResource: tagsByResource
   }
 }
 
@@ -93,7 +94,7 @@ module vm 'modules/vm.bicep' = if (deployVMinHub) {
     tagsByResource: tagsByResource
     osType: osType
     diagnosticWorkspaceId: diagnosticWorkspaceId
-    dcrID: dcrvminsights.outputs.dcrID
+    dcrID: !empty(diagnosticWorkspaceId) ? dcrvminsights.outputs.dcrID : ''
   }
 }
 
@@ -218,4 +219,4 @@ output hubGatewayPublicIP string = deployGatewayInHub ? vpngw.outputs.vpnGwPubli
 output hubGatewayID string = deployGatewayInHub ? vpngw.outputs.vpnGwID : 'none'
 output HubGwBgpPeeringAddress string = deployGatewayInHub ? vpngw.outputs.vpnGwBgpPeeringAddress : 'none'
 output HubVmResourceID string = deployVMinHub ? vm.outputs.vmResourceID : 'none'
-output dcrvminsightsID string = dcrvminsights.outputs.dcrID
+output dcrvminsightsID string = !empty(diagnosticWorkspaceId) ? dcrvminsights.outputs.dcrID : ''

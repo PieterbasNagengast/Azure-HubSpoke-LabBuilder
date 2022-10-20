@@ -1,7 +1,8 @@
 param location string
 param diagnosticWorkspaceId string
+param tagsByResource object = {}
 
-resource dcr 'Microsoft.Insights/dataCollectionRules@2021-04-01' = if (!empty(diagnosticWorkspaceId)) {
+resource dcr 'Microsoft.Insights/dataCollectionRules@2021-04-01' =  {
   name: 'MSVMI-${split(diagnosticWorkspaceId, '/')[8]}'
   location: location
   properties: {
@@ -39,6 +40,7 @@ resource dcr 'Microsoft.Insights/dataCollectionRules@2021-04-01' = if (!empty(di
       }
     ]
   }
+  tags: contains(tagsByResource, 'Microsoft.Insights/dataCollectionRules') ? tagsByResource['Microsoft.Insights/dataCollectionRules'] : {}
 }
 
 output dcrID string = dcr.id
