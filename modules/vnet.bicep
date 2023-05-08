@@ -15,8 +15,6 @@ param tagsByResource object = {}
 param firewallDNSproxy bool = false
 param azFwIp string = ''
 
-param diagnosticWorkspaceId string
-
 var defaultSubnet = [
   {
     name: 'default'
@@ -62,7 +60,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2021-05-01' = {
   name: vnetname
   location: location
   properties: {
-    dhcpOptions:{
+    dhcpOptions: {
       dnsServers: firewallDNSproxy ? array(azFwIp) : []
     }
     addressSpace: {
@@ -75,30 +73,9 @@ resource vnet 'Microsoft.Network/virtualNetworks@2021-05-01' = {
   tags: contains(tagsByResource, 'Microsoft.Network/virtualNetworks') ? tagsByResource['Microsoft.Network/virtualNetworks'] : {}
 }
 
-resource vnet_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (!empty(diagnosticWorkspaceId))  {
-  name: 'LabBuilder-diagnosticSettings'
-  properties: {
-    workspaceId: !empty(diagnosticWorkspaceId) ? diagnosticWorkspaceId : null
-    metrics: [
-      {
-        category: 'AllMetrics'
-        enabled: true
-      }
-    ]
-    logs: [
-      {
-        category: null
-        categoryGroup: 'allLogs'
-        enabled: true
-      }
-    ]
-  }
-  scope: vnet
-}
-
 output vnetName string = vnet.name
 output vnetID string = vnet.id
 output defaultSubnetID string = vnet.properties.subnets[0].id
-output bastionSubnetID string = deployBastionSubnet ? resourceId('Microsoft.Network/VirtualNetworks/subnets',vnetname,'AzureBastionSubnet'): 'Not deployed' 
-output firewallSubnetID string = deployFirewallSubnet ? resourceId('Microsoft.Network/VirtualNetworks/subnets',vnetname,'AzureFirewallSubnet'): 'Not deployed' 
-output gatewaySubnetID string = deployGatewaySubnet ? resourceId('Microsoft.Network/VirtualNetworks/subnets',vnetname,'GatewaySubnet'): 'Not deployed' 
+output bastionSubnetID string = deployBastionSubnet ? resourceId('Microsoft.Network/VirtualNetworks/subnets', vnetname, 'AzureBastionSubnet') : 'Not deployed'
+output firewallSubnetID string = deployFirewallSubnet ? resourceId('Microsoft.Network/VirtualNetworks/subnets', vnetname, 'AzureFirewallSubnet') : 'Not deployed'
+output gatewaySubnetID string = deployGatewaySubnet ? resourceId('Microsoft.Network/VirtualNetworks/subnets', vnetname, 'GatewaySubnet') : 'Not deployed'

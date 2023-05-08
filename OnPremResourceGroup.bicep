@@ -1,7 +1,7 @@
 targetScope = 'subscription'
 
 param location string
-param AddressSpace string 
+param AddressSpace string
 param deployBastionInOnPrem bool
 param bastionSku string
 param adminUsername string
@@ -27,7 +27,7 @@ var nsgName = 'NSG-OnPrem'
 var bastionName = 'Bastion-OnPrem'
 var gatewayName = 'Gateway-OnPrem'
 
-var vnetAddressSpace = replace(AddressSpace,'0.0/16', '255.0/24')
+var vnetAddressSpace = replace(AddressSpace, '0.0/16', '255.0/24')
 var defaultSubnetPrefix = replace(vnetAddressSpace, '/24', '/26')
 var bastionSubnetPrefix = replace(vnetAddressSpace, '0/24', '128/27')
 var gatewaySubnetPrefix = replace(vnetAddressSpace, '0/24', '160/27')
@@ -52,7 +52,6 @@ module vnet 'modules/vnet.bicep' = {
     deployBastionSubnet: deployBastionInOnPrem
     deployGatewaySubnet: true
     tagsByResource: tagsByResource
-    diagnosticWorkspaceId: diagnosticWorkspaceId
   }
 }
 
@@ -80,7 +79,6 @@ module nsg 'modules/nsg.bicep' = {
     location: location
     nsgName: nsgName
     tagsByResource: tagsByResource
-    diagnosticWorkspaceId: diagnosticWorkspaceId
   }
 }
 
@@ -93,7 +91,6 @@ module bastion 'modules/bastion.bicep' = if (deployBastionInOnPrem) {
     bastionName: bastionName
     tagsByResource: tagsByResource
     bastionSku: bastionSku
-    diagnosticWorkspaceId: diagnosticWorkspaceId
   }
 }
 
@@ -107,7 +104,6 @@ module vpngw 'modules/vpngateway.bicep' = if (deployGatewayInOnPrem) {
     tagsByResource: tagsByResource
     vpnGatewayBgpAsn: vpnGwEnebaleBgp ? vpnGwBgpAsn : 65515
     vpnGatewayEnableBgp: vpnGwEnebaleBgp
-    diagnosticWorkspaceId: diagnosticWorkspaceId
   }
 }
 

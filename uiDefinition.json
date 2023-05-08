@@ -28,22 +28,6 @@
 								"validationMessage": "The value must match a /16 subnet. 10.[0-255].0.0/16 or 172.[16-31].0.0/16 or 192.168.0.0/16"
 							},
 							"visible": true
-						},
-						{
-							"name": "useLaw",
-							"type": "Microsoft.Common.CheckBox",
-							"label": "Enable Diagnostic settings on resources",
-							"defaultValue": false,
-							"constraints": {
-								"required": false
-							}
-						},
-						{
-							"name": "lawSelector",
-							"type": "Microsoft.Solutions.ResourceSelector",
-							"label": "LogAnalytics Workspace",
-							"resourceType": "Microsoft.OperationalInsights/workspaces",
-							"visible": "[equals(steps('basics').useLaw,true)]"
 						}
 					]
 				},
@@ -322,6 +306,26 @@
 							"visible": "[equals(steps('SpokeVNETs').deploySpokes,true)]"
 						},
 						{
+							"name": "deployVnetPeeringMesh",
+							"type": "Microsoft.Common.CheckBox",
+							"label": "Directly connect Spoke VNET's in a Fully Meshed topology",
+							"defaultValue": false,
+							"toolTip": "directly connect spoke virtual networks to each other in a fully meshed topology using standard VNET peerings.",
+							"constraints": {
+								"required": false
+							},
+							"visible": "[equals(steps('SpokeVNETs').deploySpokes,true)]"
+						},
+						{
+							"name": "LinuxDAInfo",
+							"type": "Microsoft.Common.InfoBox",
+							"options": {
+								"text": "[concat(string(mul(sub(steps('SpokeVNETs').amountOfSpokes,1),steps('SpokeVNETs').amountOfSpokes)), 'x VNET Peerings are created for ', string(steps('SpokeVNETs').amountOfSpokes),'x Spoke VNETs')]",
+								"style": "Info"
+							},
+							"visible": "[equals(steps('SpokeVNETs').deployVnetPeeringMesh,true)]"
+						},
+						{
 							"name": "deployBastionInSpoke",
 							"type": "Microsoft.Common.CheckBox",
 							"label": "Deploy Bastion In Spoke",
@@ -571,6 +575,24 @@
 							"visible": "[or(equals(steps('VirtualMachines').deployVMsInSpokes,true),equals(steps('VirtualMachines').deployVMinHub,true),equals(steps('VirtualMachines').deployVMinOnPrem,true))]"
 						},
 						{
+							"name": "deployAMA",
+							"type": "Microsoft.Common.CheckBox",
+							"label": "Deploy Azure Monitor Agent (AMA) including Depency Agent (Service Map)",
+							"toolTip": "Dependency Agent Only applicable on Windows VM's",
+							"defaultValue": false,
+							"constraints": {
+								"required": false
+							},
+							"visible": "[or(equals(steps('VirtualMachines').deployVMsInSpokes,true),equals(steps('VirtualMachines').deployVMinHub,true),equals(steps('VirtualMachines').deployVMinOnPrem,true))]"
+						},
+						{
+							"name": "lawSelectorForAMA",
+							"type": "Microsoft.Solutions.ResourceSelector",
+							"label": "LogAnalytics Workspace",
+							"resourceType": "Microsoft.OperationalInsights/workspaces",
+							"visible": "[equals(steps('VirtualMachines').deployAMA,true)]"
+						},
+						{
 							"name": "HubvmSizeSection",
 							"type": "Microsoft.Common.Section",
 							"label": "Hub Virtual Machines settings:",
@@ -595,6 +617,15 @@
 										"required": true
 									},
 									"visible": true
+								},
+								{
+									"name": "LinuxDAInfo",
+									"type": "Microsoft.Common.InfoBox",
+									"options": {
+										"text": "VM Dependency Agent won't be installed on Linux.",
+										"style": "Warning"
+									},
+									"visible": "[and(equals(steps('VirtualMachines').HubvmSizeSection.osType,'Linux'),equals(steps('VirtualMachines').deployAMA,true))]"
 								},
 								{
 									"name": "vmSize",
@@ -642,6 +673,15 @@
 										"required": true
 									},
 									"visible": true
+								},
+								{
+									"name": "LinuxDAInfo",
+									"type": "Microsoft.Common.InfoBox",
+									"options": {
+										"text": "VM Dependency Agent won't be installed on Linux.",
+										"style": "Warning"
+									},
+									"visible": "[and(equals(steps('VirtualMachines').SpokevmSizeSection.osType,'Linux'),equals(steps('VirtualMachines').deployAMA,true))]"
 								},
 								{
 									"name": "vmSize",
@@ -792,6 +832,7 @@
 				"deploySpokes": "[coalesce(steps('SpokeVNETs').deploySpokes,false)]",
 				"amountOfSpokes": "[steps('SpokeVNETs').amountOfSpokes]",
 				"deployBastionInSpoke": "[coalesce(steps('SpokeVNETs').deployBastionInSpoke,false)]",
+				"deployVnetPeeringMesh": "[coalesce(steps('SpokeVNETs').deployVnetPeeringMesh,false)]",
 				"deployHUB": "[coalesce(steps('HubVNET').deployHUB,false)]",
 				"hubType": "[steps('HubVNET').VNETorVWAN]",
 				"hubRgName": "[steps('HubVNET').hubRgName]",
@@ -825,7 +866,7 @@
 				"osTypeHub": "[steps('VirtualMachines').HubvmSizeSection.osType]",
 				"osTypeSpoke": "[steps('VirtualMachines').SpokevmSizeSection.osType]",
 				"osTypeOnPrem": "[steps('VirtualMachines').OnPremvmSizeSection.osType]",
-				"diagnosticWorkspaceId": "[steps('basics').lawSelector.id]"
+				"diagnosticWorkspaceId": "[steps('VirtualMachines').lawSelectorForAMA.id]"
 			},
 			"kind": "Subscription",
 			"subscriptionId": "[steps('basics').resourceScope.subscription.id]",

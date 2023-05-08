@@ -53,7 +53,6 @@ module vnet 'modules/vnet.bicep' = {
     bastionSubnetPrefix: deployBastionInSpoke ? bastionSubnetPrefix : ''
     deployBastionSubnet: deployBastionInSpoke
     tagsByResource: tagsByResource
-    diagnosticWorkspaceId: diagnosticWorkspaceId
     firewallDNSproxy: firewallDNSproxy
     azFwIp: AzureFirewallpip
   }
@@ -83,7 +82,6 @@ module nsg 'modules/nsg.bicep' = {
     location: location
     nsgName: nsgName
     tagsByResource: tagsByResource
-    diagnosticWorkspaceId: diagnosticWorkspaceId
   }
 }
 
@@ -96,7 +94,6 @@ module bastion 'modules/bastion.bicep' = if (deployBastionInSpoke) {
     bastionName: bastionName
     tagsByResource: tagsByResource
     bastionSku: bastionSku
-    diagnosticWorkspaceId: diagnosticWorkspaceId
   }
 }
 

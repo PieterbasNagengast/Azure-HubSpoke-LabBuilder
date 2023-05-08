@@ -18,6 +18,10 @@ var AmaExtensionName = osType == 'Windows' ? 'AzureMonitorWindowsAgent' : 'Azure
 var AmaExtensionType = osType == 'Windows' ? 'AzureMonitorWindowsAgent' : 'AzureMonitorLinuxAgent'
 var AmaExtensionVersion = '1.0'
 
+var DaExtensionName = 'DependencyAgentLinux'
+var DaExtensionType = 'DependencyAgentLinux'
+var DaExtensionVersion = '9.5'
+
 var Windows = {
   publisher: 'MicrosoftWindowsServer'
   offer: 'WindowsServer'
@@ -28,11 +32,11 @@ var Windows = {
 var Linux = {
   publisher: 'Canonical'
   offer: '0001-com-ubuntu-server-jammy'
-  sku: '22_04-lts-gen2'
+  sku: '22.04-lts-gen2'
   version: 'latest'
 }
 
-var imagereference = (osType == 'Windows') ? Windows : (osType == 'Linux') ? Linux : {}
+var imagereference = osType == 'Windows' ? Windows : osType == 'Linux' ? Linux : {}
 
 resource vm 'Microsoft.Compute/virtualMachines@2021-11-01' = {
   name: vmName
@@ -50,6 +54,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2021-11-01' = {
       imageReference: imagereference
       osDisk: {
         createOption: 'FromImage'
+        name: '${vmName}-osDisk'
         managedDisk: {
           storageAccountType: storageType
         }
@@ -79,7 +84,6 @@ resource vm 'Microsoft.Compute/virtualMachines@2021-11-01' = {
   tags: contains(tagsByResource, 'Microsoft.Compute/virtualMachines') ? tagsByResource['Microsoft.Compute/virtualMachines'] : {}
 }
 
-
 resource amaextension 'Microsoft.Compute/virtualMachines/extensions@2022-03-01' = if (!empty(diagnosticWorkspaceId)) {
   name: AmaExtensionName
   parent: vm
@@ -89,6 +93,21 @@ resource amaextension 'Microsoft.Compute/virtualMachines/extensions@2022-03-01' 
     type: AmaExtensionType
     typeHandlerVersion: AmaExtensionVersion
     autoUpgradeMinorVersion: true
+  }
+}
+
+resource daextension 'Microsoft.Compute/virtualMachines/extensions@2022-03-01' = if (!empty(diagnosticWorkspaceId) && osType == 'Windows') {
+  name: DaExtensionName
+  parent: vm
+  location: location
+  properties: {
+    publisher: 'Microsoft.Azure.Monitoring.DependencyAgent'
+    type: DaExtensionType
+    typeHandlerVersion: DaExtensionVersion
+    autoUpgradeMinorVersion: true
+    settings: {
+      enableAMA: true
+    }
   }
 }
 
@@ -119,20 +138,6 @@ resource nic 'Microsoft.Network/networkInterfaces@2021-05-01' = {
     ]
   }
   tags: contains(tagsByResource, 'Microsoft.Compute/virtualMachines') ? tagsByResource['Microsoft.Compute/virtualMachines'] : {}
-}
-
-resource nic_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (!empty(diagnosticWorkspaceId)) {
-  name: 'LabBuilder-diagnosticSettings'
-  properties: {
-    workspaceId: !empty(diagnosticWorkspaceId) ? diagnosticWorkspaceId : null
-    metrics: [
-      {
-        category: 'AllMetrics'
-        enabled: true
-      }
-    ]
-  }
-  scope: nic
 }
 
 module run 'runcommand.bicep' = if (osType == 'Windows') {

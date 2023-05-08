@@ -83,6 +83,9 @@ param deployBastionInSpoke bool = false
 ])
 param bastionInSpokeSKU string = 'Basic'
 
+@description('Directly connect VNET Spokes (Fully Meshed Topology)')
+param deployVnetPeeringMesh bool = false
+
 // Hub VNET Parameters
 @description('Deploy Hub')
 param deployHUB bool = true
@@ -223,7 +226,6 @@ module vwan 'vWanResourceGroup.bicep' = if (deployHUB && hubType == 'VWAN') {
     hubRgName: hubRgName
     deployGatewayInHub: deployGatewayInHub && hubType == 'VWAN'
     tagsByResource: tagsByResource
-    diagnosticWorkspaceId: diagnosticWorkspaceId
   }
 }
 
@@ -251,7 +253,7 @@ module spokeVnets 'SpokeResourceGroup.bicep' = [for i in range(1, amountOfSpokes
     bastionSku: bastionInSpokeSKU
     diagnosticWorkspaceId: diagnosticWorkspaceId
     firewallDNSproxy: firewallDNSproxy && deployFirewallInHub
-    dcrID: hubVnet.outputs.dcrvminsightsID    
+    dcrID: hubVnet.outputs.dcrvminsightsID
   }
 }]
 
@@ -270,6 +272,24 @@ module vnetPeerings 'VnetPeerings.bicep' = [for i in range(0, amountOfSpokes): i
     hubSubscriptionID: hubSubscriptionID
     spokeSubscriptionID: spokeSubscriptionID
   }
+}]
+
+// VNET Peerings Mesh
+module vnetPeeringsMesh 'VnetPeeringsMesh.bicep' = [for i1 in range(0, amountOfSpokes): if (deployVnetPeeringMesh && deploySpokes) {
+  name: 'Prepare-Vnet-Peering-Mesh${i1}'
+  params: {
+    SpokeResourceGroupName: deployVnetPeeringMesh && deploySpokes ? spokeVnets[i1].outputs.spokeResourceGroupName : 'No peering'
+    SpokeVnetName: deployVnetPeeringMesh && deploySpokes ? spokeVnets[i1].outputs.spokeVnetName : 'No VNET peering'
+    spokeVnets: [for i2 in range(0, amountOfSpokes): {
+      ID: spokeVnets[i2].outputs.spokeVnetID
+      Name: spokeVnets[i2].outputs.spokeVnetName
+      RgName: spokeVnets[i2].outputs.spokeResourceGroupName
+    }]
+    spokeSubscriptionID: spokeSubscriptionID
+  }
+  dependsOn: [
+    vnetPeerings
+  ]
 }]
 
 // VNET Connections to Azure vWAN

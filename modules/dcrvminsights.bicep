@@ -2,8 +2,8 @@ param location string
 param diagnosticWorkspaceId string
 param tagsByResource object = {}
 
-resource dcr 'Microsoft.Insights/dataCollectionRules@2021-04-01' =  {
-  name: 'MSVMI-${split(diagnosticWorkspaceId, '/')[8]}'
+resource dcr 'Microsoft.Insights/dataCollectionRules@2021-04-01' = {
+  name: 'MSVMI-LabBuilder'
   location: location
   properties: {
     description: 'Data collection rule for VM Insights.'
@@ -20,6 +20,16 @@ resource dcr 'Microsoft.Insights/dataCollectionRules@2021-04-01' =  {
           ]
         }
       ]
+      extensions: [
+        {
+          streams: [
+            'Microsoft-ServiceMap'
+          ]
+          extensionName: 'DependencyAgent'
+          extensionSettings: {}
+          name: 'DependencyAgentDataSource'
+        }
+      ]
     }
     destinations: {
       logAnalytics: [
@@ -33,6 +43,14 @@ resource dcr 'Microsoft.Insights/dataCollectionRules@2021-04-01' =  {
       {
         streams: [
           'Microsoft-InsightsMetrics'
+        ]
+        destinations: [
+          'VMInsightsPerf-Logs-Dest'
+        ]
+      }
+      {
+        streams: [
+          'Microsoft-ServiceMap'
         ]
         destinations: [
           'VMInsightsPerf-Logs-Dest'

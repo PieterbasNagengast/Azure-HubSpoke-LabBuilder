@@ -55,7 +55,7 @@ module vnet 'modules/vnet.bicep' = {
     vnetAddressSpcae: vnetAddressSpace
     nsgID: nsg.outputs.nsgID
     rtDefID: deployFirewallInHub && deployUDRs ? rtDefault.outputs.rtID : 'none'
-    rtGwID: deployFirewallInHub && deployGatewayInHub? rtvpngw.outputs.rtID : 'none'
+    rtGwID: deployFirewallInHub && deployGatewayInHub ? rtvpngw.outputs.rtID : 'none'
     vnetname: hubVnetName
     defaultSubnetPrefix: defaultSubnetPrefix
     bastionSubnetPrefix: bastionSubnetPrefix
@@ -65,7 +65,6 @@ module vnet 'modules/vnet.bicep' = {
     deployFirewallSubnet: deployFirewallInHub
     deployGatewaySubnet: deployGatewayInHub
     tagsByResource: tagsByResource
-    diagnosticWorkspaceId: diagnosticWorkspaceId
     azFwIp: firewallIP
     firewallDNSproxy: firewallDNSproxy
   }
@@ -75,7 +74,7 @@ module dcrvminsights 'modules/dcrvminsights.bicep' = if (!empty(diagnosticWorksp
   scope: hubrg
   name: 'dcr-vminsights'
   params: {
-    diagnosticWorkspaceId: diagnosticWorkspaceId 
+    diagnosticWorkspaceId: diagnosticWorkspaceId
     location: location
     tagsByResource: tagsByResource
   }
@@ -105,7 +104,6 @@ module nsg 'modules/nsg.bicep' = {
     location: location
     nsgName: nsgName
     tagsByResource: tagsByResource
-    diagnosticWorkspaceId: diagnosticWorkspaceId
   }
 }
 
@@ -118,7 +116,6 @@ module bastion 'modules/bastion.bicep' = if (deployBastionInHub) {
     bastionName: bastionName
     tagsByResource: tagsByResource
     bastionSku: bastionSku
-    diagnosticWorkspaceId: diagnosticWorkspaceId
   }
 }
 
@@ -132,7 +129,6 @@ module firewall 'modules/firewall.bicep' = if (deployFirewallInHub) {
     azfwsubnetid: deployFirewallInHub ? vnet.outputs.firewallSubnetID : ''
     azfwTier: AzureFirewallTier
     tagsByResource: tagsByResource
-    diagnosticWorkspaceId: diagnosticWorkspaceId
     firewallDNSproxy: firewallDNSproxy
   }
 }
@@ -166,7 +162,7 @@ module routeDefault1 'modules/route.bicep' = if (deployFirewallInHub && deployUD
   }
 }
 
-module routeDefault2 'modules/route.bicep' = [for (addressRange, i) in AllSpokeAddressSpaces : if (deployFirewallInHub && deployUDRs) {
+module routeDefault2 'modules/route.bicep' = [for (addressRange, i) in AllSpokeAddressSpaces: if (deployFirewallInHub && deployUDRs) {
   scope: hubrg
   name: 'RouteToLocal${i}'
   params: {
@@ -186,7 +182,6 @@ module vpngw 'modules/vpngateway.bicep' = if (deployGatewayInHub) {
     tagsByResource: tagsByResource
     vpnGatewayBgpAsn: vpnGwEnebaleBgp ? vpnGwBgpAsn : 65515
     vpnGatewayEnableBgp: vpnGwEnebaleBgp
-    diagnosticWorkspaceId: diagnosticWorkspaceId
   }
 }
 
@@ -199,7 +194,7 @@ module rtvpngw 'modules/routetable.bicep' = if (deployFirewallInHub && deployGat
   }
 }
 
-module routeVPNgw 'modules/route.bicep' = [for (addressRange, i) in concat(AllSpokeAddressSpaces,array(defaultSubnetPrefix)) : if (deployFirewallInHub && deployGatewayInHub && deployUDRs) {
+module routeVPNgw 'modules/route.bicep' = [for (addressRange, i) in concat(AllSpokeAddressSpaces, array(defaultSubnetPrefix)): if (deployFirewallInHub && deployGatewayInHub && deployUDRs) {
   scope: hubrg
   name: 'Route-vpngw${i}'
   params: {
