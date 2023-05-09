@@ -116,3 +116,4 @@ jobs:
           az group list --tag LabBuilder=Validation --tag LabBuilderType=VNET --output table
           echo 'Removing Resource groups...'
           az group list --tag LabBuilder=Validation --tag LabBuilderType=VNET --query "[].[name]" --output tsv | xargs -l az group delete --yes --no-wait --name
+          
