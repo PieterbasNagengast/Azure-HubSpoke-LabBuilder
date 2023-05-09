@@ -20,7 +20,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2.4.2
+        uses: actions/checkout@v3.5.2
 
       - name: Bicep Build
         run: |
@@ -48,7 +48,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2.4.2
+        uses: actions/checkout@v3.5.2
       - name: Azure Login
         uses: azure/login@v1
         with:
@@ -80,7 +80,7 @@ jobs:
     needs: VWANdeployments
     steps:
       - name: Checkout
-        uses: actions/checkout@v2.4.2
+        uses: actions/checkout@v3.5.2
       - name: Azure Login
         uses: azure/login@v1
         with:
