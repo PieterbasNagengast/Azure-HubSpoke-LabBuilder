@@ -99,8 +99,8 @@ jobs:
           az account set --subscription ${{ matrix.subscriptions }}
       - name: Get Resource Groups
         run: |
-          az group list --tag LabBuilder=Validation --output table
+          az group list --tag LabBuilder=Validation --tag LabBuilderType=VNET --output table
       - name: Delete Resource Groups
         run: |
           echo 'Removing deployments...'
-          az group list --tag LabBuilder=Validation --query "[].[name]" --output tsv | xargs -l az group delete --yes --no-wait --name
+          az group list --tag LabBuilder=Validation --tag LabBuilderType=VNET --query "[].[name]" --output tsv | xargs -l az group delete --yes --no-wait --name
