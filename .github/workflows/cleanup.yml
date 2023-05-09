@@ -33,7 +33,7 @@ jobs:
       - name: Cleanup OnPrem Subsription
         run: |
           echo 'Switching to OnPrem Subscription...'
-          az account set --subscription ${{ secrets.SPOKE_SUBSCRIPTION_ID }}
+          az account set --subscription ${{ secrets.ONPREM_SUBSCRIPTION_ID }}
           echo 'List of Resource groups to be deleted....'
           az group list --tag LabBuilder=Validation --tag LabBuilderType=VNET --output table
           echo 'Removing Resource groups...'
