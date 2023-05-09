@@ -6,21 +6,9 @@ on:
   pull_request:
     branches: none
   workflow_dispatch:
-    inputs:
-      REMOVE_VNET_DEPLOYMENTS:
-        description: "Remove VNET Deployment"
-        required: true
-        default: true
-        type: boolean
-      DEPLOY_VNET_DEPLOYMENTS:
-        description: "Deploy VNET Deployment"
-        required: true
-        default: true
-        type: boolean
 
 jobs:
   lint:
-    if: ${{ inputs.DEPLOY_VNET_DEPLOYMENTS }}
     name: "Bicep Build (Lint)"
     runs-on: ubuntu-latest
 
@@ -35,7 +23,6 @@ jobs:
           az bicep build --file main.bicep
 
   VNETdeployments:
-    if: ${{ inputs.DEPLOY_VNET_DEPLOYMENTS }}
     name: "VNET Scenarios"
     runs-on: ubuntu-latest
     needs: lint
@@ -50,7 +37,7 @@ jobs:
             scenario4.vnet.parameters.json,
             scenario5.vnet.parameters.json,
             scenario6.vnet.parameters.json,
-            scenario7.vnet.parameters.json,
+            scenario7.vnet.parameters.json
           ]
 
     steps:
@@ -79,41 +66,3 @@ jobs:
           template: main.bicep
           parameters: "ARM/params/${{ matrix.scenarios }} adminUsername=${{ secrets.ADMINUSERNAME }} adminPassword=${{ secrets.ADMINPASSWORD }} sharedKey=${{ secrets.SHAREDKEY }} hubSubscriptionID=${{ secrets.HUB_SUBSCRIPTION_ID }} spokeSubscriptionID=${{ secrets.SPOKE_SUBSCRIPTION_ID }} onPremSubscriptionID=${{ secrets.ONPREM_SUBSCRIPTION_ID }}"
           deploymentName: "LabBuilderValidation-VNET"
-
-  VNETremoval:
-    if: ${{ inputs.REMOVE_VNET_DEPLOYMENTS }}
-    name: "Remove VNET deployment"
-    runs-on: ubuntu-latest
-    needs: VNETdeployments
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3.5.2
-      - name: Azure Login
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-      - name: Cleanup Hub Subsription
-        run: |
-          echo 'Switching to Hub Subscription...'
-          az account set --subscription ${{ secrets.HUB_SUBSCRIPTION_ID }}
-          echo 'List of Resource groups to be deleted....'
-          az group list --tag LabBuilder=Validation --tag LabBuilderType=VNET --output table
-          echo 'Removing Resource groups...'
-          az group list --tag LabBuilder=Validation --tag LabBuilderType=VNET --query "[].[name]" --output tsv | xargs -l az group delete --yes --no-wait --name
-      - name: Cleanup Spoke Subsription
-        run: |
-          echo 'Switching to Spoke Subscription...'
-          az account set --subscription ${{ secrets.SPOKE_SUBSCRIPTION_ID }}
-          echo 'List of Resource groups to be deleted....'
-          az group list --tag LabBuilder=Validation --tag LabBuilderType=VNET --output table
-          echo 'Removing Resource groups...'
-          az group list --tag LabBuilder=Validation --tag LabBuilderType=VNET --query "[].[name]" --output tsv | xargs -l az group delete --yes --no-wait --name
-      - name: Cleanup OnPrem Subsription
-        run: |
-          echo 'Switching to OnPrem Subscription...'
-          az account set --subscription ${{ secrets.SPOKE_SUBSCRIPTION_ID }}
-          echo 'List of Resource groups to be deleted....'
-          az group list --tag LabBuilder=Validation --tag LabBuilderType=VNET --output table
-          echo 'Removing Resource groups...'
-          az group list --tag LabBuilder=Validation --tag LabBuilderType=VNET --query "[].[name]" --output tsv | xargs -l az group delete --yes --no-wait --name
-          

@@ -6,20 +6,9 @@ on:
   pull_request:
     branches: none
   workflow_dispatch:
-    inputs:
-      REMOVE_VWAN_DEPLOYMENTS:
-        description: "Remove VWAN Deployment"
-        required: true
-        default: true
-        type: boolean
-      DEPLOY_VWAN_DEPLOYMENTS:
-        description: "Deploy VWAN Deployment"
-        required: true
-        default: true
-        type: boolean
+
 jobs:
   lint:
-    if: ${{ inputs.DEPLOY_VWAN_DEPLOYMENTS }}
     name: "Bicep Build (Lint)"
     runs-on: ubuntu-latest
 
@@ -34,7 +23,6 @@ jobs:
           az bicep build --file main.bicep
 
   VWANdeployments:
-    if: ${{ inputs.DEPLOY_VWAN_DEPLOYMENTS }}
     name: "VWAN Scenarios"
     runs-on: ubuntu-latest
     needs: lint
@@ -49,7 +37,7 @@ jobs:
             scenario4.vwan.parameters.json,
             scenario5.vwan.parameters.json,
             scenario6.vwan.parameters.json,
-            scenario7.vwan.parameters.json,
+            scenario7.vwan.parameters.json
           ]
 
     steps:
@@ -78,40 +66,3 @@ jobs:
           template: main.bicep
           parameters: "ARM/params/${{ matrix.scenarios }} adminUsername=${{ secrets.ADMINUSERNAME }} adminPassword=${{ secrets.ADMINPASSWORD }} sharedKey=${{ secrets.SHAREDKEY }} hubSubscriptionID=${{ secrets.HUB_SUBSCRIPTION_ID }} spokeSubscriptionID=${{ secrets.SPOKE_SUBSCRIPTION_ID }} onPremSubscriptionID=${{ secrets.ONPREM_SUBSCRIPTION_ID }}"
           deploymentName: "LabBuilderValidation-VWAN"
-
-  VWANremoval:
-    if: ${{ inputs.REMOVE_VWAN_DEPLOYMENTS }}
-    name: "Remove VNET deployment"
-    runs-on: ubuntu-latest
-    needs: VWANdeployments
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3.5.2
-      - name: Azure Login
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-      - name: Cleanup Hub Subsription
-        run: |
-          echo 'Switching to Hub Subscription...'
-          az account set --subscription ${{ secrets.HUB_SUBSCRIPTION_ID }}
-          echo 'List of Resource groups to be deleted....'
-          az group list --tag LabBuilder=Validation --tag LabBuilderType=VWAN --output table
-          echo 'Removing Resource groups...'
-          az group list --tag LabBuilder=Validation --tag LabBuilderType=VWAN --query "[].[name]" --output tsv | xargs -l az group delete --yes --no-wait --name
-      - name: Cleanup Spoke Subsription
-        run: |
-          echo 'Switching to Spoke Subscription...'
-          az account set --subscription ${{ secrets.SPOKE_SUBSCRIPTION_ID }}
-          echo 'List of Resource groups to be deleted....'
-          az group list --tag LabBuilder=Validation --tag LabBuilderType=VWAN --output table
-          echo 'Removing Resource groups...'
-          az group list --tag LabBuilder=Validation --tag LabBuilderType=VWAN --query "[].[name]" --output tsv | xargs -l az group delete --yes --no-wait --name
-      - name: Cleanup OnPrem Subsription
-        run: |
-          echo 'Switching to OnPrem Subscription...'
-          az account set --subscription ${{ secrets.SPOKE_SUBSCRIPTION_ID }}
-          echo 'List of Resource groups to be deleted....'
-          az group list --tag LabBuilder=Validation --tag LabBuilderType=VWAN --output table
-          echo 'Removing Resource groups...'
-          az group list --tag LabBuilder=Validation --tag LabBuilderType=VWAN --query "[].[name]" --output tsv | xargs -l az group delete --yes --no-wait --name
