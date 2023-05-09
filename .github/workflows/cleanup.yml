@@ -7,7 +7,6 @@ jobs:
   VNETremoval:
     name: "Remove VNET deployment"
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - name: Checkout
         uses: actions/checkout@v3.5.2
@@ -23,6 +22,7 @@ jobs:
           az group list --tag LabBuilder=Validation --tag LabBuilderType=VNET --output table
           echo 'Removing Resource groups...'
           az group list --tag LabBuilder=Validation --tag LabBuilderType=VNET --query "[].[name]" --output tsv | xargs -l az group delete --yes --no-wait --name
+        continue-on-error: true
       - name: Cleanup Spoke Subsription
         run: |
           echo 'Switching to Spoke Subscription...'
@@ -31,6 +31,7 @@ jobs:
           az group list --tag LabBuilder=Validation --tag LabBuilderType=VNET --output table
           echo 'Removing Resource groups...'
           az group list --tag LabBuilder=Validation --tag LabBuilderType=VNET --query "[].[name]" --output tsv | xargs -l az group delete --yes --no-wait --name
+        continue-on-error: true
       - name: Cleanup OnPrem Subsription
         run: |
           echo 'Switching to OnPrem Subscription...'
@@ -39,4 +40,5 @@ jobs:
           az group list --tag LabBuilder=Validation --tag LabBuilderType=VNET --output table
           echo 'Removing Resource groups...'
           az group list --tag LabBuilder=Validation --tag LabBuilderType=VNET --query "[].[name]" --output tsv | xargs -l az group delete --yes --no-wait --name
+        continue-on-error: true
           
