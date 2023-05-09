@@ -18,15 +18,19 @@ param vmSize string
 param tagsByResource object
 param osType string
 param AllSpokeAddressSpaces array
+param firewallDNSproxy bool
 
 param vpnGwEnebaleBgp bool
 param vpnGwBgpAsn int
+
+param diagnosticWorkspaceId string
 
 var vnetAddressSpace = replace(AddressSpace, '/16', '/24')
 var defaultSubnetPrefix = replace(vnetAddressSpace, '/24', '/26')
 var firewallSubnetPrefix = replace(vnetAddressSpace, '0/24', '64/26')
 var bastionSubnetPrefix = replace(vnetAddressSpace, '0/24', '128/27')
 var gatewaySubnetPrefix = replace(vnetAddressSpace, '0/24', '160/27')
+var firewallIP = replace(firewallSubnetPrefix, '64/26', '68')
 
 var vmName = 'VM-Hub'
 var nsgName = 'NSG-Hub'
@@ -51,7 +55,7 @@ module vnet 'modules/vnet.bicep' = {
     vnetAddressSpcae: vnetAddressSpace
     nsgID: nsg.outputs.nsgID
     rtDefID: deployFirewallInHub && deployUDRs ? rtDefault.outputs.rtID : 'none'
-    rtGwID: deployFirewallInHub && deployGatewayInHub? rtvpngw.outputs.rtID : 'none'
+    rtGwID: deployFirewallInHub && deployGatewayInHub ? rtvpngw.outputs.rtID : 'none'
     vnetname: hubVnetName
     defaultSubnetPrefix: defaultSubnetPrefix
     bastionSubnetPrefix: bastionSubnetPrefix
@@ -60,6 +64,18 @@ module vnet 'modules/vnet.bicep' = {
     deployBastionSubnet: deployBastionInHub
     deployFirewallSubnet: deployFirewallInHub
     deployGatewaySubnet: deployGatewayInHub
+    tagsByResource: tagsByResource
+    azFwIp: firewallIP
+    firewallDNSproxy: firewallDNSproxy
+  }
+}
+
+module dcrvminsights 'modules/dcrvminsights.bicep' = if (!empty(diagnosticWorkspaceId)) {
+  scope: hubrg
+  name: 'dcr-vminsights'
+  params: {
+    diagnosticWorkspaceId: diagnosticWorkspaceId
+    location: location
     tagsByResource: tagsByResource
   }
 }
@@ -76,6 +92,8 @@ module vm 'modules/vm.bicep' = if (deployVMinHub) {
     vmSize: vmSize
     tagsByResource: tagsByResource
     osType: osType
+    diagnosticWorkspaceId: diagnosticWorkspaceId
+    dcrID: !empty(diagnosticWorkspaceId) ? dcrvminsights.outputs.dcrID : ''
   }
 }
 
@@ -111,6 +129,7 @@ module firewall 'modules/firewall.bicep' = if (deployFirewallInHub) {
     azfwsubnetid: deployFirewallInHub ? vnet.outputs.firewallSubnetID : ''
     azfwTier: AzureFirewallTier
     tagsByResource: tagsByResource
+    firewallDNSproxy: firewallDNSproxy
   }
 }
 
@@ -143,7 +162,7 @@ module routeDefault1 'modules/route.bicep' = if (deployFirewallInHub && deployUD
   }
 }
 
-module routeDefault2 'modules/route.bicep' = [for (addressRange, i) in AllSpokeAddressSpaces : if (deployFirewallInHub && deployUDRs) {
+module routeDefault2 'modules/route.bicep' = [for (addressRange, i) in AllSpokeAddressSpaces: if (deployFirewallInHub && deployUDRs) {
   scope: hubrg
   name: 'RouteToLocal${i}'
   params: {
@@ -175,7 +194,7 @@ module rtvpngw 'modules/routetable.bicep' = if (deployFirewallInHub && deployGat
   }
 }
 
-module routeVPNgw 'modules/route.bicep' = [for (addressRange, i) in concat(AllSpokeAddressSpaces,array(defaultSubnetPrefix)) : if (deployFirewallInHub && deployGatewayInHub && deployUDRs) {
+module routeVPNgw 'modules/route.bicep' = [for (addressRange, i) in concat(AllSpokeAddressSpaces, array(defaultSubnetPrefix)): if (deployFirewallInHub && deployGatewayInHub && deployUDRs) {
   scope: hubrg
   name: 'Route-vpngw${i}'
   params: {
@@ -194,3 +213,5 @@ output hubDefaultSubnetPrefix string = defaultSubnetPrefix
 output hubGatewayPublicIP string = deployGatewayInHub ? vpngw.outputs.vpnGwPublicIP : 'none'
 output hubGatewayID string = deployGatewayInHub ? vpngw.outputs.vpnGwID : 'none'
 output HubGwBgpPeeringAddress string = deployGatewayInHub ? vpngw.outputs.vpnGwBgpPeeringAddress : 'none'
+output HubVmResourceID string = deployVMinHub ? vm.outputs.vmResourceID : 'none'
+output dcrvminsightsID string = !empty(diagnosticWorkspaceId) ? dcrvminsights.outputs.dcrID : ''

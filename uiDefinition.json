@@ -209,6 +209,17 @@
 							"visible": "[and(equals(steps('HubVNET').deployHUB,true),equals(steps('HubVNET').deployFirewallInHub,true))]"
 						},
 						{
+							"name": "AzureFirewallDNSproxy",
+							"type": "Microsoft.Common.CheckBox",
+							"label": "Enable Azure Firewall DNS Proxy",
+							"defaultValue": false,
+							"toolTip": "Enable Azure Firewall DNS Proxy",
+							"constraints": {
+								"required": false
+							},
+							"visible": "[and(equals(steps('HubVNET').deployHUB,true),equals(steps('HubVNET').deployFirewallInHub,true))]"
+						},
+						{
 							"name": "deployFirewallrules",
 							"type": "Microsoft.Common.CheckBox",
 							"label": "Deploy Firewall policy rules",
@@ -293,6 +304,26 @@
 								"required": false
 							},
 							"visible": "[equals(steps('SpokeVNETs').deploySpokes,true)]"
+						},
+						{
+							"name": "deployVnetPeeringMesh",
+							"type": "Microsoft.Common.CheckBox",
+							"label": "Directly connect Spoke VNET's in a Fully Meshed topology",
+							"defaultValue": false,
+							"toolTip": "directly connect spoke virtual networks to each other in a fully meshed topology using standard VNET peerings.",
+							"constraints": {
+								"required": false
+							},
+							"visible": "[equals(steps('SpokeVNETs').deploySpokes,true)]"
+						},
+						{
+							"name": "LinuxDAInfo",
+							"type": "Microsoft.Common.InfoBox",
+							"options": {
+								"text": "[concat(string(mul(sub(steps('SpokeVNETs').amountOfSpokes,1),steps('SpokeVNETs').amountOfSpokes)), 'x VNET Peerings are created for ', string(steps('SpokeVNETs').amountOfSpokes),'x Spoke VNETs')]",
+								"style": "Info"
+							},
+							"visible": "[equals(steps('SpokeVNETs').deployVnetPeeringMesh,true)]"
 						},
 						{
 							"name": "deployBastionInSpoke",
@@ -544,6 +575,24 @@
 							"visible": "[or(equals(steps('VirtualMachines').deployVMsInSpokes,true),equals(steps('VirtualMachines').deployVMinHub,true),equals(steps('VirtualMachines').deployVMinOnPrem,true))]"
 						},
 						{
+							"name": "deployAMA",
+							"type": "Microsoft.Common.CheckBox",
+							"label": "Deploy Azure Monitor Agent (AMA) including Depency Agent (Service Map)",
+							"toolTip": "Dependency Agent Only applicable on Windows VM's",
+							"defaultValue": false,
+							"constraints": {
+								"required": false
+							},
+							"visible": "[or(equals(steps('VirtualMachines').deployVMsInSpokes,true),equals(steps('VirtualMachines').deployVMinHub,true),equals(steps('VirtualMachines').deployVMinOnPrem,true))]"
+						},
+						{
+							"name": "lawSelectorForAMA",
+							"type": "Microsoft.Solutions.ResourceSelector",
+							"label": "LogAnalytics Workspace",
+							"resourceType": "Microsoft.OperationalInsights/workspaces",
+							"visible": "[equals(steps('VirtualMachines').deployAMA,true)]"
+						},
+						{
 							"name": "HubvmSizeSection",
 							"type": "Microsoft.Common.Section",
 							"label": "Hub Virtual Machines settings:",
@@ -568,6 +617,15 @@
 										"required": true
 									},
 									"visible": true
+								},
+								{
+									"name": "LinuxDAInfo",
+									"type": "Microsoft.Common.InfoBox",
+									"options": {
+										"text": "VM Dependency Agent won't be installed on Linux.",
+										"style": "Warning"
+									},
+									"visible": "[and(equals(steps('VirtualMachines').HubvmSizeSection.osType,'Linux'),equals(steps('VirtualMachines').deployAMA,true))]"
 								},
 								{
 									"name": "vmSize",
@@ -615,6 +673,15 @@
 										"required": true
 									},
 									"visible": true
+								},
+								{
+									"name": "LinuxDAInfo",
+									"type": "Microsoft.Common.InfoBox",
+									"options": {
+										"text": "VM Dependency Agent won't be installed on Linux.",
+										"style": "Warning"
+									},
+									"visible": "[and(equals(steps('VirtualMachines').SpokevmSizeSection.osType,'Linux'),equals(steps('VirtualMachines').deployAMA,true))]"
 								},
 								{
 									"name": "vmSize",
@@ -745,7 +812,8 @@
 								"Microsoft.Network/localNetworkGateways",
 								"Microsoft.Network/connections",
 								"Microsoft.Network/virtualWans",
-								"Microsoft.Resources/subscriptions/resourceGroups"
+								"Microsoft.Resources/subscriptions/resourceGroups",
+								"Microsoft.Insights/dataCollectionRules"
 							]
 						}
 					]
@@ -764,6 +832,7 @@
 				"deploySpokes": "[coalesce(steps('SpokeVNETs').deploySpokes,false)]",
 				"amountOfSpokes": "[steps('SpokeVNETs').amountOfSpokes]",
 				"deployBastionInSpoke": "[coalesce(steps('SpokeVNETs').deployBastionInSpoke,false)]",
+				"deployVnetPeeringMesh": "[coalesce(steps('SpokeVNETs').deployVnetPeeringMesh,false)]",
 				"deployHUB": "[coalesce(steps('HubVNET').deployHUB,false)]",
 				"hubType": "[steps('HubVNET').VNETorVWAN]",
 				"hubRgName": "[steps('HubVNET').hubRgName]",
@@ -776,6 +845,7 @@
 				"deployUDRs": "[steps('HubVNET').deployUDRs]",
 				"spokeRgNamePrefix": "[steps('SpokeVNETs').spokeRgNamePrefix]",
 				"deployFirewallrules": "[coalesce(steps('HubVNET').deployFirewallrules,false)]",
+				"firewallDNSproxy": "[coalesce(steps('HubVNET').AzureFirewallDNSproxy,false)]",
 				"deployOnPrem": "[coalesce(steps('OnPrem').deployOnPrem,false)]",
 				"onpremRgName": "[steps('OnPrem').OnPremRgName]",
 				"deployBastionInOnPrem": "[coalesce(steps('OnPrem').deployBastionInOnPrem,false)]",
@@ -795,7 +865,8 @@
 				"vmSizeOnPrem": "[steps('VirtualMachines').OnPremvmSizeSection.vmSize]",
 				"osTypeHub": "[steps('VirtualMachines').HubvmSizeSection.osType]",
 				"osTypeSpoke": "[steps('VirtualMachines').SpokevmSizeSection.osType]",
-				"osTypeOnPrem": "[steps('VirtualMachines').OnPremvmSizeSection.osType]"
+				"osTypeOnPrem": "[steps('VirtualMachines').OnPremvmSizeSection.osType]",
+				"diagnosticWorkspaceId": "[steps('VirtualMachines').lawSelectorForAMA.id]"
 			},
 			"kind": "Subscription",
 			"subscriptionId": "[steps('basics').resourceScope.subscription.id]",

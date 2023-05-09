@@ -12,6 +12,8 @@ param deployBastionSubnet bool = false
 param deployFirewallSubnet bool = false
 param deployGatewaySubnet bool = false
 param tagsByResource object = {}
+param firewallDNSproxy bool = false
+param azFwIp string = ''
 
 var defaultSubnet = [
   {
@@ -58,6 +60,9 @@ resource vnet 'Microsoft.Network/virtualNetworks@2021-05-01' = {
   name: vnetname
   location: location
   properties: {
+    dhcpOptions: {
+      dnsServers: firewallDNSproxy ? array(azFwIp) : []
+    }
     addressSpace: {
       addressPrefixes: [
         vnetAddressSpcae
@@ -71,6 +76,6 @@ resource vnet 'Microsoft.Network/virtualNetworks@2021-05-01' = {
 output vnetName string = vnet.name
 output vnetID string = vnet.id
 output defaultSubnetID string = vnet.properties.subnets[0].id
-output bastionSubnetID string = deployBastionSubnet ? resourceId('Microsoft.Network/VirtualNetworks/subnets',vnetname,'AzureBastionSubnet'): 'Not deployed' 
-output firewallSubnetID string = deployFirewallSubnet ? resourceId('Microsoft.Network/VirtualNetworks/subnets',vnetname,'AzureFirewallSubnet'): 'Not deployed' 
-output gatewaySubnetID string = deployGatewaySubnet ? resourceId('Microsoft.Network/VirtualNetworks/subnets',vnetname,'GatewaySubnet'): 'Not deployed' 
+output bastionSubnetID string = deployBastionSubnet ? resourceId('Microsoft.Network/VirtualNetworks/subnets', vnetname, 'AzureBastionSubnet') : 'Not deployed'
+output firewallSubnetID string = deployFirewallSubnet ? resourceId('Microsoft.Network/VirtualNetworks/subnets', vnetname, 'AzureFirewallSubnet') : 'Not deployed'
+output gatewaySubnetID string = deployGatewaySubnet ? resourceId('Microsoft.Network/VirtualNetworks/subnets', vnetname, 'GatewaySubnet') : 'Not deployed'

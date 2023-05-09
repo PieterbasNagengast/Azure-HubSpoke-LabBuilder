@@ -18,6 +18,11 @@ param vmSize string
 param tagsByResource object
 param osType string
 param hubDefaultSubnetPrefix string
+param firewallDNSproxy bool
+
+param diagnosticWorkspaceId string
+
+param dcrID string
 
 var vnetName = 'VNET-Spoke${counter}'
 var vmName = 'VM-Spoke${counter}'
@@ -25,7 +30,7 @@ var rtName = 'RT-Spoke${counter}'
 var nsgName = 'NSG-Spoke${counter}'
 var bastionName = 'Bastion-Spoke${counter}'
 
-var vnetAddressSpace = replace(AddressSpace,'0.0/16', '${counter}.0/24')
+var vnetAddressSpace = replace(AddressSpace, '0.0/16', '${counter}.0/24')
 var defaultSubnetPrefix = replace(vnetAddressSpace, '/24', '/26')
 var bastionSubnetPrefix = replace(vnetAddressSpace, '0/24', '128/27')
 
@@ -48,6 +53,8 @@ module vnet 'modules/vnet.bicep' = {
     bastionSubnetPrefix: deployBastionInSpoke ? bastionSubnetPrefix : ''
     deployBastionSubnet: deployBastionInSpoke
     tagsByResource: tagsByResource
+    firewallDNSproxy: firewallDNSproxy
+    azFwIp: AzureFirewallpip
   }
 }
 
@@ -63,6 +70,8 @@ module vm 'modules/vm.bicep' = if (deployVMsInSpokes) {
     vmSize: vmSize
     tagsByResource: tagsByResource
     osType: osType
+    diagnosticWorkspaceId: diagnosticWorkspaceId
+    dcrID: dcrID
   }
 }
 
@@ -122,3 +131,4 @@ output spokeVnetID string = vnet.outputs.vnetID
 output spokeVnetAddressSpace string = vnetAddressSpace
 output spokeResourceGroupName string = spokerg.name
 output spokeVnetName string = vnet.outputs.vnetName
+output spokeVmResourceID string = deployVMsInSpokes ? vm.outputs.vmResourceID : 'none'

@@ -8,6 +8,7 @@ param hubRgName string
 param deployFirewallrules bool
 param deployGatewayInHub bool
 param tagsByResource object = {}
+param firewallDNSproxy bool
 
 var vnetAddressSpace = replace(AddressSpace, '/16', '/24')
 
@@ -39,11 +40,12 @@ module AzFirewall 'modules/firewall.bicep' = if (deployFirewallInHub) {
   name: firewallName
   params: {
     deployInVWan: true
-    azfwTier: AzureFirewallTier 
+    azfwTier: AzureFirewallTier
     firewallName: firewallName
     vWanID: vwan.outputs.vWanHubID
     location: location
     tagsByResource: tagsByResource
+    firewallDNSproxy: firewallDNSproxy
   }
 }
 

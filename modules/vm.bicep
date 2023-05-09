@@ -8,8 +8,19 @@ param vmSize string
 param storageType string = 'StandardSSD_LRS'
 param osType string = 'Windows'
 param tagsByResource object = {}
+param dcrID string
+
+param diagnosticWorkspaceId string
 
 var EnableICMPv4 = 'netsh advfirewall firewall add rule name="ICMP Allow incoming V4 echo request" protocol="icmpv4:8,any" dir=in action=allow'
+
+var AmaExtensionName = osType == 'Windows' ? 'AzureMonitorWindowsAgent' : 'AzureMonitorLinuxAgent'
+var AmaExtensionType = osType == 'Windows' ? 'AzureMonitorWindowsAgent' : 'AzureMonitorLinuxAgent'
+var AmaExtensionVersion = '1.0'
+
+var DaExtensionName = 'DependencyAgentWindows'
+var DaExtensionType = 'DependencyAgentWindows'
+var DaExtensionVersion = '9.5'
 
 var Windows = {
   publisher: 'MicrosoftWindowsServer'
@@ -20,16 +31,19 @@ var Windows = {
 
 var Linux = {
   publisher: 'Canonical'
-  offer: '0001-com-ubuntu-server-jammy' 
-  sku: '22_04-lts-gen2' 
+  offer: '0001-com-ubuntu-server-jammy'
+  sku: '22_04-lts-gen2'
   version: 'latest'
 }
 
-var imagereference = (osType == 'Windows') ? Windows : (osType == 'Linux') ? Linux : {}
+var imagereference = osType == 'Windows' ? Windows : osType == 'Linux' ? Linux : {}
 
 resource vm 'Microsoft.Compute/virtualMachines@2021-11-01' = {
   name: vmName
   location: location
+  identity: {
+    type: 'SystemAssigned'
+  }
   properties: {
     osProfile: {
       computerName: vmName
@@ -40,6 +54,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2021-11-01' = {
       imageReference: imagereference
       osDisk: {
         createOption: 'FromImage'
+        name: '${vmName}-osDisk'
         managedDisk: {
           storageAccountType: storageType
         }
@@ -61,12 +76,48 @@ resource vm 'Microsoft.Compute/virtualMachines@2021-11-01' = {
       vmSize: vmSize
     }
     diagnosticsProfile: {
-       bootDiagnostics: {
-          enabled: true
-       }
+      bootDiagnostics: {
+        enabled: true
+      }
     }
   }
   tags: contains(tagsByResource, 'Microsoft.Compute/virtualMachines') ? tagsByResource['Microsoft.Compute/virtualMachines'] : {}
+}
+
+resource amaextension 'Microsoft.Compute/virtualMachines/extensions@2022-03-01' = if (!empty(diagnosticWorkspaceId)) {
+  name: AmaExtensionName
+  parent: vm
+  location: location
+  properties: {
+    publisher: 'Microsoft.Azure.Monitor'
+    type: AmaExtensionType
+    typeHandlerVersion: AmaExtensionVersion
+    autoUpgradeMinorVersion: true
+  }
+}
+
+resource daextension 'Microsoft.Compute/virtualMachines/extensions@2022-03-01' = if (!empty(diagnosticWorkspaceId) && osType == 'Windows') {
+  name: DaExtensionName
+  parent: vm
+  location: location
+  properties: {
+    publisher: 'Microsoft.Azure.Monitoring.DependencyAgent'
+    type: DaExtensionType
+    typeHandlerVersion: DaExtensionVersion
+    autoUpgradeMinorVersion: true
+    settings: {
+      enableAMA: true
+    }
+  }
+}
+
+resource dcrassociation 'Microsoft.Insights/dataCollectionRuleAssociations@2021-04-01' = if (!empty(diagnosticWorkspaceId)) {
+  name: 'VMInsights-Dcr-Association'
+  scope: vm
+  properties: {
+    dataCollectionRuleId: dcrID
+    description: 'Association of data collection rule for VM Insights.'
+  }
 }
 
 resource nic 'Microsoft.Network/networkInterfaces@2021-05-01' = {
@@ -97,3 +148,5 @@ module run 'runcommand.bicep' = if (osType == 'Windows') {
     vmName: vm.name
   }
 }
+
+output vmResourceID string = vm.id

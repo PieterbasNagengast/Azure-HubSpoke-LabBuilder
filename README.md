@@ -14,8 +14,11 @@
   - [General](#general)
   - [Subnet Ip Address range usage](#subnet-ip-address-range-usage)
   - [Resource Names](#resource-names)
+  - [Azure Monitor Agent, VM Insights and Dependency Agent](#azure-monitor-agent-vm-insights-and-dependency-agent)
+  - [Spoke VNET peerings in a Fully Meshed topology](#spoke-vnet-peerings-in-a-fully-meshed-topology)
 - [Parameters overview](#parameters-overview)
 - [Updates](#updates)
+  - [September 2022 updates](#september-2022-updates)
   - [July 2022 updates](#july-2022-updates)
   - [June 2022 updates](#june-2022-updates)
   - [May 2022 updates](#may-2022-updates)
@@ -148,6 +151,25 @@ Within these **main** scenario's there are multiple options (but not limited to 
 |OnPrem Network Security Group|NSG-OnPrem|
 |OnPrem Virtual Network gateway|Gateway-OnPrem|
 
+## Azure Monitor Agent, VM Insights and Dependency Agent
+
+- Azure Monitor Agent will be deployed on all VM's (Windows and Linux)
+- Data collection rule (DCR) will be deployed in Hub Resource group and associated with all VM's
+- Data collection rule includes all configuration for VMInsights including Service Map (Dependency agent)
+- Dependency Agent will be installed on Windows VM's only.
+
+## Spoke VNET peerings in a Fully Meshed topology
+
+- With this option all Spoke VNET's will be directly connected using standard VNET peerings.
+
+- ![Fully Meshed](images/FullMeshedPeerings.png)
+
+- When you directly connect spoke virtual networks to each other in a fully meshed topology, you need to consider the potentially high number of virtual network peerings required
+  
+- ![Peerings required for Fully Meshed topology](https://learn.microsoft.com/en-us/azure/architecture/networking/media/peering-number-chart.png)
+
+- ref to MS docs: [Patterns and topologies for inter-spoke communication](https://learn.microsoft.com/en-us/azure/architecture/networking/spoke-to-spoke-networking)
+
 ## Parameters overview
 
 | Parameter Name | Type | Description | DefaultValue | Possible values |
@@ -175,6 +197,8 @@ Within these **main** scenario's there are multiple options (but not limited to 
 | `deployVMinHub` | bool | Deploy VM in Hub VNET | False |  |
 | `deployVMinOnPrem` | bool | Deploy VM in OnPrem VNET | True |  |
 | `deployVMsInSpokes` | bool | Deploy VM in every Spoke VNET | True |  |
+| `diagnosticWorkspaceId` | string | Workspace ID of exsisting LogAnalytics Workspace | | |
+| `firewallDNSproxy` | bool | Enable Azure Firewall DNS proxy | False | |
 | `hubBgp` | bool | Enable BGP on Hub Gateway | True |  |
 | `hubBgpAsn` | int | Hub BGP ASN | 65515 |  |
 | `hubRgName` | string | Hub resource group pre-fix name | rg-hub |  |
@@ -195,8 +219,24 @@ Within these **main** scenario's there are multiple options (but not limited to 
 | `vmSizeHub` | string | Hub Virtual Machine SKU. Default = Standard_B2s | Standard_B2s |  |
 | `vmSizeOnPrem` | string | OnPrem Virtual Machine SKU. Default = Standard_B2s | Standard_B2s |  |
 | `vmSizeSpoke` | string | Spoke Virtual Machine SKU. Default = Standard_B2s | Standard_B2s |  |
+| `deployVnetPeeringMesh` | bool | Directly connect VNET Spokes (Fully Meshed Topology) | False |
+
 
 ## Updates
+
+### May 2023 updates
+
+- Deploy Azure Monitor Agent on Windows and Linux VM's
+- Deploy Dependency Agent (Service Map) on Windows VM's
+- Deploy Data Collections Rule (DCR) with VMInsights (Performance and Map) enabled
+- Select an existing Log Analytics Workspace to be used with AMA/DA and DCR
+- Deploy VNET peerings between Spoke VNET's in a fully Meshed topology
+
+### September 2022 updates
+
+- Enable Azure Firewall DNS proxy and set VNET DNS to Firewall IP address
+- Enable Diagnostic settings to log to existing LogAnalytics workspace
+- Deploy Microsoft Monitoring agent if existing LogAnalytics is selected
 
 ### July 2022 updates
 
@@ -222,3 +262,5 @@ Within these **main** scenario's there are multiple options (but not limited to 
 - Virtual machine boot diagnostics (Managed storage account)
 - Virtual machine delete option of Disk and Nic
 - Tags support for resources deployed
+
+

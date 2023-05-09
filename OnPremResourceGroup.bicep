@@ -1,7 +1,7 @@
 targetScope = 'subscription'
 
 param location string
-param AddressSpace string 
+param AddressSpace string
 param deployBastionInOnPrem bool
 param bastionSku string
 param adminUsername string
@@ -17,13 +17,17 @@ param osType string
 param vpnGwEnebaleBgp bool
 param vpnGwBgpAsn int
 
+param diagnosticWorkspaceId string
+
+param dcrID string
+
 var vnetName = 'VNET-OnPrem'
 var vmName = 'VM-OnPrem'
 var nsgName = 'NSG-OnPrem'
 var bastionName = 'Bastion-OnPrem'
 var gatewayName = 'Gateway-OnPrem'
 
-var vnetAddressSpace = replace(AddressSpace,'0.0/16', '255.0/24')
+var vnetAddressSpace = replace(AddressSpace, '0.0/16', '255.0/24')
 var defaultSubnetPrefix = replace(vnetAddressSpace, '/24', '/26')
 var bastionSubnetPrefix = replace(vnetAddressSpace, '0/24', '128/27')
 var gatewaySubnetPrefix = replace(vnetAddressSpace, '0/24', '160/27')
@@ -63,6 +67,8 @@ module vm 'modules/vm.bicep' = if (deployVMsInOnPrem) {
     vmSize: vmSize
     tagsByResource: tagsByResource
     osType: osType
+    diagnosticWorkspaceId: diagnosticWorkspaceId
+    dcrID: dcrID
   }
 }
 
