@@ -60,7 +60,7 @@ jobs:
           subscriptionId: ${{ secrets.VNET_SUBSCRIPTION }}
           region: westus3
           template: main.bicep
-          parameters: "ARM/params/${{ matrix.scenarios }} adminUsername=${{ secrets.ADMINUSERNAME }} adminPassword=${{ secrets.ADMINPASSWORD }} sharedKey=${{ secrets.SHAREDKEY }} hubSubscriptionID=${{ secrets.HUB_SUBSCRIPTION_ID }} spokeSubscriptionID=${{ secrets.SPOKE_SUBSCRIPTION_ID }} onPremSubscriptionID=${{ secrets.SPOKE_SUBSCRIPTION_ID }}"
+          parameters: "ARM/params/${{ matrix.scenarios }} adminUsername=${{ secrets.ADMINUSERNAME }} adminPassword=${{ secrets.ADMINPASSWORD }} sharedKey=${{ secrets.SHAREDKEY }} hubSubscriptionID=${{ secrets.HUB_SUBSCRIPTION_ID }} spokeSubscriptionID=${{ secrets.SPOKE_SUBSCRIPTION_ID }} onPremSubscriptionID=${{ secrets.ONPREM_SUBSCRIPTION_ID }}"
           deploymentMode: "validate"
           deploymentName: "LabBuilderValidation-VNET"
       - name: "Deployment"
@@ -70,7 +70,7 @@ jobs:
           subscriptionId: ${{ secrets.VNET_SUBSCRIPTION }}
           region: westus3
           template: main.bicep
-          parameters: "ARM/params/${{ matrix.scenarios }} adminUsername=${{ secrets.ADMINUSERNAME }} adminPassword=${{ secrets.ADMINPASSWORD }} sharedKey=${{ secrets.SHAREDKEY }} hubSubscriptionID=${{ secrets.HUB_SUBSCRIPTION_ID }} spokeSubscriptionID=${{ secrets.SPOKE_SUBSCRIPTION_ID }} onPremSubscriptionID=${{ secrets.SPOKE_SUBSCRIPTION_ID }}"
+          parameters: "ARM/params/${{ matrix.scenarios }} adminUsername=${{ secrets.ADMINUSERNAME }} adminPassword=${{ secrets.ADMINPASSWORD }} sharedKey=${{ secrets.SHAREDKEY }} hubSubscriptionID=${{ secrets.HUB_SUBSCRIPTION_ID }} spokeSubscriptionID=${{ secrets.SPOKE_SUBSCRIPTION_ID }} onPremSubscriptionID=${{ secrets.ONPREM_SUBSCRIPTION_ID }}"
           deploymentName: "LabBuilderValidation-VNET"
 
   VNETremoval:
