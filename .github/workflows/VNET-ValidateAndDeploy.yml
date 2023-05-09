@@ -12,11 +12,6 @@ on:
         required: true
         default: true
         type: boolean
-      REMOVE_VWAN_DEPLOYMENTS:
-        description: "Remove VWAN Deployment"
-        required: true
-        default: true
-        type: boolean
 
 jobs:
   lint:
@@ -48,6 +43,7 @@ jobs:
             scenario4.vnet.parameters.json,
             scenario5.vnet.parameters.json,
             scenario6.vnet.parameters.json,
+            scenario7.vnet.parameters.json,
           ]
 
     steps:

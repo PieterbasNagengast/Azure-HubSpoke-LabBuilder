@@ -7,11 +7,6 @@ on:
     branches: none
   workflow_dispatch:
     inputs:
-      REMOVE_VNET_DEPLOYMENTS:
-        description: "Remove VNET Deployment"
-        required: true
-        default: true
-        type: boolean
       REMOVE_VWAN_DEPLOYMENTS:
         description: "Remove VWAN Deployment"
         required: true
@@ -48,6 +43,7 @@ jobs:
             scenario4.vwan.parameters.json,
             scenario5.vwan.parameters.json,
             scenario6.vwan.parameters.json,
+            scenario7.vwan.parameters.json,
           ]
 
     steps:

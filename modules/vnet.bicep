@@ -23,7 +23,7 @@ var defaultSubnet = [
       networkSecurityGroup: {
         id: nsgID
       }
-      routeTable: rtDefID == 'none' ? json('null') : json('{"id": "${rtDefID}"}"')
+      routeTable: rtDefID == 'none' ? null : json('{"id": "${rtDefID}"}"')
     }
   }
 ]
@@ -51,7 +51,7 @@ var gatewaySubnet = !deployGatewaySubnet && !deployFirewallSubnet ? [] : [
     name: 'GatewaySubnet'
     properties: {
       addressPrefix: GatewaySubnetPrefix
-      routeTable: rtGwID == 'none' ? json('null') : json('{"id": "${rtGwID}"}"')
+      routeTable: rtGwID == 'none' ? null : json('{"id": "${rtGwID}"}"')
     }
   }
 ]
