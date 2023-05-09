@@ -1,6 +1,7 @@
 <h1>Hub or Azure Virtual WAN & Spoke playground - LAB Builder</h1>
 
-[![LabBuilder - Lint, Validation and Deploy Scenarios](https://github.com/PieterbasNagengast/Azure-HubSpoke-LabBuilder/actions/workflows/LabBuilder-ValidateAndDeploy.yml/badge.svg)](https://github.com/PieterbasNagengast/Azure-HubSpoke-LabBuilder/actions/workflows/LabBuilder-ValidateAndDeploy.yml)
+[![VNET - Lint, Validation and Deploy Scenarios](https://github.com/PieterbasNagengast/Azure-HubSpoke-LabBuilder/actions/workflows/VNET-ValidateAndDeploy.yml/badge.svg)](https://github.com/PieterbasNagengast/Azure-HubSpoke-LabBuilder/actions/workflows/VNET-ValidateAndDeploy.yml)
+[![VWAN - Lint, Validation and Deploy Scenarios](https://github.com/PieterbasNagengast/Azure-HubSpoke-LabBuilder/actions/workflows/VWAN-ValidateAndDeploy.yml/badge.svg)](https://github.com/PieterbasNagengast/Azure-HubSpoke-LabBuilder/actions/workflows/VWAN-ValidateAndDeploy.yml)
 
 ## Table of contents
 
