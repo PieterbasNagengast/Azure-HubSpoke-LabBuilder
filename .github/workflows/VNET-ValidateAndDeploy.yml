@@ -12,6 +12,11 @@ on:
         required: true
         default: true
         type: boolean
+      DEPLOY_VNET_DEPLOYMENTS:
+        description: "Deploy VNET Deployment"
+        required: true
+        default: true
+        type: boolean
 
 jobs:
   lint:
@@ -29,6 +34,7 @@ jobs:
           az bicep build --file main.bicep
 
   VNETdeployments:
+    if: ${{ github.event.inputs.DEPLOY_VNET_DEPLOYMENTS == 'true' }}
     name: "VNET Scenarios"
     runs-on: ubuntu-latest
     needs: lint
@@ -57,7 +63,7 @@ jobs:
         uses: Azure/arm-deploy@v1
         with:
           scope: "subscription"
-          subscriptionId: ${{ secrets.VNET_SUBSCRIPTION }}
+          subscriptionId: ${{ secrets.HUB_SUBSCRIPTION_ID }}
           region: westus3
           template: main.bicep
           parameters: "ARM/params/${{ matrix.scenarios }} adminUsername=${{ secrets.ADMINUSERNAME }} adminPassword=${{ secrets.ADMINPASSWORD }} sharedKey=${{ secrets.SHAREDKEY }} hubSubscriptionID=${{ secrets.HUB_SUBSCRIPTION_ID }} spokeSubscriptionID=${{ secrets.SPOKE_SUBSCRIPTION_ID }} onPremSubscriptionID=${{ secrets.ONPREM_SUBSCRIPTION_ID }}"
@@ -67,7 +73,7 @@ jobs:
         uses: Azure/arm-deploy@v1
         with:
           scope: "subscription"
-          subscriptionId: ${{ secrets.VNET_SUBSCRIPTION }}
+          subscriptionId: ${{ secrets.HUB_SUBSCRIPTION_ID }}
           region: westus3
           template: main.bicep
           parameters: "ARM/params/${{ matrix.scenarios }} adminUsername=${{ secrets.ADMINUSERNAME }} adminPassword=${{ secrets.ADMINPASSWORD }} sharedKey=${{ secrets.SHAREDKEY }} hubSubscriptionID=${{ secrets.HUB_SUBSCRIPTION_ID }} spokeSubscriptionID=${{ secrets.SPOKE_SUBSCRIPTION_ID }} onPremSubscriptionID=${{ secrets.ONPREM_SUBSCRIPTION_ID }}"
@@ -78,15 +84,6 @@ jobs:
     name: "Remove VNET deployment"
     runs-on: ubuntu-latest
     needs: VNETdeployments
-    strategy:
-      max-parallel: 2
-      matrix:
-        subscriptions:
-          [
-            secrets.HUB_SUBSCRIPTION_ID,
-            secrets.SPOKE_SUBSCRIPTION_ID
-          ]
-
     steps:
       - name: Checkout
         uses: actions/checkout@v3.5.2
@@ -94,13 +91,28 @@ jobs:
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-      - name: Set Subscription
+      - name: Cleanup Hub Subsription
         run: |
-          az account set --subscription ${{ matrix.subscriptions }}
-      - name: Get Resource Groups
-        run: |
+          echo 'Switching to Hub Subscription...'
+          az account set --subscription ${{ secrets.HUB_SUBSCRIPTION_ID }}
+          echo 'List of Resource groups to be deleted....'
           az group list --tag LabBuilder=Validation --tag LabBuilderType=VNET --output table
-      - name: Delete Resource Groups
-        run: |
-          echo 'Removing deployments...'
+          echo 'Removing Resource groups...'
           az group list --tag LabBuilder=Validation --tag LabBuilderType=VNET --query "[].[name]" --output tsv | xargs -l az group delete --yes --no-wait --name
+      - name: Cleanup Spoke Subsription
+        run: |
+          echo 'Switching to Spoke Subscription...'
+          az account set --subscription ${{ secrets.SPOKE_SUBSCRIPTION_ID }}
+          echo 'List of Resource groups to be deleted....'
+          az group list --tag LabBuilder=Validation --tag LabBuilderType=VNET --output table
+          echo 'Removing Resource groups...'
+          az group list --tag LabBuilder=Validation --tag LabBuilderType=VNET --query "[].[name]" --output tsv | xargs -l az group delete --yes --no-wait --name
+      - name: Cleanup OnPrem Subsription
+        run: |
+          echo 'Switching to OnPrem Subscription...'
+          az account set --subscription ${{ secrets.SPOKE_SUBSCRIPTION_ID }}
+          echo 'List of Resource groups to be deleted....'
+          az group list --tag LabBuilder=Validation --tag LabBuilderType=VNET --output table
+          echo 'Removing Resource groups...'
+          az group list --tag LabBuilder=Validation --tag LabBuilderType=VNET --query "[].[name]" --output tsv | xargs -l az group delete --yes --no-wait --name
+          
