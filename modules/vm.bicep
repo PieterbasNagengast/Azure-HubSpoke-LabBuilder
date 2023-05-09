@@ -18,8 +18,8 @@ var AmaExtensionName = osType == 'Windows' ? 'AzureMonitorWindowsAgent' : 'Azure
 var AmaExtensionType = osType == 'Windows' ? 'AzureMonitorWindowsAgent' : 'AzureMonitorLinuxAgent'
 var AmaExtensionVersion = '1.0'
 
-var DaExtensionName = 'DependencyAgentLinux'
-var DaExtensionType = 'DependencyAgentLinux'
+var DaExtensionName = 'DependencyAgentWindows'
+var DaExtensionType = 'DependencyAgentWindows'
 var DaExtensionVersion = '9.5'
 
 var Windows = {
@@ -32,7 +32,7 @@ var Windows = {
 var Linux = {
   publisher: 'Canonical'
   offer: '0001-com-ubuntu-server-jammy'
-  sku: '22.04-lts-gen2'
+  sku: '22_04-lts-gen2'
   version: 'latest'
 }
 

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.13.1.58284",
-      "templateHash": "4218742094922040747"
+      "templateHash": "4777322555510478115"
     }
   },
   "parameters": {
@@ -461,7 +461,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.13.1.58284",
-              "templateHash": "2906839545010568514"
+              "templateHash": "12162660619735044016"
             }
           },
           "parameters": {
@@ -918,7 +918,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.13.1.58284",
-                      "templateHash": "6438627262700017100"
+                      "templateHash": "7108087739179020991"
                     }
                   },
                   "parameters": {
@@ -964,8 +964,8 @@
                     "AmaExtensionName": "[if(equals(parameters('osType'), 'Windows'), 'AzureMonitorWindowsAgent', 'AzureMonitorLinuxAgent')]",
                     "AmaExtensionType": "[if(equals(parameters('osType'), 'Windows'), 'AzureMonitorWindowsAgent', 'AzureMonitorLinuxAgent')]",
                     "AmaExtensionVersion": "1.0",
-                    "DaExtensionName": "DependencyAgentLinux",
-                    "DaExtensionType": "DependencyAgentLinux",
+                    "DaExtensionName": "DependencyAgentWindows",
+                    "DaExtensionType": "DependencyAgentWindows",
                     "DaExtensionVersion": "9.5",
                     "Windows": {
                       "publisher": "MicrosoftWindowsServer",
@@ -976,7 +976,7 @@
                     "Linux": {
                       "publisher": "Canonical",
                       "offer": "0001-com-ubuntu-server-jammy",
-                      "sku": "22.04-lts-gen2",
+                      "sku": "22_04-lts-gen2",
                       "version": "latest"
                     },
                     "imagereference": "[if(equals(parameters('osType'), 'Windows'), variables('Windows'), if(equals(parameters('osType'), 'Linux'), variables('Linux'), createObject()))]"
@@ -2994,7 +2994,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.13.1.58284",
-              "templateHash": "7934354125188904038"
+              "templateHash": "13700993424338745723"
             }
           },
           "parameters": {
@@ -3310,7 +3310,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.13.1.58284",
-                      "templateHash": "6438627262700017100"
+                      "templateHash": "7108087739179020991"
                     }
                   },
                   "parameters": {
@@ -3356,8 +3356,8 @@
                     "AmaExtensionName": "[if(equals(parameters('osType'), 'Windows'), 'AzureMonitorWindowsAgent', 'AzureMonitorLinuxAgent')]",
                     "AmaExtensionType": "[if(equals(parameters('osType'), 'Windows'), 'AzureMonitorWindowsAgent', 'AzureMonitorLinuxAgent')]",
                     "AmaExtensionVersion": "1.0",
-                    "DaExtensionName": "DependencyAgentLinux",
-                    "DaExtensionType": "DependencyAgentLinux",
+                    "DaExtensionName": "DependencyAgentWindows",
+                    "DaExtensionType": "DependencyAgentWindows",
                     "DaExtensionVersion": "9.5",
                     "Windows": {
                       "publisher": "MicrosoftWindowsServer",
@@ -3368,7 +3368,7 @@
                     "Linux": {
                       "publisher": "Canonical",
                       "offer": "0001-com-ubuntu-server-jammy",
-                      "sku": "22.04-lts-gen2",
+                      "sku": "22_04-lts-gen2",
                       "version": "latest"
                     },
                     "imagereference": "[if(equals(parameters('osType'), 'Windows'), variables('Windows'), if(equals(parameters('osType'), 'Linux'), variables('Linux'), createObject()))]"
@@ -4593,7 +4593,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.13.1.58284",
-              "templateHash": "11843684841392323551"
+              "templateHash": "10003917200305698862"
             }
           },
           "parameters": {
@@ -4896,7 +4896,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.13.1.58284",
-                      "templateHash": "6438627262700017100"
+                      "templateHash": "7108087739179020991"
                     }
                   },
                   "parameters": {
@@ -4942,8 +4942,8 @@
                     "AmaExtensionName": "[if(equals(parameters('osType'), 'Windows'), 'AzureMonitorWindowsAgent', 'AzureMonitorLinuxAgent')]",
                     "AmaExtensionType": "[if(equals(parameters('osType'), 'Windows'), 'AzureMonitorWindowsAgent', 'AzureMonitorLinuxAgent')]",
                     "AmaExtensionVersion": "1.0",
-                    "DaExtensionName": "DependencyAgentLinux",
-                    "DaExtensionType": "DependencyAgentLinux",
+                    "DaExtensionName": "DependencyAgentWindows",
+                    "DaExtensionType": "DependencyAgentWindows",
                     "DaExtensionVersion": "9.5",
                     "Windows": {
                       "publisher": "MicrosoftWindowsServer",
@@ -4954,7 +4954,7 @@
                     "Linux": {
                       "publisher": "Canonical",
                       "offer": "0001-com-ubuntu-server-jammy",
-                      "sku": "22.04-lts-gen2",
+                      "sku": "22_04-lts-gen2",
                       "version": "latest"
                     },
                     "imagereference": "[if(equals(parameters('osType'), 'Windows'), variables('Windows'), if(equals(parameters('osType'), 'Linux'), variables('Linux'), createObject()))]"
