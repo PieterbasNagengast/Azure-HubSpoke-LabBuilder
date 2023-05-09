@@ -1,11 +1,8 @@
 name: "CleanUp"
 
 on:
-  push:
-    branches: none
-  pull_request:
-    branches: none
-
+  workflow_dispatch:
+  
 jobs:
   VNETremoval:
     name: "Remove VNET deployment"
