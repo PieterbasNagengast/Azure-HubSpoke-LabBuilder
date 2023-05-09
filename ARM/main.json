@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.13.1.58284",
-      "templateHash": "4777322555510478115"
+      "version": "0.17.1.54307",
+      "templateHash": "9477959878234510528"
     }
   },
   "parameters": {
@@ -38,7 +38,7 @@
       }
     },
     "adminPassword": {
-      "type": "secureString",
+      "type": "securestring",
       "defaultValue": "",
       "metadata": {
         "description": "Admin Password for VM"
@@ -343,7 +343,7 @@
       }
     },
     "sharedKey": {
-      "type": "secureString",
+      "type": "securestring",
       "defaultValue": "",
       "metadata": {
         "description": "Site-to-Site ShareKey"
@@ -382,7 +382,7 @@
     {
       "condition": "[and(parameters('deployHUB'), equals(parameters('hubType'), 'VNET'))]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "[format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))]",
       "subscriptionId": "[parameters('hubSubscriptionID')]",
       "location": "[deployment().location]",
@@ -460,8 +460,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.13.1.58284",
-              "templateHash": "12162660619735044016"
+              "version": "0.17.1.54307",
+              "templateHash": "5074569179886676837"
             }
           },
           "parameters": {
@@ -481,7 +481,7 @@
               "type": "string"
             },
             "adminPassword": {
-              "type": "secureString"
+              "type": "securestring"
             },
             "deployVMinHub": {
               "type": "bool"
@@ -555,7 +555,7 @@
             },
             {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-10-01",
+              "apiVersion": "2022-09-01",
               "name": "hubvnet",
               "resourceGroup": "[parameters('hubRgName')]",
               "properties": {
@@ -571,10 +571,10 @@
                     "value": "[variables('vnetAddressSpace')]"
                   },
                   "nsgID": {
-                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'nsg'), '2020-10-01').outputs.nsgID.value]"
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'nsg'), '2022-09-01').outputs.nsgID.value]"
                   },
-                  "rtDefID": "[if(and(parameters('deployFirewallInHub'), parameters('deployUDRs')), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'routeTable-Default'), '2020-10-01').outputs.rtID.value), createObject('value', 'none'))]",
-                  "rtGwID": "[if(and(parameters('deployFirewallInHub'), parameters('deployGatewayInHub')), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'routeTable-VPNGW'), '2020-10-01').outputs.rtID.value), createObject('value', 'none'))]",
+                  "rtDefID": "[if(and(parameters('deployFirewallInHub'), parameters('deployUDRs')), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'routeTable-Default'), '2022-09-01').outputs.rtID.value), createObject('value', 'none'))]",
+                  "rtGwID": "[if(and(parameters('deployFirewallInHub'), parameters('deployGatewayInHub')), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'routeTable-VPNGW'), '2022-09-01').outputs.rtID.value), createObject('value', 'none'))]",
                   "vnetname": {
                     "value": "[variables('hubVnetName')]"
                   },
@@ -615,8 +615,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.13.1.58284",
-                      "templateHash": "9277410078549992372"
+                      "version": "0.17.1.54307",
+                      "templateHash": "8271511740822486452"
                     }
                   },
                   "parameters": {
@@ -689,13 +689,13 @@
                           "networkSecurityGroup": {
                             "id": "[parameters('nsgID')]"
                           },
-                          "routeTable": "[if(equals(parameters('rtDefID'), 'none'), json('null'), json(format('{{\"id\": \"{0}\"}}\"', parameters('rtDefID'))))]"
+                          "routeTable": "[if(equals(parameters('rtDefID'), 'none'), null(), json(format('{{\"id\": \"{0}\"}}\"', parameters('rtDefID'))))]"
                         }
                       }
                     ],
                     "bastionSubnet": "[if(not(parameters('deployBastionSubnet')), createArray(), createArray(createObject('name', 'AzureBastionSubnet', 'properties', createObject('addressPrefix', parameters('bastionSubnetPrefix')))))]",
                     "firewallSubnet": "[if(not(parameters('deployFirewallSubnet')), createArray(), createArray(createObject('name', 'AzureFirewallSubnet', 'properties', createObject('addressPrefix', parameters('firewallSubnetPrefix')))))]",
-                    "gatewaySubnet": "[if(and(not(parameters('deployGatewaySubnet')), not(parameters('deployFirewallSubnet'))), createArray(), createArray(createObject('name', 'GatewaySubnet', 'properties', createObject('addressPrefix', parameters('GatewaySubnetPrefix'), 'routeTable', if(equals(parameters('rtGwID'), 'none'), json('null'), json(format('{{\"id\": \"{0}\"}}\"', parameters('rtGwID'))))))))]"
+                    "gatewaySubnet": "[if(and(not(parameters('deployGatewaySubnet')), not(parameters('deployFirewallSubnet'))), createArray(), createArray(createObject('name', 'GatewaySubnet', 'properties', createObject('addressPrefix', parameters('GatewaySubnetPrefix'), 'routeTable', if(equals(parameters('rtGwID'), 'none'), null(), json(format('{{\"id\": \"{0}\"}}\"', parameters('rtGwID'))))))))]"
                   },
                   "resources": [
                     {
@@ -755,7 +755,7 @@
             {
               "condition": "[not(empty(parameters('diagnosticWorkspaceId')))]",
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-10-01",
+              "apiVersion": "2022-09-01",
               "name": "dcr-vminsights",
               "resourceGroup": "[parameters('hubRgName')]",
               "properties": {
@@ -780,8 +780,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.13.1.58284",
-                      "templateHash": "6074630315440895391"
+                      "version": "0.17.1.54307",
+                      "templateHash": "17095334183460695236"
                     }
                   },
                   "parameters": {
@@ -873,7 +873,7 @@
             {
               "condition": "[parameters('deployVMinHub')]",
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-10-01",
+              "apiVersion": "2022-09-01",
               "name": "virtualMachine",
               "resourceGroup": "[parameters('hubRgName')]",
               "properties": {
@@ -892,7 +892,7 @@
                     "value": "[parameters('location')]"
                   },
                   "subnetID": {
-                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'hubvnet'), '2020-10-01').outputs.defaultSubnetID.value]"
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'hubvnet'), '2022-09-01').outputs.defaultSubnetID.value]"
                   },
                   "vmName": {
                     "value": "[variables('vmName')]"
@@ -909,7 +909,7 @@
                   "diagnosticWorkspaceId": {
                     "value": "[parameters('diagnosticWorkspaceId')]"
                   },
-                  "dcrID": "[if(not(empty(parameters('diagnosticWorkspaceId'))), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'dcr-vminsights'), '2020-10-01').outputs.dcrID.value), createObject('value', ''))]"
+                  "dcrID": "[if(not(empty(parameters('diagnosticWorkspaceId'))), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'dcr-vminsights'), '2022-09-01').outputs.dcrID.value), createObject('value', ''))]"
                 },
                 "template": {
                   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -917,8 +917,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.13.1.58284",
-                      "templateHash": "7108087739179020991"
+                      "version": "0.17.1.54307",
+                      "templateHash": "4293482971433057273"
                     }
                   },
                   "parameters": {
@@ -932,7 +932,7 @@
                       "type": "string"
                     },
                     "adminPassword": {
-                      "type": "secureString"
+                      "type": "securestring"
                     },
                     "subnetID": {
                       "type": "string"
@@ -1105,7 +1105,7 @@
                     {
                       "condition": "[equals(parameters('osType'), 'Windows')]",
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2020-10-01",
+                      "apiVersion": "2022-09-01",
                       "name": "[format('{0}-runCommand', parameters('vmName'))]",
                       "properties": {
                         "expressionEvaluationOptions": {
@@ -1129,8 +1129,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.13.1.58284",
-                              "templateHash": "6588617984499675610"
+                              "version": "0.17.1.54307",
+                              "templateHash": "6746965115980779458"
                             }
                           },
                           "parameters": {
@@ -1185,7 +1185,7 @@
             },
             {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-10-01",
+              "apiVersion": "2022-09-01",
               "name": "nsg",
               "resourceGroup": "[parameters('hubRgName')]",
               "properties": {
@@ -1210,8 +1210,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.13.1.58284",
-                      "templateHash": "15865267540879831891"
+                      "version": "0.17.1.54307",
+                      "templateHash": "16568394959252558731"
                     }
                   },
                   "parameters": {
@@ -1250,7 +1250,7 @@
             {
               "condition": "[parameters('deployBastionInHub')]",
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-10-01",
+              "apiVersion": "2022-09-01",
               "name": "bastion",
               "resourceGroup": "[parameters('hubRgName')]",
               "properties": {
@@ -1262,7 +1262,7 @@
                   "location": {
                     "value": "[parameters('location')]"
                   },
-                  "subnetID": "[if(parameters('deployBastionInHub'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'hubvnet'), '2020-10-01').outputs.bastionSubnetID.value), createObject('value', ''))]",
+                  "subnetID": "[if(parameters('deployBastionInHub'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'hubvnet'), '2022-09-01').outputs.bastionSubnetID.value), createObject('value', ''))]",
                   "bastionName": {
                     "value": "[variables('bastionName')]"
                   },
@@ -1279,8 +1279,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.13.1.58284",
-                      "templateHash": "14998909221738132936"
+                      "version": "0.17.1.54307",
+                      "templateHash": "7124745122453992719"
                     }
                   },
                   "parameters": {
@@ -1360,7 +1360,7 @@
             {
               "condition": "[parameters('deployFirewallInHub')]",
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-10-01",
+              "apiVersion": "2022-09-01",
               "name": "hubFirewall",
               "resourceGroup": "[parameters('hubRgName')]",
               "properties": {
@@ -1378,7 +1378,7 @@
                   "firewallName": {
                     "value": "[variables('firewallName')]"
                   },
-                  "azfwsubnetid": "[if(parameters('deployFirewallInHub'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'hubvnet'), '2020-10-01').outputs.firewallSubnetID.value), createObject('value', ''))]",
+                  "azfwsubnetid": "[if(parameters('deployFirewallInHub'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'hubvnet'), '2022-09-01').outputs.firewallSubnetID.value), createObject('value', ''))]",
                   "azfwTier": {
                     "value": "[parameters('AzureFirewallTier')]"
                   },
@@ -1395,8 +1395,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.13.1.58284",
-                      "templateHash": "16619731983950840674"
+                      "version": "0.17.1.54307",
+                      "templateHash": "7551272389405550180"
                     }
                   },
                   "parameters": {
@@ -1529,7 +1529,7 @@
             {
               "condition": "[and(parameters('deployFirewallrules'), parameters('deployFirewallInHub'))]",
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-10-01",
+              "apiVersion": "2022-09-01",
               "name": "firewallRules",
               "resourceGroup": "[parameters('hubRgName')]",
               "properties": {
@@ -1538,7 +1538,7 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
-                  "azFwPolicyName": "[if(and(parameters('deployFirewallInHub'), parameters('deployFirewallrules')), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'hubFirewall'), '2020-10-01').outputs.azFwPolicyName.value), createObject('value', ''))]",
+                  "azFwPolicyName": "[if(and(parameters('deployFirewallInHub'), parameters('deployFirewallrules')), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'hubFirewall'), '2022-09-01').outputs.azFwPolicyName.value), createObject('value', ''))]",
                   "AddressSpace": {
                     "value": "[parameters('AddressSpace')]"
                   }
@@ -1549,8 +1549,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.13.1.58284",
-                      "templateHash": "789334207394749496"
+                      "version": "0.17.1.54307",
+                      "templateHash": "8167729614676511582"
                     }
                   },
                   "parameters": {
@@ -1649,7 +1649,7 @@
             {
               "condition": "[and(parameters('deployFirewallInHub'), parameters('deployUDRs'))]",
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-10-01",
+              "apiVersion": "2022-09-01",
               "name": "routeTable-Default",
               "resourceGroup": "[parameters('hubRgName')]",
               "properties": {
@@ -1674,8 +1674,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.13.1.58284",
-                      "templateHash": "15338946522076166061"
+                      "version": "0.17.1.54307",
+                      "templateHash": "214782828408479941"
                     }
                   },
                   "parameters": {
@@ -1725,7 +1725,7 @@
             {
               "condition": "[and(parameters('deployFirewallInHub'), parameters('deployUDRs'))]",
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-10-01",
+              "apiVersion": "2022-09-01",
               "name": "RouteToInternet",
               "resourceGroup": "[parameters('hubRgName')]",
               "properties": {
@@ -1737,8 +1737,8 @@
                   "routeAddressPrefix": {
                     "value": "0.0.0.0/0"
                   },
-                  "routeName": "[if(and(parameters('deployFirewallInHub'), parameters('deployUDRs')), createObject('value', format('{0}/toInternet', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'routeTable-Default'), '2020-10-01').outputs.rtName.value)), createObject('value', 'dummy1'))]",
-                  "routeNextHopIpAddress": "[if(and(parameters('deployFirewallInHub'), parameters('deployUDRs')), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'hubFirewall'), '2020-10-01').outputs.azFwIP.value), createObject('value', '1.2.3.4'))]"
+                  "routeName": "[if(and(parameters('deployFirewallInHub'), parameters('deployUDRs')), createObject('value', format('{0}/toInternet', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'routeTable-Default'), '2022-09-01').outputs.rtName.value)), createObject('value', 'dummy1'))]",
+                  "routeNextHopIpAddress": "[if(and(parameters('deployFirewallInHub'), parameters('deployUDRs')), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'hubFirewall'), '2022-09-01').outputs.azFwIP.value), createObject('value', '1.2.3.4'))]"
                 },
                 "template": {
                   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -1746,8 +1746,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.13.1.58284",
-                      "templateHash": "5819558180853295376"
+                      "version": "0.17.1.54307",
+                      "templateHash": "9525352249017858567"
                     }
                   },
                   "parameters": {
@@ -1786,13 +1786,13 @@
               ]
             },
             {
-              "condition": "[and(parameters('deployFirewallInHub'), parameters('deployUDRs'))]",
               "copy": {
                 "name": "routeDefault2",
                 "count": "[length(parameters('AllSpokeAddressSpaces'))]"
               },
+              "condition": "[and(parameters('deployFirewallInHub'), parameters('deployUDRs'))]",
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-10-01",
+              "apiVersion": "2022-09-01",
               "name": "[format('RouteToLocal{0}', copyIndex())]",
               "resourceGroup": "[parameters('hubRgName')]",
               "properties": {
@@ -1804,8 +1804,8 @@
                   "routeAddressPrefix": {
                     "value": "[parameters('AllSpokeAddressSpaces')[copyIndex()]]"
                   },
-                  "routeName": "[if(and(parameters('deployFirewallInHub'), parameters('deployUDRs')), createObject('value', format('{0}/LocalRoute{1}', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'routeTable-Default'), '2020-10-01').outputs.rtName.value, copyIndex())), createObject('value', 'dummy2'))]",
-                  "routeNextHopIpAddress": "[if(and(parameters('deployFirewallInHub'), parameters('deployUDRs')), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'hubFirewall'), '2020-10-01').outputs.azFwIP.value), createObject('value', '1.2.3.4'))]"
+                  "routeName": "[if(and(parameters('deployFirewallInHub'), parameters('deployUDRs')), createObject('value', format('{0}/LocalRoute{1}', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'routeTable-Default'), '2022-09-01').outputs.rtName.value, copyIndex())), createObject('value', 'dummy2'))]",
+                  "routeNextHopIpAddress": "[if(and(parameters('deployFirewallInHub'), parameters('deployUDRs')), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'hubFirewall'), '2022-09-01').outputs.azFwIP.value), createObject('value', '1.2.3.4'))]"
                 },
                 "template": {
                   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -1813,8 +1813,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.13.1.58284",
-                      "templateHash": "5819558180853295376"
+                      "version": "0.17.1.54307",
+                      "templateHash": "9525352249017858567"
                     }
                   },
                   "parameters": {
@@ -1855,7 +1855,7 @@
             {
               "condition": "[parameters('deployGatewayInHub')]",
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-10-01",
+              "apiVersion": "2022-09-01",
               "name": "[variables('gatewayName')]",
               "resourceGroup": "[parameters('hubRgName')]",
               "properties": {
@@ -1870,7 +1870,7 @@
                   "vpnGatewayName": {
                     "value": "[variables('gatewayName')]"
                   },
-                  "vpnGatewaySubnetID": "[if(parameters('deployGatewayInHub'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'hubvnet'), '2020-10-01').outputs.gatewaySubnetID.value), createObject('value', ''))]",
+                  "vpnGatewaySubnetID": "[if(parameters('deployGatewayInHub'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'hubvnet'), '2022-09-01').outputs.gatewaySubnetID.value), createObject('value', ''))]",
                   "tagsByResource": {
                     "value": "[parameters('tagsByResource')]"
                   },
@@ -1885,8 +1885,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.13.1.58284",
-                      "templateHash": "1815641664258711494"
+                      "version": "0.17.1.54307",
+                      "templateHash": "5569189318412635310"
                     }
                   },
                   "parameters": {
@@ -2016,7 +2016,7 @@
             {
               "condition": "[and(and(parameters('deployFirewallInHub'), parameters('deployGatewayInHub')), parameters('deployUDRs'))]",
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-10-01",
+              "apiVersion": "2022-09-01",
               "name": "routeTable-VPNGW",
               "resourceGroup": "[parameters('hubRgName')]",
               "properties": {
@@ -2038,8 +2038,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.13.1.58284",
-                      "templateHash": "15338946522076166061"
+                      "version": "0.17.1.54307",
+                      "templateHash": "214782828408479941"
                     }
                   },
                   "parameters": {
@@ -2087,13 +2087,13 @@
               ]
             },
             {
-              "condition": "[and(and(parameters('deployFirewallInHub'), parameters('deployGatewayInHub')), parameters('deployUDRs'))]",
               "copy": {
                 "name": "routeVPNgw",
                 "count": "[length(concat(parameters('AllSpokeAddressSpaces'), array(variables('defaultSubnetPrefix'))))]"
               },
+              "condition": "[and(and(parameters('deployFirewallInHub'), parameters('deployGatewayInHub')), parameters('deployUDRs'))]",
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-10-01",
+              "apiVersion": "2022-09-01",
               "name": "[format('Route-vpngw{0}', copyIndex())]",
               "resourceGroup": "[parameters('hubRgName')]",
               "properties": {
@@ -2105,8 +2105,8 @@
                   "routeAddressPrefix": {
                     "value": "[concat(parameters('AllSpokeAddressSpaces'), array(variables('defaultSubnetPrefix')))[copyIndex()]]"
                   },
-                  "routeName": "[if(and(and(parameters('deployFirewallInHub'), parameters('deployGatewayInHub')), parameters('deployUDRs')), createObject('value', format('{0}/LocalRoute{1}', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'routeTable-VPNGW'), '2020-10-01').outputs.rtName.value, copyIndex())), createObject('value', 'dummy3'))]",
-                  "routeNextHopIpAddress": "[if(and(parameters('deployFirewallInHub'), parameters('deployUDRs')), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'hubFirewall'), '2020-10-01').outputs.azFwIP.value), createObject('value', '1.2.3.4'))]"
+                  "routeName": "[if(and(and(parameters('deployFirewallInHub'), parameters('deployGatewayInHub')), parameters('deployUDRs')), createObject('value', format('{0}/LocalRoute{1}', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'routeTable-VPNGW'), '2022-09-01').outputs.rtName.value, copyIndex())), createObject('value', 'dummy3'))]",
+                  "routeNextHopIpAddress": "[if(and(parameters('deployFirewallInHub'), parameters('deployUDRs')), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'hubFirewall'), '2022-09-01').outputs.azFwIP.value), createObject('value', '1.2.3.4'))]"
                 },
                 "template": {
                   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -2114,8 +2114,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.13.1.58284",
-                      "templateHash": "5819558180853295376"
+                      "version": "0.17.1.54307",
+                      "templateHash": "9525352249017858567"
                     }
                   },
                   "parameters": {
@@ -2157,11 +2157,11 @@
           "outputs": {
             "hubVnetID": {
               "type": "string",
-              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'hubvnet'), '2020-10-01').outputs.vnetID.value]"
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'hubvnet'), '2022-09-01').outputs.vnetID.value]"
             },
             "azFwIp": {
               "type": "string",
-              "value": "[if(parameters('deployFirewallInHub'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'hubFirewall'), '2020-10-01').outputs.azFwIP.value, '1.2.3.4')]"
+              "value": "[if(parameters('deployFirewallInHub'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'hubFirewall'), '2022-09-01').outputs.azFwIP.value, '1.2.3.4')]"
             },
             "HubResourceGroupName": {
               "type": "string",
@@ -2169,7 +2169,7 @@
             },
             "hubVnetName": {
               "type": "string",
-              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'hubvnet'), '2020-10-01').outputs.vnetName.value]"
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'hubvnet'), '2022-09-01').outputs.vnetName.value]"
             },
             "hubVnetAddressSpace": {
               "type": "string",
@@ -2181,23 +2181,23 @@
             },
             "hubGatewayPublicIP": {
               "type": "string",
-              "value": "[if(parameters('deployGatewayInHub'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('gatewayName')), '2020-10-01').outputs.vpnGwPublicIP.value, 'none')]"
+              "value": "[if(parameters('deployGatewayInHub'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('gatewayName')), '2022-09-01').outputs.vpnGwPublicIP.value, 'none')]"
             },
             "hubGatewayID": {
               "type": "string",
-              "value": "[if(parameters('deployGatewayInHub'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('gatewayName')), '2020-10-01').outputs.vpnGwID.value, 'none')]"
+              "value": "[if(parameters('deployGatewayInHub'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('gatewayName')), '2022-09-01').outputs.vpnGwID.value, 'none')]"
             },
             "HubGwBgpPeeringAddress": {
               "type": "string",
-              "value": "[if(parameters('deployGatewayInHub'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('gatewayName')), '2020-10-01').outputs.vpnGwBgpPeeringAddress.value, 'none')]"
+              "value": "[if(parameters('deployGatewayInHub'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('gatewayName')), '2022-09-01').outputs.vpnGwBgpPeeringAddress.value, 'none')]"
             },
             "HubVmResourceID": {
               "type": "string",
-              "value": "[if(parameters('deployVMinHub'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'virtualMachine'), '2020-10-01').outputs.vmResourceID.value, 'none')]"
+              "value": "[if(parameters('deployVMinHub'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'virtualMachine'), '2022-09-01').outputs.vmResourceID.value, 'none')]"
             },
             "dcrvminsightsID": {
               "type": "string",
-              "value": "[if(not(empty(parameters('diagnosticWorkspaceId'))), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'dcr-vminsights'), '2020-10-01').outputs.dcrID.value, '')]"
+              "value": "[if(not(empty(parameters('diagnosticWorkspaceId'))), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'dcr-vminsights'), '2022-09-01').outputs.dcrID.value, '')]"
             }
           }
         }
@@ -2206,7 +2206,7 @@
     {
       "condition": "[and(parameters('deployHUB'), equals(parameters('hubType'), 'VWAN'))]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "[format('{0}-{1}-VWAN', parameters('hubRgName'), parameters('location'))]",
       "subscriptionId": "[parameters('hubSubscriptionID')]",
       "location": "[deployment().location]",
@@ -2250,8 +2250,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.13.1.58284",
-              "templateHash": "2044971259629766089"
+              "version": "0.17.1.54307",
+              "templateHash": "16009316824436382029"
             }
           },
           "parameters": {
@@ -2300,7 +2300,7 @@
             },
             {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-10-01",
+              "apiVersion": "2022-09-01",
               "name": "[variables('vWanName')]",
               "resourceGroup": "[parameters('hubRgName')]",
               "properties": {
@@ -2328,8 +2328,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.13.1.58284",
-                      "templateHash": "545194103045667936"
+                      "version": "0.17.1.54307",
+                      "templateHash": "7472770457971224740"
                     }
                   },
                   "parameters": {
@@ -2411,7 +2411,7 @@
             {
               "condition": "[parameters('deployFirewallInHub')]",
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-10-01",
+              "apiVersion": "2022-09-01",
               "name": "[variables('firewallName')]",
               "resourceGroup": "[parameters('hubRgName')]",
               "properties": {
@@ -2430,7 +2430,7 @@
                     "value": "[variables('firewallName')]"
                   },
                   "vWanID": {
-                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('vWanName')), '2020-10-01').outputs.vWanHubID.value]"
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('vWanName')), '2022-09-01').outputs.vWanHubID.value]"
                   },
                   "location": {
                     "value": "[parameters('location')]"
@@ -2448,8 +2448,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.13.1.58284",
-                      "templateHash": "16619731983950840674"
+                      "version": "0.17.1.54307",
+                      "templateHash": "7551272389405550180"
                     }
                   },
                   "parameters": {
@@ -2582,7 +2582,7 @@
             {
               "condition": "[and(parameters('deployFirewallrules'), parameters('deployFirewallInHub'))]",
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-10-01",
+              "apiVersion": "2022-09-01",
               "name": "firewallRules",
               "resourceGroup": "[parameters('hubRgName')]",
               "properties": {
@@ -2591,7 +2591,7 @@
                 },
                 "mode": "Incremental",
                 "parameters": {
-                  "azFwPolicyName": "[if(and(parameters('deployFirewallInHub'), parameters('deployFirewallrules')), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('firewallName')), '2020-10-01').outputs.azFwPolicyName.value), createObject('value', 'none'))]",
+                  "azFwPolicyName": "[if(and(parameters('deployFirewallInHub'), parameters('deployFirewallrules')), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('firewallName')), '2022-09-01').outputs.azFwPolicyName.value), createObject('value', 'none'))]",
                   "AddressSpace": {
                     "value": "[parameters('AddressSpace')]"
                   }
@@ -2602,8 +2602,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.13.1.58284",
-                      "templateHash": "789334207394749496"
+                      "version": "0.17.1.54307",
+                      "templateHash": "8167729614676511582"
                     }
                   },
                   "parameters": {
@@ -2702,7 +2702,7 @@
             {
               "condition": "[parameters('deployFirewallInHub')]",
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-10-01",
+              "apiVersion": "2022-09-01",
               "name": "secureRoutes",
               "resourceGroup": "[parameters('hubRgName')]",
               "properties": {
@@ -2712,9 +2712,9 @@
                 "mode": "Incremental",
                 "parameters": {
                   "vwanHubName": {
-                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('vWanName')), '2020-10-01').outputs.vWanHubName.value]"
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('vWanName')), '2022-09-01').outputs.vWanHubName.value]"
                   },
-                  "AzFirewallID": "[if(parameters('deployFirewallInHub'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('firewallName')), '2020-10-01').outputs.azFwID.value), createObject('value', 'none'))]"
+                  "AzFirewallID": "[if(parameters('deployFirewallInHub'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('firewallName')), '2022-09-01').outputs.azFwID.value), createObject('value', 'none'))]"
                 },
                 "template": {
                   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -2722,8 +2722,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.13.1.58284",
-                      "templateHash": "197723741505988596"
+                      "version": "0.17.1.54307",
+                      "templateHash": "4731255338570983307"
                     }
                   },
                   "parameters": {
@@ -2771,7 +2771,7 @@
             {
               "condition": "[parameters('deployGatewayInHub')]",
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-10-01",
+              "apiVersion": "2022-09-01",
               "name": "[variables('gatewayName')]",
               "resourceGroup": "[parameters('hubRgName')]",
               "properties": {
@@ -2787,7 +2787,7 @@
                     "value": "[variables('gatewayName')]"
                   },
                   "vWanHubID": {
-                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('vWanName')), '2020-10-01').outputs.vWanHubID.value]"
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('vWanName')), '2022-09-01').outputs.vWanHubID.value]"
                   }
                 },
                 "template": {
@@ -2796,8 +2796,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.13.1.58284",
-                      "templateHash": "420446799335982374"
+                      "version": "0.17.1.54307",
+                      "templateHash": "14420249405996247832"
                     }
                   },
                   "parameters": {
@@ -2867,19 +2867,19 @@
           "outputs": {
             "vwanHubName": {
               "type": "string",
-              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('vWanName')), '2020-10-01').outputs.vWanHubName.value]"
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('vWanName')), '2022-09-01').outputs.vWanHubName.value]"
             },
             "vWanHubID": {
               "type": "string",
-              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('vWanName')), '2020-10-01').outputs.vWanHubID.value]"
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('vWanName')), '2022-09-01').outputs.vWanHubID.value]"
             },
             "vWanID": {
               "type": "string",
-              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('vWanName')), '2020-10-01').outputs.vWanID.value]"
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('vWanName')), '2022-09-01').outputs.vWanID.value]"
             },
             "vWanHubAddressSpace": {
               "type": "string",
-              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('vWanName')), '2020-10-01').outputs.vWanHubAddressSpace.value]"
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('vWanName')), '2022-09-01').outputs.vWanHubAddressSpace.value]"
             },
             "HubResourceGroupName": {
               "type": "string",
@@ -2887,40 +2887,40 @@
             },
             "vWanVpnGwID": {
               "type": "string",
-              "value": "[if(parameters('deployGatewayInHub'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('gatewayName')), '2020-10-01').outputs.vpnGwID.value, 'none')]"
+              "value": "[if(parameters('deployGatewayInHub'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('gatewayName')), '2022-09-01').outputs.vpnGwID.value, 'none')]"
             },
             "vWanVpnGwPip": {
               "type": "array",
-              "value": "[if(parameters('deployGatewayInHub'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('gatewayName')), '2020-10-01').outputs.vpnGwPip.value, createArray())]"
+              "value": "[if(parameters('deployGatewayInHub'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('gatewayName')), '2022-09-01').outputs.vpnGwPip.value, createArray())]"
             },
             "vWanFwPublicIP": {
               "type": "array",
-              "value": "[if(parameters('deployFirewallInHub'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('firewallName')), '2020-10-01').outputs.azFwIPvWan.value, createArray())]"
+              "value": "[if(parameters('deployFirewallInHub'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('firewallName')), '2022-09-01').outputs.azFwIPvWan.value, createArray())]"
             },
             "vpnGwBgpIp": {
               "type": "array",
-              "value": "[if(parameters('deployGatewayInHub'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('gatewayName')), '2020-10-01').outputs.vpnGwBgpIp.value, createArray())]"
+              "value": "[if(parameters('deployGatewayInHub'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('gatewayName')), '2022-09-01').outputs.vpnGwBgpIp.value, createArray())]"
             },
             "vpnGwBgpAsn": {
               "type": "int",
-              "value": "[if(parameters('deployGatewayInHub'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('gatewayName')), '2020-10-01').outputs.vpnGwBgpAsn.value, 0)]"
+              "value": "[if(parameters('deployGatewayInHub'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('gatewayName')), '2022-09-01').outputs.vpnGwBgpAsn.value, 0)]"
             },
             "vpnGwName": {
               "type": "string",
-              "value": "[if(parameters('deployGatewayInHub'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('gatewayName')), '2020-10-01').outputs.vpnGwName.value, 'none')]"
+              "value": "[if(parameters('deployGatewayInHub'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('gatewayName')), '2022-09-01').outputs.vpnGwName.value, 'none')]"
             }
           }
         }
       }
     },
     {
-      "condition": "[parameters('deploySpokes')]",
       "copy": {
         "name": "spokeVnets",
         "count": "[length(range(1, parameters('amountOfSpokes')))]"
       },
+      "condition": "[parameters('deploySpokes')]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "[format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[copyIndex()], parameters('location'))]",
       "subscriptionId": "[parameters('spokeSubscriptionID')]",
       "location": "[deployment().location]",
@@ -2954,7 +2954,7 @@
           "deployFirewallInHub": {
             "value": "[and(parameters('deployFirewallInHub'), equals(parameters('hubType'), 'VNET'))]"
           },
-          "AzureFirewallpip": "[if(and(parameters('deployHUB'), equals(parameters('hubType'), 'VNET')), createObject('value', reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))), '2020-10-01').outputs.azFwIp.value), createObject('value', 'Not deployed'))]",
+          "AzureFirewallpip": "[if(and(parameters('deployHUB'), equals(parameters('hubType'), 'VNET')), createObject('value', reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.azFwIp.value), createObject('value', 'Not deployed'))]",
           "HubDeployed": {
             "value": "[and(parameters('deployHUB'), equals(parameters('hubType'), 'VNET'))]"
           },
@@ -2970,7 +2970,7 @@
           "osType": {
             "value": "[parameters('osTypeSpoke')]"
           },
-          "hubDefaultSubnetPrefix": "[if(and(parameters('deployHUB'), equals(parameters('hubType'), 'VNET')), createObject('value', reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))), '2020-10-01').outputs.hubDefaultSubnetPrefix.value), createObject('value', 'Not deployed'))]",
+          "hubDefaultSubnetPrefix": "[if(and(parameters('deployHUB'), equals(parameters('hubType'), 'VNET')), createObject('value', reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.hubDefaultSubnetPrefix.value), createObject('value', 'Not deployed'))]",
           "deployUDRs": {
             "value": "[parameters('deployUDRs')]"
           },
@@ -2984,7 +2984,7 @@
             "value": "[and(parameters('firewallDNSproxy'), parameters('deployFirewallInHub'))]"
           },
           "dcrID": {
-            "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))), '2020-10-01').outputs.dcrvminsightsID.value]"
+            "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.dcrvminsightsID.value]"
           }
         },
         "template": {
@@ -2993,8 +2993,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.13.1.58284",
-              "templateHash": "13700993424338745723"
+              "version": "0.17.1.54307",
+              "templateHash": "13518735791963695723"
             }
           },
           "parameters": {
@@ -3017,7 +3017,7 @@
               "type": "string"
             },
             "adminPassword": {
-              "type": "secureString"
+              "type": "securestring"
             },
             "deployVMsInSpokes": {
               "type": "bool"
@@ -3079,7 +3079,7 @@
             },
             {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-10-01",
+              "apiVersion": "2022-09-01",
               "name": "[variables('vnetName')]",
               "resourceGroup": "[format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))]",
               "properties": {
@@ -3095,9 +3095,9 @@
                     "value": "[variables('vnetAddressSpace')]"
                   },
                   "nsgID": {
-                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))), 'Microsoft.Resources/deployments', variables('nsgName')), '2020-10-01').outputs.nsgID.value]"
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))), 'Microsoft.Resources/deployments', variables('nsgName')), '2022-09-01').outputs.nsgID.value]"
                   },
-                  "rtDefID": "[if(and(and(parameters('deployFirewallInHub'), parameters('HubDeployed')), parameters('deployUDRs')), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))), 'Microsoft.Resources/deployments', variables('rtName')), '2020-10-01').outputs.rtID.value), createObject('value', 'none'))]",
+                  "rtDefID": "[if(and(and(parameters('deployFirewallInHub'), parameters('HubDeployed')), parameters('deployUDRs')), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))), 'Microsoft.Resources/deployments', variables('rtName')), '2022-09-01').outputs.rtID.value), createObject('value', 'none'))]",
                   "vnetname": {
                     "value": "[variables('vnetName')]"
                   },
@@ -3124,8 +3124,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.13.1.58284",
-                      "templateHash": "9277410078549992372"
+                      "version": "0.17.1.54307",
+                      "templateHash": "8271511740822486452"
                     }
                   },
                   "parameters": {
@@ -3198,13 +3198,13 @@
                           "networkSecurityGroup": {
                             "id": "[parameters('nsgID')]"
                           },
-                          "routeTable": "[if(equals(parameters('rtDefID'), 'none'), json('null'), json(format('{{\"id\": \"{0}\"}}\"', parameters('rtDefID'))))]"
+                          "routeTable": "[if(equals(parameters('rtDefID'), 'none'), null(), json(format('{{\"id\": \"{0}\"}}\"', parameters('rtDefID'))))]"
                         }
                       }
                     ],
                     "bastionSubnet": "[if(not(parameters('deployBastionSubnet')), createArray(), createArray(createObject('name', 'AzureBastionSubnet', 'properties', createObject('addressPrefix', parameters('bastionSubnetPrefix')))))]",
                     "firewallSubnet": "[if(not(parameters('deployFirewallSubnet')), createArray(), createArray(createObject('name', 'AzureFirewallSubnet', 'properties', createObject('addressPrefix', parameters('firewallSubnetPrefix')))))]",
-                    "gatewaySubnet": "[if(and(not(parameters('deployGatewaySubnet')), not(parameters('deployFirewallSubnet'))), createArray(), createArray(createObject('name', 'GatewaySubnet', 'properties', createObject('addressPrefix', parameters('GatewaySubnetPrefix'), 'routeTable', if(equals(parameters('rtGwID'), 'none'), json('null'), json(format('{{\"id\": \"{0}\"}}\"', parameters('rtGwID'))))))))]"
+                    "gatewaySubnet": "[if(and(not(parameters('deployGatewaySubnet')), not(parameters('deployFirewallSubnet'))), createArray(), createArray(createObject('name', 'GatewaySubnet', 'properties', createObject('addressPrefix', parameters('GatewaySubnetPrefix'), 'routeTable', if(equals(parameters('rtGwID'), 'none'), null(), json(format('{{\"id\": \"{0}\"}}\"', parameters('rtGwID'))))))))]"
                   },
                   "resources": [
                     {
@@ -3263,7 +3263,7 @@
             {
               "condition": "[parameters('deployVMsInSpokes')]",
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-10-01",
+              "apiVersion": "2022-09-01",
               "name": "[variables('vmName')]",
               "resourceGroup": "[format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))]",
               "properties": {
@@ -3282,7 +3282,7 @@
                     "value": "[parameters('location')]"
                   },
                   "subnetID": {
-                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))), 'Microsoft.Resources/deployments', variables('vnetName')), '2020-10-01').outputs.defaultSubnetID.value]"
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))), 'Microsoft.Resources/deployments', variables('vnetName')), '2022-09-01').outputs.defaultSubnetID.value]"
                   },
                   "vmName": {
                     "value": "[variables('vmName')]"
@@ -3309,8 +3309,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.13.1.58284",
-                      "templateHash": "7108087739179020991"
+                      "version": "0.17.1.54307",
+                      "templateHash": "4293482971433057273"
                     }
                   },
                   "parameters": {
@@ -3324,7 +3324,7 @@
                       "type": "string"
                     },
                     "adminPassword": {
-                      "type": "secureString"
+                      "type": "securestring"
                     },
                     "subnetID": {
                       "type": "string"
@@ -3497,7 +3497,7 @@
                     {
                       "condition": "[equals(parameters('osType'), 'Windows')]",
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2020-10-01",
+                      "apiVersion": "2022-09-01",
                       "name": "[format('{0}-runCommand', parameters('vmName'))]",
                       "properties": {
                         "expressionEvaluationOptions": {
@@ -3521,8 +3521,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.13.1.58284",
-                              "templateHash": "6588617984499675610"
+                              "version": "0.17.1.54307",
+                              "templateHash": "6746965115980779458"
                             }
                           },
                           "parameters": {
@@ -3576,7 +3576,7 @@
             },
             {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-10-01",
+              "apiVersion": "2022-09-01",
               "name": "[variables('nsgName')]",
               "resourceGroup": "[format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))]",
               "properties": {
@@ -3601,8 +3601,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.13.1.58284",
-                      "templateHash": "15865267540879831891"
+                      "version": "0.17.1.54307",
+                      "templateHash": "16568394959252558731"
                     }
                   },
                   "parameters": {
@@ -3641,7 +3641,7 @@
             {
               "condition": "[parameters('deployBastionInSpoke')]",
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-10-01",
+              "apiVersion": "2022-09-01",
               "name": "[variables('bastionName')]",
               "resourceGroup": "[format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))]",
               "properties": {
@@ -3653,7 +3653,7 @@
                   "location": {
                     "value": "[parameters('location')]"
                   },
-                  "subnetID": "[if(parameters('deployBastionInSpoke'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))), 'Microsoft.Resources/deployments', variables('vnetName')), '2020-10-01').outputs.bastionSubnetID.value), createObject('value', ''))]",
+                  "subnetID": "[if(parameters('deployBastionInSpoke'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))), 'Microsoft.Resources/deployments', variables('vnetName')), '2022-09-01').outputs.bastionSubnetID.value), createObject('value', ''))]",
                   "bastionName": {
                     "value": "[variables('bastionName')]"
                   },
@@ -3670,8 +3670,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.13.1.58284",
-                      "templateHash": "14998909221738132936"
+                      "version": "0.17.1.54307",
+                      "templateHash": "7124745122453992719"
                     }
                   },
                   "parameters": {
@@ -3751,7 +3751,7 @@
             {
               "condition": "[and(and(parameters('deployFirewallInHub'), parameters('HubDeployed')), parameters('deployUDRs'))]",
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-10-01",
+              "apiVersion": "2022-09-01",
               "name": "[variables('rtName')]",
               "resourceGroup": "[format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))]",
               "properties": {
@@ -3776,8 +3776,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.13.1.58284",
-                      "templateHash": "15338946522076166061"
+                      "version": "0.17.1.54307",
+                      "templateHash": "214782828408479941"
                     }
                   },
                   "parameters": {
@@ -3827,7 +3827,7 @@
             {
               "condition": "[and(and(parameters('deployFirewallInHub'), parameters('HubDeployed')), parameters('deployUDRs'))]",
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-10-01",
+              "apiVersion": "2022-09-01",
               "name": "RouteToInternet",
               "resourceGroup": "[format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))]",
               "properties": {
@@ -3839,7 +3839,7 @@
                   "routeAddressPrefix": {
                     "value": "0.0.0.0/0"
                   },
-                  "routeName": "[if(and(and(parameters('deployFirewallInHub'), parameters('HubDeployed')), parameters('deployUDRs')), createObject('value', format('{0}/toInternet', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))), 'Microsoft.Resources/deployments', variables('rtName')), '2020-10-01').outputs.rtName.value)), createObject('value', 'dummy1'))]",
+                  "routeName": "[if(and(and(parameters('deployFirewallInHub'), parameters('HubDeployed')), parameters('deployUDRs')), createObject('value', format('{0}/toInternet', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))), 'Microsoft.Resources/deployments', variables('rtName')), '2022-09-01').outputs.rtName.value)), createObject('value', 'dummy1'))]",
                   "routeNextHopIpAddress": "[if(and(and(parameters('deployFirewallInHub'), parameters('HubDeployed')), parameters('deployUDRs')), createObject('value', parameters('AzureFirewallpip')), createObject('value', '1.2.3.4'))]"
                 },
                 "template": {
@@ -3848,8 +3848,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.13.1.58284",
-                      "templateHash": "5819558180853295376"
+                      "version": "0.17.1.54307",
+                      "templateHash": "9525352249017858567"
                     }
                   },
                   "parameters": {
@@ -3889,7 +3889,7 @@
             {
               "condition": "[and(and(parameters('deployFirewallInHub'), parameters('HubDeployed')), parameters('deployUDRs'))]",
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-10-01",
+              "apiVersion": "2022-09-01",
               "name": "RouteToLocal",
               "resourceGroup": "[format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))]",
               "properties": {
@@ -3901,7 +3901,7 @@
                   "routeAddressPrefix": {
                     "value": "[parameters('hubDefaultSubnetPrefix')]"
                   },
-                  "routeName": "[if(and(and(parameters('deployFirewallInHub'), parameters('HubDeployed')), parameters('deployUDRs')), createObject('value', format('{0}/toHubDefaultSubnet', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))), 'Microsoft.Resources/deployments', variables('rtName')), '2020-10-01').outputs.rtName.value)), createObject('value', 'dummy2'))]",
+                  "routeName": "[if(and(and(parameters('deployFirewallInHub'), parameters('HubDeployed')), parameters('deployUDRs')), createObject('value', format('{0}/toHubDefaultSubnet', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))), 'Microsoft.Resources/deployments', variables('rtName')), '2022-09-01').outputs.rtName.value)), createObject('value', 'dummy2'))]",
                   "routeNextHopIpAddress": "[if(and(and(parameters('deployFirewallInHub'), parameters('HubDeployed')), parameters('deployUDRs')), createObject('value', parameters('AzureFirewallpip')), createObject('value', '1.2.3.4'))]"
                 },
                 "template": {
@@ -3910,8 +3910,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.13.1.58284",
-                      "templateHash": "5819558180853295376"
+                      "version": "0.17.1.54307",
+                      "templateHash": "9525352249017858567"
                     }
                   },
                   "parameters": {
@@ -3952,7 +3952,7 @@
           "outputs": {
             "spokeVnetID": {
               "type": "string",
-              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))), 'Microsoft.Resources/deployments', variables('vnetName')), '2020-10-01').outputs.vnetID.value]"
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))), 'Microsoft.Resources/deployments', variables('vnetName')), '2022-09-01').outputs.vnetID.value]"
             },
             "spokeVnetAddressSpace": {
               "type": "string",
@@ -3964,11 +3964,11 @@
             },
             "spokeVnetName": {
               "type": "string",
-              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))), 'Microsoft.Resources/deployments', variables('vnetName')), '2020-10-01').outputs.vnetName.value]"
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))), 'Microsoft.Resources/deployments', variables('vnetName')), '2022-09-01').outputs.vnetName.value]"
             },
             "spokeVmResourceID": {
               "type": "string",
-              "value": "[if(parameters('deployVMsInSpokes'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))), 'Microsoft.Resources/deployments', variables('vmName')), '2020-10-01').outputs.vmResourceID.value, 'none')]"
+              "value": "[if(parameters('deployVMsInSpokes'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))), 'Microsoft.Resources/deployments', variables('vmName')), '2022-09-01').outputs.vmResourceID.value, 'none')]"
             }
           }
         }
@@ -3978,13 +3978,13 @@
       ]
     },
     {
-      "condition": "[and(and(parameters('deployHUB'), parameters('deploySpokes')), equals(parameters('hubType'), 'VNET'))]",
       "copy": {
         "name": "vnetPeerings",
         "count": "[length(range(0, parameters('amountOfSpokes')))]"
       },
+      "condition": "[and(and(parameters('deployHUB'), parameters('deploySpokes')), equals(parameters('hubType'), 'VNET'))]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "[format('{0}-VnetPeering{1}-{2}', parameters('hubRgName'), add(range(0, parameters('amountOfSpokes'))[copyIndex()], 1), parameters('location'))]",
       "location": "[deployment().location]",
       "properties": {
@@ -3993,12 +3993,12 @@
         },
         "mode": "Incremental",
         "parameters": {
-          "HubResourceGroupName": "[if(and(and(parameters('deployHUB'), parameters('deploySpokes')), equals(parameters('hubType'), 'VNET')), createObject('value', reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))), '2020-10-01').outputs.HubResourceGroupName.value), createObject('value', 'No VNET peering'))]",
-          "SpokeResourceGroupName": "[if(and(and(parameters('deployHUB'), parameters('deploySpokes')), equals(parameters('hubType'), 'VNET')), createObject('value', reference(subscriptionResourceId(parameters('spokeSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]], parameters('location'))), '2020-10-01').outputs.spokeResourceGroupName.value), createObject('value', 'No peering'))]",
-          "HubVnetName": "[if(and(and(parameters('deployHUB'), parameters('deploySpokes')), equals(parameters('hubType'), 'VNET')), createObject('value', reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))), '2020-10-01').outputs.hubVnetName.value), createObject('value', 'No VNET peering'))]",
-          "SpokeVnetID": "[if(and(and(parameters('deployHUB'), parameters('deploySpokes')), equals(parameters('hubType'), 'VNET')), createObject('value', reference(subscriptionResourceId(parameters('spokeSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]], parameters('location'))), '2020-10-01').outputs.spokeVnetID.value), createObject('value', 'No VNET peering'))]",
-          "HubVnetID": "[if(and(and(parameters('deployHUB'), parameters('deploySpokes')), equals(parameters('hubType'), 'VNET')), createObject('value', reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))), '2020-10-01').outputs.hubVnetID.value), createObject('value', 'No VNET peering'))]",
-          "SpokeVnetName": "[if(and(and(parameters('deployHUB'), parameters('deploySpokes')), equals(parameters('hubType'), 'VNET')), createObject('value', reference(subscriptionResourceId(parameters('spokeSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]], parameters('location'))), '2020-10-01').outputs.spokeVnetName.value), createObject('value', 'No VNET peering'))]",
+          "HubResourceGroupName": "[if(and(and(parameters('deployHUB'), parameters('deploySpokes')), equals(parameters('hubType'), 'VNET')), createObject('value', reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.HubResourceGroupName.value), createObject('value', 'No VNET peering'))]",
+          "SpokeResourceGroupName": "[if(and(and(parameters('deployHUB'), parameters('deploySpokes')), equals(parameters('hubType'), 'VNET')), createObject('value', reference(subscriptionResourceId(parameters('spokeSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]], parameters('location'))), '2022-09-01').outputs.spokeResourceGroupName.value), createObject('value', 'No peering'))]",
+          "HubVnetName": "[if(and(and(parameters('deployHUB'), parameters('deploySpokes')), equals(parameters('hubType'), 'VNET')), createObject('value', reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.hubVnetName.value), createObject('value', 'No VNET peering'))]",
+          "SpokeVnetID": "[if(and(and(parameters('deployHUB'), parameters('deploySpokes')), equals(parameters('hubType'), 'VNET')), createObject('value', reference(subscriptionResourceId(parameters('spokeSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]], parameters('location'))), '2022-09-01').outputs.spokeVnetID.value), createObject('value', 'No VNET peering'))]",
+          "HubVnetID": "[if(and(and(parameters('deployHUB'), parameters('deploySpokes')), equals(parameters('hubType'), 'VNET')), createObject('value', reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.hubVnetID.value), createObject('value', 'No VNET peering'))]",
+          "SpokeVnetName": "[if(and(and(parameters('deployHUB'), parameters('deploySpokes')), equals(parameters('hubType'), 'VNET')), createObject('value', reference(subscriptionResourceId(parameters('spokeSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]], parameters('location'))), '2022-09-01').outputs.spokeVnetName.value), createObject('value', 'No VNET peering'))]",
           "counter": {
             "value": "[range(0, parameters('amountOfSpokes'))[copyIndex()]]"
           },
@@ -4018,8 +4018,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.13.1.58284",
-              "templateHash": "574210968146481588"
+              "version": "0.17.1.54307",
+              "templateHash": "2750747128876516844"
             }
           },
           "parameters": {
@@ -4057,7 +4057,7 @@
           "resources": [
             {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-10-01",
+              "apiVersion": "2022-09-01",
               "name": "[format('peeringToSpoke{0}', add(parameters('counter'), 1))]",
               "subscriptionId": "[parameters('hubSubscriptionID')]",
               "resourceGroup": "[parameters('HubResourceGroupName')]",
@@ -4086,8 +4086,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.13.1.58284",
-                      "templateHash": "12881434403192760786"
+                      "version": "0.17.1.54307",
+                      "templateHash": "3503781946043607526"
                     }
                   },
                   "parameters": {
@@ -4133,7 +4133,7 @@
             },
             {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-10-01",
+              "apiVersion": "2022-09-01",
               "name": "[format('peeringToHub{0}', add(parameters('counter'), 1))]",
               "subscriptionId": "[parameters('spokeSubscriptionID')]",
               "resourceGroup": "[parameters('SpokeResourceGroupName')]",
@@ -4162,8 +4162,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.13.1.58284",
-                      "templateHash": "12881434403192760786"
+                      "version": "0.17.1.54307",
+                      "templateHash": "3503781946043607526"
                     }
                   },
                   "parameters": {
@@ -4221,13 +4221,13 @@
       ]
     },
     {
-      "condition": "[and(parameters('deployVnetPeeringMesh'), parameters('deploySpokes'))]",
       "copy": {
         "name": "vnetPeeringsMesh",
         "count": "[length(range(0, parameters('amountOfSpokes')))]"
       },
+      "condition": "[and(parameters('deployVnetPeeringMesh'), parameters('deploySpokes'))]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "[format('Prepare-Vnet-Peering-Mesh{0}', range(0, parameters('amountOfSpokes'))[copyIndex()])]",
       "location": "[deployment().location]",
       "properties": {
@@ -4236,14 +4236,14 @@
         },
         "mode": "Incremental",
         "parameters": {
-          "SpokeResourceGroupName": "[if(and(parameters('deployVnetPeeringMesh'), parameters('deploySpokes')), createObject('value', reference(subscriptionResourceId(parameters('spokeSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]], parameters('location'))), '2020-10-01').outputs.spokeResourceGroupName.value), createObject('value', 'No peering'))]",
-          "SpokeVnetName": "[if(and(parameters('deployVnetPeeringMesh'), parameters('deploySpokes')), createObject('value', reference(subscriptionResourceId(parameters('spokeSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]], parameters('location'))), '2020-10-01').outputs.spokeVnetName.value), createObject('value', 'No VNET peering'))]",
+          "SpokeResourceGroupName": "[if(and(parameters('deployVnetPeeringMesh'), parameters('deploySpokes')), createObject('value', reference(subscriptionResourceId(parameters('spokeSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]], parameters('location'))), '2022-09-01').outputs.spokeResourceGroupName.value), createObject('value', 'No peering'))]",
+          "SpokeVnetName": "[if(and(parameters('deployVnetPeeringMesh'), parameters('deploySpokes')), createObject('value', reference(subscriptionResourceId(parameters('spokeSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]], parameters('location'))), '2022-09-01').outputs.spokeVnetName.value), createObject('value', 'No VNET peering'))]",
           "spokeVnets": {
             "copy": [
               {
                 "name": "value",
                 "count": "[length(range(0, parameters('amountOfSpokes')))]",
-                "input": "[createObject('ID', reference(subscriptionResourceId(parameters('spokeSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex('value')]], parameters('location'))), '2020-10-01').outputs.spokeVnetID.value, 'Name', reference(subscriptionResourceId(parameters('spokeSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex('value')]], parameters('location'))), '2020-10-01').outputs.spokeVnetName.value, 'RgName', reference(subscriptionResourceId(parameters('spokeSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex('value')]], parameters('location'))), '2020-10-01').outputs.spokeResourceGroupName.value)]"
+                "input": "[createObject('ID', reference(subscriptionResourceId(parameters('spokeSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex('value')]], parameters('location'))), '2022-09-01').outputs.spokeVnetID.value, 'Name', reference(subscriptionResourceId(parameters('spokeSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex('value')]], parameters('location'))), '2022-09-01').outputs.spokeVnetName.value, 'RgName', reference(subscriptionResourceId(parameters('spokeSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex('value')]], parameters('location'))), '2022-09-01').outputs.spokeResourceGroupName.value)]"
               }
             ]
           },
@@ -4257,8 +4257,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.13.1.58284",
-              "templateHash": "5872567311808366701"
+              "version": "0.17.1.54307",
+              "templateHash": "14229783161469627330"
             }
           },
           "parameters": {
@@ -4277,13 +4277,13 @@
           },
           "resources": [
             {
-              "condition": "[not(equals(parameters('SpokeVnetName'), parameters('spokeVnets')[copyIndex()].Name))]",
               "copy": {
                 "name": "peeringToHub",
                 "count": "[length(parameters('spokeVnets'))]"
               },
+              "condition": "[not(equals(parameters('SpokeVnetName'), parameters('spokeVnets')[copyIndex()].Name))]",
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-10-01",
+              "apiVersion": "2022-09-01",
               "name": "[format('peeringMesh{0}To{1}', parameters('SpokeVnetName'), parameters('spokeVnets')[copyIndex()].Name)]",
               "subscriptionId": "[parameters('spokeSubscriptionID')]",
               "resourceGroup": "[parameters('SpokeResourceGroupName')]",
@@ -4312,8 +4312,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.13.1.58284",
-                      "templateHash": "12881434403192760786"
+                      "version": "0.17.1.54307",
+                      "templateHash": "3503781946043607526"
                     }
                   },
                   "parameters": {
@@ -4366,15 +4366,15 @@
       ]
     },
     {
-      "condition": "[and(and(parameters('deployHUB'), parameters('deploySpokes')), equals(parameters('hubType'), 'VWAN'))]",
       "copy": {
         "name": "vnetConnections",
         "count": "[length(range(0, parameters('amountOfSpokes')))]",
         "mode": "serial",
         "batchSize": 1
       },
+      "condition": "[and(and(parameters('deployHUB'), parameters('deploySpokes')), equals(parameters('hubType'), 'VWAN'))]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "[format('{0}-VnetConnection{1}-{2}', parameters('hubRgName'), add(range(0, parameters('amountOfSpokes'))[copyIndex()], 1), parameters('location'))]",
       "location": "[deployment().location]",
       "properties": {
@@ -4383,9 +4383,9 @@
         },
         "mode": "Incremental",
         "parameters": {
-          "HubResourceGroupName": "[if(and(and(parameters('deployHUB'), parameters('deploySpokes')), equals(parameters('hubType'), 'VWAN')), createObject('value', reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VWAN', parameters('hubRgName'), parameters('location'))), '2020-10-01').outputs.HubResourceGroupName.value), createObject('value', 'No VNET peering'))]",
-          "SpokeVnetID": "[if(and(and(parameters('deployHUB'), parameters('deploySpokes')), equals(parameters('hubType'), 'VWAN')), createObject('value', reference(subscriptionResourceId(parameters('spokeSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]], parameters('location'))), '2020-10-01').outputs.spokeVnetID.value), createObject('value', 'No VNET peering'))]",
-          "vwanHubName": "[if(and(and(parameters('deployHUB'), parameters('deploySpokes')), equals(parameters('hubType'), 'VWAN')), createObject('value', reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VWAN', parameters('hubRgName'), parameters('location'))), '2020-10-01').outputs.vwanHubName.value), createObject('value', 'No VNET peering'))]",
+          "HubResourceGroupName": "[if(and(and(parameters('deployHUB'), parameters('deploySpokes')), equals(parameters('hubType'), 'VWAN')), createObject('value', reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VWAN', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.HubResourceGroupName.value), createObject('value', 'No VNET peering'))]",
+          "SpokeVnetID": "[if(and(and(parameters('deployHUB'), parameters('deploySpokes')), equals(parameters('hubType'), 'VWAN')), createObject('value', reference(subscriptionResourceId(parameters('spokeSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]], parameters('location'))), '2022-09-01').outputs.spokeVnetID.value), createObject('value', 'No VNET peering'))]",
+          "vwanHubName": "[if(and(and(parameters('deployHUB'), parameters('deploySpokes')), equals(parameters('hubType'), 'VWAN')), createObject('value', reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VWAN', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.vwanHubName.value), createObject('value', 'No VNET peering'))]",
           "deployFirewallInHub": {
             "value": "[and(parameters('deployFirewallInHub'), equals(parameters('hubType'), 'VWAN'))]"
           },
@@ -4402,8 +4402,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.13.1.58284",
-              "templateHash": "5953170621668680714"
+              "version": "0.17.1.54307",
+              "templateHash": "11610391193208125919"
             }
           },
           "parameters": {
@@ -4432,7 +4432,7 @@
           "resources": [
             {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-10-01",
+              "apiVersion": "2022-09-01",
               "name": "[format('VnetConnection{0}', add(parameters('counter'), 1))]",
               "subscriptionId": "[parameters('hubSubscriptionID')]",
               "resourceGroup": "[parameters('HubResourceGroupName')]",
@@ -4464,8 +4464,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.13.1.58284",
-                      "templateHash": "12274563988829333474"
+                      "version": "0.17.1.54307",
+                      "templateHash": "17793231101632147072"
                     }
                   },
                   "parameters": {
@@ -4529,7 +4529,7 @@
     {
       "condition": "[parameters('deployOnPrem')]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "[format('{0}-{1}', parameters('onpremRgName'), parameters('location'))]",
       "subscriptionId": "[parameters('onPremSubscriptionID')]",
       "location": "[deployment().location]",
@@ -4583,7 +4583,7 @@
             "value": "[parameters('diagnosticWorkspaceId')]"
           },
           "dcrID": {
-            "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))), '2020-10-01').outputs.dcrvminsightsID.value]"
+            "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.dcrvminsightsID.value]"
           }
         },
         "template": {
@@ -4592,8 +4592,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.13.1.58284",
-              "templateHash": "10003917200305698862"
+              "version": "0.17.1.54307",
+              "templateHash": "2839610968462853160"
             }
           },
           "parameters": {
@@ -4613,7 +4613,7 @@
               "type": "string"
             },
             "adminPassword": {
-              "type": "secureString"
+              "type": "securestring"
             },
             "deployVMsInOnPrem": {
               "type": "bool"
@@ -4667,7 +4667,7 @@
             },
             {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-10-01",
+              "apiVersion": "2022-09-01",
               "name": "[variables('vnetName')]",
               "resourceGroup": "[parameters('OnPremRgName')]",
               "properties": {
@@ -4683,7 +4683,7 @@
                     "value": "[variables('vnetAddressSpace')]"
                   },
                   "nsgID": {
-                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('OnPremRgName')), 'Microsoft.Resources/deployments', variables('nsgName')), '2020-10-01').outputs.nsgID.value]"
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('OnPremRgName')), 'Microsoft.Resources/deployments', variables('nsgName')), '2022-09-01').outputs.nsgID.value]"
                   },
                   "vnetname": {
                     "value": "[variables('vnetName')]"
@@ -4711,8 +4711,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.13.1.58284",
-                      "templateHash": "9277410078549992372"
+                      "version": "0.17.1.54307",
+                      "templateHash": "8271511740822486452"
                     }
                   },
                   "parameters": {
@@ -4785,13 +4785,13 @@
                           "networkSecurityGroup": {
                             "id": "[parameters('nsgID')]"
                           },
-                          "routeTable": "[if(equals(parameters('rtDefID'), 'none'), json('null'), json(format('{{\"id\": \"{0}\"}}\"', parameters('rtDefID'))))]"
+                          "routeTable": "[if(equals(parameters('rtDefID'), 'none'), null(), json(format('{{\"id\": \"{0}\"}}\"', parameters('rtDefID'))))]"
                         }
                       }
                     ],
                     "bastionSubnet": "[if(not(parameters('deployBastionSubnet')), createArray(), createArray(createObject('name', 'AzureBastionSubnet', 'properties', createObject('addressPrefix', parameters('bastionSubnetPrefix')))))]",
                     "firewallSubnet": "[if(not(parameters('deployFirewallSubnet')), createArray(), createArray(createObject('name', 'AzureFirewallSubnet', 'properties', createObject('addressPrefix', parameters('firewallSubnetPrefix')))))]",
-                    "gatewaySubnet": "[if(and(not(parameters('deployGatewaySubnet')), not(parameters('deployFirewallSubnet'))), createArray(), createArray(createObject('name', 'GatewaySubnet', 'properties', createObject('addressPrefix', parameters('GatewaySubnetPrefix'), 'routeTable', if(equals(parameters('rtGwID'), 'none'), json('null'), json(format('{{\"id\": \"{0}\"}}\"', parameters('rtGwID'))))))))]"
+                    "gatewaySubnet": "[if(and(not(parameters('deployGatewaySubnet')), not(parameters('deployFirewallSubnet'))), createArray(), createArray(createObject('name', 'GatewaySubnet', 'properties', createObject('addressPrefix', parameters('GatewaySubnetPrefix'), 'routeTable', if(equals(parameters('rtGwID'), 'none'), null(), json(format('{{\"id\": \"{0}\"}}\"', parameters('rtGwID'))))))))]"
                   },
                   "resources": [
                     {
@@ -4849,7 +4849,7 @@
             {
               "condition": "[parameters('deployVMsInOnPrem')]",
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-10-01",
+              "apiVersion": "2022-09-01",
               "name": "[variables('vmName')]",
               "resourceGroup": "[parameters('OnPremRgName')]",
               "properties": {
@@ -4868,7 +4868,7 @@
                     "value": "[parameters('location')]"
                   },
                   "subnetID": {
-                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('OnPremRgName')), 'Microsoft.Resources/deployments', variables('vnetName')), '2020-10-01').outputs.defaultSubnetID.value]"
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('OnPremRgName')), 'Microsoft.Resources/deployments', variables('vnetName')), '2022-09-01').outputs.defaultSubnetID.value]"
                   },
                   "vmName": {
                     "value": "[variables('vmName')]"
@@ -4895,8 +4895,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.13.1.58284",
-                      "templateHash": "7108087739179020991"
+                      "version": "0.17.1.54307",
+                      "templateHash": "4293482971433057273"
                     }
                   },
                   "parameters": {
@@ -4910,7 +4910,7 @@
                       "type": "string"
                     },
                     "adminPassword": {
-                      "type": "secureString"
+                      "type": "securestring"
                     },
                     "subnetID": {
                       "type": "string"
@@ -5083,7 +5083,7 @@
                     {
                       "condition": "[equals(parameters('osType'), 'Windows')]",
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2020-10-01",
+                      "apiVersion": "2022-09-01",
                       "name": "[format('{0}-runCommand', parameters('vmName'))]",
                       "properties": {
                         "expressionEvaluationOptions": {
@@ -5107,8 +5107,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.13.1.58284",
-                              "templateHash": "6588617984499675610"
+                              "version": "0.17.1.54307",
+                              "templateHash": "6746965115980779458"
                             }
                           },
                           "parameters": {
@@ -5162,7 +5162,7 @@
             },
             {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-10-01",
+              "apiVersion": "2022-09-01",
               "name": "[variables('nsgName')]",
               "resourceGroup": "[parameters('OnPremRgName')]",
               "properties": {
@@ -5187,8 +5187,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.13.1.58284",
-                      "templateHash": "15865267540879831891"
+                      "version": "0.17.1.54307",
+                      "templateHash": "16568394959252558731"
                     }
                   },
                   "parameters": {
@@ -5227,7 +5227,7 @@
             {
               "condition": "[parameters('deployBastionInOnPrem')]",
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-10-01",
+              "apiVersion": "2022-09-01",
               "name": "[variables('bastionName')]",
               "resourceGroup": "[parameters('OnPremRgName')]",
               "properties": {
@@ -5239,7 +5239,7 @@
                   "location": {
                     "value": "[parameters('location')]"
                   },
-                  "subnetID": "[if(parameters('deployBastionInOnPrem'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('OnPremRgName')), 'Microsoft.Resources/deployments', variables('vnetName')), '2020-10-01').outputs.bastionSubnetID.value), createObject('value', ''))]",
+                  "subnetID": "[if(parameters('deployBastionInOnPrem'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('OnPremRgName')), 'Microsoft.Resources/deployments', variables('vnetName')), '2022-09-01').outputs.bastionSubnetID.value), createObject('value', ''))]",
                   "bastionName": {
                     "value": "[variables('bastionName')]"
                   },
@@ -5256,8 +5256,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.13.1.58284",
-                      "templateHash": "14998909221738132936"
+                      "version": "0.17.1.54307",
+                      "templateHash": "7124745122453992719"
                     }
                   },
                   "parameters": {
@@ -5337,7 +5337,7 @@
             {
               "condition": "[parameters('deployGatewayInOnPrem')]",
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-10-01",
+              "apiVersion": "2022-09-01",
               "name": "[variables('gatewayName')]",
               "resourceGroup": "[parameters('OnPremRgName')]",
               "properties": {
@@ -5352,7 +5352,7 @@
                   "vpnGatewayName": {
                     "value": "[variables('gatewayName')]"
                   },
-                  "vpnGatewaySubnetID": "[if(parameters('deployGatewayInOnPrem'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('OnPremRgName')), 'Microsoft.Resources/deployments', variables('vnetName')), '2020-10-01').outputs.gatewaySubnetID.value), createObject('value', ''))]",
+                  "vpnGatewaySubnetID": "[if(parameters('deployGatewayInOnPrem'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('OnPremRgName')), 'Microsoft.Resources/deployments', variables('vnetName')), '2022-09-01').outputs.gatewaySubnetID.value), createObject('value', ''))]",
                   "tagsByResource": {
                     "value": "[parameters('tagsByResource')]"
                   },
@@ -5367,8 +5367,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.13.1.58284",
-                      "templateHash": "1815641664258711494"
+                      "version": "0.17.1.54307",
+                      "templateHash": "5569189318412635310"
                     }
                   },
                   "parameters": {
@@ -5499,11 +5499,11 @@
           "outputs": {
             "OnPremGatewayPublicIP": {
               "type": "string",
-              "value": "[if(parameters('deployGatewayInOnPrem'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('OnPremRgName')), 'Microsoft.Resources/deployments', variables('gatewayName')), '2020-10-01').outputs.vpnGwPublicIP.value, 'none')]"
+              "value": "[if(parameters('deployGatewayInOnPrem'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('OnPremRgName')), 'Microsoft.Resources/deployments', variables('gatewayName')), '2022-09-01').outputs.vpnGwPublicIP.value, 'none')]"
             },
             "OnPremGatewayID": {
               "type": "string",
-              "value": "[if(parameters('deployGatewayInOnPrem'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('OnPremRgName')), 'Microsoft.Resources/deployments', variables('gatewayName')), '2020-10-01').outputs.vpnGwID.value, 'none')]"
+              "value": "[if(parameters('deployGatewayInOnPrem'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('OnPremRgName')), 'Microsoft.Resources/deployments', variables('gatewayName')), '2022-09-01').outputs.vpnGwID.value, 'none')]"
             },
             "OnPremAddressSpace": {
               "type": "string",
@@ -5511,11 +5511,11 @@
             },
             "OnPremGwBgpPeeringAddress": {
               "type": "string",
-              "value": "[if(parameters('deployGatewayInOnPrem'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('OnPremRgName')), 'Microsoft.Resources/deployments', variables('gatewayName')), '2020-10-01').outputs.vpnGwBgpPeeringAddress.value, 'none')]"
+              "value": "[if(parameters('deployGatewayInOnPrem'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('OnPremRgName')), 'Microsoft.Resources/deployments', variables('gatewayName')), '2022-09-01').outputs.vpnGwBgpPeeringAddress.value, 'none')]"
             },
             "OnPremGwBgpAsn": {
               "type": "int",
-              "value": "[if(and(parameters('deployGatewayInOnPrem'), parameters('vpnGwEnebaleBgp')), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('OnPremRgName')), 'Microsoft.Resources/deployments', variables('gatewayName')), '2020-10-01').outputs.vpnGwAsn.value, 0)]"
+              "value": "[if(and(parameters('deployGatewayInOnPrem'), parameters('vpnGwEnebaleBgp')), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('OnPremRgName')), 'Microsoft.Resources/deployments', variables('gatewayName')), '2022-09-01').outputs.vpnGwAsn.value, 0)]"
             }
           }
         }
@@ -5527,7 +5527,7 @@
     {
       "condition": "[and(and(and(parameters('deployGatewayInHub'), parameters('deployGatewayinOnPrem')), parameters('deploySiteToSite')), equals(parameters('hubType'), 'VNET'))]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "[format('{0}-s2s-Hub-OnPrem-{1}', parameters('hubRgName'), parameters('location'))]",
       "location": "[deployment().location]",
       "properties": {
@@ -5540,14 +5540,14 @@
             "value": "[parameters('location')]"
           },
           "HubRgName": "[if(and(parameters('deployHUB'), equals(parameters('hubType'), 'VNET')), createObject('value', parameters('hubRgName')), createObject('value', 'none'))]",
-          "HubGatewayID": "[if(and(parameters('deployGatewayInHub'), equals(parameters('hubType'), 'VNET')), createObject('value', reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))), '2020-10-01').outputs.hubGatewayID.value), createObject('value', 'none'))]",
-          "HubGatewayPublicIP": "[if(and(parameters('deployGatewayInHub'), equals(parameters('hubType'), 'VNET')), createObject('value', reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))), '2020-10-01').outputs.hubGatewayPublicIP.value), createObject('value', 'none'))]",
+          "HubGatewayID": "[if(and(parameters('deployGatewayInHub'), equals(parameters('hubType'), 'VNET')), createObject('value', reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.hubGatewayID.value), createObject('value', 'none'))]",
+          "HubGatewayPublicIP": "[if(and(parameters('deployGatewayInHub'), equals(parameters('hubType'), 'VNET')), createObject('value', reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.hubGatewayPublicIP.value), createObject('value', 'none'))]",
           "HubAddressPrefixes": "[if(and(parameters('deployHUB'), equals(parameters('hubType'), 'VNET')), createObject('value', variables('AllAddressSpaces')), createObject('value', createArray()))]",
           "HubLocalGatewayName": "[if(and(parameters('deploySiteToSite'), equals(parameters('hubType'), 'VNET')), createObject('value', 'LocalGateway-Hub'), createObject('value', 'none'))]",
           "OnPremRgName": "[if(and(parameters('deployOnPrem'), equals(parameters('hubType'), 'VNET')), createObject('value', parameters('onpremRgName')), createObject('value', 'none'))]",
-          "OnPremGatewayID": "[if(and(parameters('deployGatewayinOnPrem'), equals(parameters('hubType'), 'VNET')), createObject('value', reference(subscriptionResourceId(parameters('onPremSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}', parameters('onpremRgName'), parameters('location'))), '2020-10-01').outputs.OnPremGatewayID.value), createObject('value', 'none'))]",
-          "OnPremGatewayPublicIP": "[if(and(parameters('deployGatewayinOnPrem'), equals(parameters('hubType'), 'VNET')), createObject('value', reference(subscriptionResourceId(parameters('onPremSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}', parameters('onpremRgName'), parameters('location'))), '2020-10-01').outputs.OnPremGatewayPublicIP.value), createObject('value', 'none'))]",
-          "OnPremAddressPrefixes": "[if(and(parameters('deployOnPrem'), equals(parameters('hubType'), 'VNET')), createObject('value', array(reference(subscriptionResourceId(parameters('onPremSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}', parameters('onpremRgName'), parameters('location'))), '2020-10-01').outputs.OnPremAddressSpace.value)), createObject('value', createArray()))]",
+          "OnPremGatewayID": "[if(and(parameters('deployGatewayinOnPrem'), equals(parameters('hubType'), 'VNET')), createObject('value', reference(subscriptionResourceId(parameters('onPremSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}', parameters('onpremRgName'), parameters('location'))), '2022-09-01').outputs.OnPremGatewayID.value), createObject('value', 'none'))]",
+          "OnPremGatewayPublicIP": "[if(and(parameters('deployGatewayinOnPrem'), equals(parameters('hubType'), 'VNET')), createObject('value', reference(subscriptionResourceId(parameters('onPremSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}', parameters('onpremRgName'), parameters('location'))), '2022-09-01').outputs.OnPremGatewayPublicIP.value), createObject('value', 'none'))]",
+          "OnPremAddressPrefixes": "[if(and(parameters('deployOnPrem'), equals(parameters('hubType'), 'VNET')), createObject('value', array(reference(subscriptionResourceId(parameters('onPremSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}', parameters('onpremRgName'), parameters('location'))), '2022-09-01').outputs.OnPremAddressSpace.value)), createObject('value', createArray()))]",
           "OnPremLocalGatewayName": "[if(and(parameters('deploySiteToSite'), equals(parameters('hubType'), 'VNET')), createObject('value', 'LocalGateway-OnPrem'), createObject('value', 'none'))]",
           "tagsByResource": {
             "value": "[parameters('tagsByResource')]"
@@ -5558,11 +5558,11 @@
           "HubBgpAsn": {
             "value": "[parameters('hubBgpAsn')]"
           },
-          "HubBgpPeeringAddress": "[if(and(and(parameters('deployGatewayInHub'), parameters('hubBgp')), equals(parameters('hubType'), 'VNET')), createObject('value', reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))), '2020-10-01').outputs.HubGwBgpPeeringAddress.value), createObject('value', 'none'))]",
+          "HubBgpPeeringAddress": "[if(and(and(parameters('deployGatewayInHub'), parameters('hubBgp')), equals(parameters('hubType'), 'VNET')), createObject('value', reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.HubGwBgpPeeringAddress.value), createObject('value', 'none'))]",
           "OnPremBgpAsn": {
             "value": "[parameters('onpremBgpAsn')]"
           },
-          "OnPremBgpPeeringAddress": "[if(and(and(parameters('deployGatewayinOnPrem'), parameters('onpremBgp')), equals(parameters('hubType'), 'VNET')), createObject('value', reference(subscriptionResourceId(parameters('onPremSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}', parameters('onpremRgName'), parameters('location'))), '2020-10-01').outputs.OnPremGwBgpPeeringAddress.value), createObject('value', 'none'))]",
+          "OnPremBgpPeeringAddress": "[if(and(and(parameters('deployGatewayinOnPrem'), parameters('onpremBgp')), equals(parameters('hubType'), 'VNET')), createObject('value', reference(subscriptionResourceId(parameters('onPremSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}', parameters('onpremRgName'), parameters('location'))), '2022-09-01').outputs.OnPremGwBgpPeeringAddress.value), createObject('value', 'none'))]",
           "sharedKey": "[if(parameters('deploySiteToSite'), createObject('value', parameters('sharedKey')), createObject('value', 'none'))]",
           "hubSubscriptionID": {
             "value": "[parameters('hubSubscriptionID')]"
@@ -5577,8 +5577,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.13.1.58284",
-              "templateHash": "2926539935316178819"
+              "version": "0.17.1.54307",
+              "templateHash": "17110220239031223641"
             }
           },
           "parameters": {
@@ -5586,7 +5586,7 @@
               "type": "string"
             },
             "sharedKey": {
-              "type": "secureString"
+              "type": "securestring"
             },
             "enableBgp": {
               "type": "bool"
@@ -5646,7 +5646,7 @@
           "resources": [
             {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-10-01",
+              "apiVersion": "2022-09-01",
               "name": "[parameters('HubLocalGatewayName')]",
               "subscriptionId": "[parameters('onPremSubscriptionID')]",
               "resourceGroup": "[parameters('OnPremRgName')]",
@@ -5696,8 +5696,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.13.1.58284",
-                      "templateHash": "4117083552008565329"
+                      "version": "0.17.1.54307",
+                      "templateHash": "11010462696552571202"
                     }
                   },
                   "parameters": {
@@ -5720,7 +5720,7 @@
                       "type": "string"
                     },
                     "sharedKey": {
-                      "type": "secureString"
+                      "type": "securestring"
                     },
                     "tagsByResource": {
                       "type": "object",
@@ -5782,7 +5782,7 @@
             },
             {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-10-01",
+              "apiVersion": "2022-09-01",
               "name": "[parameters('OnPremLocalGatewayName')]",
               "subscriptionId": "[parameters('hubSubscriptionID')]",
               "resourceGroup": "[parameters('HubRgName')]",
@@ -5832,8 +5832,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.13.1.58284",
-                      "templateHash": "4117083552008565329"
+                      "version": "0.17.1.54307",
+                      "templateHash": "11010462696552571202"
                     }
                   },
                   "parameters": {
@@ -5856,7 +5856,7 @@
                       "type": "string"
                     },
                     "sharedKey": {
-                      "type": "secureString"
+                      "type": "securestring"
                     },
                     "tagsByResource": {
                       "type": "object",
@@ -5927,7 +5927,7 @@
     {
       "condition": "[and(and(and(parameters('deployGatewayInHub'), parameters('deployGatewayinOnPrem')), parameters('deploySiteToSite')), equals(parameters('hubType'), 'VWAN'))]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "[format('{0}-s2s-Hub-vWan-OnPrem-{1}', parameters('hubRgName'), parameters('location'))]",
       "location": "[deployment().location]",
       "properties": {
@@ -5939,17 +5939,17 @@
           "location": {
             "value": "[parameters('location')]"
           },
-          "vwanGatewayName": "[if(and(and(parameters('deployHUB'), parameters('deployGatewayInHub')), equals(parameters('hubType'), 'VWAN')), createObject('value', reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VWAN', parameters('hubRgName'), parameters('location'))), '2020-10-01').outputs.vpnGwName.value), createObject('value', 'none'))]",
-          "vwanLinkBgpAsn": "[if(and(and(parameters('deployOnPrem'), parameters('deployGatewayinOnPrem')), parameters('onpremBgp')), createObject('value', reference(subscriptionResourceId(parameters('onPremSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}', parameters('onpremRgName'), parameters('location'))), '2020-10-01').outputs.OnPremGwBgpAsn.value), createObject('value', 65515))]",
-          "vwanLinkPublicIP": "[if(and(parameters('deployOnPrem'), parameters('deployGatewayinOnPrem')), createObject('value', reference(subscriptionResourceId(parameters('onPremSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}', parameters('onpremRgName'), parameters('location'))), '2020-10-01').outputs.OnPremGatewayPublicIP.value), createObject('value', 'none'))]",
-          "vwanVpnGwInfo": "[if(and(and(parameters('deployHUB'), parameters('deployGatewayInHub')), equals(parameters('hubType'), 'VWAN')), createObject('value', reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VWAN', parameters('hubRgName'), parameters('location'))), '2020-10-01').outputs.vpnGwBgpIp.value), createObject('value', createArray()))]",
-          "vwanLinkBgpPeeringAddress": "[if(and(and(and(parameters('deployOnPrem'), parameters('deployGatewayinOnPrem')), parameters('onpremBgp')), equals(parameters('hubType'), 'VWAN')), createObject('value', reference(subscriptionResourceId(parameters('onPremSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}', parameters('onpremRgName'), parameters('location'))), '2020-10-01').outputs.OnPremGwBgpPeeringAddress.value), createObject('value', 'none'))]",
+          "vwanGatewayName": "[if(and(and(parameters('deployHUB'), parameters('deployGatewayInHub')), equals(parameters('hubType'), 'VWAN')), createObject('value', reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VWAN', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.vpnGwName.value), createObject('value', 'none'))]",
+          "vwanLinkBgpAsn": "[if(and(and(parameters('deployOnPrem'), parameters('deployGatewayinOnPrem')), parameters('onpremBgp')), createObject('value', reference(subscriptionResourceId(parameters('onPremSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}', parameters('onpremRgName'), parameters('location'))), '2022-09-01').outputs.OnPremGwBgpAsn.value), createObject('value', 65515))]",
+          "vwanLinkPublicIP": "[if(and(parameters('deployOnPrem'), parameters('deployGatewayinOnPrem')), createObject('value', reference(subscriptionResourceId(parameters('onPremSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}', parameters('onpremRgName'), parameters('location'))), '2022-09-01').outputs.OnPremGatewayPublicIP.value), createObject('value', 'none'))]",
+          "vwanVpnGwInfo": "[if(and(and(parameters('deployHUB'), parameters('deployGatewayInHub')), equals(parameters('hubType'), 'VWAN')), createObject('value', reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VWAN', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.vpnGwBgpIp.value), createObject('value', createArray()))]",
+          "vwanLinkBgpPeeringAddress": "[if(and(and(and(parameters('deployOnPrem'), parameters('deployGatewayinOnPrem')), parameters('onpremBgp')), equals(parameters('hubType'), 'VWAN')), createObject('value', reference(subscriptionResourceId(parameters('onPremSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}', parameters('onpremRgName'), parameters('location'))), '2022-09-01').outputs.OnPremGwBgpPeeringAddress.value), createObject('value', 'none'))]",
           "vwanVpnSiteName": {
             "value": "OnPrem"
           },
-          "vwanID": "[if(and(parameters('deployHUB'), equals(parameters('hubType'), 'VWAN')), createObject('value', reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VWAN', parameters('hubRgName'), parameters('location'))), '2020-10-01').outputs.vWanID.value), createObject('value', 'none'))]",
-          "vwanHubName": "[if(and(parameters('deployHUB'), equals(parameters('hubType'), 'VWAN')), createObject('value', reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VWAN', parameters('hubRgName'), parameters('location'))), '2020-10-01').outputs.vwanHubName.value), createObject('value', 'none'))]",
-          "OnPremVpnGwID": "[if(and(parameters('deployOnPrem'), parameters('deployGatewayinOnPrem')), createObject('value', reference(subscriptionResourceId(parameters('onPremSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}', parameters('onpremRgName'), parameters('location'))), '2020-10-01').outputs.OnPremGatewayID.value), createObject('value', 'none'))]",
+          "vwanID": "[if(and(parameters('deployHUB'), equals(parameters('hubType'), 'VWAN')), createObject('value', reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VWAN', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.vWanID.value), createObject('value', 'none'))]",
+          "vwanHubName": "[if(and(parameters('deployHUB'), equals(parameters('hubType'), 'VWAN')), createObject('value', reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VWAN', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.vwanHubName.value), createObject('value', 'none'))]",
+          "OnPremVpnGwID": "[if(and(parameters('deployOnPrem'), parameters('deployGatewayinOnPrem')), createObject('value', reference(subscriptionResourceId(parameters('onPremSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}', parameters('onpremRgName'), parameters('location'))), '2022-09-01').outputs.OnPremGatewayID.value), createObject('value', 'none'))]",
           "OnPremRgName": "[if(parameters('deployOnPrem'), createObject('value', parameters('onpremRgName')), createObject('value', 'none'))]",
           "HubRgName": "[if(parameters('deployHUB'), createObject('value', parameters('hubRgName')), createObject('value', 'none'))]",
           "tagsByResource": {
@@ -5972,8 +5972,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.13.1.58284",
-              "templateHash": "16124311030789938043"
+              "version": "0.17.1.54307",
+              "templateHash": "15318826459092848286"
             }
           },
           "parameters": {
@@ -5981,7 +5981,7 @@
               "type": "string"
             },
             "sharedKey": {
-              "type": "secureString"
+              "type": "securestring"
             },
             "OnPremRgName": {
               "type": "string"
@@ -6033,7 +6033,7 @@
           "resources": [
             {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-10-01",
+              "apiVersion": "2022-09-01",
               "name": "vwanVPNsites",
               "subscriptionId": "[parameters('hubSubscriptionID')]",
               "resourceGroup": "[parameters('HubRgName')]",
@@ -6083,8 +6083,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.13.1.58284",
-                      "templateHash": "11721558411521299229"
+                      "version": "0.17.1.54307",
+                      "templateHash": "14171038927942713640"
                     }
                   },
                   "parameters": {
@@ -6113,7 +6113,7 @@
                       "type": "string"
                     },
                     "sharedKey": {
-                      "type": "secureString"
+                      "type": "securestring"
                     },
                     "tagsByResource": {
                       "type": "object",
@@ -6217,7 +6217,7 @@
                 "count": "[length(parameters('vwanVpnGwInfo'))]"
               },
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-10-01",
+              "apiVersion": "2022-09-01",
               "name": "[format('vpnconnection{0}', add(copyIndex(), 1))]",
               "subscriptionId": "[parameters('onPremSubscriptionID')]",
               "resourceGroup": "[parameters('OnPremRgName')]",
@@ -6267,8 +6267,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.13.1.58284",
-                      "templateHash": "4117083552008565329"
+                      "version": "0.17.1.54307",
+                      "templateHash": "11010462696552571202"
                     }
                   },
                   "parameters": {
@@ -6291,7 +6291,7 @@
                       "type": "string"
                     },
                     "sharedKey": {
-                      "type": "secureString"
+                      "type": "securestring"
                     },
                     "tagsByResource": {
                       "type": "object",
@@ -6363,81 +6363,81 @@
   "outputs": {
     "VNET_AzFwPrivateIp": {
       "type": "string",
-      "value": "[if(and(and(parameters('deployFirewallInHub'), parameters('deployHUB')), equals(parameters('hubType'), 'VNET')), reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))), '2020-10-01').outputs.azFwIp.value, 'none')]"
+      "value": "[if(and(and(parameters('deployFirewallInHub'), parameters('deployHUB')), equals(parameters('hubType'), 'VNET')), reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.azFwIp.value, 'none')]"
     },
     "VWAN_AzFwPublicIp": {
       "type": "array",
-      "value": "[if(and(and(parameters('deployFirewallInHub'), parameters('deployHUB')), equals(parameters('hubType'), 'VWAN')), reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VWAN', parameters('hubRgName'), parameters('location'))), '2020-10-01').outputs.vWanFwPublicIP.value, createArray())]"
+      "value": "[if(and(and(parameters('deployFirewallInHub'), parameters('deployHUB')), equals(parameters('hubType'), 'VWAN')), reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VWAN', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.vWanFwPublicIP.value, createArray())]"
     },
     "HubVnetID": {
       "type": "string",
-      "value": "[if(and(parameters('deployHUB'), equals(parameters('hubType'), 'VNET')), reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))), '2020-10-01').outputs.hubVnetID.value, 'none')]"
+      "value": "[if(and(parameters('deployHUB'), equals(parameters('hubType'), 'VNET')), reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.hubVnetID.value, 'none')]"
     },
     "HubVnetAddressSpace": {
       "type": "string",
-      "value": "[if(and(parameters('deployHUB'), equals(parameters('hubType'), 'VNET')), reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))), '2020-10-01').outputs.hubVnetAddressSpace.value, 'none')]"
+      "value": "[if(and(parameters('deployHUB'), equals(parameters('hubType'), 'VNET')), reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.hubVnetAddressSpace.value, 'none')]"
     },
     "HubGatewayPublicIP": {
       "type": "string",
-      "value": "[if(and(parameters('deployGatewayInHub'), equals(parameters('hubType'), 'VNET')), reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))), '2020-10-01').outputs.hubGatewayPublicIP.value, 'none')]"
+      "value": "[if(and(parameters('deployGatewayInHub'), equals(parameters('hubType'), 'VNET')), reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.hubGatewayPublicIP.value, 'none')]"
     },
     "HubGatewayID": {
       "type": "string",
-      "value": "[if(and(parameters('deployGatewayInHub'), equals(parameters('hubType'), 'VNET')), reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))), '2020-10-01').outputs.hubGatewayID.value, 'none')]"
+      "value": "[if(and(parameters('deployGatewayInHub'), equals(parameters('hubType'), 'VNET')), reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.hubGatewayID.value, 'none')]"
     },
     "HubBgpPeeringAddress": {
       "type": "string",
-      "value": "[if(and(parameters('deployGatewayInHub'), equals(parameters('hubType'), 'VNET')), reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))), '2020-10-01').outputs.HubGwBgpPeeringAddress.value, 'none')]"
+      "value": "[if(and(parameters('deployGatewayInHub'), equals(parameters('hubType'), 'VNET')), reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.HubGwBgpPeeringAddress.value, 'none')]"
     },
     "vWanHubID": {
       "type": "string",
-      "value": "[if(and(parameters('deployHUB'), equals(parameters('hubType'), 'VWAN')), reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VWAN', parameters('hubRgName'), parameters('location'))), '2020-10-01').outputs.vWanHubID.value, 'none')]"
+      "value": "[if(and(parameters('deployHUB'), equals(parameters('hubType'), 'VWAN')), reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VWAN', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.vWanHubID.value, 'none')]"
     },
     "vWanID": {
       "type": "string",
-      "value": "[if(and(parameters('deployHUB'), equals(parameters('hubType'), 'VWAN')), reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VWAN', parameters('hubRgName'), parameters('location'))), '2020-10-01').outputs.vWanID.value, 'none')]"
+      "value": "[if(and(parameters('deployHUB'), equals(parameters('hubType'), 'VWAN')), reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VWAN', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.vWanID.value, 'none')]"
     },
     "vWanVpnGwID": {
       "type": "string",
-      "value": "[if(and(and(parameters('deployHUB'), parameters('deployGatewayInHub')), equals(parameters('hubType'), 'VWAN')), reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VWAN', parameters('hubRgName'), parameters('location'))), '2020-10-01').outputs.vWanVpnGwID.value, 'none')]"
+      "value": "[if(and(and(parameters('deployHUB'), parameters('deployGatewayInHub')), equals(parameters('hubType'), 'VWAN')), reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VWAN', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.vWanVpnGwID.value, 'none')]"
     },
     "vWanVpnGwPip": {
       "type": "array",
-      "value": "[if(and(and(parameters('deployHUB'), parameters('deployGatewayInHub')), equals(parameters('hubType'), 'VWAN')), reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VWAN', parameters('hubRgName'), parameters('location'))), '2020-10-01').outputs.vWanVpnGwPip.value, createArray())]"
+      "value": "[if(and(and(parameters('deployHUB'), parameters('deployGatewayInHub')), equals(parameters('hubType'), 'VWAN')), reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VWAN', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.vWanVpnGwPip.value, createArray())]"
     },
     "vWanVpnBgpIp": {
       "type": "array",
-      "value": "[if(and(and(parameters('deployHUB'), parameters('deployGatewayInHub')), equals(parameters('hubType'), 'VWAN')), reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VWAN', parameters('hubRgName'), parameters('location'))), '2020-10-01').outputs.vpnGwBgpIp.value, createArray())]"
+      "value": "[if(and(and(parameters('deployHUB'), parameters('deployGatewayInHub')), equals(parameters('hubType'), 'VWAN')), reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VWAN', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.vpnGwBgpIp.value, createArray())]"
     },
     "vWanVpnBgpAsn": {
       "type": "int",
-      "value": "[if(and(and(parameters('deployHUB'), parameters('deployGatewayInHub')), equals(parameters('hubType'), 'VWAN')), reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VWAN', parameters('hubRgName'), parameters('location'))), '2020-10-01').outputs.vpnGwBgpAsn.value, 0)]"
+      "value": "[if(and(and(parameters('deployHUB'), parameters('deployGatewayInHub')), equals(parameters('hubType'), 'VWAN')), reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VWAN', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.vpnGwBgpAsn.value, 0)]"
     },
     "vWanHubAddressSpace": {
       "type": "string",
-      "value": "[if(and(parameters('deployHUB'), equals(parameters('hubType'), 'VWAN')), reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VWAN', parameters('hubRgName'), parameters('location'))), '2020-10-01').outputs.vWanHubAddressSpace.value, 'none')]"
+      "value": "[if(and(parameters('deployHUB'), equals(parameters('hubType'), 'VWAN')), reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VWAN', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.vWanHubAddressSpace.value, 'none')]"
     },
     "OnPremVnetAddressSpace": {
       "type": "string",
-      "value": "[if(parameters('deployOnPrem'), reference(subscriptionResourceId(parameters('onPremSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}', parameters('onpremRgName'), parameters('location'))), '2020-10-01').outputs.OnPremAddressSpace.value, 'none')]"
+      "value": "[if(parameters('deployOnPrem'), reference(subscriptionResourceId(parameters('onPremSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}', parameters('onpremRgName'), parameters('location'))), '2022-09-01').outputs.OnPremAddressSpace.value, 'none')]"
     },
     "OnPremGatewayPublicIP": {
       "type": "string",
-      "value": "[if(parameters('deployGatewayinOnPrem'), reference(subscriptionResourceId(parameters('onPremSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}', parameters('onpremRgName'), parameters('location'))), '2020-10-01').outputs.OnPremGatewayPublicIP.value, 'none')]"
+      "value": "[if(parameters('deployGatewayinOnPrem'), reference(subscriptionResourceId(parameters('onPremSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}', parameters('onpremRgName'), parameters('location'))), '2022-09-01').outputs.OnPremGatewayPublicIP.value, 'none')]"
     },
     "OnPremGatewayID": {
       "type": "string",
-      "value": "[if(parameters('deployGatewayinOnPrem'), reference(subscriptionResourceId(parameters('onPremSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}', parameters('onpremRgName'), parameters('location'))), '2020-10-01').outputs.OnPremGatewayID.value, 'none')]"
+      "value": "[if(parameters('deployGatewayinOnPrem'), reference(subscriptionResourceId(parameters('onPremSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}', parameters('onpremRgName'), parameters('location'))), '2022-09-01').outputs.OnPremGatewayID.value, 'none')]"
     },
     "OnPremBgpPeeringAddress": {
       "type": "string",
-      "value": "[if(parameters('deployGatewayinOnPrem'), reference(subscriptionResourceId(parameters('onPremSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}', parameters('onpremRgName'), parameters('location'))), '2020-10-01').outputs.OnPremGwBgpPeeringAddress.value, 'none')]"
+      "value": "[if(parameters('deployGatewayinOnPrem'), reference(subscriptionResourceId(parameters('onPremSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}', parameters('onpremRgName'), parameters('location'))), '2022-09-01').outputs.OnPremGwBgpPeeringAddress.value, 'none')]"
     },
     "SpokeVnets": {
       "type": "array",
       "copy": {
         "count": "[length(range(0, parameters('amountOfSpokes')))]",
-        "input": "[if(parameters('deploySpokes'), createObject('SpokeVnetId', reference(subscriptionResourceId(parameters('spokeSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]], parameters('location'))), '2020-10-01').outputs.spokeVnetID.value, 'SpokeVnetAddressSpace', reference(subscriptionResourceId(parameters('spokeSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]], parameters('location'))), '2020-10-01').outputs.spokeVnetAddressSpace.value), 'none')]"
+        "input": "[if(parameters('deploySpokes'), createObject('SpokeVnetId', reference(subscriptionResourceId(parameters('spokeSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]], parameters('location'))), '2022-09-01').outputs.spokeVnetID.value, 'SpokeVnetAddressSpace', reference(subscriptionResourceId(parameters('spokeSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]], parameters('location'))), '2022-09-01').outputs.spokeVnetAddressSpace.value), 'none')]"
       }
     }
   }
