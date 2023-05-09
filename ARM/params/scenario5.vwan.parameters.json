@@ -31,7 +31,7 @@
             "value": true
         },
         "deployBastionInSpoke": {
-            "value": true
+            "value": false
         },
         "deployHUB": {
             "value": true

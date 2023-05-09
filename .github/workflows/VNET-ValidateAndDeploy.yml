@@ -54,7 +54,7 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
       - name: "Validation"
-        uses: Azure/arm-deploy@v1.0.8
+        uses: Azure/arm-deploy@v1
         with:
           scope: "subscription"
           subscriptionId: ${{ secrets.VNET_SUBSCRIPTION }}
@@ -64,7 +64,7 @@ jobs:
           deploymentMode: "validate"
           deploymentName: "LabBuilderValidation-VNET"
       - name: "Deployment"
-        uses: Azure/arm-deploy@v1.0.8
+        uses: Azure/arm-deploy@v1
         with:
           scope: "subscription"
           subscriptionId: ${{ secrets.VNET_SUBSCRIPTION }}
