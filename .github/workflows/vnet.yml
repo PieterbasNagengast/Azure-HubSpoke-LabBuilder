@@ -1,0 +1,15 @@
+name: "LabBuilder - Deploy VNET Scenarios"
+
+on:
+  push:
+    branches: none
+  pull_request:
+    branches: none
+  workflow_dispatch:
+
+jobs:
+    call_deploy_workflow:
+        uses: ./.github/workflows/deploy.yml
+        with:
+            LabBuilderType: VNET
+            LabBuilderCleanup: true
