@@ -208,7 +208,7 @@ module hubVnet 'HubResourceGroup.bicep' = if (deployHUB && hubType == 'VNET') {
     deployUDRs: deployUDRs
     bastionSku: bastionInHubSKU
     diagnosticWorkspaceId: diagnosticWorkspaceId
-    firewallDNSproxy: firewallDNSproxy && deployFirewallInHub
+    firewallDNSproxy: firewallDNSproxy && deployFirewallInHub && hubType == 'VNET'
   }
 }
 
@@ -221,7 +221,7 @@ module vwan 'vWanResourceGroup.bicep' = if (deployHUB && hubType == 'VWAN') {
     deployFirewallInHub: deployFirewallInHub && hubType == 'VWAN'
     AddressSpace: AddressSpace
     AzureFirewallTier: AzureFirewallTier
-    firewallDNSproxy: firewallDNSproxy
+    firewallDNSproxy: firewallDNSproxy && hubType == 'VWAN'
     deployFirewallrules: deployFirewallrules && hubType == 'VWAN'
     hubRgName: hubRgName
     deployGatewayInHub: deployGatewayInHub && hubType == 'VWAN'
@@ -253,7 +253,7 @@ module spokeVnets 'SpokeResourceGroup.bicep' = [for i in range(1, amountOfSpokes
     bastionSku: bastionInSpokeSKU
     diagnosticWorkspaceId: diagnosticWorkspaceId
     firewallDNSproxy: firewallDNSproxy && deployFirewallInHub
-    dcrID: hubVnet.outputs.dcrvminsightsID
+    dcrID: hubType == 'VNET' ? hubVnet.outputs.dcrvminsightsID : ''
   }
 }]
 
@@ -326,7 +326,7 @@ module onprem 'OnPremResourceGroup.bicep' = if (deployOnPrem) {
     vpnGwEnebaleBgp: onpremBgp
     bastionSku: bastionInOnPremSKU
     diagnosticWorkspaceId: diagnosticWorkspaceId
-    dcrID: hubVnet.outputs.dcrvminsightsID
+    dcrID: hubType == 'VNET' ? hubVnet.outputs.dcrvminsightsID : ''
   }
 }
 

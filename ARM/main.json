@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.17.1.54307",
-      "templateHash": "9477959878234510528"
+      "templateHash": "3910051240983673289"
     }
   },
   "parameters": {
@@ -451,7 +451,7 @@
             "value": "[parameters('diagnosticWorkspaceId')]"
           },
           "firewallDNSproxy": {
-            "value": "[and(parameters('firewallDNSproxy'), parameters('deployFirewallInHub'))]"
+            "value": "[and(and(parameters('firewallDNSproxy'), parameters('deployFirewallInHub')), equals(parameters('hubType'), 'VNET'))]"
           }
         },
         "template": {
@@ -2229,7 +2229,7 @@
             "value": "[parameters('AzureFirewallTier')]"
           },
           "firewallDNSproxy": {
-            "value": "[parameters('firewallDNSproxy')]"
+            "value": "[and(parameters('firewallDNSproxy'), equals(parameters('hubType'), 'VWAN'))]"
           },
           "deployFirewallrules": {
             "value": "[and(parameters('deployFirewallrules'), equals(parameters('hubType'), 'VWAN'))]"
@@ -2983,9 +2983,7 @@
           "firewallDNSproxy": {
             "value": "[and(parameters('firewallDNSproxy'), parameters('deployFirewallInHub'))]"
           },
-          "dcrID": {
-            "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.dcrvminsightsID.value]"
-          }
+          "dcrID": "[if(equals(parameters('hubType'), 'VNET'), createObject('value', reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.dcrvminsightsID.value), createObject('value', ''))]"
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
@@ -4582,9 +4580,7 @@
           "diagnosticWorkspaceId": {
             "value": "[parameters('diagnosticWorkspaceId')]"
           },
-          "dcrID": {
-            "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.dcrvminsightsID.value]"
-          }
+          "dcrID": "[if(equals(parameters('hubType'), 'VNET'), createObject('value', reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.dcrvminsightsID.value), createObject('value', ''))]"
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
