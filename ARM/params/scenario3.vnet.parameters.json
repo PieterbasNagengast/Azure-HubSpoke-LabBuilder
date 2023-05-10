@@ -14,8 +14,8 @@
         "tagsByResource": {
             "value": {
                 "Microsoft.Resources/subscriptions/resourceGroups": {
-                    "LabBuilder": "Validation",
-                    "LabBuilderType": "VNET"
+                    "LabBuilder": "validation",
+                    "LabBuilderType": "vnet"
                 }
             }
         },
