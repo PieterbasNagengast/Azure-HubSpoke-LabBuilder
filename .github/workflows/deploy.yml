@@ -100,7 +100,14 @@ jobs:
             hubRgName="LabBuilderValidation-${{ inputs.LabBuilderType }}-hub"
             onpremRgName="LabBuilderValidation-${{ inputs.LabBuilderType }}-onprem"
           deploymentName: "LabBuilderValidation-${{ inputs.LabBuilderType }}"
-
+      
+  Cleanup:
+    if: ${{ inputs.LabBuilderCleanup }}
+    uses: ./.github/workflows/cleanup.yml
+    with:
+        LabBuilderType: ${{ inputs.LabBuilderType }}
+    secrets:
+        inherit
 
 
         
