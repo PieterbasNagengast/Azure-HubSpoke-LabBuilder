@@ -68,7 +68,14 @@ jobs:
           subscriptionId: ${{ secrets.HUB_SUBSCRIPTION_ID }}
           region: westus3
           template: main.bicep
-          parameters: "ARM/params/${{ matrix.scenarios }} adminUsername=${{ secrets.ADMINUSERNAME }} adminPassword=${{ secrets.ADMINPASSWORD }} sharedKey=${{ secrets.SHAREDKEY }} hubSubscriptionID=${{ secrets.HUB_SUBSCRIPTION_ID }} spokeSubscriptionID=${{ secrets.SPOKE_SUBSCRIPTION_ID }} onPremSubscriptionID=${{ secrets.ONPREM_SUBSCRIPTION_ID }}"
+          parameters: 
+            ARM/params/${{ matrix.scenarios }}
+            adminUsername=${{ secrets.ADMINUSERNAME }}
+            adminPassword=${{ secrets.ADMINPASSWORD }}
+            sharedKey=${{ secrets.SHAREDKEY }}
+            hubSubscriptionID=${{ secrets.HUB_SUBSCRIPTION_ID }}
+            spokeSubscriptionID=${{ secrets.SPOKE_SUBSCRIPTION_ID }}
+            onPremSubscriptionID=${{ secrets.ONPREM_SUBSCRIPTION_ID }}
           deploymentMode: "validate"
           deploymentName: "LabBuilderValidation-${{ inputs.LabBuilderType }}"
       - name: "Deploy scenario ${{ inputs.LabBuilderType }}"
@@ -78,7 +85,14 @@ jobs:
           subscriptionId: ${{ secrets.HUB_SUBSCRIPTION_ID }}
           region: westus3
           template: main.bicep
-          parameters: "ARM/params/${{ matrix.scenarios }} adminUsername=${{ secrets.ADMINUSERNAME }} adminPassword=${{ secrets.ADMINPASSWORD }} sharedKey=${{ secrets.SHAREDKEY }} hubSubscriptionID=${{ secrets.HUB_SUBSCRIPTION_ID }} spokeSubscriptionID=${{ secrets.SPOKE_SUBSCRIPTION_ID }} onPremSubscriptionID=${{ secrets.ONPREM_SUBSCRIPTION_ID }}"
+          parameters: 
+            ARM/params/${{ matrix.scenarios }}
+            adminUsername=${{ secrets.ADMINUSERNAME }}
+            adminPassword=${{ secrets.ADMINPASSWORD }}
+            sharedKey=${{ secrets.SHAREDKEY }}
+            hubSubscriptionID=${{ secrets.HUB_SUBSCRIPTION_ID }}
+            spokeSubscriptionID=${{ secrets.SPOKE_SUBSCRIPTION_ID }}
+            onPremSubscriptionID=${{ secrets.ONPREM_SUBSCRIPTION_ID }}
           deploymentName: "LabBuilderValidation-${{ inputs.LabBuilderType }}"
 
 
