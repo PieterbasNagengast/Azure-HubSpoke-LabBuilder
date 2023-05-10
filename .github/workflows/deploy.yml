@@ -1,4 +1,4 @@
-name: "VNET - Lint, Validation and Deploy Scenarios"
+name: "LabBuilder - Deploy Scenarios"
 
 on:
   push:
@@ -6,43 +6,52 @@ on:
   pull_request:
     branches: none
   workflow_dispatch:
+    inputs:
+      LabBuilderType:
+        type: choice
+        options:
+          - VNET
+          - VWAN
+        required: true
+        default: VNET
+      LabBuilderCleanup:
+        type: choice
+        options:
+          - yes
+          - no
+        required: true
+        default: yes
 
 jobs:
-  lint:
-    name: "Bicep Build (Lint)"
+  BicepBuildandLint:
+    name: "Bicep Build and Lint"
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3.5.2
+        uses: actions/checkout@v3
 
-      - name: Bicep Build
+      - name: Bicep Build and Lint
         run: |
           az bicep install
           az bicep version
           az bicep build --file main.bicep
 
-  VNETdeployments:
-    name: "VNET Scenarios"
+  DeployScenarios:
+    name: "Deploy Scenarios"
     runs-on: ubuntu-latest
-    needs: lint
+    needs: BicepBuildandLint
     strategy:
       max-parallel: 1
       matrix:
         scenarios:
           [
-            scenario1.vnet.parameters.json,
-            scenario2.vnet.parameters.json,
-            scenario3.vnet.parameters.json,
-            scenario4.vnet.parameters.json,
-            scenario5.vnet.parameters.json,
-            scenario6.vnet.parameters.json,
-            scenario7.vnet.parameters.json
+            "scenario1.${{ inputs.LabBuilderType }}.parameters.json"
           ]
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3.5.2
+        uses: actions/checkout@v3
       - name: Azure Login
         uses: azure/login@v1
         with:
@@ -56,7 +65,7 @@ jobs:
           template: main.bicep
           parameters: "ARM/params/${{ matrix.scenarios }} adminUsername=${{ secrets.ADMINUSERNAME }} adminPassword=${{ secrets.ADMINPASSWORD }} sharedKey=${{ secrets.SHAREDKEY }} hubSubscriptionID=${{ secrets.HUB_SUBSCRIPTION_ID }} spokeSubscriptionID=${{ secrets.SPOKE_SUBSCRIPTION_ID }} onPremSubscriptionID=${{ secrets.ONPREM_SUBSCRIPTION_ID }}"
           deploymentMode: "validate"
-          deploymentName: "LabBuilderValidation-VNET"
+          deploymentName: "LabBuilderValidation-${{ inputs.LabBuilderType }}"
       - name: "Deployment"
         uses: Azure/arm-deploy@v1
         with:
@@ -65,4 +74,8 @@ jobs:
           region: westus3
           template: main.bicep
           parameters: "ARM/params/${{ matrix.scenarios }} adminUsername=${{ secrets.ADMINUSERNAME }} adminPassword=${{ secrets.ADMINPASSWORD }} sharedKey=${{ secrets.SHAREDKEY }} hubSubscriptionID=${{ secrets.HUB_SUBSCRIPTION_ID }} spokeSubscriptionID=${{ secrets.SPOKE_SUBSCRIPTION_ID }} onPremSubscriptionID=${{ secrets.ONPREM_SUBSCRIPTION_ID }}"
-          deploymentName: "LabBuilderValidation-VNET"
+          deploymentName: "LabBuilderValidation-${{ inputs.LabBuilderType }}"
+
+
+
+        
