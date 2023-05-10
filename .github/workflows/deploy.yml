@@ -18,6 +18,14 @@ on:
         type: boolean
         required: true
         default: true
+  workflow_call:
+    inputs:
+      LabBuilderType:
+        type: string
+        required: true
+      LabBuilderCleanup:
+        type: boolean
+        required: true
 
 jobs:
   BicepBuildandLint:
