@@ -103,6 +103,7 @@ jobs:
       
   Cleanup:
     if: ${{ inputs.LabBuilderCleanup }}
+    needs: DeployScenarios
     uses: ./.github/workflows/cleanup.yml
     with:
         LabBuilderType: ${{ inputs.LabBuilderType }}
