@@ -76,6 +76,9 @@ jobs:
             hubSubscriptionID=${{ secrets.HUB_SUBSCRIPTION_ID }}
             spokeSubscriptionID=${{ secrets.SPOKE_SUBSCRIPTION_ID }}
             onPremSubscriptionID=${{ secrets.ONPREM_SUBSCRIPTION_ID }}
+            spokeRgNamePrefix="LabBuilderValidation-${{ inputs.LabBuilderType }}-spoke"
+            hubRgName="LabBuilderValidation-${{ inputs.LabBuilderType }}-hub"
+            onpremRgName="LabBuilderValidation-${{ inputs.LabBuilderType }}-onprem"
           deploymentMode: "validate"
           deploymentName: "LabBuilderValidation-${{ inputs.LabBuilderType }}"
       - name: "Deploy scenario ${{ inputs.LabBuilderType }}"
@@ -93,6 +96,9 @@ jobs:
             hubSubscriptionID=${{ secrets.HUB_SUBSCRIPTION_ID }}
             spokeSubscriptionID=${{ secrets.SPOKE_SUBSCRIPTION_ID }}
             onPremSubscriptionID=${{ secrets.ONPREM_SUBSCRIPTION_ID }}
+            spokeRgNamePrefix="LabBuilderValidation-${{ inputs.LabBuilderType }}-spoke"
+            hubRgName="LabBuilderValidation-${{ inputs.LabBuilderType }}-hub"
+            onpremRgName="LabBuilderValidation-${{ inputs.LabBuilderType }}-onprem"
           deploymentName: "LabBuilderValidation-${{ inputs.LabBuilderType }}"
 
 
