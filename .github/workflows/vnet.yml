@@ -13,3 +13,5 @@ jobs:
         with:
             LabBuilderType: VNET
             LabBuilderCleanup: true
+        secrets:
+            inherit
