@@ -1,4 +1,4 @@
-name: "LabBuilder - Deploy VNET Scenarios"
+name: "LabBuilder - Deploy VWAN Scenarios"
 
 on:
   push:
@@ -11,7 +11,7 @@ jobs:
     call_deploy_workflow:
         uses: ./.github/workflows/deploy.yml
         with:
-            LabBuilderType: vnet
+            LabBuilderType: vwan
             LabBuilderCleanup: true
         secrets:
             inherit
