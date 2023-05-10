@@ -10,17 +10,14 @@ on:
       LabBuilderType:
         type: choice
         options:
-          - VNET
-          - VWAN
+          - vnet
+          - vwan
         required: true
-        default: VNET
+        default: vwan
       LabBuilderCleanup:
-        type: choice
-        options:
-          - yes
-          - no
+        type: boolean
         required: true
-        default: yes
+        default: true
 
 jobs:
   BicepBuildandLint:
@@ -38,7 +35,7 @@ jobs:
           az bicep build --file main.bicep
 
   DeployScenarios:
-    name: "Deploy Scenarios"
+    name: "Deploy ${{ inputs.LabBuilderType }} scenarios"
     runs-on: ubuntu-latest
     needs: BicepBuildandLint
     strategy:
@@ -56,7 +53,7 @@ jobs:
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-      - name: "Validation"
+      - name: "Validating scenario ${{ inputs.LabBuilderType }}"
         uses: Azure/arm-deploy@v1
         with:
           scope: "subscription"
@@ -66,7 +63,7 @@ jobs:
           parameters: "ARM/params/${{ matrix.scenarios }} adminUsername=${{ secrets.ADMINUSERNAME }} adminPassword=${{ secrets.ADMINPASSWORD }} sharedKey=${{ secrets.SHAREDKEY }} hubSubscriptionID=${{ secrets.HUB_SUBSCRIPTION_ID }} spokeSubscriptionID=${{ secrets.SPOKE_SUBSCRIPTION_ID }} onPremSubscriptionID=${{ secrets.ONPREM_SUBSCRIPTION_ID }}"
           deploymentMode: "validate"
           deploymentName: "LabBuilderValidation-${{ inputs.LabBuilderType }}"
-      - name: "Deployment"
+      - name: "Deploy scenario ${{ inputs.LabBuilderType }}"
         uses: Azure/arm-deploy@v1
         with:
           scope: "subscription"
