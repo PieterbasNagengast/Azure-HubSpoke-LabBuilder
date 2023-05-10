@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 jobs:
-    call_deploy_workflow:
+    Deploy:
         uses: ./.github/workflows/deploy.yml
         with:
             LabBuilderType: vwan
