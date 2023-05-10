@@ -6,12 +6,17 @@ on:
   pull_request:
     branches: none
   workflow_dispatch:
+    inputs:
+      LabBuilderCleanup:
+        type: boolean
+        required: true
+        default: true
 
 jobs:
     Deploy:
         uses: ./.github/workflows/deploy.yml
         with:
             LabBuilderType: vnet
-            LabBuilderCleanup: true
+            LabBuilderCleanup: ${{ inputs.LabBuilderCleanup }}
         secrets:
             inherit
