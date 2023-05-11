@@ -23,6 +23,12 @@ resource vWanHub 'Microsoft.Network/virtualHubs@2022-11-01' = {
   name: 'HUB-${location}'
   location: location
   properties: {
+    allowBranchToBranchTraffic: true
+    hubRoutingPreference: 'ExpressRoute'
+    virtualRouterAsn: 65515
+    virtualRouterAutoScaleConfiguration: {
+      minCapacity: 2
+    }
     addressPrefix: AddressPrefix
     virtualWan: {
       id: vWan.id
