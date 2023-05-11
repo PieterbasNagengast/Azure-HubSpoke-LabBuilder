@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.17.1.54307",
-      "templateHash": "5347526336504577166"
+      "templateHash": "12809992228514031436"
     }
   },
   "parameters": {
@@ -2254,7 +2254,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.17.1.54307",
-              "templateHash": "11892774168495447401"
+              "templateHash": "15608062527899069282"
             }
           },
           "parameters": {
@@ -2335,7 +2335,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.17.1.54307",
-                      "templateHash": "7472770457971224740"
+                      "templateHash": "11599696933852029680"
                     }
                   },
                   "parameters": {
@@ -2364,7 +2364,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.Network/virtualWans",
-                      "apiVersion": "2021-05-01",
+                      "apiVersion": "2022-11-01",
                       "name": "[parameters('vWanName')]",
                       "location": "[parameters('location')]",
                       "properties": {
@@ -2376,7 +2376,7 @@
                     },
                     {
                       "type": "Microsoft.Network/virtualHubs",
-                      "apiVersion": "2021-05-01",
+                      "apiVersion": "2022-11-01",
                       "name": "[format('HUB-{0}', parameters('location'))]",
                       "location": "[parameters('location')]",
                       "properties": {
@@ -2401,7 +2401,7 @@
                     },
                     "vWanHubAddressSpace": {
                       "type": "string",
-                      "value": "[reference(resourceId('Microsoft.Network/virtualHubs', format('HUB-{0}', parameters('location'))), '2021-05-01').addressPrefix]"
+                      "value": "[reference(resourceId('Microsoft.Network/virtualHubs', format('HUB-{0}', parameters('location'))), '2022-11-01').addressPrefix]"
                     },
                     "vWanHubName": {
                       "type": "string",
@@ -2729,7 +2729,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.17.1.54307",
-                      "templateHash": "4731255338570983307"
+                      "templateHash": "6405131548790598185"
                     }
                   },
                   "parameters": {
@@ -2743,7 +2743,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.Network/virtualHubs/hubRouteTables",
-                      "apiVersion": "2020-05-01",
+                      "apiVersion": "2022-11-01",
                       "name": "[format('{0}/defaultRouteTable', parameters('vwanHubName'))]",
                       "properties": {
                         "routes": [
@@ -2803,7 +2803,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.17.1.54307",
-                      "templateHash": "14420249405996247832"
+                      "templateHash": "16484140856711554035"
                     }
                   },
                   "parameters": {
@@ -2826,7 +2826,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.Network/vpnGateways",
-                      "apiVersion": "2021-05-01",
+                      "apiVersion": "2022-11-01",
                       "name": "[parameters('vpnGwName')]",
                       "location": "[parameters('location')]",
                       "properties": {
@@ -2847,15 +2847,15 @@
                     },
                     "vpnGwPip": {
                       "type": "array",
-                      "value": "[reference(resourceId('Microsoft.Network/vpnGateways', parameters('vpnGwName')), '2021-05-01').ipConfigurations]"
+                      "value": "[reference(resourceId('Microsoft.Network/vpnGateways', parameters('vpnGwName')), '2022-11-01').ipConfigurations]"
                     },
                     "vpnGwBgpIp": {
                       "type": "array",
-                      "value": "[reference(resourceId('Microsoft.Network/vpnGateways', parameters('vpnGwName')), '2021-05-01').bgpSettings.bgpPeeringAddresses]"
+                      "value": "[reference(resourceId('Microsoft.Network/vpnGateways', parameters('vpnGwName')), '2022-11-01').bgpSettings.bgpPeeringAddresses]"
                     },
                     "vpnGwBgpAsn": {
                       "type": "int",
-                      "value": "[reference(resourceId('Microsoft.Network/vpnGateways', parameters('vpnGwName')), '2021-05-01').bgpSettings.asn]"
+                      "value": "[reference(resourceId('Microsoft.Network/vpnGateways', parameters('vpnGwName')), '2022-11-01').bgpSettings.asn]"
                     },
                     "vpnGwName": {
                       "type": "string",
@@ -6099,7 +6099,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.17.1.54307",
-              "templateHash": "15318826459092848286"
+              "templateHash": "6509005510796214591"
             }
           },
           "parameters": {
@@ -6210,7 +6210,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.17.1.54307",
-                      "templateHash": "14171038927942713640"
+                      "templateHash": "13388199026219272007"
                     }
                   },
                   "parameters": {
@@ -6252,7 +6252,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.Network/vpnSites",
-                      "apiVersion": "2021-05-01",
+                      "apiVersion": "2022-11-01",
                       "name": "[parameters('vpnSiteName')]",
                       "location": "[parameters('location')]",
                       "properties": {
@@ -6286,7 +6286,7 @@
                     },
                     {
                       "type": "Microsoft.Network/vpnGateways/vpnConnections",
-                      "apiVersion": "2021-05-01",
+                      "apiVersion": "2022-11-01",
                       "name": "[format('{0}/Connection-{1}', parameters('vwanGatewayName'), parameters('vpnSiteName'))]",
                       "properties": {
                         "remoteVpnSite": {
@@ -6315,7 +6315,7 @@
                             "name": "[format('{0}-Link', parameters('vpnSiteName'))]",
                             "properties": {
                               "vpnSiteLink": {
-                                "id": "[reference(resourceId('Microsoft.Network/vpnSites', parameters('vpnSiteName')), '2021-05-01').vpnSiteLinks[0].id]"
+                                "id": "[reference(resourceId('Microsoft.Network/vpnSites', parameters('vpnSiteName')), '2022-11-01').vpnSiteLinks[0].id]"
                               },
                               "enableBgp": true,
                               "vpnConnectionProtocolType": "IKEv2",

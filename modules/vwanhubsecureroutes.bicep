@@ -1,7 +1,7 @@
 param vwanHubName string
 param AzFirewallID string
 
-resource vWanSecureRoutes 'Microsoft.Network/virtualHubs/hubRouteTables@2020-05-01' = {
+resource vWanSecureRoutes 'Microsoft.Network/virtualHubs/hubRouteTables@2022-11-01' = {
   name: '${vwanHubName}/defaultRouteTable'
   properties: {
     routes: [

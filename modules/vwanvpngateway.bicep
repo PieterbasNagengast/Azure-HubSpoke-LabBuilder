@@ -5,17 +5,17 @@ param vpnGwName string
 @maxValue(25)
 param vpnGwScaleUnits int = 1
 
-resource vpngw 'Microsoft.Network/vpnGateways@2021-05-01' = {
+resource vpngw 'Microsoft.Network/vpnGateways@2022-11-01' = {
   name: vpnGwName
   location: location
   properties: {
-   bgpSettings: {
-     asn: 65515
-   }
-   vpnGatewayScaleUnit: vpnGwScaleUnits
-   virtualHub: {
-    id: vWanHubID
-   }
+    bgpSettings: {
+      asn: 65515
+    }
+    vpnGatewayScaleUnit: vpnGwScaleUnits
+    virtualHub: {
+      id: vWanHubID
+    }
   }
 }
 
