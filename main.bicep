@@ -226,6 +226,7 @@ module vwan 'vWanResourceGroup.bicep' = if (deployHUB && hubType == 'VWAN') {
     hubRgName: hubRgName
     deployGatewayInHub: deployGatewayInHub && hubType == 'VWAN'
     tagsByResource: tagsByResource
+    diagnosticWorkspaceId: diagnosticWorkspaceId
   }
 }
 
@@ -253,7 +254,7 @@ module spokeVnets 'SpokeResourceGroup.bicep' = [for i in range(1, amountOfSpokes
     bastionSku: bastionInSpokeSKU
     diagnosticWorkspaceId: diagnosticWorkspaceId
     firewallDNSproxy: firewallDNSproxy && deployFirewallInHub
-    dcrID: hubType == 'VNET' ? hubVnet.outputs.dcrvminsightsID : ''
+    dcrID: hubType == 'VNET' ? hubVnet.outputs.dcrvminsightsID : hubType == 'VWAN' ? vwan.outputs.dcrvminsightsID : ''
   }
 }]
 
@@ -326,7 +327,7 @@ module onprem 'OnPremResourceGroup.bicep' = if (deployOnPrem) {
     vpnGwEnebaleBgp: onpremBgp
     bastionSku: bastionInOnPremSKU
     diagnosticWorkspaceId: diagnosticWorkspaceId
-    dcrID: hubType == 'VNET' ? hubVnet.outputs.dcrvminsightsID : ''
+    dcrID: hubType == 'VNET' ? hubVnet.outputs.dcrvminsightsID : hubType == 'VWAN' ? vwan.outputs.dcrvminsightsID : ''
   }
 }
 

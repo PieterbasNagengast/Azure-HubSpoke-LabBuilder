@@ -102,7 +102,7 @@ jobs:
           deploymentName: "LabBuilderValidation-${{ inputs.LabBuilderType }}"
       
   Cleanup:
-    if: ${{ inputs.LabBuilderCleanup }}
+    if: inputs.LabBuilderCleanup
     needs: DeployScenarios
     uses: ./.github/workflows/cleanup.yml
     with:

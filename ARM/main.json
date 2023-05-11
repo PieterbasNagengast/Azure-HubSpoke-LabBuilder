@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.17.1.54307",
-      "templateHash": "3910051240983673289"
+      "templateHash": "5347526336504577166"
     }
   },
   "parameters": {
@@ -2242,6 +2242,9 @@
           },
           "tagsByResource": {
             "value": "[parameters('tagsByResource')]"
+          },
+          "diagnosticWorkspaceId": {
+            "value": "[parameters('diagnosticWorkspaceId')]"
           }
         },
         "template": {
@@ -2251,7 +2254,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.17.1.54307",
-              "templateHash": "16009316824436382029"
+              "templateHash": "11892774168495447401"
             }
           },
           "parameters": {
@@ -2282,6 +2285,9 @@
             },
             "firewallDNSproxy": {
               "type": "bool"
+            },
+            "diagnosticWorkspaceId": {
+              "type": "string"
             }
           },
           "variables": {
@@ -2862,6 +2868,124 @@
                 "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('hubRgName'))]",
                 "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('vWanName'))]"
               ]
+            },
+            {
+              "condition": "[not(empty(parameters('diagnosticWorkspaceId')))]",
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2022-09-01",
+              "name": "dcr-vminsights",
+              "resourceGroup": "[parameters('hubRgName')]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "diagnosticWorkspaceId": {
+                    "value": "[parameters('diagnosticWorkspaceId')]"
+                  },
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
+                  "tagsByResource": {
+                    "value": "[parameters('tagsByResource')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.17.1.54307",
+                      "templateHash": "17095334183460695236"
+                    }
+                  },
+                  "parameters": {
+                    "location": {
+                      "type": "string"
+                    },
+                    "diagnosticWorkspaceId": {
+                      "type": "string"
+                    },
+                    "tagsByResource": {
+                      "type": "object",
+                      "defaultValue": {}
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Insights/dataCollectionRules",
+                      "apiVersion": "2021-04-01",
+                      "name": "MSVMI-LabBuilder",
+                      "location": "[parameters('location')]",
+                      "properties": {
+                        "description": "Data collection rule for VM Insights.",
+                        "dataSources": {
+                          "performanceCounters": [
+                            {
+                              "name": "VMInsightsPerfCounters",
+                              "streams": [
+                                "Microsoft-InsightsMetrics"
+                              ],
+                              "samplingFrequencyInSeconds": 60,
+                              "counterSpecifiers": [
+                                "\\VmInsights\\DetailedMetrics"
+                              ]
+                            }
+                          ],
+                          "extensions": [
+                            {
+                              "streams": [
+                                "Microsoft-ServiceMap"
+                              ],
+                              "extensionName": "DependencyAgent",
+                              "extensionSettings": {},
+                              "name": "DependencyAgentDataSource"
+                            }
+                          ]
+                        },
+                        "destinations": {
+                          "logAnalytics": [
+                            {
+                              "name": "VMInsightsPerf-Logs-Dest",
+                              "workspaceResourceId": "[parameters('diagnosticWorkspaceId')]"
+                            }
+                          ]
+                        },
+                        "dataFlows": [
+                          {
+                            "streams": [
+                              "Microsoft-InsightsMetrics"
+                            ],
+                            "destinations": [
+                              "VMInsightsPerf-Logs-Dest"
+                            ]
+                          },
+                          {
+                            "streams": [
+                              "Microsoft-ServiceMap"
+                            ],
+                            "destinations": [
+                              "VMInsightsPerf-Logs-Dest"
+                            ]
+                          }
+                        ]
+                      },
+                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Insights/dataCollectionRules'), parameters('tagsByResource')['Microsoft.Insights/dataCollectionRules'], createObject())]"
+                    }
+                  ],
+                  "outputs": {
+                    "dcrID": {
+                      "type": "string",
+                      "value": "[resourceId('Microsoft.Insights/dataCollectionRules', 'MSVMI-LabBuilder')]"
+                    }
+                  }
+                }
+              },
+              "dependsOn": [
+                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('hubRgName'))]"
+              ]
             }
           ],
           "outputs": {
@@ -2908,6 +3032,10 @@
             "vpnGwName": {
               "type": "string",
               "value": "[if(parameters('deployGatewayInHub'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('gatewayName')), '2022-09-01').outputs.vpnGwName.value, 'none')]"
+            },
+            "dcrvminsightsID": {
+              "type": "string",
+              "value": "[if(not(empty(parameters('diagnosticWorkspaceId'))), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'dcr-vminsights'), '2022-09-01').outputs.dcrID.value, '')]"
             }
           }
         }
@@ -2983,7 +3111,7 @@
           "firewallDNSproxy": {
             "value": "[and(parameters('firewallDNSproxy'), parameters('deployFirewallInHub'))]"
           },
-          "dcrID": "[if(equals(parameters('hubType'), 'VNET'), createObject('value', reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.dcrvminsightsID.value), createObject('value', ''))]"
+          "dcrID": "[if(equals(parameters('hubType'), 'VNET'), createObject('value', reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.dcrvminsightsID.value), if(equals(parameters('hubType'), 'VWAN'), createObject('value', reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VWAN', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.dcrvminsightsID.value), createObject('value', '')))]"
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
@@ -3972,7 +4100,8 @@
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location')))]"
+        "[subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location')))]",
+        "[subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VWAN', parameters('hubRgName'), parameters('location')))]"
       ]
     },
     {
@@ -4580,7 +4709,7 @@
           "diagnosticWorkspaceId": {
             "value": "[parameters('diagnosticWorkspaceId')]"
           },
-          "dcrID": "[if(equals(parameters('hubType'), 'VNET'), createObject('value', reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.dcrvminsightsID.value), createObject('value', ''))]"
+          "dcrID": "[if(equals(parameters('hubType'), 'VNET'), createObject('value', reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.dcrvminsightsID.value), if(equals(parameters('hubType'), 'VWAN'), createObject('value', reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VWAN', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.dcrvminsightsID.value), createObject('value', '')))]"
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
@@ -5517,7 +5646,8 @@
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location')))]"
+        "[subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location')))]",
+        "[subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VWAN', parameters('hubRgName'), parameters('location')))]"
       ]
     },
     {
