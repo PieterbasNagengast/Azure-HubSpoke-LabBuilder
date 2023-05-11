@@ -8,7 +8,6 @@ param propagateToNoneRouteTable bool = false
 resource vWanVnetConnection 'Microsoft.Network/virtualHubs/hubVirtualNetworkConnections@2022-11-01' = {
   name: '${vwanHubName}/${vwanHubName}-to-${spokeName}'
   properties: {
-    allowRemoteVnetToUseHubVnetGateways: true
     routingConfiguration: {
       associatedRouteTable: {
         id: resourceId('Microsoft.Network/virtualHubs/hubRouteTables', vwanHubName, 'defaultRouteTable')
