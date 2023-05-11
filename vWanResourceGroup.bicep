@@ -9,6 +9,7 @@ param deployFirewallrules bool
 param deployGatewayInHub bool
 param tagsByResource object = {}
 param firewallDNSproxy bool
+param diagnosticWorkspaceId string
 
 var vnetAddressSpace = replace(AddressSpace, '/16', '/24')
 
@@ -79,6 +80,16 @@ module vpngateway 'modules/vwanvpngateway.bicep' = if (deployGatewayInHub) {
   }
 }
 
+module dcrvminsights 'modules/dcrvminsights.bicep' = if (!empty(diagnosticWorkspaceId)) {
+  scope: hubrg
+  name: 'dcr-vminsights'
+  params: {
+    diagnosticWorkspaceId: diagnosticWorkspaceId
+    location: location
+    tagsByResource: tagsByResource
+  }
+}
+
 output vwanHubName string = vwan.outputs.vWanHubName
 output vWanHubID string = vwan.outputs.vWanHubID
 output vWanID string = vwan.outputs.vWanID
@@ -90,3 +101,4 @@ output vWanFwPublicIP array = deployFirewallInHub ? AzFirewall.outputs.azFwIPvWa
 output vpnGwBgpIp array = deployGatewayInHub ? vpngateway.outputs.vpnGwBgpIp : []
 output vpnGwBgpAsn int = deployGatewayInHub ? vpngateway.outputs.vpnGwBgpAsn : 0
 output vpnGwName string = deployGatewayInHub ? vpngateway.outputs.vpnGwName : 'none'
+output dcrvminsightsID string = !empty(diagnosticWorkspaceId) ? dcrvminsights.outputs.dcrID : ''
