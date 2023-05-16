@@ -64,7 +64,7 @@ jobs:
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-      - name: "Validating scenario ${{ inputs.LabBuilderType }}"
+      - name: "Validating ${{ inputs.LabBuilderType }} scenario ${{ strategy.job-index }}"
         uses: Azure/arm-deploy@v1
         with:
           scope: "subscription"
@@ -84,7 +84,7 @@ jobs:
             onpremRgName="LabBuilderValidation-${{ inputs.LabBuilderType }}-onprem"
           deploymentMode: "validate"
           deploymentName: "LabBuilderValidation-${{ inputs.LabBuilderType }}"
-      - name: "Deploy scenario ${{ inputs.LabBuilderType }}"
+      - name: "Deploy ${{ inputs.LabBuilderType }} scenario ${{ strategy.job-index }}"
         uses: Azure/arm-deploy@v1
         with:
           scope: "subscription"
@@ -103,6 +103,20 @@ jobs:
             hubRgName="LabBuilderValidation-${{ inputs.LabBuilderType }}-hub"
             onpremRgName="LabBuilderValidation-${{ inputs.LabBuilderType }}-onprem"
           deploymentName: "LabBuilderValidation-${{ inputs.LabBuilderType }}"
+      - name: "Waiting for vWAN to finish deploying"
+        if: inputs.LabBuilderType == 'vwan'
+        run: |
+          while true
+          do
+            sleep 10
+            status=$(az network vwan show -g LabBuilderValidation-${{ inputs.LabBuilderType }}-hub -n vWAN --query provisioningState -o tsv)
+            echo "vWAN status: $status"
+            if [ "$status" != "Updating" ]; then
+              echo "vWAN status: $status"
+              break
+            fi
+          done
+
       
   Cleanup:
     if: inputs.LabBuilderCleanup
