@@ -106,10 +106,11 @@ jobs:
       - name: "Waiting for vWAN to finish deploying"
         if: inputs.LabBuilderType == 'vwan'
         run: |
+          az config set extension.use_dynamic_install=yes_without_prompt
           while true
           do
             sleep 10
-            status=$(az network vwan show -g LabBuilderValidation-${{ inputs.LabBuilderType }}-hub -n vWAN --query provisioningState -o tsv)
+            status=$(az network vhub show -g LabBuilderValidation-${{ inputs.LabBuilderType }}-hub -n HUB-westus3 --query provisioningState -o tsv)
             echo "vWAN status: $status"
             if [ "$status" != "Updating" ]; then
               echo "vWAN status: $status"
