@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.17.1.54307",
-      "templateHash": "4213419822447632592"
+      "templateHash": "4738180333300446887"
     }
   },
   "parameters": {
@@ -4554,7 +4554,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.17.1.54307",
-              "templateHash": "16879175118123664009"
+              "templateHash": "8244252739854228261"
             }
           },
           "parameters": {
@@ -4603,7 +4603,7 @@
                     "value": "[variables('spokeName')]"
                   },
                   "enableInternetSecurity": {
-                    "value": true
+                    "value": "[parameters('deployFirewallInHub')]"
                   },
                   "propagateToNoneRouteTable": {
                     "value": "[parameters('deployFirewallInHub')]"
@@ -4616,18 +4616,21 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.17.1.54307",
-                      "templateHash": "10316317566471553313"
+                      "templateHash": "12284907474149325252"
                     }
                   },
                   "parameters": {
                     "vwanHubName": {
-                      "type": "string"
+                      "type": "string",
+                      "defaultValue": "HUB-westus3"
                     },
                     "spokeName": {
-                      "type": "string"
+                      "type": "string",
+                      "defaultValue": "VNET-Spoke2"
                     },
                     "SpokeVnetID": {
-                      "type": "string"
+                      "type": "string",
+                      "defaultValue": "/subscriptions/c99da9d5-3d84-4f22-a9ef-9f38db966440/resourceGroups/LabBuilderValidation-vwan-spoke2/providers/Microsoft.Network/virtualNetworks/VNET-Spoke2"
                     },
                     "enableInternetSecurity": {
                       "type": "bool",

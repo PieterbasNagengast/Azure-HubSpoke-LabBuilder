@@ -6,7 +6,7 @@ param counter int
 param deployFirewallInHub bool
 param hubSubscriptionID string
 
-var spokeName = split(SpokeVnetID,'/')[8]
+var spokeName = split(SpokeVnetID, '/')[8]
 
 resource hubrg 'Microsoft.Resources/resourceGroups@2021-04-01' existing = {
   scope: subscription(hubSubscriptionID)
@@ -15,12 +15,12 @@ resource hubrg 'Microsoft.Resources/resourceGroups@2021-04-01' existing = {
 
 module vWanVnetConnection 'modules/vwanvnetconnection.bicep' = {
   scope: hubrg
-  name: 'VnetConnection${counter+1}'
+  name: 'VnetConnection${counter + 1}'
   params: {
     SpokeVnetID: SpokeVnetID
     vwanHubName: vwanHubName
     spokeName: spokeName
-    enableInternetSecurity: true
+    enableInternetSecurity: deployFirewallInHub
     propagateToNoneRouteTable: deployFirewallInHub
   }
 }
