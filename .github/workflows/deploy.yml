@@ -39,7 +39,6 @@ jobs:
       - name: Bicep Build and Lint
         run: |
           az bicep install
-          az config set extension.use_dynamic_install=yes_without_prompt
           az bicep version
           az bicep build --file main.bicep
 
@@ -108,6 +107,7 @@ jobs:
       - name: "Waiting for vWAN routing to finish deploying"
         if: inputs.LabBuilderType == 'vwan'
         run: |
+          az config set extension.use_dynamic_install=yes_without_prompt
           while true
           do
             sleep 10
