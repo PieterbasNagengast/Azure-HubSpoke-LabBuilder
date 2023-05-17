@@ -1,7 +1,18 @@
 param vwanHubName string
 param AzFirewallID string
+param deployFirewallInHub bool
 
-resource vWanSecureRoutes 'Microsoft.Network/virtualHubs/hubRouteTables@2022-11-01' = {
+resource vWanRoutes 'Microsoft.Network/virtualHubs/hubRouteTables@2022-11-01' = if (!deployFirewallInHub) {
+  name: '${vwanHubName}/defaultRouteTable'
+  properties: {
+    routes: []
+    labels: [
+      'default'
+    ]
+  }
+}
+
+resource vWanSecureRoutes 'Microsoft.Network/virtualHubs/hubRouteTables@2022-11-01' = if (deployFirewallInHub) {
   name: '${vwanHubName}/defaultRouteTable'
   properties: {
     routes: [
