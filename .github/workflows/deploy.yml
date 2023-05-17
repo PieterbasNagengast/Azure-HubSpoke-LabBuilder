@@ -39,6 +39,7 @@ jobs:
       - name: Bicep Build and Lint
         run: |
           az bicep install
+          az config set extension.use_dynamic_install=yes_without_prompt
           az bicep version
           az bicep build --file main.bicep
 
@@ -104,10 +105,9 @@ jobs:
             hubRgName="LabBuilderValidation-${{ inputs.LabBuilderType }}-hub"
             onpremRgName="LabBuilderValidation-${{ inputs.LabBuilderType }}-onprem"
           deploymentName: "LabBuilderValidation-${{ inputs.LabBuilderType }}"
-      - name: "Waiting for vWAN to finish deploying"
+      - name: "Waiting for vWAN routing to finish deploying"
         if: inputs.LabBuilderType == 'vwan'
         run: |
-          az config set extension.use_dynamic_install=yes_without_prompt
           while true
           do
             sleep 10
@@ -115,6 +115,19 @@ jobs:
             echo "vWAN Hub Routing status: $status"
             if [ "$status" != "Provisioning" ]; then
               echo "vWAN Hub Routing status: $status"
+              break
+            fi
+          done
+      - name: "Waiting for vWAN to finish deploying"
+        if: inputs.LabBuilderType == 'vwan'
+        run: |
+          while true
+          do
+            sleep 10
+            status=$(az network vhub show -g LabBuilderValidation-${{ inputs.LabBuilderType }}-hub -n HUB-westus3 --query provisioningState -o tsv)
+            echo "vWAN status: $status"
+            if [ "$status" != "Updating" ]; then
+              echo "vWAN status: $status"
               break
             fi
           done
