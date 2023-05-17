@@ -37,8 +37,8 @@ resource vWanVnetConnection 'Microsoft.Network/virtualHubs/hubVirtualNetworkConn
     remoteVirtualNetwork: {
       id: SpokeVnetID
     }
-    allowHubToRemoteVnetTransit: true
-    allowRemoteVnetToUseHubVnetGateways: true
+    allowHubToRemoteVnetTransit: allowHubToRemoteVnetTransit
+    allowRemoteVnetToUseHubVnetGateways: allowRemoteVnetToUseHubVnetGateways
     enableInternetSecurity: enableInternetSecurity
   }
 }
