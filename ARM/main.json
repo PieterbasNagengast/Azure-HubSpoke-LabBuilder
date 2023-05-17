@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.17.1.54307",
-      "templateHash": "13419120160525095488"
+      "templateHash": "9101459951224810368"
     }
   },
   "parameters": {
@@ -4554,7 +4554,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.17.1.54307",
-              "templateHash": "9778357579686725786"
+              "templateHash": "13099808982689211448"
             }
           },
           "parameters": {
@@ -4616,7 +4616,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.17.1.54307",
-                      "templateHash": "686692594467721874"
+                      "templateHash": "12103897310920055344"
                     }
                   },
                   "parameters": {
@@ -4636,6 +4636,18 @@
                     "propagateToNoneRouteTable": {
                       "type": "bool",
                       "defaultValue": false
+                    },
+                    "allowHubToRemoteVnetTransit": {
+                      "type": "bool",
+                      "defaultValue": true
+                    },
+                    "allowRemoteVnetToUseHubVnetGateways": {
+                      "type": "bool",
+                      "defaultValue": true
+                    },
+                    "vnetLocalRouteOverrideCriteria": {
+                      "type": "string",
+                      "defaultValue": "Contains"
                     }
                   },
                   "resources": [
@@ -4657,13 +4669,19 @@
                                 "id": "[resourceId('Microsoft.Network/virtualHubs/hubRouteTables', parameters('vwanHubName'), if(parameters('propagateToNoneRouteTable'), 'noneRouteTable', 'defaultRouteTable'))]"
                               }
                             ]
+                          },
+                          "vnetRoutes": {
+                            "staticRoutes": [],
+                            "staticRoutesConfig": {
+                              "vnetLocalRouteOverrideCriteria": "[parameters('vnetLocalRouteOverrideCriteria')]"
+                            }
                           }
                         },
                         "remoteVirtualNetwork": {
                           "id": "[parameters('SpokeVnetID')]"
                         },
-                        "allowHubToRemoteVnetTransit": true,
-                        "allowRemoteVnetToUseHubVnetGateways": true,
+                        "allowHubToRemoteVnetTransit": "[parameters('allowHubToRemoteVnetTransit')]",
+                        "allowRemoteVnetToUseHubVnetGateways": "[parameters('allowRemoteVnetToUseHubVnetGateways')]",
                         "enableInternetSecurity": "[parameters('enableInternetSecurity')]"
                       }
                     }
