@@ -44,7 +44,7 @@
             "value": "LabBuilderValidation-hub"
         },
         "deployBastionInHub": {
-            "value": false
+            "value": true
         },
         "deployVMinHub": {
             "value": true
@@ -74,7 +74,7 @@
             "value": "LabBuilderValidation-onprem"
         },
         "deployBastionInOnPrem": {
-            "value": false
+            "value": true
         },
         "deployVMinOnPrem": {
             "value": true

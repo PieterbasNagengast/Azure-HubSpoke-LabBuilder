@@ -29,7 +29,7 @@
             "value": 2
         },
         "deployVMsInSpokes": {
-            "value": false
+            "value": true
         },
         "deployBastionInSpoke": {
             "value": false
@@ -77,7 +77,7 @@
             "value": false
         },
         "deployVMinOnPrem": {
-            "value": false
+            "value": true
         },
         "deployGatewayinOnPrem": {
             "value": false

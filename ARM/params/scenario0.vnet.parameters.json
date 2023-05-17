@@ -15,7 +15,7 @@
             "value": {
                 "Microsoft.Resources/subscriptions/resourceGroups": {
                     "LabBuilder": "validation",
-                    "LabBuilderType": "vwan"
+                    "LabBuilderType": "vnet"
                 }
             }
         },
@@ -29,7 +29,7 @@
             "value": 2
         },
         "deployVMsInSpokes": {
-            "value": true
+            "value": false
         },
         "deployBastionInSpoke": {
             "value": false
@@ -38,7 +38,7 @@
             "value": true
         },
         "hubType": {
-            "value": "VWAN"
+            "value": "VNET"
         },
         "hubRgName": {
             "value": "LabBuilderValidation-hub"
@@ -50,19 +50,19 @@
             "value": false
         },
         "deployGatewayInHub": {
-            "value": true
+            "value": false
         },
         "deployFirewallInHub": {
-            "value": true
+            "value": false
         },
         "AzureFirewallTier": {
             "value": "Standard"
         },
         "deployFirewallrules": {
-            "value": true
+            "value": false
         },
         "hubBgp": {
-            "value": true
+            "value": false
         },
         "hubBgpAsn": {
             "value": 65515
@@ -74,28 +74,25 @@
             "value": "LabBuilderValidation-onprem"
         },
         "deployBastionInOnPrem": {
-            "value": true
+            "value": false
         },
         "deployVMinOnPrem": {
-            "value": true
+            "value": false
         },
         "deployGatewayinOnPrem": {
-            "value": true
+            "value": false
         },
         "deploySiteToSite": {
-            "value": true
+            "value": false
         },
         "sharedKey": {
             "value": ""
         },
         "onpremBgp": {
-            "value": true
+            "value": false
         },
         "onpremBgpAsn": {
             "value": 65020
-        },
-        "deployVnetPeeringMesh": {
-            "value": true
         }
     }
 }

@@ -83,7 +83,7 @@
             "value": true
         },
         "deploySiteToSite": {
-            "value": false
+            "value": true
         },
         "sharedKey": {
             "value": ""
