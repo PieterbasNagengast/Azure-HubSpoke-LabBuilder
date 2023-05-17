@@ -43,7 +43,7 @@ jobs:
           az bicep build --file main.bicep
 
   DeployScenarios:
-    name: "Deploy ${{ inputs.LabBuilderType }} scenarios"
+    name: "Deploy ${{ inputs.LabBuilderType }} scenari ${{ strategy.job-index }}"
     runs-on: ubuntu-latest
     needs: BicepBuildandLint
     strategy:
@@ -51,10 +51,11 @@ jobs:
       matrix:
         scenarios:
           [
+            "scenario0.${{ inputs.LabBuilderType }}.parameters.json",
             "scenario1.${{ inputs.LabBuilderType }}.parameters.json",
             "scenario2.${{ inputs.LabBuilderType }}.parameters.json",
-            "scenario3.${{ inputs.LabBuilderType }}.parameters.json"
-
+            "scenario3.${{ inputs.LabBuilderType }}.parameters.json",
+            "scenario4.${{ inputs.LabBuilderType }}.parameters.json"
           ]
 
     steps:

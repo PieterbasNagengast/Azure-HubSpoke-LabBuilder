@@ -50,7 +50,7 @@
             "value": false
         },
         "deployGatewayInHub": {
-            "value": false
+            "value": true
         },
         "deployFirewallInHub": {
             "value": true
@@ -62,7 +62,7 @@
             "value": true
         },
         "hubBgp": {
-            "value": false
+            "value": true
         },
         "hubBgpAsn": {
             "value": 65515
@@ -80,7 +80,7 @@
             "value": true
         },
         "deployGatewayinOnPrem": {
-            "value": false
+            "value": true
         },
         "deploySiteToSite": {
             "value": false
@@ -89,7 +89,7 @@
             "value": ""
         },
         "onpremBgp": {
-            "value": false
+            "value": true
         },
         "onpremBgpAsn": {
             "value": 65020

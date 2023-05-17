@@ -93,6 +93,9 @@
         },
         "onpremBgpAsn": {
             "value": 65020
+        },
+        "deployVnetPeeringMesh": {
+            "value": true
         }
     }
 }
