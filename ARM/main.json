@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.17.1.54307",
-      "templateHash": "12809992228514031436"
+      "templateHash": "13419120160525095488"
     }
   },
   "parameters": {
@@ -2254,7 +2254,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.17.1.54307",
-              "templateHash": "15608062527899069282"
+              "templateHash": "15052612161633967248"
             }
           },
           "parameters": {
@@ -2335,7 +2335,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.17.1.54307",
-                      "templateHash": "11599696933852029680"
+                      "templateHash": "1898167413884093650"
                     }
                   },
                   "parameters": {
@@ -2380,6 +2380,12 @@
                       "name": "[format('HUB-{0}', parameters('location'))]",
                       "location": "[parameters('location')]",
                       "properties": {
+                        "allowBranchToBranchTraffic": true,
+                        "hubRoutingPreference": "ExpressRoute",
+                        "virtualRouterAsn": 65515,
+                        "virtualRouterAutoScaleConfiguration": {
+                          "minCapacity": 2
+                        },
                         "addressPrefix": "[parameters('AddressPrefix')]",
                         "virtualWan": {
                           "id": "[resourceId('Microsoft.Network/virtualWans', parameters('vWanName'))]"
@@ -2706,10 +2712,9 @@
               ]
             },
             {
-              "condition": "[parameters('deployFirewallInHub')]",
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
-              "name": "secureRoutes",
+              "name": "routeTable",
               "resourceGroup": "[parameters('hubRgName')]",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -2720,7 +2725,10 @@
                   "vwanHubName": {
                     "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('vWanName')), '2022-09-01').outputs.vWanHubName.value]"
                   },
-                  "AzFirewallID": "[if(parameters('deployFirewallInHub'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('firewallName')), '2022-09-01').outputs.azFwID.value), createObject('value', 'none'))]"
+                  "AzFirewallID": "[if(parameters('deployFirewallInHub'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('firewallName')), '2022-09-01').outputs.azFwID.value), createObject('value', 'none'))]",
+                  "deployFirewallInHub": {
+                    "value": "[parameters('deployFirewallInHub')]"
+                  }
                 },
                 "template": {
                   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -2729,7 +2737,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.17.1.54307",
-                      "templateHash": "6405131548790598185"
+                      "templateHash": "15728000613699671866"
                     }
                   },
                   "parameters": {
@@ -2738,10 +2746,26 @@
                     },
                     "AzFirewallID": {
                       "type": "string"
+                    },
+                    "deployFirewallInHub": {
+                      "type": "bool"
                     }
                   },
                   "resources": [
                     {
+                      "condition": "[not(parameters('deployFirewallInHub'))]",
+                      "type": "Microsoft.Network/virtualHubs/hubRouteTables",
+                      "apiVersion": "2022-11-01",
+                      "name": "[format('{0}/defaultRouteTable', parameters('vwanHubName'))]",
+                      "properties": {
+                        "routes": [],
+                        "labels": [
+                          "default"
+                        ]
+                      }
+                    },
+                    {
+                      "condition": "[parameters('deployFirewallInHub')]",
                       "type": "Microsoft.Network/virtualHubs/hubRouteTables",
                       "apiVersion": "2022-11-01",
                       "name": "[format('{0}/defaultRouteTable', parameters('vwanHubName'))]",
@@ -4530,7 +4554,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.17.1.54307",
-              "templateHash": "11610391193208125919"
+              "templateHash": "9778357579686725786"
             }
           },
           "parameters": {
@@ -4592,7 +4616,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.17.1.54307",
-                      "templateHash": "17793231101632147072"
+                      "templateHash": "686692594467721874"
                     }
                   },
                   "parameters": {
@@ -4617,7 +4641,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.Network/virtualHubs/hubVirtualNetworkConnections",
-                      "apiVersion": "2021-05-01",
+                      "apiVersion": "2022-11-01",
                       "name": "[format('{0}/{1}-to-{2}', parameters('vwanHubName'), parameters('vwanHubName'), parameters('spokeName'))]",
                       "properties": {
                         "routingConfiguration": {
@@ -4638,6 +4662,8 @@
                         "remoteVirtualNetwork": {
                           "id": "[parameters('SpokeVnetID')]"
                         },
+                        "allowHubToRemoteVnetTransit": true,
+                        "allowRemoteVnetToUseHubVnetGateways": true,
                         "enableInternetSecurity": "[parameters('enableInternetSecurity')]"
                       }
                     }

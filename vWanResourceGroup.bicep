@@ -61,12 +61,13 @@ module firewallrules 'modules/firewallpolicyrules.bicep' = if (deployFirewallrul
 }
 
 // If Azure Firewall deployed in vWan Hub: Add routes to default route table in vWan Hub for all RFC1918 address spaces + default route to Azure Firewall
-module vwanSecureRoutes 'modules/vwanhubsecureroutes.bicep' = if (deployFirewallInHub) {
+module vwanRouteTable 'modules/vwanhubroutes.bicep' = {
   scope: hubrg
-  name: 'secureRoutes'
+  name: 'routeTable'
   params: {
     vwanHubName: vwan.outputs.vWanHubName
     AzFirewallID: deployFirewallInHub ? AzFirewall.outputs.azFwID : 'none'
+    deployFirewallInHub: deployFirewallInHub
   }
 }
 
