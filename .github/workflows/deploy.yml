@@ -107,6 +107,7 @@ jobs:
       - name: "Waiting for vWAN to finish deploying"
         if: inputs.LabBuilderType == 'vwan'
         run: |
+          az config set extension.use_dynamic_install=yes_without_prompt
           while true
           do
             sleep 10
