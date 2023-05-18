@@ -55,7 +55,9 @@ jobs:
             "scenario1.${{ inputs.LabBuilderType }}.parameters.json",
             "scenario2.${{ inputs.LabBuilderType }}.parameters.json",
             "scenario3.${{ inputs.LabBuilderType }}.parameters.json",
-            "scenario4.${{ inputs.LabBuilderType }}.parameters.json"
+            "scenario4.${{ inputs.LabBuilderType }}.parameters.json",
+            "scenario5.${{ inputs.LabBuilderType }}.parameters.json",
+            "scenario6.${{ inputs.LabBuilderType }}.parameters.json"
           ]
 
     steps:
