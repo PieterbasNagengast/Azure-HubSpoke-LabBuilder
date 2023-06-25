@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.17.1.54307",
-      "templateHash": "4738180333300446887"
+      "version": "0.18.4.5664",
+      "templateHash": "12263641273639523016"
     }
   },
   "parameters": {
@@ -32,14 +32,12 @@
     },
     "adminUsername": {
       "type": "string",
-      "defaultValue": "",
       "metadata": {
         "description": "Admin username for VM"
       }
     },
     "adminPassword": {
       "type": "securestring",
-      "defaultValue": "",
       "metadata": {
         "description": "Admin Password for VM"
       }
@@ -289,6 +287,13 @@
         "description": "Hub BGP ASN"
       }
     },
+    "deployVnetPeeringAVNM": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Let Azure Virtual Network Manager manage Peerings in Hub&Spoke"
+      }
+    },
     "deployOnPrem": {
       "type": "bool",
       "defaultValue": false,
@@ -460,8 +465,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.17.1.54307",
-              "templateHash": "5074569179886676837"
+              "version": "0.18.4.5664",
+              "templateHash": "8219789704434504843"
             }
           },
           "parameters": {
@@ -615,8 +620,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.17.1.54307",
-                      "templateHash": "8271511740822486452"
+                      "version": "0.18.4.5664",
+                      "templateHash": "12912471032342729445"
                     }
                   },
                   "parameters": {
@@ -780,8 +785,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.17.1.54307",
-                      "templateHash": "17095334183460695236"
+                      "version": "0.18.4.5664",
+                      "templateHash": "2051504380740036975"
                     }
                   },
                   "parameters": {
@@ -917,8 +922,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.17.1.54307",
-                      "templateHash": "4293482971433057273"
+                      "version": "0.18.4.5664",
+                      "templateHash": "15509218688402296976"
                     }
                   },
                   "parameters": {
@@ -1129,8 +1134,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.17.1.54307",
-                              "templateHash": "6746965115980779458"
+                              "version": "0.18.4.5664",
+                              "templateHash": "2532305531041392626"
                             }
                           },
                           "parameters": {
@@ -1210,8 +1215,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.17.1.54307",
-                      "templateHash": "16568394959252558731"
+                      "version": "0.18.4.5664",
+                      "templateHash": "8088403638522960179"
                     }
                   },
                   "parameters": {
@@ -1279,8 +1284,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.17.1.54307",
-                      "templateHash": "7124745122453992719"
+                      "version": "0.18.4.5664",
+                      "templateHash": "6223303376307505121"
                     }
                   },
                   "parameters": {
@@ -1395,8 +1400,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.17.1.54307",
-                      "templateHash": "7551272389405550180"
+                      "version": "0.18.4.5664",
+                      "templateHash": "6885702250373519759"
                     }
                   },
                   "parameters": {
@@ -1549,8 +1554,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.17.1.54307",
-                      "templateHash": "8167729614676511582"
+                      "version": "0.18.4.5664",
+                      "templateHash": "4826094230070946480"
                     }
                   },
                   "parameters": {
@@ -1674,8 +1679,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.17.1.54307",
-                      "templateHash": "214782828408479941"
+                      "version": "0.18.4.5664",
+                      "templateHash": "18327879007829344421"
                     }
                   },
                   "parameters": {
@@ -1746,8 +1751,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.17.1.54307",
-                      "templateHash": "9525352249017858567"
+                      "version": "0.18.4.5664",
+                      "templateHash": "8013478317798167595"
                     }
                   },
                   "parameters": {
@@ -1813,8 +1818,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.17.1.54307",
-                      "templateHash": "9525352249017858567"
+                      "version": "0.18.4.5664",
+                      "templateHash": "8013478317798167595"
                     }
                   },
                   "parameters": {
@@ -1885,8 +1890,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.17.1.54307",
-                      "templateHash": "5569189318412635310"
+                      "version": "0.18.4.5664",
+                      "templateHash": "985069418194348087"
                     }
                   },
                   "parameters": {
@@ -2038,8 +2043,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.17.1.54307",
-                      "templateHash": "214782828408479941"
+                      "version": "0.18.4.5664",
+                      "templateHash": "18327879007829344421"
                     }
                   },
                   "parameters": {
@@ -2114,8 +2119,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.17.1.54307",
-                      "templateHash": "9525352249017858567"
+                      "version": "0.18.4.5664",
+                      "templateHash": "8013478317798167595"
                     }
                   },
                   "parameters": {
@@ -2253,8 +2258,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.17.1.54307",
-              "templateHash": "15052612161633967248"
+              "version": "0.18.4.5664",
+              "templateHash": "16836855939122363507"
             }
           },
           "parameters": {
@@ -2334,8 +2339,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.17.1.54307",
-                      "templateHash": "1898167413884093650"
+                      "version": "0.18.4.5664",
+                      "templateHash": "1156395408733301114"
                     }
                   },
                   "parameters": {
@@ -2460,8 +2465,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.17.1.54307",
-                      "templateHash": "7551272389405550180"
+                      "version": "0.18.4.5664",
+                      "templateHash": "6885702250373519759"
                     }
                   },
                   "parameters": {
@@ -2614,8 +2619,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.17.1.54307",
-                      "templateHash": "8167729614676511582"
+                      "version": "0.18.4.5664",
+                      "templateHash": "4826094230070946480"
                     }
                   },
                   "parameters": {
@@ -2736,8 +2741,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.17.1.54307",
-                      "templateHash": "15728000613699671866"
+                      "version": "0.18.4.5664",
+                      "templateHash": "1016124804025596424"
                     }
                   },
                   "parameters": {
@@ -2826,8 +2831,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.17.1.54307",
-                      "templateHash": "16484140856711554035"
+                      "version": "0.18.4.5664",
+                      "templateHash": "1076615836387265112"
                     }
                   },
                   "parameters": {
@@ -2921,8 +2926,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.17.1.54307",
-                      "templateHash": "17095334183460695236"
+                      "version": "0.18.4.5664",
+                      "templateHash": "2051504380740036975"
                     }
                   },
                   "parameters": {
@@ -3143,8 +3148,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.17.1.54307",
-              "templateHash": "13518735791963695723"
+              "version": "0.18.4.5664",
+              "templateHash": "607072524287686791"
             }
           },
           "parameters": {
@@ -3274,8 +3279,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.17.1.54307",
-                      "templateHash": "8271511740822486452"
+                      "version": "0.18.4.5664",
+                      "templateHash": "12912471032342729445"
                     }
                   },
                   "parameters": {
@@ -3459,8 +3464,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.17.1.54307",
-                      "templateHash": "4293482971433057273"
+                      "version": "0.18.4.5664",
+                      "templateHash": "15509218688402296976"
                     }
                   },
                   "parameters": {
@@ -3671,8 +3676,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.17.1.54307",
-                              "templateHash": "6746965115980779458"
+                              "version": "0.18.4.5664",
+                              "templateHash": "2532305531041392626"
                             }
                           },
                           "parameters": {
@@ -3751,8 +3756,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.17.1.54307",
-                      "templateHash": "16568394959252558731"
+                      "version": "0.18.4.5664",
+                      "templateHash": "8088403638522960179"
                     }
                   },
                   "parameters": {
@@ -3820,8 +3825,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.17.1.54307",
-                      "templateHash": "7124745122453992719"
+                      "version": "0.18.4.5664",
+                      "templateHash": "6223303376307505121"
                     }
                   },
                   "parameters": {
@@ -3926,8 +3931,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.17.1.54307",
-                      "templateHash": "214782828408479941"
+                      "version": "0.18.4.5664",
+                      "templateHash": "18327879007829344421"
                     }
                   },
                   "parameters": {
@@ -3998,8 +4003,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.17.1.54307",
-                      "templateHash": "9525352249017858567"
+                      "version": "0.18.4.5664",
+                      "templateHash": "8013478317798167595"
                     }
                   },
                   "parameters": {
@@ -4060,8 +4065,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.17.1.54307",
-                      "templateHash": "9525352249017858567"
+                      "version": "0.18.4.5664",
+                      "templateHash": "8013478317798167595"
                     }
                   },
                   "parameters": {
@@ -4133,7 +4138,7 @@
         "name": "vnetPeerings",
         "count": "[length(range(0, parameters('amountOfSpokes')))]"
       },
-      "condition": "[and(and(parameters('deployHUB'), parameters('deploySpokes')), equals(parameters('hubType'), 'VNET'))]",
+      "condition": "[and(and(and(parameters('deployHUB'), parameters('deploySpokes')), equals(parameters('hubType'), 'VNET')), not(parameters('deployVnetPeeringAVNM')))]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('{0}-VnetPeering{1}-{2}', parameters('hubRgName'), add(range(0, parameters('amountOfSpokes'))[copyIndex()], 1), parameters('location'))]",
@@ -4169,8 +4174,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.17.1.54307",
-              "templateHash": "2750747128876516844"
+              "version": "0.18.4.5664",
+              "templateHash": "7011950653074719808"
             }
           },
           "parameters": {
@@ -4237,8 +4242,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.17.1.54307",
-                      "templateHash": "3503781946043607526"
+                      "version": "0.18.4.5664",
+                      "templateHash": "13128462038701622165"
                     }
                   },
                   "parameters": {
@@ -4313,8 +4318,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.17.1.54307",
-                      "templateHash": "3503781946043607526"
+                      "version": "0.18.4.5664",
+                      "templateHash": "13128462038701622165"
                     }
                   },
                   "parameters": {
@@ -4376,7 +4381,7 @@
         "name": "vnetPeeringsMesh",
         "count": "[length(range(0, parameters('amountOfSpokes')))]"
       },
-      "condition": "[and(parameters('deployVnetPeeringMesh'), parameters('deploySpokes'))]",
+      "condition": "[and(and(parameters('deployVnetPeeringMesh'), parameters('deploySpokes')), not(parameters('deployVnetPeeringAVNM')))]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('Prepare-Vnet-Peering-Mesh{0}', range(0, parameters('amountOfSpokes'))[copyIndex()])]",
@@ -4408,8 +4413,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.17.1.54307",
-              "templateHash": "14229783161469627330"
+              "version": "0.18.4.5664",
+              "templateHash": "13818944080489988146"
             }
           },
           "parameters": {
@@ -4463,8 +4468,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.17.1.54307",
-                      "templateHash": "3503781946043607526"
+                      "version": "0.18.4.5664",
+                      "templateHash": "13128462038701622165"
                     }
                   },
                   "parameters": {
@@ -4517,6 +4522,606 @@
       ]
     },
     {
+      "condition": "[and(and(and(parameters('deployHUB'), parameters('deploySpokes')), equals(parameters('hubType'), 'VNET')), parameters('deployVnetPeeringAVNM'))]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[format('{0}-{1}-AVNM', parameters('hubRgName'), parameters('location'))]",
+      "subscriptionId": "[parameters('hubSubscriptionID')]",
+      "location": "[deployment().location]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "avnmSubscriptionScopes": "[if(and(parameters('deployHUB'), parameters('deploySpokes')), createObject('value', concat(union(array(format('/subscriptions/{0}', parameters('hubSubscriptionID'))), array(format('/subscriptions/{0}', parameters('spokeSubscriptionID')))))), createObject('value', createArray()))]",
+          "HubResourceGroupName": {
+            "value": "[coalesce(reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.HubResourceGroupName.value, 'No Hub')]"
+          },
+          "spokeVNETids": {
+            "copy": [
+              {
+                "name": "value",
+                "count": "[length(range(0, parameters('amountOfSpokes')))]",
+                "input": "[reference(subscriptionResourceId(parameters('spokeSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex('value')]], parameters('location'))), '2022-09-01').outputs.spokeVnetID.value]"
+              }
+            ]
+          },
+          "hubVNETid": {
+            "value": "[reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.hubVnetID.value]"
+          },
+          "useHubGateway": {
+            "value": "[parameters('deployGatewayInHub')]"
+          },
+          "deployVnetPeeringMesh": {
+            "value": "[parameters('deployVnetPeeringMesh')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.18.4.5664",
+              "templateHash": "17808738087736793167"
+            }
+          },
+          "parameters": {
+            "location": {
+              "type": "string"
+            },
+            "HubResourceGroupName": {
+              "type": "string"
+            },
+            "avnmSubscriptionScopes": {
+              "type": "array"
+            },
+            "avnmName": {
+              "type": "string",
+              "defaultValue": "LabBuilder-AVNM"
+            },
+            "spokeVNETids": {
+              "type": "array"
+            },
+            "hubVNETid": {
+              "type": "string"
+            },
+            "useHubGateway": {
+              "type": "bool"
+            },
+            "deployVnetPeeringMesh": {
+              "type": "bool"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2022-09-01",
+              "name": "AVNM",
+              "resourceGroup": "[parameters('HubResourceGroupName')]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "avnmName": {
+                    "value": "[parameters('avnmName')]"
+                  },
+                  "avnmSubscriptionScopes": {
+                    "value": "[parameters('avnmSubscriptionScopes')]"
+                  },
+                  "location": {
+                    "value": "[parameters('location')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.18.4.5664",
+                      "templateHash": "17789914869865338975"
+                    }
+                  },
+                  "parameters": {
+                    "location": {
+                      "type": "string"
+                    },
+                    "avnmName": {
+                      "type": "string"
+                    },
+                    "avnmScopeAccesses": {
+                      "type": "array",
+                      "defaultValue": [
+                        "Connectivity"
+                      ],
+                      "allowedValues": [
+                        "Connectivity",
+                        "SecurityAdmin"
+                      ]
+                    },
+                    "avnmSubscriptionScopes": {
+                      "type": "array"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Network/networkManagers",
+                      "apiVersion": "2022-11-01",
+                      "name": "[parameters('avnmName')]",
+                      "location": "[parameters('location')]",
+                      "properties": {
+                        "networkManagerScopeAccesses": "[parameters('avnmScopeAccesses')]",
+                        "networkManagerScopes": {
+                          "subscriptions": "[parameters('avnmSubscriptionScopes')]"
+                        }
+                      }
+                    }
+                  ],
+                  "outputs": {
+                    "id": {
+                      "type": "string",
+                      "value": "[resourceId('Microsoft.Network/networkManagers', parameters('avnmName'))]"
+                    },
+                    "name": {
+                      "type": "string",
+                      "value": "[parameters('avnmName')]"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2022-09-01",
+              "name": "AVNM-NetworkGroup",
+              "resourceGroup": "[parameters('HubResourceGroupName')]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "avnmGroupName": {
+                    "value": "[format('{0}-NetworkGroup01', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HubResourceGroupName')), 'Microsoft.Resources/deployments', 'AVNM'), '2022-09-01').outputs.name.value)]"
+                  },
+                  "avnmName": {
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HubResourceGroupName')), 'Microsoft.Resources/deployments', 'AVNM'), '2022-09-01').outputs.name.value]"
+                  },
+                  "spokeVNETids": {
+                    "value": "[parameters('spokeVNETids')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.18.4.5664",
+                      "templateHash": "934685823792555249"
+                    }
+                  },
+                  "parameters": {
+                    "avnmName": {
+                      "type": "string"
+                    },
+                    "avnmGroupName": {
+                      "type": "string"
+                    },
+                    "spokeVNETids": {
+                      "type": "array"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Network/networkManagers/networkGroups",
+                      "apiVersion": "2022-11-01",
+                      "name": "[format('{0}/{1}', parameters('avnmName'), parameters('avnmGroupName'))]",
+                      "properties": {
+                        "description": "LabBuilder AVNM - Network Group"
+                      }
+                    },
+                    {
+                      "copy": {
+                        "name": "avnmNetworkGroupMemeber",
+                        "count": "[length(parameters('spokeVNETids'))]"
+                      },
+                      "type": "Microsoft.Network/networkManagers/networkGroups/staticMembers",
+                      "apiVersion": "2022-11-01",
+                      "name": "[format('{0}/{1}/{2}', split(format('{0}/{1}', parameters('avnmName'), parameters('avnmGroupName')), '/')[0], split(format('{0}/{1}', parameters('avnmName'), parameters('avnmGroupName')), '/')[1], format('avnmNetworkGroupMemeber{0}', copyIndex()))]",
+                      "properties": {
+                        "resourceId": "[parameters('spokeVNETids')[copyIndex()]]"
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/networkManagers/networkGroups', split(format('{0}/{1}', parameters('avnmName'), parameters('avnmGroupName')), '/')[0], split(format('{0}/{1}', parameters('avnmName'), parameters('avnmGroupName')), '/')[1])]"
+                      ]
+                    }
+                  ],
+                  "outputs": {
+                    "id": {
+                      "type": "string",
+                      "value": "[resourceId('Microsoft.Network/networkManagers/networkGroups', split(format('{0}/{1}', parameters('avnmName'), parameters('avnmGroupName')), '/')[0], split(format('{0}/{1}', parameters('avnmName'), parameters('avnmGroupName')), '/')[1])]"
+                    }
+                  }
+                }
+              },
+              "dependsOn": [
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HubResourceGroupName')), 'Microsoft.Resources/deployments', 'AVNM')]"
+              ]
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2022-09-01",
+              "name": "AVNM-ConnectivityConfig",
+              "resourceGroup": "[parameters('HubResourceGroupName')]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "avnmName": {
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HubResourceGroupName')), 'Microsoft.Resources/deployments', 'AVNM'), '2022-09-01').outputs.name.value]"
+                  },
+                  "avnmNetworkGroupID": {
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HubResourceGroupName')), 'Microsoft.Resources/deployments', 'AVNM-NetworkGroup'), '2022-09-01').outputs.id.value]"
+                  },
+                  "avvmConnectivityConfigName": {
+                    "value": "[format('{0}-ConnectivityConfig', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HubResourceGroupName')), 'Microsoft.Resources/deployments', 'AVNM'), '2022-09-01').outputs.name.value)]"
+                  },
+                  "hubVNETid": {
+                    "value": "[parameters('hubVNETid')]"
+                  },
+                  "useHubGateway": {
+                    "value": "[parameters('useHubGateway')]"
+                  },
+                  "groupConnectivity": "[if(parameters('deployVnetPeeringMesh'), createObject('value', 'DirectlyConnected'), createObject('value', 'None'))]"
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.18.4.5664",
+                      "templateHash": "12796368203928732262"
+                    }
+                  },
+                  "parameters": {
+                    "avnmName": {
+                      "type": "string"
+                    },
+                    "avvmConnectivityConfigName": {
+                      "type": "string"
+                    },
+                    "connectivityTopology": {
+                      "type": "string",
+                      "defaultValue": "HubAndSpoke",
+                      "allowedValues": [
+                        "HubAndSpoke",
+                        "Mesh"
+                      ]
+                    },
+                    "deleteExistingPeering": {
+                      "type": "bool",
+                      "defaultValue": false
+                    },
+                    "isGlobal": {
+                      "type": "bool",
+                      "defaultValue": false
+                    },
+                    "hubVNETid": {
+                      "type": "string"
+                    },
+                    "avnmNetworkGroupID": {
+                      "type": "string"
+                    },
+                    "groupConnectivity": {
+                      "type": "string",
+                      "defaultValue": "None",
+                      "allowedValues": [
+                        "None",
+                        "DirectlyConnected"
+                      ]
+                    },
+                    "useHubGateway": {
+                      "type": "bool",
+                      "defaultValue": false
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Network/networkManagers/connectivityConfigurations",
+                      "apiVersion": "2022-11-01",
+                      "name": "[format('{0}/{1}', parameters('avnmName'), parameters('avvmConnectivityConfigName'))]",
+                      "properties": {
+                        "connectivityTopology": "[parameters('connectivityTopology')]",
+                        "description": "LabBuilder AVNM - Connectivity Configuration",
+                        "deleteExistingPeering": "[string(parameters('deleteExistingPeering'))]",
+                        "isGlobal": "[string(parameters('isGlobal'))]",
+                        "hubs": [
+                          {
+                            "resourceId": "[parameters('hubVNETid')]",
+                            "resourceType": "Microsoft.Network/virtualNetworks"
+                          }
+                        ],
+                        "appliesToGroups": [
+                          {
+                            "networkGroupId": "[parameters('avnmNetworkGroupID')]",
+                            "groupConnectivity": "[parameters('groupConnectivity')]",
+                            "useHubGateway": "[string(parameters('useHubGateway'))]",
+                            "isGlobal": "[string(parameters('isGlobal'))]"
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "outputs": {
+                    "id": {
+                      "type": "string",
+                      "value": "[resourceId('Microsoft.Network/networkManagers/connectivityConfigurations', split(format('{0}/{1}', parameters('avnmName'), parameters('avvmConnectivityConfigName')), '/')[0], split(format('{0}/{1}', parameters('avnmName'), parameters('avvmConnectivityConfigName')), '/')[1])]"
+                    },
+                    "name": {
+                      "type": "string",
+                      "value": "[format('{0}/{1}', parameters('avnmName'), parameters('avvmConnectivityConfigName'))]"
+                    }
+                  }
+                }
+              },
+              "dependsOn": [
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HubResourceGroupName')), 'Microsoft.Resources/deployments', 'AVNM')]",
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HubResourceGroupName')), 'Microsoft.Resources/deployments', 'AVNM-NetworkGroup')]"
+              ]
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2022-09-01",
+              "name": "UserAssignedIdentityForAVNM",
+              "resourceGroup": "[parameters('HubResourceGroupName')]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
+                  "uaiName": {
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HubResourceGroupName')), 'Microsoft.Resources/deployments', 'AVNM'), '2022-09-01').outputs.name.value]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.18.4.5664",
+                      "templateHash": "6903602864876977105"
+                    }
+                  },
+                  "parameters": {
+                    "location": {
+                      "type": "string"
+                    },
+                    "uaiName": {
+                      "type": "string"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+                      "apiVersion": "2022-01-31-preview",
+                      "name": "[format('{0}-{1}', parameters('uaiName'), parameters('location'))]",
+                      "location": "[parameters('location')]"
+                    }
+                  ],
+                  "outputs": {
+                    "id": {
+                      "type": "string",
+                      "value": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}-{1}', parameters('uaiName'), parameters('location')))]"
+                    },
+                    "name": {
+                      "type": "string",
+                      "value": "[format('{0}-{1}', parameters('uaiName'), parameters('location'))]"
+                    },
+                    "principalID": {
+                      "type": "string",
+                      "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}-{1}', parameters('uaiName'), parameters('location'))), '2022-01-31-preview').principalId]"
+                    }
+                  }
+                }
+              },
+              "dependsOn": [
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HubResourceGroupName')), 'Microsoft.Resources/deployments', 'AVNM')]"
+              ]
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2022-09-01",
+              "name": "RoleAssignmentForAVNMDeploymentScript",
+              "resourceGroup": "[parameters('HubResourceGroupName')]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "principalID": {
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HubResourceGroupName')), 'Microsoft.Resources/deployments', 'UserAssignedIdentityForAVNM'), '2022-09-01').outputs.principalID.value]"
+                  },
+                  "avnmName": {
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HubResourceGroupName')), 'Microsoft.Resources/deployments', 'AVNM'), '2022-09-01').outputs.name.value]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.18.4.5664",
+                      "templateHash": "13759220820185448658"
+                    }
+                  },
+                  "parameters": {
+                    "principalID": {
+                      "type": "string"
+                    },
+                    "principalType": {
+                      "type": "string",
+                      "defaultValue": "ServicePrincipal",
+                      "allowedValues": [
+                        "ServicePrincipal",
+                        "Group",
+                        "User",
+                        "ForeignGroup"
+                      ]
+                    },
+                    "roleID": {
+                      "type": "string",
+                      "defaultValue": "b24988ac-6180-42a0-ab88-20f7382dd24c"
+                    },
+                    "avnmName": {
+                      "type": "string"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Authorization/roleAssignments",
+                      "apiVersion": "2020-04-01-preview",
+                      "scope": "[format('Microsoft.Network/networkManagers/{0}', parameters('avnmName'))]",
+                      "name": "[guid(resourceGroup().id, parameters('principalID'))]",
+                      "properties": {
+                        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', parameters('roleID'))]",
+                        "principalId": "[parameters('principalID')]",
+                        "principalType": "[parameters('principalType')]"
+                      }
+                    }
+                  ],
+                  "outputs": {
+                    "id": {
+                      "type": "string",
+                      "value": "[extensionResourceId(resourceId('Microsoft.Network/networkManagers', parameters('avnmName')), 'Microsoft.Authorization/roleAssignments', guid(resourceGroup().id, parameters('principalID')))]"
+                    }
+                  }
+                }
+              },
+              "dependsOn": [
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HubResourceGroupName')), 'Microsoft.Resources/deployments', 'AVNM')]",
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HubResourceGroupName')), 'Microsoft.Resources/deployments', 'UserAssignedIdentityForAVNM')]"
+              ]
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2022-09-01",
+              "name": "AVNM-ConfigurationDeployment",
+              "resourceGroup": "[parameters('HubResourceGroupName')]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "avnmName": {
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HubResourceGroupName')), 'Microsoft.Resources/deployments', 'AVNM'), '2022-09-01').outputs.name.value]"
+                  },
+                  "configType": {
+                    "value": "Connectivity"
+                  },
+                  "configurationId": {
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HubResourceGroupName')), 'Microsoft.Resources/deployments', 'AVNM-ConnectivityConfig'), '2022-09-01').outputs.id.value]"
+                  },
+                  "deploymentScriptName": {
+                    "value": "[format('{0}-DeploymentScript', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HubResourceGroupName')), 'Microsoft.Resources/deployments', 'AVNM'), '2022-09-01').outputs.name.value)]"
+                  },
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
+                  "userAssignedIdentityId": {
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HubResourceGroupName')), 'Microsoft.Resources/deployments', 'UserAssignedIdentityForAVNM'), '2022-09-01').outputs.id.value]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.18.4.5664",
+                      "templateHash": "7225028729755437456"
+                    }
+                  },
+                  "parameters": {
+                    "location": {
+                      "type": "string"
+                    },
+                    "userAssignedIdentityId": {
+                      "type": "string"
+                    },
+                    "avnmName": {
+                      "type": "string"
+                    },
+                    "configurationId": {
+                      "type": "string"
+                    },
+                    "deploymentScriptName": {
+                      "type": "string"
+                    },
+                    "configType": {
+                      "type": "string",
+                      "allowedValues": [
+                        "Connectivity"
+                      ]
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Resources/deploymentScripts",
+                      "apiVersion": "2020-10-01",
+                      "name": "[parameters('deploymentScriptName')]",
+                      "location": "[parameters('location')]",
+                      "kind": "AzurePowerShell",
+                      "identity": {
+                        "type": "UserAssigned",
+                        "userAssignedIdentities": {
+                          "[format('{0}', parameters('userAssignedIdentityId'))]": {}
+                        }
+                      },
+                      "properties": {
+                        "azPowerShellVersion": "8.3",
+                        "retentionInterval": "PT1H",
+                        "timeout": "PT1H",
+                        "arguments": "[format('-networkManagerName \"{0}\" -targetLocations {1} -configIds {2} -subscriptionId {3} -configType {4} -resourceGroupName {5}', parameters('avnmName'), parameters('location'), parameters('configurationId'), subscription().subscriptionId, parameters('configType'), resourceGroup().name)]",
+                        "scriptContent": "    param (\r\n      # AVNM subscription id\r\n      [parameter(mandatory=$true)][string]$subscriptionId,\r\n\r\n      # AVNM resource name\r\n      [parameter(mandatory=$true)][string]$networkManagerName,\r\n\r\n      # string with comma-separated list of config ids to deploy. ids must be of the same config type\r\n      [parameter(mandatory=$true)][string[]]$configIds,\r\n\r\n      # string with comma-separated list of deployment target regions\r\n      [parameter(mandatory=$true)][string[]]$targetLocations,\r\n\r\n      # configuration type to deploy. must be either connecticity or securityadmin\r\n      [parameter(mandatory=$true)][ValidateSet('Connectivity','SecurityAdmin')][string]$configType,\r\n\r\n      # AVNM resource group name\r\n      [parameter(mandatory=$true)][string]$resourceGroupName\r\n    )\r\n  \r\n    $null = Login-AzAccount -Identity -Subscription $subscriptionId\r\n  \r\n    [System.Collections.Generic.List[string]]$configIdList = @()  \r\n    $configIdList.addRange($configIds) \r\n    [System.Collections.Generic.List[string]]$targetLocationList = @() # target locations for deployment\r\n    $targetLocationList.addRange($targetLocations)     \r\n    \r\n    $deployment = @{\r\n        Name = $networkManagerName\r\n        ResourceGroupName = $resourceGroupName\r\n        ConfigurationId = $configIdList\r\n        TargetLocation = $targetLocationList\r\n        CommitType = $configType\r\n    }\r\n  \r\n    try {\r\n      Deploy-AzNetworkManagerCommit @deployment -ErrorAction Stop\r\n    }\r\n    catch {\r\n      Write-Error \"Deployment failed with error: $_\"\r\n      throw \"Deployment failed with error: $_\"\r\n    }\r\n    "
+                      }
+                    }
+                  ]
+                }
+              },
+              "dependsOn": [
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HubResourceGroupName')), 'Microsoft.Resources/deployments', 'AVNM')]",
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HubResourceGroupName')), 'Microsoft.Resources/deployments', 'AVNM-ConnectivityConfig')]",
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HubResourceGroupName')), 'Microsoft.Resources/deployments', 'UserAssignedIdentityForAVNM')]"
+              ]
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location')))]",
+        "spokeVnets"
+      ]
+    },
+    {
       "copy": {
         "name": "vnetConnections",
         "count": "[length(range(0, parameters('amountOfSpokes')))]",
@@ -4553,8 +5158,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.17.1.54307",
-              "templateHash": "8244252739854228261"
+              "version": "0.18.4.5664",
+              "templateHash": "1270891195676671868"
             }
           },
           "parameters": {
@@ -4615,22 +5220,19 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.17.1.54307",
-                      "templateHash": "12284907474149325252"
+                      "version": "0.18.4.5664",
+                      "templateHash": "2062623978040898551"
                     }
                   },
                   "parameters": {
                     "vwanHubName": {
-                      "type": "string",
-                      "defaultValue": "HUB-westus3"
+                      "type": "string"
                     },
                     "spokeName": {
-                      "type": "string",
-                      "defaultValue": "VNET-Spoke2"
+                      "type": "string"
                     },
                     "SpokeVnetID": {
-                      "type": "string",
-                      "defaultValue": "/subscriptions/c99da9d5-3d84-4f22-a9ef-9f38db966440/resourceGroups/LabBuilderValidation-vwan-spoke2/providers/Microsoft.Network/virtualNetworks/VNET-Spoke2"
+                      "type": "string"
                     },
                     "enableInternetSecurity": {
                       "type": "bool",
@@ -4744,8 +5346,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.17.1.54307",
-              "templateHash": "2839610968462853160"
+              "version": "0.18.4.5664",
+              "templateHash": "17129976348470444413"
             }
           },
           "parameters": {
@@ -4863,8 +5465,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.17.1.54307",
-                      "templateHash": "8271511740822486452"
+                      "version": "0.18.4.5664",
+                      "templateHash": "12912471032342729445"
                     }
                   },
                   "parameters": {
@@ -5047,8 +5649,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.17.1.54307",
-                      "templateHash": "4293482971433057273"
+                      "version": "0.18.4.5664",
+                      "templateHash": "15509218688402296976"
                     }
                   },
                   "parameters": {
@@ -5259,8 +5861,8 @@
                           "metadata": {
                             "_generator": {
                               "name": "bicep",
-                              "version": "0.17.1.54307",
-                              "templateHash": "6746965115980779458"
+                              "version": "0.18.4.5664",
+                              "templateHash": "2532305531041392626"
                             }
                           },
                           "parameters": {
@@ -5339,8 +5941,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.17.1.54307",
-                      "templateHash": "16568394959252558731"
+                      "version": "0.18.4.5664",
+                      "templateHash": "8088403638522960179"
                     }
                   },
                   "parameters": {
@@ -5408,8 +6010,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.17.1.54307",
-                      "templateHash": "7124745122453992719"
+                      "version": "0.18.4.5664",
+                      "templateHash": "6223303376307505121"
                     }
                   },
                   "parameters": {
@@ -5519,8 +6121,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.17.1.54307",
-                      "templateHash": "5569189318412635310"
+                      "version": "0.18.4.5664",
+                      "templateHash": "985069418194348087"
                     }
                   },
                   "parameters": {
@@ -5730,8 +6332,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.17.1.54307",
-              "templateHash": "17110220239031223641"
+              "version": "0.18.4.5664",
+              "templateHash": "17439755486725024844"
             }
           },
           "parameters": {
@@ -5849,8 +6451,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.17.1.54307",
-                      "templateHash": "11010462696552571202"
+                      "version": "0.18.4.5664",
+                      "templateHash": "16621761206029982009"
                     }
                   },
                   "parameters": {
@@ -5985,8 +6587,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.17.1.54307",
-                      "templateHash": "11010462696552571202"
+                      "version": "0.18.4.5664",
+                      "templateHash": "16621761206029982009"
                     }
                   },
                   "parameters": {
@@ -6125,8 +6727,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.17.1.54307",
-              "templateHash": "6509005510796214591"
+              "version": "0.18.4.5664",
+              "templateHash": "16408302446421807879"
             }
           },
           "parameters": {
@@ -6236,8 +6838,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.17.1.54307",
-                      "templateHash": "13388199026219272007"
+                      "version": "0.18.4.5664",
+                      "templateHash": "12063092906286586991"
                     }
                   },
                   "parameters": {
@@ -6420,8 +7022,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.17.1.54307",
-                      "templateHash": "11010462696552571202"
+                      "version": "0.18.4.5664",
+                      "templateHash": "16621761206029982009"
                     }
                   },
                   "parameters": {
