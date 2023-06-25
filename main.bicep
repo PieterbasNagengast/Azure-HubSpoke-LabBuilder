@@ -298,6 +298,7 @@ module vnetPeeringsMesh 'VnetPeeringsMesh.bicep' = [for i1 in range(0, amountOfS
 
 // VNET Peerings AVNM
 module vnetPeeringsAVNM 'VnetPeeringsAvnm.bicep' = if (deployHUB && deploySpokes && hubType == 'VNET' && deployVnetPeeringAVNM) {
+  scope: subscription(hubSubscriptionID)
   name: '${hubRgName}-${location}-AVNM'
   params: {
     avnmSubscriptionScopes: deployHUB && deploySpokes ? concat(union(array('/subscriptions/${hubSubscriptionID}'), array('/subscriptions/${spokeSubscriptionID}'))) : []
