@@ -17,7 +17,7 @@
    2. [Subnet Ip Address range usage](#subnet-ip-address-range-usage)
    3. [Resource Names](#resource-names)
 6. [Azure Monitor Agent, VM Insights and Dependency Agent](#azure-monitor-agent-vm-insights-and-dependency-agent)
-7. [Spoke VNET peerings in a Fully Meshed topology](#spoke-vnet-peerings-in-a-fully-meshed-topology)
+7. [Spoke VNET peerings in a Fully Meshed topology (Whitout AVNM)](#spoke-vnet-peerings-in-a-fully-meshed-topology-whitout-avnm)
 8. [Azure Virtual Network Manager](#azure-virtual-network-manager)
 9. [Parameters overview](#parameters-overview)
 10. [Updates](#updates)
@@ -164,7 +164,7 @@ Within these **main** scenario's there are multiple options (but not limited to 
 - Data collection rule includes all configuration for VMInsights including Service Map (Dependency agent)
 - Dependency Agent will be installed on Windows VM's only.
 
-## Spoke VNET peerings in a Fully Meshed topology
+## Spoke VNET peerings in a Fully Meshed topology (Whitout AVNM)
 
 - With this option all Spoke VNET's will be directly connected using standard VNET peerings.
 
