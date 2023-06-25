@@ -4,6 +4,8 @@
 
 [![LabBuilder - Deploy VWAN Scenarios](https://github.com/PieterbasNagengast/Azure-HubSpoke-LabBuilder/actions/workflows/vwan.yml/badge.svg)](https://github.com/PieterbasNagengast/Azure-HubSpoke-LabBuilder/actions/workflows/vwan.yml)
 
+[![LabBuilder - Deploy AVNM Scenarios](https://github.com/PieterbasNagengast/Azure-HubSpoke-LabBuilder/actions/workflows/avnm.yml/badge.svg)](https://github.com/PieterbasNagengast/Azure-HubSpoke-LabBuilder/actions/workflows/avnm.yml)
+
 ## Table of contents
 
 1. [Table of contents](#table-of-contents)
