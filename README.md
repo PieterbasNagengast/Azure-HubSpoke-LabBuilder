@@ -6,24 +6,27 @@
 
 ## Table of contents
 
-- [Table of contents](#table-of-contents)
-- [Deploy to Azure](#deploy-to-azure)
-- [Description](#description)
-- [Scenario's](#scenarios)
-  - [Topology drawing - Hub & Spoke](#topology-drawing---hub--spoke)
-  - [Topology drawing - Azure Virtual WAN](#topology-drawing---azure-virtual-wan)
-- [Deployment notes](#deployment-notes)
-  - [General](#general)
-  - [Subnet Ip Address range usage](#subnet-ip-address-range-usage)
-  - [Resource Names](#resource-names)
-  - [Azure Monitor Agent, VM Insights and Dependency Agent](#azure-monitor-agent-vm-insights-and-dependency-agent)
-  - [Spoke VNET peerings in a Fully Meshed topology](#spoke-vnet-peerings-in-a-fully-meshed-topology)
-- [Parameters overview](#parameters-overview)
-- [Updates](#updates)
-  - [September 2022 updates](#september-2022-updates)
-  - [July 2022 updates](#july-2022-updates)
-  - [June 2022 updates](#june-2022-updates)
-  - [May 2022 updates](#may-2022-updates)
+1. [Table of contents](#table-of-contents)
+2. [Deploy to Azure](#deploy-to-azure)
+3. [Description](#description)
+4. [Scenario's](#scenarios)
+   1. [Topology drawing - Hub \& Spoke](#topology-drawing---hub--spoke)
+   2. [Topology drawing - Azure Virtual WAN](#topology-drawing---azure-virtual-wan)
+5. [Deployment notes](#deployment-notes)
+   1. [General](#general)
+   2. [Subnet Ip Address range usage](#subnet-ip-address-range-usage)
+   3. [Resource Names](#resource-names)
+6. [Azure Monitor Agent, VM Insights and Dependency Agent](#azure-monitor-agent-vm-insights-and-dependency-agent)
+7. [Spoke VNET peerings in a Fully Meshed topology](#spoke-vnet-peerings-in-a-fully-meshed-topology)
+8. [Azure Virtual Network Manager](#azure-virtual-network-manager)
+9. [Parameters overview](#parameters-overview)
+10. [Updates](#updates)
+    1. [Juni 2023 updates](#juni-2023-updates)
+    2. [May 2023 updates](#may-2023-updates)
+    3. [September 2022 updates](#september-2022-updates)
+    4. [July 2022 updates](#july-2022-updates)
+    5. [June 2022 updates](#june-2022-updates)
+    6. [May 2022 updates](#may-2022-updates)
 
 ## Deploy to Azure
 
@@ -152,6 +155,7 @@ Within these **main** scenario's there are multiple options (but not limited to 
 |OnPrem Bastion Host|Bastion-OnPrem|
 |OnPrem Network Security Group|NSG-OnPrem|
 |OnPrem Virtual Network gateway|Gateway-OnPrem|
+|Azure Virtual Network Manager|LabBuilder-AVNM|
 
 ## Azure Monitor Agent, VM Insights and Dependency Agent
 
@@ -171,6 +175,12 @@ Within these **main** scenario's there are multiple options (but not limited to 
 - ![Peerings required for Fully Meshed topology](https://learn.microsoft.com/en-us/azure/architecture/networking/media/peering-number-chart.png)
 
 - ref to MS docs: [Patterns and topologies for inter-spoke communication](https://learn.microsoft.com/en-us/azure/architecture/networking/spoke-to-spoke-networking)
+
+## Azure Virtual Network Manager
+
+When deploying a Hub you can also deploy a Azure Virtual Network Manager (AVNM). AVNM will be deployed in the HUB resource group and will add the Spoke VNET's as 'static' members of the Network Group. Connectivity configuration is added to support HUB&Spoke topology. Configuration will be deployed using a Deployment Script and User Assigned Identity.
+
+Note: You will need to have 'Owner' rights on the HUB resource group to deploy AVNM. The deployment script will create a User Assigned Identity and assign the 'Network Contributor' role to the HUB resource group.
 
 ## Parameters overview
 
@@ -221,10 +231,13 @@ Within these **main** scenario's there are multiple options (but not limited to 
 | `vmSizeHub` | string | Hub Virtual Machine SKU. Default = Standard_B2s | Standard_B2s |  |
 | `vmSizeOnPrem` | string | OnPrem Virtual Machine SKU. Default = Standard_B2s | Standard_B2s |  |
 | `vmSizeSpoke` | string | Spoke Virtual Machine SKU. Default = Standard_B2s | Standard_B2s |  |
-| `deployVnetPeeringMesh` | bool | Directly connect VNET Spokes (Fully Meshed Topology) | False |
-
+| `deployVnetPeeringMesh` | bool | Directly connect VNET Spokes (Fully Meshed Topology) with standard VNET Peerings. When using AVNM the Directly Connected Group will be used. | False |
+| `deployVnetPeeringAVNM` | bool | Deploy Azure Virtual Network Manager | False |
 
 ## Updates
+
+### Juni 2023 updates
+- Deploy Azure Virtual Network Manager (AVNM) to manage VNET Peerings
 
 ### May 2023 updates
 

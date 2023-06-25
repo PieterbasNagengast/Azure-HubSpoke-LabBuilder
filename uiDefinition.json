@@ -833,7 +833,8 @@
 								"Microsoft.Network/connections",
 								"Microsoft.Network/virtualWans",
 								"Microsoft.Resources/subscriptions/resourceGroups",
-								"Microsoft.Insights/dataCollectionRules"
+								"Microsoft.Insights/dataCollectionRules",
+								"Microsoft.Network/networkManagers"
 							]
 						}
 					]
