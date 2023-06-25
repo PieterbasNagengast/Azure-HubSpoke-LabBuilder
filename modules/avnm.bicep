@@ -1,5 +1,7 @@
 param location string
 param avnmName string
+param tagsByResource object = {}
+
 @allowed([
   'Connectivity'
   'SecurityAdmin'
@@ -18,6 +20,7 @@ resource avnm 'Microsoft.Network/networkManagers@2022-11-01' = {
       subscriptions: avnmSubscriptionScopes
     }
   }
+  tags: contains(tagsByResource, 'Microsoft.Network/networkManagers') ? tagsByResource['Microsoft.Network/networkManagers'] : {}
 }
 
 output id string = avnm.id

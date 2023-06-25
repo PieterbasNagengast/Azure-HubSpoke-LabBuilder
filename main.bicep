@@ -308,6 +308,7 @@ module vnetPeeringsAVNM 'VnetPeeringsAvnm.bicep' = if (deployHUB && deploySpokes
     useHubGateway: deployGatewayInHub
     deployVnetPeeringMesh: deployVnetPeeringMesh
     location: location
+    tagsByResource: tagsByResource
   }
 }
 

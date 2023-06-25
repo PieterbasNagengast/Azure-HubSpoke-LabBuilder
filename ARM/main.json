@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.18.4.5664",
-      "templateHash": "12263641273639523016"
+      "templateHash": "16340133530480218700"
     }
   },
   "parameters": {
@@ -4558,6 +4558,9 @@
           },
           "location": {
             "value": "[parameters('location')]"
+          },
+          "tagsByResource": {
+            "value": "[parameters('tagsByResource')]"
           }
         },
         "template": {
@@ -4567,7 +4570,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.18.4.5664",
-              "templateHash": "17808738087736793167"
+              "templateHash": "12203252417778150344"
             }
           },
           "parameters": {
@@ -4595,6 +4598,10 @@
             },
             "deployVnetPeeringMesh": {
               "type": "bool"
+            },
+            "tagsByResource": {
+              "type": "object",
+              "defaultValue": {}
             }
           },
           "resources": [
@@ -4617,6 +4624,9 @@
                   },
                   "location": {
                     "value": "[parameters('location')]"
+                  },
+                  "tagsByResource": {
+                    "value": "[parameters('tagsByResource')]"
                   }
                 },
                 "template": {
@@ -4626,7 +4636,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.18.4.5664",
-                      "templateHash": "17789914869865338975"
+                      "templateHash": "14243420601468380095"
                     }
                   },
                   "parameters": {
@@ -4635,6 +4645,10 @@
                     },
                     "avnmName": {
                       "type": "string"
+                    },
+                    "tagsByResource": {
+                      "type": "object",
+                      "defaultValue": {}
                     },
                     "avnmScopeAccesses": {
                       "type": "array",
@@ -4661,7 +4675,8 @@
                         "networkManagerScopes": {
                           "subscriptions": "[parameters('avnmSubscriptionScopes')]"
                         }
-                      }
+                      },
+                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/networkManagers'), parameters('tagsByResource')['Microsoft.Network/networkManagers'], createObject())]"
                     }
                   ],
                   "outputs": {
@@ -4896,6 +4911,9 @@
                   },
                   "uaiName": {
                     "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HubResourceGroupName')), 'Microsoft.Resources/deployments', 'AVNM'), '2022-09-01').outputs.name.value]"
+                  },
+                  "tagsByResource": {
+                    "value": "[parameters('tagsByResource')]"
                   }
                 },
                 "template": {
@@ -4905,7 +4923,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.18.4.5664",
-                      "templateHash": "6903602864876977105"
+                      "templateHash": "12420704145054645611"
                     }
                   },
                   "parameters": {
@@ -4914,6 +4932,10 @@
                     },
                     "uaiName": {
                       "type": "string"
+                    },
+                    "tagsByResource": {
+                      "type": "object",
+                      "defaultValue": {}
                     }
                   },
                   "resources": [
@@ -4921,7 +4943,8 @@
                       "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
                       "apiVersion": "2022-01-31-preview",
                       "name": "[format('{0}-{1}', parameters('uaiName'), parameters('location'))]",
-                      "location": "[parameters('location')]"
+                      "location": "[parameters('location')]",
+                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.ManagedIdentity/userAssignedIdentities'), parameters('tagsByResource')['Microsoft.ManagedIdentity/userAssignedIdentities'], createObject())]"
                     }
                   ],
                   "outputs": {
@@ -5048,6 +5071,9 @@
                   },
                   "userAssignedIdentityId": {
                     "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HubResourceGroupName')), 'Microsoft.Resources/deployments', 'UserAssignedIdentityForAVNM'), '2022-09-01').outputs.id.value]"
+                  },
+                  "tagsByResource": {
+                    "value": "[parameters('tagsByResource')]"
                   }
                 },
                 "template": {
@@ -5057,7 +5083,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.18.4.5664",
-                      "templateHash": "7225028729755437456"
+                      "templateHash": "16677682299534591662"
                     }
                   },
                   "parameters": {
@@ -5081,6 +5107,10 @@
                       "allowedValues": [
                         "Connectivity"
                       ]
+                    },
+                    "tagsByResource": {
+                      "type": "object",
+                      "defaultValue": {}
                     }
                   },
                   "resources": [
@@ -5102,7 +5132,8 @@
                         "timeout": "PT1H",
                         "arguments": "[format('-networkManagerName \"{0}\" -targetLocations {1} -configIds {2} -subscriptionId {3} -configType {4} -resourceGroupName {5}', parameters('avnmName'), parameters('location'), parameters('configurationId'), subscription().subscriptionId, parameters('configType'), resourceGroup().name)]",
                         "scriptContent": "    param (\r\n      # AVNM subscription id\r\n      [parameter(mandatory=$true)][string]$subscriptionId,\r\n\r\n      # AVNM resource name\r\n      [parameter(mandatory=$true)][string]$networkManagerName,\r\n\r\n      # string with comma-separated list of config ids to deploy. ids must be of the same config type\r\n      [parameter(mandatory=$true)][string[]]$configIds,\r\n\r\n      # string with comma-separated list of deployment target regions\r\n      [parameter(mandatory=$true)][string[]]$targetLocations,\r\n\r\n      # configuration type to deploy. must be either connecticity or securityadmin\r\n      [parameter(mandatory=$true)][ValidateSet('Connectivity','SecurityAdmin')][string]$configType,\r\n\r\n      # AVNM resource group name\r\n      [parameter(mandatory=$true)][string]$resourceGroupName\r\n    )\r\n  \r\n    $null = Login-AzAccount -Identity -Subscription $subscriptionId\r\n  \r\n    [System.Collections.Generic.List[string]]$configIdList = @()  \r\n    $configIdList.addRange($configIds) \r\n    [System.Collections.Generic.List[string]]$targetLocationList = @() # target locations for deployment\r\n    $targetLocationList.addRange($targetLocations)     \r\n    \r\n    $deployment = @{\r\n        Name = $networkManagerName\r\n        ResourceGroupName = $resourceGroupName\r\n        ConfigurationId = $configIdList\r\n        TargetLocation = $targetLocationList\r\n        CommitType = $configType\r\n    }\r\n  \r\n    try {\r\n      Deploy-AzNetworkManagerCommit @deployment -ErrorAction Stop\r\n    }\r\n    catch {\r\n      Write-Error \"Deployment failed with error: $_\"\r\n      throw \"Deployment failed with error: $_\"\r\n    }\r\n    "
-                      }
+                      },
+                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Resources/deploymentScripts'), parameters('tagsByResource')['Microsoft.Resources/deploymentScripts'], createObject())]"
                     }
                   ]
                 }

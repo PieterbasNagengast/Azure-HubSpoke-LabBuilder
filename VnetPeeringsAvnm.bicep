@@ -7,6 +7,7 @@ param spokeVNETids array
 param hubVNETid string
 param useHubGateway bool
 param deployVnetPeeringMesh bool
+param tagsByResource object = {}
 
 resource hubrg 'Microsoft.Resources/resourceGroups@2021-04-01' existing = {
   name: HubResourceGroupName
@@ -19,6 +20,7 @@ module avnm 'modules/avnm.bicep' = {
     avnmName: avnmName
     avnmSubscriptionScopes: avnmSubscriptionScopes
     location: location
+    tagsByResource: tagsByResource
   }
 }
 
@@ -51,17 +53,9 @@ module userAssignedIdentity 'modules/uai.bicep' = {
   params: {
     location: location
     uaiName: avnm.outputs.name
+    tagsByResource: tagsByResource
   }
 }
-
-// 'Microsoft.Resources/subscriptions/read' -> On Resource Group
-
-// Deployment failed with error: 
-// The client 'b4446e76-50c2-409c-bb15-d5047e3c59e2' 
-// with object id 'b4446e76-50c2-409c-bb15-d5047e3c59e2' 
-// does not have authorization to 
-// perform action 'Microsoft.Network/networkManagers/commit/action' 
-// over scope '/subscriptions/aa66b139-0ef4-4018-8aa7-b9510bea120a/resourceGroups/LabBuilderValidation-hub/providers/Microsoft.Network/networkManagers/LabBuilder-AVNM'
 
 module roleAssignment 'modules/avnmroleassignment.bicep' = {
   scope: hubrg
@@ -82,5 +76,6 @@ module avnmConfigDeployment 'modules/avnmdeployment.bicep' = {
     deploymentScriptName: '${avnm.outputs.name}-DeploymentScript'
     location: location
     userAssignedIdentityId: userAssignedIdentity.outputs.id
+    tagsByResource: tagsByResource
   }
 }

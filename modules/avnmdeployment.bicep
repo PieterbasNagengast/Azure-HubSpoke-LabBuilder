@@ -7,6 +7,7 @@ param deploymentScriptName string
   'Connectivity'
 ])
 param configType string
+param tagsByResource object = {}
 
 resource deploymentScript 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   name: deploymentScriptName
@@ -68,4 +69,5 @@ resource deploymentScript 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
     }
     '''
   }
+  tags: contains(tagsByResource, 'Microsoft.Resources/deploymentScripts') ? tagsByResource['Microsoft.Resources/deploymentScripts'] : {}
 }

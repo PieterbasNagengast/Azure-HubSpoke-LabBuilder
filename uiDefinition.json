@@ -834,7 +834,9 @@
 								"Microsoft.Network/virtualWans",
 								"Microsoft.Resources/subscriptions/resourceGroups",
 								"Microsoft.Insights/dataCollectionRules",
-								"Microsoft.Network/networkManagers"
+								"Microsoft.Network/networkManagers",
+								"Microsoft.Resources/deploymentScripts",
+								"Microsoft.ManagedIdentity/userAssignedIdentities"
 							]
 						}
 					]
