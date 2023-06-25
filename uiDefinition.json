@@ -81,6 +81,17 @@
 							"visible": "[equals(steps('HubVNET').deployHUB,true)]"
 						},
 						{
+							"name": "deployVnetPeeringAVNM",
+							"type": "Microsoft.Common.CheckBox",
+							"label": "Deploy Azure Virtual Network Manager (AVNM)",
+							"defaultValue": false,
+							"toolTip": "Let Azure Virtual Network Manager manage VNET Peerings",
+							"constraints": {
+								"required": false
+							},
+							"visible": "[and(equals(steps('HubVNET').deployHUB,true),equals(steps('HubVNET').VNETorVWAN,'VNET'))]"
+						},
+						{
 							"name": "hubRgName",
 							"type": "Microsoft.Common.TextBox",
 							"label": "Hub Resource Group Name",
@@ -317,13 +328,22 @@
 							"visible": "[equals(steps('SpokeVNETs').deploySpokes,true)]"
 						},
 						{
-							"name": "LinuxDAInfo",
+							"name": "PeeringMeshInfoAVNM",
+							"type": "Microsoft.Common.InfoBox",
+							"options": {
+								"text": "AVNM will be deployed in Hub. Directly Connected Groups in AVNM will be used.",
+								"style": "Info"
+							},
+							"visible": "[and(equals(steps('SpokeVNETs').deployVnetPeeringMesh,true),equals(steps('HubVNET').deployVnetPeeringAVNM,true))]"
+						},
+						{
+							"name": "PeeringMeshInfo",
 							"type": "Microsoft.Common.InfoBox",
 							"options": {
 								"text": "[concat(string(mul(sub(steps('SpokeVNETs').amountOfSpokes,1),steps('SpokeVNETs').amountOfSpokes)), 'x VNET Peerings are created for ', string(steps('SpokeVNETs').amountOfSpokes),'x Spoke VNETs')]",
-								"style": "Info"
+								"style": "Warning"
 							},
-							"visible": "[equals(steps('SpokeVNETs').deployVnetPeeringMesh,true)]"
+							"visible": "[and(equals(steps('SpokeVNETs').deployVnetPeeringMesh,true),equals(steps('HubVNET').deployVnetPeeringAVNM,false))]"
 						},
 						{
 							"name": "deployBastionInSpoke",
@@ -813,7 +833,10 @@
 								"Microsoft.Network/connections",
 								"Microsoft.Network/virtualWans",
 								"Microsoft.Resources/subscriptions/resourceGroups",
-								"Microsoft.Insights/dataCollectionRules"
+								"Microsoft.Insights/dataCollectionRules",
+								"Microsoft.Network/networkManagers",
+								"Microsoft.Resources/deploymentScripts",
+								"Microsoft.ManagedIdentity/userAssignedIdentities"
 							]
 						}
 					]
@@ -824,8 +847,8 @@
 			"parameters": {
 				"AddressSpace": "[steps('basics').AddressSpace]",
 				"tagsByResource": "[steps('tags').tagsByResource]",
-				"adminUsername": "[steps('VirtualMachines').adminUsername]",
-				"adminPassword": "[steps('VirtualMachines').adminPassword.password]",
+				"adminUsername": "[coalesce(steps('VirtualMachines').adminUsername,'')]",
+				"adminPassword": "[coalesce(steps('VirtualMachines').adminPassword.password,'')]",
 				"deployVMsInSpokes": "[coalesce(steps('VirtualMachines').deployVMsInSpokes,false)]",
 				"deployVMinHub": "[coalesce(steps('VirtualMachines').deployVMinHub,false)]",
 				"deployVMinOnPrem": "[coalesce(steps('VirtualMachines').deployVMinOnPrem,false)]",
@@ -835,6 +858,7 @@
 				"deployVnetPeeringMesh": "[coalesce(steps('SpokeVNETs').deployVnetPeeringMesh,false)]",
 				"deployHUB": "[coalesce(steps('HubVNET').deployHUB,false)]",
 				"hubType": "[steps('HubVNET').VNETorVWAN]",
+				"deployVnetPeeringAVNM": "[steps('HubVNET').deployVnetPeeringAVNM]",
 				"hubRgName": "[steps('HubVNET').hubRgName]",
 				"deployBastionInHub": "[coalesce(steps('HubVNET').deployBastionInHub,false)]",
 				"deployGatewayInHub": "[or(steps('HubVNET').deployGatewayInHub,steps('OnPrem').deploySite2Site)]",
