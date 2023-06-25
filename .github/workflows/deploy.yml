@@ -43,7 +43,7 @@ jobs:
           az bicep build --file main.bicep
 
   DeployScenarios:
-    name: "Deploy ${{ inputs.LabBuilderType }} scenari ${{ strategy.job-index }}"
+    name: "Deploy ${{ inputs.LabBuilderType }} scenario ${{ strategy.job-index }}"
     runs-on: ubuntu-latest
     needs: BicepBuildandLint
     strategy:
