@@ -12,11 +12,11 @@ param onPremSubscriptionID string = subscription().subscriptionId
 
 // Virtual Machine parameters
 @description('Admin username for VM')
-param adminUsername string = ''
+param adminUsername string
 
 @description('Admin Password for VM')
 @secure()
-param adminPassword string = ''
+param adminPassword string
 
 @description('Hub Virtual Machine SKU. Default = Standard_B2s')
 param vmSizeHub string = 'Standard_B2s'
