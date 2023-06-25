@@ -141,6 +141,9 @@ param hubBgp bool = false
 @description('Hub BGP ASN')
 param hubBgpAsn int = 65515
 
+@description('Let Azure Virtual Network Manager manage Peerings in Hub&Spoke')
+param deployVnetPeeringAVNM bool = false
+
 // OnPrem parameters\
 @description('Deploy Virtual Network Gateway in OnPrem')
 param deployOnPrem bool = false
@@ -259,7 +262,7 @@ module spokeVnets 'SpokeResourceGroup.bicep' = [for i in range(1, amountOfSpokes
 }]
 
 // VNET Peerings
-module vnetPeerings 'VnetPeerings.bicep' = [for i in range(0, amountOfSpokes): if (deployHUB && deploySpokes && hubType == 'VNET') {
+module vnetPeerings 'VnetPeerings.bicep' = [for i in range(0, amountOfSpokes): if (deployHUB && deploySpokes && hubType == 'VNET' && !deployVnetPeeringAVNM) {
   name: '${hubRgName}-VnetPeering${i + 1}-${location}'
   params: {
     HubResourceGroupName: deployHUB && deploySpokes && hubType == 'VNET' ? hubVnet.outputs.HubResourceGroupName : 'No VNET peering'
@@ -276,7 +279,7 @@ module vnetPeerings 'VnetPeerings.bicep' = [for i in range(0, amountOfSpokes): i
 }]
 
 // VNET Peerings Mesh
-module vnetPeeringsMesh 'VnetPeeringsMesh.bicep' = [for i1 in range(0, amountOfSpokes): if (deployVnetPeeringMesh && deploySpokes) {
+module vnetPeeringsMesh 'VnetPeeringsMesh.bicep' = [for i1 in range(0, amountOfSpokes): if (deployVnetPeeringMesh && deploySpokes && !deployVnetPeeringAVNM) {
   name: 'Prepare-Vnet-Peering-Mesh${i1}'
   params: {
     SpokeResourceGroupName: deployVnetPeeringMesh && deploySpokes ? spokeVnets[i1].outputs.spokeResourceGroupName : 'No peering'
@@ -292,6 +295,20 @@ module vnetPeeringsMesh 'VnetPeeringsMesh.bicep' = [for i1 in range(0, amountOfS
     vnetPeerings
   ]
 }]
+
+// VNET Peerings AVNM
+module vnetPeeringsAVNM 'VnetPeeringsAvnm.bicep' = if (deployHUB && deploySpokes && hubType == 'VNET' && deployVnetPeeringAVNM) {
+  name: '${hubRgName}-${location}-AVNM'
+  params: {
+    avnmSubscriptionScopes: deployHUB && deploySpokes ? concat(union(array('/subscriptions/${hubSubscriptionID}'), array('/subscriptions/${spokeSubscriptionID}'))) : []
+    HubResourceGroupName: hubVnet.outputs.HubResourceGroupName ?? 'No Hub'
+    spokeVNETids: [for i in range(0, amountOfSpokes): spokeVnets[i].outputs.spokeVnetID]
+    hubVNETid: hubVnet.outputs.hubVnetID
+    useHubGateway: deployGatewayInHub
+    deployVnetPeeringMesh: deployVnetPeeringMesh
+    location: location
+  }
+}
 
 // VNET Connections to Azure vWAN
 @batchSize(1)
