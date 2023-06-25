@@ -180,7 +180,10 @@ Within these **main** scenario's there are multiple options (but not limited to 
 
 When deploying a Hub you can also deploy a Azure Virtual Network Manager (AVNM). AVNM will be deployed in the HUB resource group and will add the Spoke VNET's as 'static' members of the Network Group. Connectivity configuration is added to support HUB&Spoke topology. Configuration will be deployed using a Deployment Script and User Assigned Identity.
 
-Note: You will need to have 'Owner' rights on the HUB resource group to deploy AVNM. The deployment script will create a User Assigned Identity and assign the 'Network Contributor' role to the HUB resource group.
+> :warning: **Warning:**
+> You will need to have 'Owner' rights on the HUB resource group to deploy AVNM. 
+> The deployment script will create a User Assigned Identity and assign the 'Network Contributor' role to the HUB resource group.
+> This is required to run the Deployment Script which deploys the AVNM configuration.
 
 ## Parameters overview
 
