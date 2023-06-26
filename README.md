@@ -47,18 +47,23 @@ This Lab Builder is built for testing, training, learning, reproduce and demo pu
 Optionaly you can deploy:
 
 - Azure Firewall (Standard or Premium) in the Hub (VNET or vWAN) incl. Route table
+- Azure Virtual network manager (AVNM) with Hub & Spoke topology and optionally Directly Connected network group.
 - Virtual Machines in Hub VNET and/or Spoke VNET's **
-- Bastion Host in Hub VNET and/or Spoke VNET's
+- Bastion Host in Hub VNET and/or Spoke VNET's ****
+- Azure Monitor Agent and Dependency Agent on Virtual Machines
 - Azure Firewall rule Collection group which enables spoke-to-spoke and internet traffic.
+- Full meshed Spokes base on standard VNET peerings (Whitout AVNM)
 - Simulated 'OnPremises' VNET with optional ***:
   - VPN Gateway
   - Site-2-Site VPN connection to Hub (VNET or vWAN)
   - Bastion Host
   - Virtual Machine
 
-** On deployemnt you can specify the amount of Spoke VNET's to be deployed. VNET peerings will be deployed if both Hub and Spoke(s) are selected for deployement.
+** On deployemnt you can specify the amount of Spoke VNET's to be deployed. VNET peerings will be deployed if both Hub and Spoke(s) are selected for deployement. When deploying together with AVNM the VNET peerings will be managed by AVNM.
 
 *** To simulate OnPrem hybrid connectivity you can optionaly deploy a 'OnPrem' VNET. Optionaly deploy a Bastion Host, Virtual Machine and Virtual Network Gateway in the OnPrem VNET. When a Hub is also deployed with a VPN Gateway you can optionaly deploy a site-to-site VPN connection.
+
+**** Azure Virtual Network Manager is onyl supported in 'VNET' Hub & Spoke topology.
 
 ## Scenario's
 
@@ -242,6 +247,7 @@ When deploying a Hub you can also deploy a Azure Virtual Network Manager (AVNM).
 ## Updates
 
 ### Juni 2023 updates
+
 - Deploy Azure Virtual Network Manager (AVNM) to manage VNET Peerings
 
 ### May 2023 updates
