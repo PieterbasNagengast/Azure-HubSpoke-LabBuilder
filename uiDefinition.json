@@ -37,12 +37,22 @@
 					"elements": [
 						{
 							"name": "deployHUB",
-							"type": "Microsoft.Common.CheckBox",
+							"type": "Microsoft.Common.OptionsGroup",
 							"label": "Deploy Hub",
-							"defaultValue": true,
+							"defaultValue": "yes",
 							"toolTip": "Deploy Hub VNET",
 							"constraints": {
-								"required": false
+								"allowedValues": [
+									{
+										"label": "yes",
+										"value": true
+									},
+									{
+										"label": "no",
+										"value": false
+									}
+								],
+								"required": true
 							},
 							"visible": true
 						},
@@ -82,12 +92,22 @@
 						},
 						{
 							"name": "deployVnetPeeringAVNM",
-							"type": "Microsoft.Common.CheckBox",
+							"type": "Microsoft.Common.OptionsGroup",
 							"label": "Deploy Azure Virtual Network Manager (AVNM)",
-							"defaultValue": false,
+							"defaultValue": "no",
 							"toolTip": "Let Azure Virtual Network Manager manage VNET Peerings",
 							"constraints": {
-								"required": false
+								"allowedValues": [
+									{
+										"label": "yes",
+										"value": true
+									},
+									{
+										"label": "no",
+										"value": false
+									}
+								],
+								"required": true
 							},
 							"visible": "[and(equals(steps('HubVNET').deployHUB,true),equals(steps('HubVNET').VNETorVWAN,'VNET'))]"
 						},
@@ -112,12 +132,22 @@
 						},
 						{
 							"name": "deployBastionInHub",
-							"type": "Microsoft.Common.CheckBox",
+							"type": "Microsoft.Common.OptionsGroup",
 							"label": "Deploy Bastion In Hub",
-							"defaultValue": false,
+							"defaultValue": "no",
 							"toolTip": "Deploy Bastion Host in Hub VNET",
 							"constraints": {
-								"required": false
+								"allowedValues": [
+									{
+										"label": "yes",
+										"value": true
+									},
+									{
+										"label": "no",
+										"value": false
+									}
+								],
+								"required": true
 							},
 							"visible": "[and(equals(steps('HubVNET').deployHUB,true),equals(steps('HubVNET').VNETorVWAN,'VNET'))]"
 						},
@@ -144,23 +174,43 @@
 						},
 						{
 							"name": "deployGatewayInHub",
-							"type": "Microsoft.Common.CheckBox",
+							"type": "Microsoft.Common.OptionsGroup",
 							"label": "Deploy Virtual Network Gateway In Hub",
-							"defaultValue": false,
+							"defaultValue": "no",
 							"toolTip": "Deploy Virtual Network Gateway in Hub VNET",
 							"constraints": {
-								"required": false
+								"allowedValues": [
+									{
+										"label": "yes",
+										"value": true
+									},
+									{
+										"label": "no",
+										"value": false
+									}
+								],
+								"required": true
 							},
 							"visible": "[equals(steps('HubVNET').deployHUB,true)]"
 						},
 						{
 							"name": "hubBgp",
-							"type": "Microsoft.Common.CheckBox",
+							"type": "Microsoft.Common.OptionsGroup",
 							"label": "Enable BGP",
-							"defaultValue": false,
+							"defaultValue": "no",
 							"toolTip": "Enable BGP on VPN Gateway",
 							"constraints": {
-								"required": false
+								"allowedValues": [
+									{
+										"label": "yes",
+										"value": true
+									},
+									{
+										"label": "no",
+										"value": false
+									}
+								],
+								"required": true
 							},
 							"visible": "[and(equals(steps('HubVNET').deployHUB,true),equals(steps('HubVNET').deployGatewayInHub,true))]"
 						},
@@ -189,12 +239,22 @@
 						},
 						{
 							"name": "deployFirewallInHub",
-							"type": "Microsoft.Common.CheckBox",
+							"type": "Microsoft.Common.OptionsGroup",
 							"label": "Deploy Firewall In Hub",
-							"defaultValue": false,
+							"defaultValue": "no",
 							"toolTip": "Deploy Azure Firewall in Hub VNET. includes deployment of custom route tables in Spokes and Hub VNETs",
 							"constraints": {
-								"required": false
+								"allowedValues": [
+									{
+										"label": "yes",
+										"value": true
+									},
+									{
+										"label": "no",
+										"value": false
+									}
+								],
+								"required": true
 							},
 							"visible": "[equals(steps('HubVNET').deployHUB,true)]"
 						},
@@ -221,34 +281,64 @@
 						},
 						{
 							"name": "AzureFirewallDNSproxy",
-							"type": "Microsoft.Common.CheckBox",
+							"type": "Microsoft.Common.OptionsGroup",
 							"label": "Enable Azure Firewall DNS Proxy",
-							"defaultValue": false,
+							"defaultValue": "no",
 							"toolTip": "Enable Azure Firewall DNS Proxy",
 							"constraints": {
-								"required": false
+								"allowedValues": [
+									{
+										"label": "yes",
+										"value": true
+									},
+									{
+										"label": "no",
+										"value": false
+									}
+								],
+								"required": true
 							},
 							"visible": "[and(equals(steps('HubVNET').deployHUB,true),equals(steps('HubVNET').deployFirewallInHub,true))]"
 						},
 						{
 							"name": "deployFirewallrules",
-							"type": "Microsoft.Common.CheckBox",
+							"type": "Microsoft.Common.OptionsGroup",
 							"label": "Deploy Firewall policy rules",
-							"defaultValue": false,
+							"defaultValue": "yes",
 							"toolTip": "Deploy Firewall policy Rule Collection group which allows spoke-to-spoke and internet traffic",
 							"constraints": {
-								"required": false
+								"allowedValues": [
+									{
+										"label": "yes",
+										"value": true
+									},
+									{
+										"label": "no",
+										"value": false
+									}
+								],
+								"required": true
 							},
 							"visible": "[and(equals(steps('HubVNET').deployHUB,true),equals(steps('HubVNET').deployFirewallInHub,true))]"
 						},
 						{
 							"name": "deployUDRs",
-							"type": "Microsoft.Common.CheckBox",
+							"type": "Microsoft.Common.OptionsGroup",
 							"label": "Deploy route tables (UDR's) to VM subnet(s) in Hub and Spokes",
-							"defaultValue": true,
+							"defaultValue": "yes",
 							"toolTip": "Deploy route tables (UDR's) to VM subnet(s) in Hub and Spokes",
 							"constraints": {
-								"required": false
+								"allowedValues": [
+									{
+										"label": "yes",
+										"value": true
+									},
+									{
+										"label": "no",
+										"value": false
+									}
+								],
+								"required": true
 							},
 							"visible": "[and(equals(steps('HubVNET').deployHUB,true),equals(steps('HubVNET').deployFirewallInHub,true))]"
 						}
@@ -260,12 +350,22 @@
 					"elements": [
 						{
 							"name": "deploySpokes",
-							"type": "Microsoft.Common.CheckBox",
+							"type": "Microsoft.Common.OptionsGroup",
 							"label": "Deploy Spokes",
-							"defaultValue": true,
+							"defaultValue": "yes",
 							"toolTip": "Deploy Spoke VNETs",
 							"constraints": {
-								"required": false
+								"allowedValues": [
+									{
+										"label": "yes",
+										"value": true
+									},
+									{
+										"label": "no",
+										"value": false
+									}
+								],
+								"required": true
 							},
 							"visible": true
 						},
@@ -318,12 +418,22 @@
 						},
 						{
 							"name": "deployVnetPeeringMesh",
-							"type": "Microsoft.Common.CheckBox",
+							"type": "Microsoft.Common.OptionsGroup",
 							"label": "Directly connect Spoke VNET's in a Fully Meshed topology",
-							"defaultValue": false,
+							"defaultValue": "no",
 							"toolTip": "directly connect spoke virtual networks to each other in a fully meshed topology using standard VNET peerings.",
 							"constraints": {
-								"required": false
+								"allowedValues": [
+									{
+										"label": "yes",
+										"value": true
+									},
+									{
+										"label": "no",
+										"value": false
+									}
+								],
+								"required": true
 							},
 							"visible": "[equals(steps('SpokeVNETs').deploySpokes,true)]"
 						},
@@ -347,12 +457,22 @@
 						},
 						{
 							"name": "deployBastionInSpoke",
-							"type": "Microsoft.Common.CheckBox",
+							"type": "Microsoft.Common.OptionsGroup",
 							"label": "Deploy Bastion In Spoke",
-							"defaultValue": false,
+							"defaultValue": "no",
 							"toolTip": "Deploy Bastion Host in every Spoke VNET",
 							"constraints": {
-								"required": false
+								"allowedValues": [
+									{
+										"label": "yes",
+										"value": true
+									},
+									{
+										"label": "no",
+										"value": false
+									}
+								],
+								"required": true
 							},
 							"visible": "[equals(steps('SpokeVNETs').deploySpokes,true)]"
 						},
@@ -385,12 +505,22 @@
 					"elements": [
 						{
 							"name": "deployOnPrem",
-							"type": "Microsoft.Common.CheckBox",
+							"type": "Microsoft.Common.OptionsGroup",
 							"label": "Deploy OnPrem",
-							"defaultValue": false,
+							"defaultValue": "no",
 							"toolTip": "Simulate OnPrem as VNET",
 							"constraints": {
-								"required": false
+								"allowedValues": [
+									{
+										"label": "yes",
+										"value": true
+									},
+									{
+										"label": "no",
+										"value": false
+									}
+								],
+								"required": true
 							},
 							"visible": true
 						},
@@ -428,12 +558,22 @@
 						},
 						{
 							"name": "deployBastionInOnPrem",
-							"type": "Microsoft.Common.CheckBox",
+							"type": "Microsoft.Common.OptionsGroup",
 							"label": "Deploy Bastion In OnPrem",
-							"defaultValue": false,
+							"defaultValue": "no",
 							"toolTip": "Deploy Bastion Host in OnPrem VNET",
 							"constraints": {
-								"required": false
+								"allowedValues": [
+									{
+										"label": "yes",
+										"value": true
+									},
+									{
+										"label": "no",
+										"value": false
+									}
+								],
+								"required": true
 							},
 							"visible": "[equals(steps('OnPrem').deployOnPrem,true)]"
 						},
@@ -460,23 +600,43 @@
 						},
 						{
 							"name": "deployGatewayInOnPrem",
-							"type": "Microsoft.Common.CheckBox",
+							"type": "Microsoft.Common.OptionsGroup",
 							"label": "Deploy Virtual Network Gateway In OnPrem",
-							"defaultValue": false,
+							"defaultValue": "no",
 							"toolTip": "Deploy Virtual Network Gateway in OnPrem VNET",
 							"constraints": {
-								"required": false
+								"allowedValues": [
+									{
+										"label": "yes",
+										"value": true
+									},
+									{
+										"label": "no",
+										"value": false
+									}
+								],
+								"required": true
 							},
 							"visible": "[equals(steps('OnPrem').deployOnPrem,true)]"
 						},
 						{
 							"name": "onpremBgp",
-							"type": "Microsoft.Common.CheckBox",
+							"type": "Microsoft.Common.OptionsGroup",
 							"label": "Enable BGP",
-							"defaultValue": false,
+							"defaultValue": "no",
 							"toolTip": "Enable BGP on VPN Gateway",
 							"constraints": {
-								"required": false
+								"allowedValues": [
+									{
+										"label": "yes",
+										"value": true
+									},
+									{
+										"label": "no",
+										"value": false
+									}
+								],
+								"required": true
 							},
 							"visible": "[and(equals(steps('OnPrem').deployOnPrem,true),equals(steps('OnPrem').deployGatewayInOnPrem,true))]"
 						},
@@ -505,12 +665,22 @@
 						},
 						{
 							"name": "deploySite2Site",
-							"type": "Microsoft.Common.CheckBox",
+							"type": "Microsoft.Common.OptionsGroup",
 							"label": "Deploy Site-to-Site connection between Hub and OnPrem Gateways",
-							"defaultValue": false,
+							"defaultValue": "no",
 							"toolTip": "Deploy Site-to-Site connection between Hub and OnPrem Gateways",
 							"constraints": {
-								"required": false
+								"allowedValues": [
+									{
+										"label": "yes",
+										"value": true
+									},
+									{
+										"label": "no",
+										"value": false
+									}
+								],
+								"required": true
 							},
 							"visible": "[and(equals(steps('OnPrem').deployGatewayInOnPrem,true),equals(steps('OnPrem').deployOnPrem,true))]"
 						},
@@ -545,34 +715,64 @@
 					"elements": [
 						{
 							"name": "deployVMinHub",
-							"type": "Microsoft.Common.CheckBox",
+							"type": "Microsoft.Common.OptionsGroup",
 							"label": "Deploy VM in Hub",
-							"defaultValue": false,
+							"defaultValue": "no",
 							"toolTip": "Deploy VM in Hub VNET",
 							"constraints": {
-								"required": false
+								"allowedValues": [
+									{
+										"label": "yes",
+										"value": true
+									},
+									{
+										"label": "no",
+										"value": false
+									}
+								],
+								"required": true
 							},
 							"visible": "[and(coalesce(steps('HubVNET').deployHUB,false),equals(steps('HubVNET').VNETorVWAN,'VNET'))]"
 						},
 						{
 							"name": "deployVMsInSpokes",
-							"type": "Microsoft.Common.CheckBox",
+							"type": "Microsoft.Common.OptionsGroup",
 							"label": "Deploy VM's In Spokes",
-							"defaultValue": false,
+							"defaultValue": "no",
 							"toolTip": "Deploy VM in every Spoke VNET",
 							"constraints": {
-								"required": false
+								"allowedValues": [
+									{
+										"label": "yes",
+										"value": true
+									},
+									{
+										"label": "no",
+										"value": false
+									}
+								],
+								"required": true
 							},
 							"visible": "[coalesce(steps('SpokeVNETs').deploySpokes,false)]"
 						},
 						{
 							"name": "deployVMinOnPrem",
-							"type": "Microsoft.Common.CheckBox",
+							"type": "Microsoft.Common.OptionsGroup",
 							"label": "Deploy VM In OnPrem",
-							"defaultValue": false,
+							"defaultValue": "no",
 							"toolTip": "Deploy VM in OnPrem VNET",
 							"constraints": {
-								"required": false
+								"allowedValues": [
+									{
+										"label": "yes",
+										"value": true
+									},
+									{
+										"label": "no",
+										"value": false
+									}
+								],
+								"required": true
 							},
 							"visible": "[coalesce(steps('OnPrem').deployOnPrem,false)]"
 						},
@@ -596,12 +796,22 @@
 						},
 						{
 							"name": "deployAMA",
-							"type": "Microsoft.Common.CheckBox",
+							"type": "Microsoft.Common.OptionsGroup",
 							"label": "Deploy Azure Monitor Agent (AMA) including Depency Agent (Service Map)",
 							"toolTip": "Dependency Agent Only applicable on Windows VM's",
-							"defaultValue": false,
+							"defaultValue": "no",
 							"constraints": {
-								"required": false
+								"allowedValues": [
+									{
+										"label": "yes",
+										"value": true
+									},
+									{
+										"label": "no",
+										"value": false
+									}
+								],
+								"required": true
 							},
 							"visible": "[or(equals(steps('VirtualMachines').deployVMsInSpokes,true),equals(steps('VirtualMachines').deployVMinHub,true),equals(steps('VirtualMachines').deployVMinOnPrem,true))]"
 						},
