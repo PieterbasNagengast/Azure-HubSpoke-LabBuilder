@@ -282,12 +282,12 @@ module vnetPeerings 'VnetPeerings.bicep' = [for i in range(0, amountOfSpokes): i
 module vnetPeeringsMesh 'VnetPeeringsMesh.bicep' = [for i1 in range(0, amountOfSpokes): if (deployVnetPeeringMesh && deploySpokes && !deployVnetPeeringAVNM) {
   name: 'Prepare-Vnet-Peering-Mesh${i1}'
   params: {
-    SpokeResourceGroupName: deployVnetPeeringMesh && deploySpokes ? spokeVnets[i1].outputs.spokeResourceGroupName : 'No peering'
-    SpokeVnetName: deployVnetPeeringMesh && deploySpokes ? spokeVnets[i1].outputs.spokeVnetName : 'No VNET peering'
+    SpokeResourceGroupName: deployVnetPeeringMesh && deploySpokes && !deployVnetPeeringAVNM ? spokeVnets[i1].outputs.spokeResourceGroupName : 'No VNET peering'
+    SpokeVnetName: deployVnetPeeringMesh && deploySpokes && !deployVnetPeeringAVNM ? spokeVnets[i1].outputs.spokeVnetName : 'No VNET peering'
     spokeVnets: [for i2 in range(0, amountOfSpokes): {
-      ID: spokeVnets[i2].outputs.spokeVnetID
-      Name: spokeVnets[i2].outputs.spokeVnetName
-      RgName: spokeVnets[i2].outputs.spokeResourceGroupName
+      ID: deployVnetPeeringMesh && deploySpokes && !deployVnetPeeringAVNM ? spokeVnets[i2].outputs.spokeVnetID : 'No VNET peering'
+      Name: deployVnetPeeringMesh && deploySpokes && !deployVnetPeeringAVNM ? spokeVnets[i2].outputs.spokeVnetName : 'No VNET peering'
+      RgName: deployVnetPeeringMesh && deploySpokes && !deployVnetPeeringAVNM ? spokeVnets[i2].outputs.spokeResourceGroupName : 'No peering'
     }]
     spokeSubscriptionID: spokeSubscriptionID
   }

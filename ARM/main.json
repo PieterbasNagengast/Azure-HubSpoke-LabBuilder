@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.24.24.22086",
-      "templateHash": "17849428295065247204"
+      "templateHash": "9708355265972128176"
     }
   },
   "parameters": {
@@ -4392,14 +4392,14 @@
         },
         "mode": "Incremental",
         "parameters": {
-          "SpokeResourceGroupName": "[if(and(parameters('deployVnetPeeringMesh'), parameters('deploySpokes')), createObject('value', reference(subscriptionResourceId(parameters('spokeSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]], parameters('location'))), '2022-09-01').outputs.spokeResourceGroupName.value), createObject('value', 'No peering'))]",
-          "SpokeVnetName": "[if(and(parameters('deployVnetPeeringMesh'), parameters('deploySpokes')), createObject('value', reference(subscriptionResourceId(parameters('spokeSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]], parameters('location'))), '2022-09-01').outputs.spokeVnetName.value), createObject('value', 'No VNET peering'))]",
+          "SpokeResourceGroupName": "[if(and(and(parameters('deployVnetPeeringMesh'), parameters('deploySpokes')), not(parameters('deployVnetPeeringAVNM'))), createObject('value', reference(subscriptionResourceId(parameters('spokeSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]], parameters('location'))), '2022-09-01').outputs.spokeResourceGroupName.value), createObject('value', 'No VNET peering'))]",
+          "SpokeVnetName": "[if(and(and(parameters('deployVnetPeeringMesh'), parameters('deploySpokes')), not(parameters('deployVnetPeeringAVNM'))), createObject('value', reference(subscriptionResourceId(parameters('spokeSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]], parameters('location'))), '2022-09-01').outputs.spokeVnetName.value), createObject('value', 'No VNET peering'))]",
           "spokeVnets": {
             "copy": [
               {
                 "name": "value",
                 "count": "[length(range(0, parameters('amountOfSpokes')))]",
-                "input": "[createObject('ID', reference(subscriptionResourceId(parameters('spokeSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex('value')]], parameters('location'))), '2022-09-01').outputs.spokeVnetID.value, 'Name', reference(subscriptionResourceId(parameters('spokeSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex('value')]], parameters('location'))), '2022-09-01').outputs.spokeVnetName.value, 'RgName', reference(subscriptionResourceId(parameters('spokeSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex('value')]], parameters('location'))), '2022-09-01').outputs.spokeResourceGroupName.value)]"
+                "input": "[createObject('ID', if(and(and(parameters('deployVnetPeeringMesh'), parameters('deploySpokes')), not(parameters('deployVnetPeeringAVNM'))), reference(subscriptionResourceId(parameters('spokeSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex('value')]], parameters('location'))), '2022-09-01').outputs.spokeVnetID.value, 'No VNET peering'), 'Name', if(and(and(parameters('deployVnetPeeringMesh'), parameters('deploySpokes')), not(parameters('deployVnetPeeringAVNM'))), reference(subscriptionResourceId(parameters('spokeSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex('value')]], parameters('location'))), '2022-09-01').outputs.spokeVnetName.value, 'No VNET peering'), 'RgName', if(and(and(parameters('deployVnetPeeringMesh'), parameters('deploySpokes')), not(parameters('deployVnetPeeringAVNM'))), reference(subscriptionResourceId(parameters('spokeSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex('value')]], parameters('location'))), '2022-09-01').outputs.spokeResourceGroupName.value, 'No peering'))]"
               }
             ]
           },
