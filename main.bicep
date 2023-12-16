@@ -301,10 +301,10 @@ module vnetPeeringsAVNM 'VnetPeeringsAvnm.bicep' = if (deployHUB && deploySpokes
   scope: subscription(hubSubscriptionID)
   name: '${hubRgName}-${location}-AVNM'
   params: {
-    avnmSubscriptionScopes: deployHUB && deploySpokes ? concat(union(array('/subscriptions/${hubSubscriptionID}'), array('/subscriptions/${spokeSubscriptionID}'))) : []
-    HubResourceGroupName: hubVnet.outputs.HubResourceGroupName ?? 'No Hub'
-    spokeVNETids: [for i in range(0, amountOfSpokes): spokeVnets[i].outputs.spokeVnetID]
-    hubVNETid: hubVnet.outputs.hubVnetID
+    avnmSubscriptionScopes: deployHUB && deploySpokes && hubType == 'VNET' && deployVnetPeeringAVNM ? concat(union(array('/subscriptions/${hubSubscriptionID}'), array('/subscriptions/${spokeSubscriptionID}'))) : []
+    HubResourceGroupName: deployHUB && deploySpokes && hubType == 'VNET' && deployVnetPeeringAVNM ? hubVnet.outputs.HubResourceGroupName : 'No Hub'
+    spokeVNETids: [for i in range(0, amountOfSpokes): deployHUB && deploySpokes && hubType == 'VNET' && deployVnetPeeringAVNM ? spokeVnets[i].outputs.spokeVnetID : []]
+    hubVNETid: deployHUB && deploySpokes && hubType == 'VNET' && deployVnetPeeringAVNM ? hubVnet.outputs.hubVnetID : 'No Hub'
     useHubGateway: deployGatewayInHub
     deployVnetPeeringMesh: deployVnetPeeringMesh
     location: location
@@ -346,7 +346,7 @@ module onprem 'OnPremResourceGroup.bicep' = if (deployOnPrem) {
     vpnGwEnebaleBgp: onpremBgp
     bastionSku: bastionInOnPremSKU
     diagnosticWorkspaceId: diagnosticWorkspaceId
-    dcrID: hubType == 'VNET' ? hubVnet.outputs.dcrvminsightsID : hubType == 'VWAN' ? vwan.outputs.dcrvminsightsID : ''
+    dcrID: deployOnPrem && hubType == 'VNET' ? hubVnet.outputs.dcrvminsightsID : hubType == 'VWAN' ? vwan.outputs.dcrvminsightsID : ''
   }
 }
 
