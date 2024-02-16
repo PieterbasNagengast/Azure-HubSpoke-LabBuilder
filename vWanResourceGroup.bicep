@@ -11,7 +11,7 @@ param tagsByResource object = {}
 param firewallDNSproxy bool
 param diagnosticWorkspaceId string
 
-var vnetAddressSpace = replace(AddressSpace, '/16', '/24')
+var vnetAddressSpace = AddressSpace
 
 var vWanName = 'vWAN'
 var firewallName = 'Firewall-Hub'

@@ -27,10 +27,9 @@ var nsgName = 'NSG-OnPrem'
 var bastionName = 'Bastion-OnPrem'
 var gatewayName = 'Gateway-OnPrem'
 
-var vnetAddressSpace = replace(AddressSpace, '0.0/16', '255.0/24')
-var defaultSubnetPrefix = replace(vnetAddressSpace, '/24', '/26')
-var bastionSubnetPrefix = replace(vnetAddressSpace, '0/24', '128/27')
-var gatewaySubnetPrefix = replace(vnetAddressSpace, '0/24', '160/27')
+var defaultSubnetPrefix = cidrSubnet(AddressSpace, 26, 0)
+var bastionSubnetPrefix = cidrSubnet(AddressSpace, 27, 4)
+var gatewaySubnetPrefix = cidrSubnet(AddressSpace, 27, 5)
 
 resource onpremrg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   name: OnPremRgName
@@ -43,7 +42,7 @@ module vnet 'modules/vnet.bicep' = {
   name: vnetName
   params: {
     location: location
-    vnetAddressSpcae: vnetAddressSpace
+    vnetAddressSpcae: AddressSpace
     nsgID: nsg.outputs.nsgID
     vnetname: vnetName
     defaultSubnetPrefix: defaultSubnetPrefix
@@ -109,6 +108,6 @@ module vpngw 'modules/vpngateway.bicep' = if (deployGatewayInOnPrem) {
 
 output OnPremGatewayPublicIP string = deployGatewayInOnPrem ? vpngw.outputs.vpnGwPublicIP : 'none'
 output OnPremGatewayID string = deployGatewayInOnPrem ? vpngw.outputs.vpnGwID : 'none'
-output OnPremAddressSpace string = vnetAddressSpace
+output OnPremAddressSpace string = AddressSpace
 output OnPremGwBgpPeeringAddress string = deployGatewayInOnPrem ? vpngw.outputs.vpnGwBgpPeeringAddress : 'none'
 output OnPremGwBgpAsn int = deployGatewayInOnPrem && vpnGwEnebaleBgp ? vpngw.outputs.vpnGwAsn : 0

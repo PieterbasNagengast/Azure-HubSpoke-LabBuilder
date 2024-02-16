@@ -181,10 +181,7 @@ param onpremBgp bool = false
 param onpremBgpAsn int = 65020
 
 // Create array of all Address Spaces used for site-to-site connection from Hub to OnPrem
-var AllAddressSpaces = [for i in range(0, amountOfSpokes + 1): replace(AddressSpace, '0.0/16', '${i}.0/24')]
-
-// Create array of all Spoke Address Spaces used to set routes on VPN Gateway rout table in Hub
-var AllSpokeAddressSpaces = [for i in range(1, amountOfSpokes): replace(AddressSpace, '0.0/16', '${i}.0/24')]
+var AllAddressSpaces = [for i in range(0, amountOfSpokes + 1): cidrSubnet(AddressSpace, 24, i)]
 
 // Deploy Hub VNET including VM, Bastion Host, Route Table, Network Security group and Azure Firewall
 module hubVnet 'HubResourceGroup.bicep' = if (deployHUB && hubType == 'VNET') {
@@ -194,6 +191,7 @@ module hubVnet 'HubResourceGroup.bicep' = if (deployHUB && hubType == 'VNET') {
     deployBastionInHub: deployBastionInHub && hubType == 'VNET'
     location: location
     AddressSpace: AddressSpace
+    hubAddressSpace: AllAddressSpaces[0]
     adminPassword: adminPassword
     adminUsername: adminUsername
     deployVMinHub: deployVMinHub && hubType == 'VNET'
@@ -205,7 +203,7 @@ module hubVnet 'HubResourceGroup.bicep' = if (deployHUB && hubType == 'VNET') {
     vmSize: vmSizeHub
     tagsByResource: tagsByResource
     osType: osTypeHub
-    AllSpokeAddressSpaces: AllSpokeAddressSpaces
+    AllSpokeAddressSpaces: skip(AllAddressSpaces, 1)
     vpnGwBgpAsn: hubBgp ? hubBgpAsn : 65515
     vpnGwEnebaleBgp: hubBgp
     deployUDRs: deployUDRs
@@ -222,7 +220,7 @@ module vwan 'vWanResourceGroup.bicep' = if (deployHUB && hubType == 'VWAN') {
   params: {
     location: location
     deployFirewallInHub: deployFirewallInHub && hubType == 'VWAN'
-    AddressSpace: AddressSpace
+    AddressSpace: AllAddressSpaces[0]
     AzureFirewallTier: AzureFirewallTier
     firewallDNSproxy: firewallDNSproxy && hubType == 'VWAN'
     deployFirewallrules: deployFirewallrules && hubType == 'VWAN'
@@ -240,7 +238,7 @@ module spokeVnets 'SpokeResourceGroup.bicep' = [for i in range(1, amountOfSpokes
   params: {
     location: location
     counter: i
-    AddressSpace: AddressSpace
+    AddressSpace: AllAddressSpaces[i]
     deployBastionInSpoke: deployBastionInSpoke
     adminPassword: adminPassword
     adminUsername: adminUsername
@@ -334,7 +332,7 @@ module onprem 'OnPremResourceGroup.bicep' = if (deployOnPrem) {
     location: location
     adminPassword: adminPassword
     adminUsername: adminUsername
-    AddressSpace: AddressSpace
+    AddressSpace: cidrSubnet(AddressSpace, 24, 255)
     deployBastionInOnPrem: deployBastionInOnPrem
     deployGatewayInOnPrem: deployGatewayinOnPrem
     deployVMsInOnPrem: deployVMinOnPrem
@@ -405,7 +403,7 @@ module vwans2s 'vWanVpnConnections.bicep' = if (deployGatewayInHub && deployGate
 output VNET_AzFwPrivateIp string = deployFirewallInHub && deployHUB && hubType == 'VNET' ? hubVnet.outputs.azFwIp : 'none'
 output VWAN_AzFwPublicIp array = deployFirewallInHub && deployHUB && hubType == 'VWAN' ? vwan.outputs.vWanFwPublicIP : []
 output HubVnetID string = deployHUB && hubType == 'VNET' ? hubVnet.outputs.hubVnetID : 'none'
-output HubVnetAddressSpace string = deployHUB && hubType == 'VNET' ? hubVnet.outputs.hubVnetAddressSpace : 'none'
+output HubVnetAddressSpace array = deployHUB && hubType == 'VNET' ? hubVnet.outputs.hubVnetAddressSpace : []
 output HubGatewayPublicIP string = deployGatewayInHub && hubType == 'VNET' ? hubVnet.outputs.hubGatewayPublicIP : 'none'
 output HubGatewayID string = deployGatewayInHub && hubType == 'VNET' ? hubVnet.outputs.hubGatewayID : 'none'
 output HubBgpPeeringAddress string = deployGatewayInHub && hubType == 'VNET' ? hubVnet.outputs.HubGwBgpPeeringAddress : 'none'

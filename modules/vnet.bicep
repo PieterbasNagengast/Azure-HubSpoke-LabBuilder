@@ -75,6 +75,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2021-05-01' = {
 
 output vnetName string = vnet.name
 output vnetID string = vnet.id
+output vnetAddressSpace array = vnet.properties.addressSpace.addressPrefixes
 output defaultSubnetID string = vnet.properties.subnets[0].id
 output bastionSubnetID string = deployBastionSubnet ? resourceId('Microsoft.Network/VirtualNetworks/subnets', vnetname, 'AzureBastionSubnet') : 'Not deployed'
 output firewallSubnetID string = deployFirewallSubnet ? resourceId('Microsoft.Network/VirtualNetworks/subnets', vnetname, 'AzureFirewallSubnet') : 'Not deployed'
