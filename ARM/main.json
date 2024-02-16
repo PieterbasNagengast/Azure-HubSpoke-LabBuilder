@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.24.24.22086",
-      "templateHash": "9708355265972128176"
+      "templateHash": "14090706465012071180"
     }
   },
   "parameters": {
@@ -374,12 +374,7 @@
       {
         "name": "AllAddressSpaces",
         "count": "[length(range(0, add(parameters('amountOfSpokes'), 1)))]",
-        "input": "[replace(parameters('AddressSpace'), '0.0/16', format('{0}.0/24', range(0, add(parameters('amountOfSpokes'), 1))[copyIndex('AllAddressSpaces')]))]"
-      },
-      {
-        "name": "AllSpokeAddressSpaces",
-        "count": "[length(range(1, parameters('amountOfSpokes')))]",
-        "input": "[replace(parameters('AddressSpace'), '0.0/16', format('{0}.0/24', range(1, parameters('amountOfSpokes'))[copyIndex('AllSpokeAddressSpaces')]))]"
+        "input": "[cidrSubnet(parameters('AddressSpace'), 24, range(0, add(parameters('amountOfSpokes'), 1))[copyIndex('AllAddressSpaces')])]"
       }
     ]
   },
@@ -405,6 +400,9 @@
           },
           "AddressSpace": {
             "value": "[parameters('AddressSpace')]"
+          },
+          "hubAddressSpace": {
+            "value": "[variables('AllAddressSpaces')[0]]"
           },
           "adminPassword": {
             "value": "[parameters('adminPassword')]"
@@ -440,7 +438,7 @@
             "value": "[parameters('osTypeHub')]"
           },
           "AllSpokeAddressSpaces": {
-            "value": "[variables('AllSpokeAddressSpaces')]"
+            "value": "[skip(variables('AllAddressSpaces'), 1)]"
           },
           "vpnGwBgpAsn": "[if(parameters('hubBgp'), createObject('value', parameters('hubBgpAsn')), createObject('value', 65515))]",
           "vpnGwEnebaleBgp": {
@@ -466,7 +464,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "1732587411467596313"
+              "templateHash": "5174884933193520483"
             }
           },
           "parameters": {
@@ -474,6 +472,9 @@
               "type": "string"
             },
             "AddressSpace": {
+              "type": "string"
+            },
+            "hubAddressSpace": {
               "type": "string"
             },
             "deployBastionInHub": {
@@ -535,12 +536,11 @@
             }
           },
           "variables": {
-            "vnetAddressSpace": "[replace(parameters('AddressSpace'), '/16', '/24')]",
-            "defaultSubnetPrefix": "[replace(variables('vnetAddressSpace'), '/24', '/26')]",
-            "firewallSubnetPrefix": "[replace(variables('vnetAddressSpace'), '0/24', '64/26')]",
-            "bastionSubnetPrefix": "[replace(variables('vnetAddressSpace'), '0/24', '128/27')]",
-            "gatewaySubnetPrefix": "[replace(variables('vnetAddressSpace'), '0/24', '160/27')]",
-            "firewallIP": "[replace(variables('firewallSubnetPrefix'), '64/26', '68')]",
+            "defaultSubnetPrefix": "[cidrSubnet(parameters('hubAddressSpace'), 26, 0)]",
+            "firewallSubnetPrefix": "[cidrSubnet(parameters('hubAddressSpace'), 26, 1)]",
+            "bastionSubnetPrefix": "[cidrSubnet(parameters('hubAddressSpace'), 27, 4)]",
+            "gatewaySubnetPrefix": "[cidrSubnet(parameters('hubAddressSpace'), 27, 5)]",
+            "firewallIP": "[cidrHost(variables('firewallSubnetPrefix'), 3)]",
             "vmName": "VM-Hub",
             "nsgName": "NSG-Hub",
             "bastionName": "Bastion-Hub",
@@ -573,7 +573,7 @@
                     "value": "[parameters('location')]"
                   },
                   "vnetAddressSpcae": {
-                    "value": "[variables('vnetAddressSpace')]"
+                    "value": "[parameters('hubAddressSpace')]"
                   },
                   "nsgID": {
                     "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'nsg'), '2022-09-01').outputs.nsgID.value]"
@@ -621,7 +621,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "2263769319742318183"
+                      "templateHash": "3060282554717544862"
                     }
                   },
                   "parameters": {
@@ -730,6 +730,10 @@
                     "vnetID": {
                       "type": "string",
                       "value": "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetname'))]"
+                    },
+                    "vnetAddressSpace": {
+                      "type": "array",
+                      "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetname')), '2021-05-01').addressSpace.addressPrefixes]"
                     },
                     "defaultSubnetID": {
                       "type": "string",
@@ -2177,8 +2181,8 @@
               "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'hubvnet'), '2022-09-01').outputs.vnetName.value]"
             },
             "hubVnetAddressSpace": {
-              "type": "string",
-              "value": "[variables('vnetAddressSpace')]"
+              "type": "array",
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'hubvnet'), '2022-09-01').outputs.vnetAddressSpace.value]"
             },
             "hubDefaultSubnetPrefix": {
               "type": "string",
@@ -2228,7 +2232,7 @@
             "value": "[and(parameters('deployFirewallInHub'), equals(parameters('hubType'), 'VWAN'))]"
           },
           "AddressSpace": {
-            "value": "[parameters('AddressSpace')]"
+            "value": "[variables('AllAddressSpaces')[0]]"
           },
           "AzureFirewallTier": {
             "value": "[parameters('AzureFirewallTier')]"
@@ -2259,7 +2263,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "231646506422236145"
+              "templateHash": "9055916487413165362"
             }
           },
           "parameters": {
@@ -2296,7 +2300,7 @@
             }
           },
           "variables": {
-            "vnetAddressSpace": "[replace(parameters('AddressSpace'), '/16', '/24')]",
+            "vnetAddressSpace": "[parameters('AddressSpace')]",
             "vWanName": "vWAN",
             "firewallName": "Firewall-Hub",
             "gatewayName": "Gateway-Hub"
@@ -3094,7 +3098,7 @@
             "value": "[range(1, parameters('amountOfSpokes'))[copyIndex()]]"
           },
           "AddressSpace": {
-            "value": "[parameters('AddressSpace')]"
+            "value": "[variables('AllAddressSpaces')[range(1, parameters('amountOfSpokes'))[copyIndex()]]]"
           },
           "deployBastionInSpoke": {
             "value": "[parameters('deployBastionInSpoke')]"
@@ -3149,7 +3153,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "315485447306951875"
+              "templateHash": "16470487356077441399"
             }
           },
           "parameters": {
@@ -3220,9 +3224,8 @@
             "rtName": "[format('RT-Spoke{0}', parameters('counter'))]",
             "nsgName": "[format('NSG-Spoke{0}', parameters('counter'))]",
             "bastionName": "[format('Bastion-Spoke{0}', parameters('counter'))]",
-            "vnetAddressSpace": "[replace(parameters('AddressSpace'), '0.0/16', format('{0}.0/24', parameters('counter')))]",
-            "defaultSubnetPrefix": "[replace(variables('vnetAddressSpace'), '/24', '/26')]",
-            "bastionSubnetPrefix": "[replace(variables('vnetAddressSpace'), '0/24', '128/27')]"
+            "defaultSubnetPrefix": "[cidrSubnet(parameters('AddressSpace'), 26, 0)]",
+            "bastionSubnetPrefix": "[cidrSubnet(parameters('AddressSpace'), 27, 4)]"
           },
           "resources": [
             {
@@ -3247,7 +3250,7 @@
                     "value": "[parameters('location')]"
                   },
                   "vnetAddressSpcae": {
-                    "value": "[variables('vnetAddressSpace')]"
+                    "value": "[parameters('AddressSpace')]"
                   },
                   "nsgID": {
                     "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))), 'Microsoft.Resources/deployments', variables('nsgName')), '2022-09-01').outputs.nsgID.value]"
@@ -3280,7 +3283,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "2263769319742318183"
+                      "templateHash": "3060282554717544862"
                     }
                   },
                   "parameters": {
@@ -3389,6 +3392,10 @@
                     "vnetID": {
                       "type": "string",
                       "value": "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetname'))]"
+                    },
+                    "vnetAddressSpace": {
+                      "type": "array",
+                      "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetname')), '2021-05-01').addressSpace.addressPrefixes]"
                     },
                     "defaultSubnetID": {
                       "type": "string",
@@ -4111,7 +4118,7 @@
             },
             "spokeVnetAddressSpace": {
               "type": "string",
-              "value": "[variables('vnetAddressSpace')]"
+              "value": "[parameters('AddressSpace')]"
             },
             "spokeResourceGroupName": {
               "type": "string",
@@ -5332,7 +5339,7 @@
             "value": "[parameters('adminUsername')]"
           },
           "AddressSpace": {
-            "value": "[parameters('AddressSpace')]"
+            "value": "[cidrSubnet(parameters('AddressSpace'), 24, 255)]"
           },
           "deployBastionInOnPrem": {
             "value": "[parameters('deployBastionInOnPrem')]"
@@ -5374,7 +5381,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "1271046860010651331"
+              "templateHash": "1756171467829584079"
             }
           },
           "parameters": {
@@ -5433,10 +5440,9 @@
             "nsgName": "NSG-OnPrem",
             "bastionName": "Bastion-OnPrem",
             "gatewayName": "Gateway-OnPrem",
-            "vnetAddressSpace": "[replace(parameters('AddressSpace'), '0.0/16', '255.0/24')]",
-            "defaultSubnetPrefix": "[replace(variables('vnetAddressSpace'), '/24', '/26')]",
-            "bastionSubnetPrefix": "[replace(variables('vnetAddressSpace'), '0/24', '128/27')]",
-            "gatewaySubnetPrefix": "[replace(variables('vnetAddressSpace'), '0/24', '160/27')]"
+            "defaultSubnetPrefix": "[cidrSubnet(parameters('AddressSpace'), 26, 0)]",
+            "bastionSubnetPrefix": "[cidrSubnet(parameters('AddressSpace'), 27, 4)]",
+            "gatewaySubnetPrefix": "[cidrSubnet(parameters('AddressSpace'), 27, 5)]"
           },
           "resources": [
             {
@@ -5461,7 +5467,7 @@
                     "value": "[parameters('location')]"
                   },
                   "vnetAddressSpcae": {
-                    "value": "[variables('vnetAddressSpace')]"
+                    "value": "[parameters('AddressSpace')]"
                   },
                   "nsgID": {
                     "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('OnPremRgName')), 'Microsoft.Resources/deployments', variables('nsgName')), '2022-09-01').outputs.nsgID.value]"
@@ -5493,7 +5499,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "2263769319742318183"
+                      "templateHash": "3060282554717544862"
                     }
                   },
                   "parameters": {
@@ -5602,6 +5608,10 @@
                     "vnetID": {
                       "type": "string",
                       "value": "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetname'))]"
+                    },
+                    "vnetAddressSpace": {
+                      "type": "array",
+                      "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetname')), '2021-05-01').addressSpace.addressPrefixes]"
                     },
                     "defaultSubnetID": {
                       "type": "string",
@@ -6288,7 +6298,7 @@
             },
             "OnPremAddressSpace": {
               "type": "string",
-              "value": "[variables('vnetAddressSpace')]"
+              "value": "[parameters('AddressSpace')]"
             },
             "OnPremGwBgpPeeringAddress": {
               "type": "string",
@@ -7156,8 +7166,8 @@
       "value": "[if(and(parameters('deployHUB'), equals(parameters('hubType'), 'VNET')), reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.hubVnetID.value, 'none')]"
     },
     "HubVnetAddressSpace": {
-      "type": "string",
-      "value": "[if(and(parameters('deployHUB'), equals(parameters('hubType'), 'VNET')), reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.hubVnetAddressSpace.value, 'none')]"
+      "type": "array",
+      "value": "[if(and(parameters('deployHUB'), equals(parameters('hubType'), 'VNET')), reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.hubVnetAddressSpace.value, createArray())]"
     },
     "HubGatewayPublicIP": {
       "type": "string",

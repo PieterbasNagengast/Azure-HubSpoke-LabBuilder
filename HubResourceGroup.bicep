@@ -2,6 +2,7 @@ targetScope = 'subscription'
 
 param location string
 param AddressSpace string
+param hubAddressSpace string
 param deployBastionInHub bool
 param bastionSku string
 param adminUsername string
@@ -25,12 +26,12 @@ param vpnGwBgpAsn int
 
 param diagnosticWorkspaceId string
 
-var vnetAddressSpace = replace(AddressSpace, '/16', '/24')
-var defaultSubnetPrefix = replace(vnetAddressSpace, '/24', '/26')
-var firewallSubnetPrefix = replace(vnetAddressSpace, '0/24', '64/26')
-var bastionSubnetPrefix = replace(vnetAddressSpace, '0/24', '128/27')
-var gatewaySubnetPrefix = replace(vnetAddressSpace, '0/24', '160/27')
-var firewallIP = replace(firewallSubnetPrefix, '64/26', '68')
+var defaultSubnetPrefix = cidrSubnet(hubAddressSpace, 26, 0)
+var firewallSubnetPrefix = cidrSubnet(hubAddressSpace, 26, 1)
+var bastionSubnetPrefix = cidrSubnet(hubAddressSpace, 27, 4)
+var gatewaySubnetPrefix = cidrSubnet(hubAddressSpace, 27, 5)
+
+var firewallIP = cidrHost(firewallSubnetPrefix, 3)
 
 var vmName = 'VM-Hub'
 var nsgName = 'NSG-Hub'
@@ -52,7 +53,7 @@ module vnet 'modules/vnet.bicep' = {
   name: 'hubvnet'
   params: {
     location: location
-    vnetAddressSpcae: vnetAddressSpace
+    vnetAddressSpcae: hubAddressSpace
     nsgID: nsg.outputs.nsgID
     rtDefID: deployFirewallInHub && deployUDRs ? rtDefault.outputs.rtID : 'none'
     rtGwID: deployFirewallInHub && deployGatewayInHub ? rtvpngw.outputs.rtID : 'none'
@@ -208,7 +209,7 @@ output hubVnetID string = vnet.outputs.vnetID
 output azFwIp string = deployFirewallInHub ? firewall.outputs.azFwIP : '1.2.3.4'
 output HubResourceGroupName string = hubrg.name
 output hubVnetName string = vnet.outputs.vnetName
-output hubVnetAddressSpace string = vnetAddressSpace
+output hubVnetAddressSpace array = vnet.outputs.vnetAddressSpace
 output hubDefaultSubnetPrefix string = defaultSubnetPrefix
 output hubGatewayPublicIP string = deployGatewayInHub ? vpngw.outputs.vpnGwPublicIP : 'none'
 output hubGatewayID string = deployGatewayInHub ? vpngw.outputs.vpnGwID : 'none'

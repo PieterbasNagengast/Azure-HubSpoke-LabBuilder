@@ -30,9 +30,8 @@ var rtName = 'RT-Spoke${counter}'
 var nsgName = 'NSG-Spoke${counter}'
 var bastionName = 'Bastion-Spoke${counter}'
 
-var vnetAddressSpace = replace(AddressSpace, '0.0/16', '${counter}.0/24')
-var defaultSubnetPrefix = replace(vnetAddressSpace, '/24', '/26')
-var bastionSubnetPrefix = replace(vnetAddressSpace, '0/24', '128/27')
+var defaultSubnetPrefix = cidrSubnet(AddressSpace, 26, 0)
+var bastionSubnetPrefix = cidrSubnet(AddressSpace, 27, 4)
 
 resource spokerg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   name: '${spokeRgNamePrefix}${counter}'
@@ -45,7 +44,7 @@ module vnet 'modules/vnet.bicep' = {
   name: vnetName
   params: {
     location: location
-    vnetAddressSpcae: vnetAddressSpace
+    vnetAddressSpcae: AddressSpace
     nsgID: nsg.outputs.nsgID
     rtDefID: deployFirewallInHub && HubDeployed && deployUDRs ? rt.outputs.rtID : 'none'
     vnetname: vnetName
@@ -128,7 +127,7 @@ module route2 'modules/route.bicep' = if (deployFirewallInHub && HubDeployed && 
 }
 
 output spokeVnetID string = vnet.outputs.vnetID
-output spokeVnetAddressSpace string = vnetAddressSpace
+output spokeVnetAddressSpace string = AddressSpace
 output spokeResourceGroupName string = spokerg.name
 output spokeVnetName string = vnet.outputs.vnetName
 output spokeVmResourceID string = deployVMsInSpokes ? vm.outputs.vmResourceID : 'none'
