@@ -5,6 +5,7 @@ param HubResourceGroupName string
 param counter int
 param deployFirewallInHub bool
 param hubSubscriptionID string
+param enableRoutingIntent bool = true
 
 var spokeName = split(SpokeVnetID, '/')[8]
 
@@ -22,5 +23,6 @@ module vWanVnetConnection 'modules/vwanvnetconnection.bicep' = {
     spokeName: spokeName
     enableInternetSecurity: deployFirewallInHub
     propagateToNoneRouteTable: deployFirewallInHub
+    enableRoutingIntent: enableRoutingIntent
   }
 }

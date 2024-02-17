@@ -5,10 +5,12 @@ param SpokeVnetID string
 param enableInternetSecurity bool = false
 param propagateToNoneRouteTable bool = false
 
+param enableRoutingIntent bool
+
 resource vWanVnetConnection 'Microsoft.Network/virtualHubs/hubVirtualNetworkConnections@2022-11-01' = {
   name: '${vwanHubName}/${vwanHubName}-to-${spokeName}'
   properties: {
-    routingConfiguration: {
+    routingConfiguration: enableRoutingIntent ? {} : {
       associatedRouteTable: {
         id: resourceId('Microsoft.Network/virtualHubs/hubRouteTables', vwanHubName, 'defaultRouteTable')
       }
@@ -26,6 +28,8 @@ resource vWanVnetConnection 'Microsoft.Network/virtualHubs/hubVirtualNetworkConn
     remoteVirtualNetwork: {
       id: SpokeVnetID
     }
-    enableInternetSecurity: enableInternetSecurity
+    enableInternetSecurity: enableInternetSecurity || enableRoutingIntent
+    allowHubToRemoteVnetTransit: enableRoutingIntent
+    allowRemoteVnetToUseHubVnetGateways: enableRoutingIntent
   }
 }

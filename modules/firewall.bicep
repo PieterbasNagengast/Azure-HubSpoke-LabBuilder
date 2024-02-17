@@ -83,7 +83,7 @@ resource azfwpip 'Microsoft.Network/publicIPAddresses@2021-05-01' = if (!deployI
   tags: contains(tagsByResource, 'Microsoft.Network/publicIPAddresses') ? tagsByResource['Microsoft.Network/publicIPAddresses'] : {}
 }
 
-output azFwIP string = deployInVWan ? 'None' : azfw.properties.ipConfigurations[0].properties.privateIPAddress
+output azFwIP string = deployInVWan ? azfw.properties.hubIPAddresses.privateIPAddress : azfw.properties.ipConfigurations[0].properties.privateIPAddress
 output azFwIPvWan array = deployInVWan ? azfw.properties.hubIPAddresses.publicIPs.addresses : []
 output azFwID string = azfw.id
 output azFwPolicyName string = azfwpolicy.name

@@ -144,6 +144,12 @@ param hubBgpAsn int = 65515
 @description('Let Azure Virtual Network Manager manage Peerings in Hub&Spoke')
 param deployVnetPeeringAVNM bool = false
 
+@description('Enable Azure vWAN routing Intent Policy for Internet Traffic')
+param internetTrafficRoutingPolicy bool = true
+
+@description('Enable Azure vWAN routing Intent Policy for Private Traffic')
+param privateTrafficRoutingPolicy bool = true
+
 // OnPrem parameters\
 @description('Deploy Virtual Network Gateway in OnPrem')
 param deployOnPrem bool = false
@@ -228,6 +234,8 @@ module vwan 'vWanResourceGroup.bicep' = if (deployHUB && hubType == 'VWAN') {
     deployGatewayInHub: deployGatewayInHub && hubType == 'VWAN'
     tagsByResource: tagsByResource
     diagnosticWorkspaceId: diagnosticWorkspaceId
+    internetTrafficRoutingPolicy: internetTrafficRoutingPolicy
+    privateTrafficRoutingPolicy: privateTrafficRoutingPolicy
   }
 }
 
@@ -244,7 +252,7 @@ module spokeVnets 'SpokeResourceGroup.bicep' = [for i in range(1, amountOfSpokes
     adminUsername: adminUsername
     deployVMsInSpokes: deployVMsInSpokes
     deployFirewallInHub: deployFirewallInHub && hubType == 'VNET'
-    AzureFirewallpip: deployHUB && hubType == 'VNET' ? hubVnet.outputs.azFwIp : 'Not deployed'
+    AzureFirewallpip: deployHUB && hubType == 'VNET' ? hubVnet.outputs.azFwIp : deployHUB && hubType == 'VWAN' ? vwan.outputs.vWanFwIP : 'none'
     HubDeployed: deployHUB && hubType == 'VNET'
     spokeRgNamePrefix: spokeRgNamePrefix
     vmSize: vmSizeSpoke
@@ -321,6 +329,7 @@ module vnetConnections 'vWanVnetConnections.bicep' = [for i in range(0, amountOf
     deployFirewallInHub: deployFirewallInHub && hubType == 'VWAN'
     counter: i
     hubSubscriptionID: hubSubscriptionID
+    enableRoutingIntent: internetTrafficRoutingPolicy || privateTrafficRoutingPolicy
   }
 }]
 

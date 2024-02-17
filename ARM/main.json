@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.24.24.22086",
-      "templateHash": "14090706465012071180"
+      "templateHash": "47065452335081882"
     }
   },
   "parameters": {
@@ -294,6 +294,20 @@
         "description": "Let Azure Virtual Network Manager manage Peerings in Hub&Spoke"
       }
     },
+    "internetTrafficRoutingPolicy": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Enable Azure vWAN routing Intent Policy for Internet Traffic"
+      }
+    },
+    "privateTrafficRoutingPolicy": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Enable Azure vWAN routing Intent Policy for Private Traffic"
+      }
+    },
     "deployOnPrem": {
       "type": "bool",
       "defaultValue": false,
@@ -464,7 +478,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "5174884933193520483"
+              "templateHash": "16875789319615396350"
             }
           },
           "parameters": {
@@ -1405,7 +1419,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "4553612775413528999"
+                      "templateHash": "12696062231789893357"
                     }
                   },
                   "parameters": {
@@ -1513,7 +1527,7 @@
                   "outputs": {
                     "azFwIP": {
                       "type": "string",
-                      "value": "[if(parameters('deployInVWan'), 'None', reference(resourceId('Microsoft.Network/azureFirewalls', parameters('firewallName')), '2021-05-01').ipConfigurations[0].properties.privateIPAddress)]"
+                      "value": "[if(parameters('deployInVWan'), reference(resourceId('Microsoft.Network/azureFirewalls', parameters('firewallName')), '2021-05-01').hubIPAddresses.privateIPAddress, reference(resourceId('Microsoft.Network/azureFirewalls', parameters('firewallName')), '2021-05-01').ipConfigurations[0].properties.privateIPAddress)]"
                     },
                     "azFwIPvWan": {
                       "type": "array",
@@ -2254,6 +2268,12 @@
           },
           "diagnosticWorkspaceId": {
             "value": "[parameters('diagnosticWorkspaceId')]"
+          },
+          "internetTrafficRoutingPolicy": {
+            "value": "[parameters('internetTrafficRoutingPolicy')]"
+          },
+          "privateTrafficRoutingPolicy": {
+            "value": "[parameters('privateTrafficRoutingPolicy')]"
           }
         },
         "template": {
@@ -2263,7 +2283,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "9055916487413165362"
+              "templateHash": "13847892383320709083"
             }
           },
           "parameters": {
@@ -2297,10 +2317,15 @@
             },
             "diagnosticWorkspaceId": {
               "type": "string"
+            },
+            "internetTrafficRoutingPolicy": {
+              "type": "bool"
+            },
+            "privateTrafficRoutingPolicy": {
+              "type": "bool"
             }
           },
           "variables": {
-            "vnetAddressSpace": "[parameters('AddressSpace')]",
             "vWanName": "vWAN",
             "firewallName": "Firewall-Hub",
             "gatewayName": "Gateway-Hub"
@@ -2325,7 +2350,7 @@
                 "mode": "Incremental",
                 "parameters": {
                   "AddressPrefix": {
-                    "value": "[variables('vnetAddressSpace')]"
+                    "value": "[parameters('AddressSpace')]"
                   },
                   "location": {
                     "value": "[parameters('location')]"
@@ -2470,7 +2495,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "4553612775413528999"
+                      "templateHash": "12696062231789893357"
                     }
                   },
                   "parameters": {
@@ -2578,7 +2603,7 @@
                   "outputs": {
                     "azFwIP": {
                       "type": "string",
-                      "value": "[if(parameters('deployInVWan'), 'None', reference(resourceId('Microsoft.Network/azureFirewalls', parameters('firewallName')), '2021-05-01').ipConfigurations[0].properties.privateIPAddress)]"
+                      "value": "[if(parameters('deployInVWan'), reference(resourceId('Microsoft.Network/azureFirewalls', parameters('firewallName')), '2021-05-01').hubIPAddresses.privateIPAddress, reference(resourceId('Microsoft.Network/azureFirewalls', parameters('firewallName')), '2021-05-01').ipConfigurations[0].properties.privateIPAddress)]"
                     },
                     "azFwIPvWan": {
                       "type": "array",
@@ -2737,6 +2762,12 @@
                   "AzFirewallID": "[if(parameters('deployFirewallInHub'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('firewallName')), '2022-09-01').outputs.azFwID.value), createObject('value', 'none'))]",
                   "deployFirewallInHub": {
                     "value": "[parameters('deployFirewallInHub')]"
+                  },
+                  "internetTrafficRoutingPolicy": {
+                    "value": "[parameters('internetTrafficRoutingPolicy')]"
+                  },
+                  "privateTrafficRoutingPolicy": {
+                    "value": "[parameters('privateTrafficRoutingPolicy')]"
                   }
                 },
                 "template": {
@@ -2746,7 +2777,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "10691273479233852500"
+                      "templateHash": "14266196805712816674"
                     }
                   },
                   "parameters": {
@@ -2758,6 +2789,14 @@
                     },
                     "deployFirewallInHub": {
                       "type": "bool"
+                    },
+                    "internetTrafficRoutingPolicy": {
+                      "type": "bool",
+                      "defaultValue": true
+                    },
+                    "privateTrafficRoutingPolicy": {
+                      "type": "bool",
+                      "defaultValue": true
                     }
                   },
                   "resources": [
@@ -2774,7 +2813,7 @@
                       }
                     },
                     {
-                      "condition": "[parameters('deployFirewallInHub')]",
+                      "condition": "[and(and(parameters('deployFirewallInHub'), not(parameters('internetTrafficRoutingPolicy'))), not(parameters('privateTrafficRoutingPolicy')))]",
                       "type": "Microsoft.Network/virtualHubs/hubRouteTables",
                       "apiVersion": "2022-11-01",
                       "name": "[format('{0}/defaultRouteTable', parameters('vwanHubName'))]",
@@ -2796,6 +2835,15 @@
                         "labels": [
                           "default"
                         ]
+                      }
+                    },
+                    {
+                      "condition": "[and(parameters('deployFirewallInHub'), or(parameters('internetTrafficRoutingPolicy'), parameters('privateTrafficRoutingPolicy')))]",
+                      "type": "Microsoft.Network/virtualHubs/routingIntent",
+                      "apiVersion": "2023-04-01",
+                      "name": "[format('{0}/{1}-RoutingIntent', parameters('vwanHubName'), parameters('vwanHubName'))]",
+                      "properties": {
+                        "routingPolicies": "[if(and(equals(parameters('internetTrafficRoutingPolicy'), true()), equals(parameters('privateTrafficRoutingPolicy'), true())), createArray(createObject('name', 'PublicTraffic', 'destinations', createArray('Internet'), 'nextHop', parameters('AzFirewallID')), createObject('name', 'PrivateTraffic', 'destinations', createArray('PrivateTraffic'), 'nextHop', parameters('AzFirewallID'))), if(and(equals(parameters('internetTrafficRoutingPolicy'), true()), equals(parameters('privateTrafficRoutingPolicy'), false())), createArray(createObject('name', 'PublicTraffic', 'destinations', createArray('Internet'), 'nextHop', parameters('AzFirewallID'))), createArray(createObject('name', 'PrivateTraffic', 'destinations', createArray('PrivateTraffic'), 'nextHop', parameters('AzFirewallID')))))]"
                       }
                     }
                   ]
@@ -3054,6 +3102,10 @@
               "type": "array",
               "value": "[if(parameters('deployFirewallInHub'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('firewallName')), '2022-09-01').outputs.azFwIPvWan.value, createArray())]"
             },
+            "vWanFwIP": {
+              "type": "string",
+              "value": "[if(parameters('deployFirewallInHub'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('firewallName')), '2022-09-01').outputs.azFwIP.value, 'none')]"
+            },
             "vpnGwBgpIp": {
               "type": "array",
               "value": "[if(parameters('deployGatewayInHub'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('gatewayName')), '2022-09-01').outputs.vpnGwBgpIp.value, createArray())]"
@@ -3068,7 +3120,7 @@
             },
             "dcrvminsightsID": {
               "type": "string",
-              "value": "[if(not(empty(parameters('diagnosticWorkspaceId'))), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'dcr-vminsights'), '2022-09-01').outputs.dcrID.value, '')]"
+              "value": "[if(not(empty(parameters('diagnosticWorkspaceId'))), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'dcr-vminsights'), '2022-09-01').outputs.dcrID.value, 'none')]"
             }
           }
         }
@@ -3115,7 +3167,7 @@
           "deployFirewallInHub": {
             "value": "[and(parameters('deployFirewallInHub'), equals(parameters('hubType'), 'VNET'))]"
           },
-          "AzureFirewallpip": "[if(and(parameters('deployHUB'), equals(parameters('hubType'), 'VNET')), createObject('value', reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.azFwIp.value), createObject('value', 'Not deployed'))]",
+          "AzureFirewallpip": "[if(and(parameters('deployHUB'), equals(parameters('hubType'), 'VNET')), createObject('value', reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.azFwIp.value), if(and(parameters('deployHUB'), equals(parameters('hubType'), 'VWAN')), createObject('value', reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VWAN', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.vWanFwIP.value), createObject('value', 'none')))]",
           "HubDeployed": {
             "value": "[and(parameters('deployHUB'), equals(parameters('hubType'), 'VNET'))]"
           },
@@ -5184,6 +5236,9 @@
           },
           "hubSubscriptionID": {
             "value": "[parameters('hubSubscriptionID')]"
+          },
+          "enableRoutingIntent": {
+            "value": "[or(parameters('internetTrafficRoutingPolicy'), parameters('privateTrafficRoutingPolicy'))]"
           }
         },
         "template": {
@@ -5193,7 +5248,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "1905005495012091484"
+              "templateHash": "12183150021656055756"
             }
           },
           "parameters": {
@@ -5214,6 +5269,10 @@
             },
             "hubSubscriptionID": {
               "type": "string"
+            },
+            "enableRoutingIntent": {
+              "type": "bool",
+              "defaultValue": true
             }
           },
           "variables": {
@@ -5246,6 +5305,9 @@
                   },
                   "propagateToNoneRouteTable": {
                     "value": "[parameters('deployFirewallInHub')]"
+                  },
+                  "enableRoutingIntent": {
+                    "value": "[parameters('enableRoutingIntent')]"
                   }
                 },
                 "template": {
@@ -5255,7 +5317,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "3361417369641024046"
+                      "templateHash": "4310174521876602466"
                     }
                   },
                   "parameters": {
@@ -5275,6 +5337,9 @@
                     "propagateToNoneRouteTable": {
                       "type": "bool",
                       "defaultValue": false
+                    },
+                    "enableRoutingIntent": {
+                      "type": "bool"
                     }
                   },
                   "resources": [
@@ -5283,25 +5348,13 @@
                       "apiVersion": "2022-11-01",
                       "name": "[format('{0}/{1}-to-{2}', parameters('vwanHubName'), parameters('vwanHubName'), parameters('spokeName'))]",
                       "properties": {
-                        "routingConfiguration": {
-                          "associatedRouteTable": {
-                            "id": "[resourceId('Microsoft.Network/virtualHubs/hubRouteTables', parameters('vwanHubName'), 'defaultRouteTable')]"
-                          },
-                          "propagatedRouteTables": {
-                            "labels": [
-                              "[if(parameters('propagateToNoneRouteTable'), '', 'default')]"
-                            ],
-                            "ids": [
-                              {
-                                "id": "[resourceId('Microsoft.Network/virtualHubs/hubRouteTables', parameters('vwanHubName'), if(parameters('propagateToNoneRouteTable'), 'noneRouteTable', 'defaultRouteTable'))]"
-                              }
-                            ]
-                          }
-                        },
+                        "routingConfiguration": "[if(parameters('enableRoutingIntent'), createObject(), createObject('associatedRouteTable', createObject('id', resourceId('Microsoft.Network/virtualHubs/hubRouteTables', parameters('vwanHubName'), 'defaultRouteTable')), 'propagatedRouteTables', createObject('labels', createArray(if(parameters('propagateToNoneRouteTable'), '', 'default')), 'ids', createArray(createObject('id', resourceId('Microsoft.Network/virtualHubs/hubRouteTables', parameters('vwanHubName'), if(parameters('propagateToNoneRouteTable'), 'noneRouteTable', 'defaultRouteTable')))))))]",
                         "remoteVirtualNetwork": {
                           "id": "[parameters('SpokeVnetID')]"
                         },
-                        "enableInternetSecurity": "[parameters('enableInternetSecurity')]"
+                        "enableInternetSecurity": "[or(parameters('enableInternetSecurity'), parameters('enableRoutingIntent'))]",
+                        "allowHubToRemoteVnetTransit": "[parameters('enableRoutingIntent')]",
+                        "allowRemoteVnetToUseHubVnetGateways": "[parameters('enableRoutingIntent')]"
                       }
                     }
                   ]

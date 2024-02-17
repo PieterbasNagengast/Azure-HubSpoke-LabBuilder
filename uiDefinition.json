@@ -340,7 +340,36 @@
 								],
 								"required": true
 							},
-							"visible": "[and(equals(steps('HubVNET').deployHUB,true),equals(steps('HubVNET').deployFirewallInHub,true))]"
+							"visible": "[and(equals(steps('HubVNET').deployHUB,true),equals(steps('HubVNET').VNETorVWAN,'VNET'),equals(steps('HubVNET').deployFirewallInHub,true))]"
+						},
+						{
+							"name": "enableRoutingIntent",
+							"type": "Microsoft.Common.OptionsGroup",
+							"label": "Enable Azure vWAN Routing Intent",
+							"defaultValue": "no",
+							"toolTip": "Enable Azure vWAN Routing Intent for Internet and/or Public IP traffic to be routed through Azure Firewall in vWAN Hub. Requires Azure Firewall to be deployed in vWAN Hub",
+							"constraints": {
+								"allowedValues": [
+									{
+										"label": "no",
+										"value": false
+									},
+									{
+										"label": "Private Traffic Only",
+										"value": "private"
+									},
+									{
+										"label": "Internet Traffic Only",
+										"value": "internet"
+									},
+									{
+										"label": "Internet and Private Traffic",
+										"value": "privateAndInternet"
+									}
+								],
+								"required": true
+							},
+							"visible": "[and(equals(steps('HubVNET').deployHUB,true),equals(steps('HubVNET').VNETorVWAN,'VWAN'),equals(steps('HubVNET').deployFirewallInHub,true))]"
 						}
 					]
 				},
@@ -1100,7 +1129,9 @@
 				"osTypeHub": "[steps('VirtualMachines').HubvmSizeSection.osType]",
 				"osTypeSpoke": "[steps('VirtualMachines').SpokevmSizeSection.osType]",
 				"osTypeOnPrem": "[steps('VirtualMachines').OnPremvmSizeSection.osType]",
-				"diagnosticWorkspaceId": "[steps('VirtualMachines').lawSelectorForAMA.id]"
+				"diagnosticWorkspaceId": "[steps('VirtualMachines').lawSelectorForAMA.id]",
+				"internetTrafficRoutingPolicy": "[or(equals(steps('HubVNET').enableRoutingIntent,'internet'),equals(steps('HubVNET').enableRoutingIntent,'privateAndInternet'))]",
+				"privateTrafficRoutingPolicy": "[or(equals(steps('HubVNET').enableRoutingIntent,'private'),equals(steps('HubVNET').enableRoutingIntent,'privateAndInternet'))]"
 			},
 			"kind": "Subscription",
 			"subscriptionId": "[steps('basics').resourceScope.subscription.id]",
