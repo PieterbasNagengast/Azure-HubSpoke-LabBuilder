@@ -145,10 +145,10 @@ param hubBgpAsn int = 65515
 param deployVnetPeeringAVNM bool = false
 
 @description('Enable Azure vWAN routing Intent Policy for Internet Traffic')
-param internetTrafficRoutingPolicy bool = true
+param internetTrafficRoutingPolicy bool = false
 
 @description('Enable Azure vWAN routing Intent Policy for Private Traffic')
-param privateTrafficRoutingPolicy bool = true
+param privateTrafficRoutingPolicy bool = false
 
 // OnPrem parameters\
 @description('Deploy Virtual Network Gateway in OnPrem')
