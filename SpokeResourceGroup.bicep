@@ -33,7 +33,7 @@ var bastionName = 'Bastion-Spoke${counter}'
 var defaultSubnetPrefix = cidrSubnet(AddressSpace, 26, 0)
 var bastionSubnetPrefix = cidrSubnet(AddressSpace, 27, 4)
 
-resource spokerg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+resource spokerg 'Microsoft.Resources/resourceGroups@2023-07-01' = {
   name: '${spokeRgNamePrefix}${counter}'
   location: location
   tags: contains(tagsByResource, 'Microsoft.Resources/subscriptions/resourceGroups') ? tagsByResource['Microsoft.Resources/subscriptions/resourceGroups'] : {}

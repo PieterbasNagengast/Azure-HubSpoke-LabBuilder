@@ -9,7 +9,7 @@ param deploymentScriptName string
 param configType string
 param tagsByResource object = {}
 
-resource deploymentScript 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+resource deploymentScript 'Microsoft.Resources/deploymentScripts@2023-08-01' = {
   name: deploymentScriptName
   location: location
   kind: 'AzurePowerShell'

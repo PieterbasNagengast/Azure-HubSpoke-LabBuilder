@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.24.24.22086",
-      "templateHash": "47065452335081882"
+      "templateHash": "4392677647555954965"
     }
   },
   "parameters": {
@@ -478,7 +478,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "16875789319615396350"
+              "templateHash": "14261173642235462162"
             }
           },
           "parameters": {
@@ -567,7 +567,7 @@
           "resources": [
             {
               "type": "Microsoft.Resources/resourceGroups",
-              "apiVersion": "2021-04-01",
+              "apiVersion": "2023-07-01",
               "name": "[parameters('hubRgName')]",
               "location": "[parameters('location')]",
               "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Resources/subscriptions/resourceGroups'), parameters('tagsByResource')['Microsoft.Resources/subscriptions/resourceGroups'], createObject())]"
@@ -635,7 +635,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "3060282554717544862"
+                      "templateHash": "16711297951345346489"
                     }
                   },
                   "parameters": {
@@ -719,7 +719,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.Network/virtualNetworks",
-                      "apiVersion": "2021-05-01",
+                      "apiVersion": "2023-06-01",
                       "name": "[parameters('vnetname')]",
                       "location": "[parameters('location')]",
                       "properties": {
@@ -747,11 +747,11 @@
                     },
                     "vnetAddressSpace": {
                       "type": "array",
-                      "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetname')), '2021-05-01').addressSpace.addressPrefixes]"
+                      "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetname')), '2023-06-01').addressSpace.addressPrefixes]"
                     },
                     "defaultSubnetID": {
                       "type": "string",
-                      "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetname')), '2021-05-01').subnets[0].id]"
+                      "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetname')), '2023-06-01').subnets[0].id]"
                     },
                     "bastionSubnetID": {
                       "type": "string",
@@ -804,7 +804,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "1128560297909771242"
+                      "templateHash": "6780003595855327321"
                     }
                   },
                   "parameters": {
@@ -822,7 +822,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.Insights/dataCollectionRules",
-                      "apiVersion": "2021-04-01",
+                      "apiVersion": "2022-06-01",
                       "name": "MSVMI-LabBuilder",
                       "location": "[parameters('location')]",
                       "properties": {
@@ -941,7 +941,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "309071062163378125"
+                      "templateHash": "16004497942441159913"
                     }
                   },
                   "parameters": {
@@ -1007,7 +1007,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.Compute/virtualMachines",
-                      "apiVersion": "2021-11-01",
+                      "apiVersion": "2023-09-01",
                       "name": "[parameters('vmName')]",
                       "location": "[parameters('location')]",
                       "identity": {
@@ -1093,7 +1093,7 @@
                     {
                       "condition": "[not(empty(parameters('diagnosticWorkspaceId')))]",
                       "type": "Microsoft.Insights/dataCollectionRuleAssociations",
-                      "apiVersion": "2021-04-01",
+                      "apiVersion": "2022-06-01",
                       "scope": "[format('Microsoft.Compute/virtualMachines/{0}', parameters('vmName'))]",
                       "name": "VMInsights-Dcr-Association",
                       "properties": {
@@ -1106,7 +1106,7 @@
                     },
                     {
                       "type": "Microsoft.Network/networkInterfaces",
-                      "apiVersion": "2021-05-01",
+                      "apiVersion": "2023-06-01",
                       "name": "[format('{0}-nic', parameters('vmName'))]",
                       "location": "[parameters('location')]",
                       "properties": {
@@ -1153,7 +1153,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.24.24.22086",
-                              "templateHash": "14089096452742633142"
+                              "templateHash": "17484088379431764793"
                             }
                           },
                           "parameters": {
@@ -1174,7 +1174,7 @@
                           "resources": [
                             {
                               "type": "Microsoft.Compute/virtualMachines/runCommands",
-                              "apiVersion": "2021-11-01",
+                              "apiVersion": "2023-09-01",
                               "name": "[format('{0}/{1}', parameters('vmName'), parameters('runName'))]",
                               "location": "[parameters('location')]",
                               "properties": {
@@ -1234,7 +1234,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "3767150420963256788"
+                      "templateHash": "5447800560129880359"
                     }
                   },
                   "parameters": {
@@ -1252,7 +1252,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.Network/networkSecurityGroups",
-                      "apiVersion": "2021-05-01",
+                      "apiVersion": "2023-06-01",
                       "name": "[parameters('nsgName')]",
                       "location": "[parameters('location')]",
                       "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/networkSecurityGroups'), parameters('tagsByResource')['Microsoft.Network/networkSecurityGroups'], createObject())]"
@@ -1303,7 +1303,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "7846533341944599853"
+                      "templateHash": "15493469195109027644"
                     }
                   },
                   "parameters": {
@@ -1331,7 +1331,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.Network/bastionHosts",
-                      "apiVersion": "2021-03-01",
+                      "apiVersion": "2023-06-01",
                       "name": "[parameters('bastionName')]",
                       "location": "[parameters('location')]",
                       "properties": {
@@ -1359,7 +1359,7 @@
                     },
                     {
                       "type": "Microsoft.Network/publicIPAddresses",
-                      "apiVersion": "2021-05-01",
+                      "apiVersion": "2023-06-01",
                       "name": "[format('{0}-pip', parameters('bastionName'))]",
                       "location": "[parameters('location')]",
                       "properties": {
@@ -1419,7 +1419,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "12696062231789893357"
+                      "templateHash": "15124195053471237367"
                     }
                   },
                   "parameters": {
@@ -1469,7 +1469,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.Network/azureFirewalls",
-                      "apiVersion": "2021-05-01",
+                      "apiVersion": "2023-06-01",
                       "name": "[parameters('firewallName')]",
                       "location": "[parameters('location')]",
                       "zones": [],
@@ -1493,7 +1493,7 @@
                     },
                     {
                       "type": "Microsoft.Network/firewallPolicies",
-                      "apiVersion": "2021-05-01",
+                      "apiVersion": "2023-06-01",
                       "name": "[variables('firewallPolicyName')]",
                       "location": "[parameters('location')]",
                       "properties": {
@@ -1510,7 +1510,7 @@
                     {
                       "condition": "[not(parameters('deployInVWan'))]",
                       "type": "Microsoft.Network/publicIPAddresses",
-                      "apiVersion": "2021-05-01",
+                      "apiVersion": "2023-06-01",
                       "name": "[variables('pipName')]",
                       "location": "[parameters('location')]",
                       "properties": {
@@ -1527,11 +1527,11 @@
                   "outputs": {
                     "azFwIP": {
                       "type": "string",
-                      "value": "[if(parameters('deployInVWan'), reference(resourceId('Microsoft.Network/azureFirewalls', parameters('firewallName')), '2021-05-01').hubIPAddresses.privateIPAddress, reference(resourceId('Microsoft.Network/azureFirewalls', parameters('firewallName')), '2021-05-01').ipConfigurations[0].properties.privateIPAddress)]"
+                      "value": "[if(parameters('deployInVWan'), reference(resourceId('Microsoft.Network/azureFirewalls', parameters('firewallName')), '2023-06-01').hubIPAddresses.privateIPAddress, reference(resourceId('Microsoft.Network/azureFirewalls', parameters('firewallName')), '2023-06-01').ipConfigurations[0].properties.privateIPAddress)]"
                     },
                     "azFwIPvWan": {
                       "type": "array",
-                      "value": "[if(parameters('deployInVWan'), reference(resourceId('Microsoft.Network/azureFirewalls', parameters('firewallName')), '2021-05-01').hubIPAddresses.publicIPs.addresses, createArray())]"
+                      "value": "[if(parameters('deployInVWan'), reference(resourceId('Microsoft.Network/azureFirewalls', parameters('firewallName')), '2023-06-01').hubIPAddresses.publicIPs.addresses, createArray())]"
                     },
                     "azFwID": {
                       "type": "string",
@@ -1573,7 +1573,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "10656391643022627050"
+                      "templateHash": "6913107020294327963"
                     }
                   },
                   "parameters": {
@@ -1591,7 +1591,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.Network/firewallPolicies/ruleCollectionGroups",
-                      "apiVersion": "2021-05-01",
+                      "apiVersion": "2023-06-01",
                       "name": "[format('{0}/{1}', parameters('azFwPolicyName'), parameters('ruleCollectiongroupName'))]",
                       "properties": {
                         "priority": 400,
@@ -1698,7 +1698,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "8454430914102454911"
+                      "templateHash": "2434733889453208388"
                     }
                   },
                   "parameters": {
@@ -1720,7 +1720,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.Network/routeTables",
-                      "apiVersion": "2021-05-01",
+                      "apiVersion": "2023-06-01",
                       "name": "[parameters('rtName')]",
                       "location": "[parameters('location')]",
                       "properties": {
@@ -1770,7 +1770,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "4964701119160457850"
+                      "templateHash": "11368365051248336138"
                     }
                   },
                   "parameters": {
@@ -1791,7 +1791,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.Network/routeTables/routes",
-                      "apiVersion": "2021-03-01",
+                      "apiVersion": "2023-06-01",
                       "name": "[parameters('routeName')]",
                       "properties": {
                         "nextHopType": "[parameters('routeNextHopType')]",
@@ -1837,7 +1837,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "4964701119160457850"
+                      "templateHash": "11368365051248336138"
                     }
                   },
                   "parameters": {
@@ -1858,7 +1858,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.Network/routeTables/routes",
-                      "apiVersion": "2021-03-01",
+                      "apiVersion": "2023-06-01",
                       "name": "[parameters('routeName')]",
                       "properties": {
                         "nextHopType": "[parameters('routeNextHopType')]",
@@ -1909,7 +1909,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "2552242427632126154"
+                      "templateHash": "5014566134989235154"
                     }
                   },
                   "parameters": {
@@ -1955,7 +1955,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.Network/virtualNetworkGateways",
-                      "apiVersion": "2021-05-01",
+                      "apiVersion": "2023-06-01",
                       "name": "[parameters('vpnGatewayName')]",
                       "location": "[parameters('location')]",
                       "properties": {
@@ -1993,7 +1993,7 @@
                     },
                     {
                       "type": "Microsoft.Network/publicIPAddresses",
-                      "apiVersion": "2021-05-01",
+                      "apiVersion": "2023-06-01",
                       "name": "[variables('pipName')]",
                       "location": "[parameters('location')]",
                       "properties": {
@@ -2010,7 +2010,7 @@
                   "outputs": {
                     "vpnGwPublicIP": {
                       "type": "string",
-                      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('pipName')), '2021-05-01').ipAddress]"
+                      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('pipName')), '2023-06-01').ipAddress]"
                     },
                     "vpnGwID": {
                       "type": "string",
@@ -2018,7 +2018,7 @@
                     },
                     "vpnGwBgpPeeringAddress": {
                       "type": "string",
-                      "value": "[reference(resourceId('Microsoft.Network/virtualNetworkGateways', parameters('vpnGatewayName')), '2021-05-01').bgpSettings.bgpPeeringAddress]"
+                      "value": "[reference(resourceId('Microsoft.Network/virtualNetworkGateways', parameters('vpnGatewayName')), '2023-06-01').bgpSettings.bgpPeeringAddress]"
                     },
                     "vpnGwName": {
                       "type": "string",
@@ -2026,7 +2026,7 @@
                     },
                     "vpnGwAsn": {
                       "type": "int",
-                      "value": "[reference(resourceId('Microsoft.Network/virtualNetworkGateways', parameters('vpnGatewayName')), '2021-05-01').bgpSettings.asn]"
+                      "value": "[reference(resourceId('Microsoft.Network/virtualNetworkGateways', parameters('vpnGatewayName')), '2023-06-01').bgpSettings.asn]"
                     }
                   }
                 }
@@ -2062,7 +2062,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "8454430914102454911"
+                      "templateHash": "2434733889453208388"
                     }
                   },
                   "parameters": {
@@ -2084,7 +2084,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.Network/routeTables",
-                      "apiVersion": "2021-05-01",
+                      "apiVersion": "2023-06-01",
                       "name": "[parameters('rtName')]",
                       "location": "[parameters('location')]",
                       "properties": {
@@ -2138,7 +2138,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "4964701119160457850"
+                      "templateHash": "11368365051248336138"
                     }
                   },
                   "parameters": {
@@ -2159,7 +2159,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.Network/routeTables/routes",
-                      "apiVersion": "2021-03-01",
+                      "apiVersion": "2023-06-01",
                       "name": "[parameters('routeName')]",
                       "properties": {
                         "nextHopType": "[parameters('routeNextHopType')]",
@@ -2283,7 +2283,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "13847892383320709083"
+              "templateHash": "10425357680068221720"
             }
           },
           "parameters": {
@@ -2333,7 +2333,7 @@
           "resources": [
             {
               "type": "Microsoft.Resources/resourceGroups",
-              "apiVersion": "2021-04-01",
+              "apiVersion": "2023-07-01",
               "name": "[parameters('hubRgName')]",
               "location": "[parameters('location')]",
               "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Resources/subscriptions/resourceGroups'), parameters('tagsByResource')['Microsoft.Resources/subscriptions/resourceGroups'], createObject())]"
@@ -2495,7 +2495,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "12696062231789893357"
+                      "templateHash": "15124195053471237367"
                     }
                   },
                   "parameters": {
@@ -2545,7 +2545,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.Network/azureFirewalls",
-                      "apiVersion": "2021-05-01",
+                      "apiVersion": "2023-06-01",
                       "name": "[parameters('firewallName')]",
                       "location": "[parameters('location')]",
                       "zones": [],
@@ -2569,7 +2569,7 @@
                     },
                     {
                       "type": "Microsoft.Network/firewallPolicies",
-                      "apiVersion": "2021-05-01",
+                      "apiVersion": "2023-06-01",
                       "name": "[variables('firewallPolicyName')]",
                       "location": "[parameters('location')]",
                       "properties": {
@@ -2586,7 +2586,7 @@
                     {
                       "condition": "[not(parameters('deployInVWan'))]",
                       "type": "Microsoft.Network/publicIPAddresses",
-                      "apiVersion": "2021-05-01",
+                      "apiVersion": "2023-06-01",
                       "name": "[variables('pipName')]",
                       "location": "[parameters('location')]",
                       "properties": {
@@ -2603,11 +2603,11 @@
                   "outputs": {
                     "azFwIP": {
                       "type": "string",
-                      "value": "[if(parameters('deployInVWan'), reference(resourceId('Microsoft.Network/azureFirewalls', parameters('firewallName')), '2021-05-01').hubIPAddresses.privateIPAddress, reference(resourceId('Microsoft.Network/azureFirewalls', parameters('firewallName')), '2021-05-01').ipConfigurations[0].properties.privateIPAddress)]"
+                      "value": "[if(parameters('deployInVWan'), reference(resourceId('Microsoft.Network/azureFirewalls', parameters('firewallName')), '2023-06-01').hubIPAddresses.privateIPAddress, reference(resourceId('Microsoft.Network/azureFirewalls', parameters('firewallName')), '2023-06-01').ipConfigurations[0].properties.privateIPAddress)]"
                     },
                     "azFwIPvWan": {
                       "type": "array",
-                      "value": "[if(parameters('deployInVWan'), reference(resourceId('Microsoft.Network/azureFirewalls', parameters('firewallName')), '2021-05-01').hubIPAddresses.publicIPs.addresses, createArray())]"
+                      "value": "[if(parameters('deployInVWan'), reference(resourceId('Microsoft.Network/azureFirewalls', parameters('firewallName')), '2023-06-01').hubIPAddresses.publicIPs.addresses, createArray())]"
                     },
                     "azFwID": {
                       "type": "string",
@@ -2649,7 +2649,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "10656391643022627050"
+                      "templateHash": "6913107020294327963"
                     }
                   },
                   "parameters": {
@@ -2667,7 +2667,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.Network/firewallPolicies/ruleCollectionGroups",
-                      "apiVersion": "2021-05-01",
+                      "apiVersion": "2023-06-01",
                       "name": "[format('{0}/{1}', parameters('azFwPolicyName'), parameters('ruleCollectiongroupName'))]",
                       "properties": {
                         "priority": 400,
@@ -2979,7 +2979,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "1128560297909771242"
+                      "templateHash": "6780003595855327321"
                     }
                   },
                   "parameters": {
@@ -2997,7 +2997,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.Insights/dataCollectionRules",
-                      "apiVersion": "2021-04-01",
+                      "apiVersion": "2022-06-01",
                       "name": "MSVMI-LabBuilder",
                       "location": "[parameters('location')]",
                       "properties": {
@@ -3205,7 +3205,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "16470487356077441399"
+              "templateHash": "12767248857035449879"
             }
           },
           "parameters": {
@@ -3282,7 +3282,7 @@
           "resources": [
             {
               "type": "Microsoft.Resources/resourceGroups",
-              "apiVersion": "2021-04-01",
+              "apiVersion": "2023-07-01",
               "name": "[format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))]",
               "location": "[parameters('location')]",
               "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Resources/subscriptions/resourceGroups'), parameters('tagsByResource')['Microsoft.Resources/subscriptions/resourceGroups'], createObject())]"
@@ -3335,7 +3335,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "3060282554717544862"
+                      "templateHash": "16711297951345346489"
                     }
                   },
                   "parameters": {
@@ -3419,7 +3419,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.Network/virtualNetworks",
-                      "apiVersion": "2021-05-01",
+                      "apiVersion": "2023-06-01",
                       "name": "[parameters('vnetname')]",
                       "location": "[parameters('location')]",
                       "properties": {
@@ -3447,11 +3447,11 @@
                     },
                     "vnetAddressSpace": {
                       "type": "array",
-                      "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetname')), '2021-05-01').addressSpace.addressPrefixes]"
+                      "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetname')), '2023-06-01').addressSpace.addressPrefixes]"
                     },
                     "defaultSubnetID": {
                       "type": "string",
-                      "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetname')), '2021-05-01').subnets[0].id]"
+                      "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetname')), '2023-06-01').subnets[0].id]"
                     },
                     "bastionSubnetID": {
                       "type": "string",
@@ -3524,7 +3524,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "309071062163378125"
+                      "templateHash": "16004497942441159913"
                     }
                   },
                   "parameters": {
@@ -3590,7 +3590,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.Compute/virtualMachines",
-                      "apiVersion": "2021-11-01",
+                      "apiVersion": "2023-09-01",
                       "name": "[parameters('vmName')]",
                       "location": "[parameters('location')]",
                       "identity": {
@@ -3676,7 +3676,7 @@
                     {
                       "condition": "[not(empty(parameters('diagnosticWorkspaceId')))]",
                       "type": "Microsoft.Insights/dataCollectionRuleAssociations",
-                      "apiVersion": "2021-04-01",
+                      "apiVersion": "2022-06-01",
                       "scope": "[format('Microsoft.Compute/virtualMachines/{0}', parameters('vmName'))]",
                       "name": "VMInsights-Dcr-Association",
                       "properties": {
@@ -3689,7 +3689,7 @@
                     },
                     {
                       "type": "Microsoft.Network/networkInterfaces",
-                      "apiVersion": "2021-05-01",
+                      "apiVersion": "2023-06-01",
                       "name": "[format('{0}-nic', parameters('vmName'))]",
                       "location": "[parameters('location')]",
                       "properties": {
@@ -3736,7 +3736,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.24.24.22086",
-                              "templateHash": "14089096452742633142"
+                              "templateHash": "17484088379431764793"
                             }
                           },
                           "parameters": {
@@ -3757,7 +3757,7 @@
                           "resources": [
                             {
                               "type": "Microsoft.Compute/virtualMachines/runCommands",
-                              "apiVersion": "2021-11-01",
+                              "apiVersion": "2023-09-01",
                               "name": "[format('{0}/{1}', parameters('vmName'), parameters('runName'))]",
                               "location": "[parameters('location')]",
                               "properties": {
@@ -3816,7 +3816,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "3767150420963256788"
+                      "templateHash": "5447800560129880359"
                     }
                   },
                   "parameters": {
@@ -3834,7 +3834,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.Network/networkSecurityGroups",
-                      "apiVersion": "2021-05-01",
+                      "apiVersion": "2023-06-01",
                       "name": "[parameters('nsgName')]",
                       "location": "[parameters('location')]",
                       "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/networkSecurityGroups'), parameters('tagsByResource')['Microsoft.Network/networkSecurityGroups'], createObject())]"
@@ -3885,7 +3885,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "7846533341944599853"
+                      "templateHash": "15493469195109027644"
                     }
                   },
                   "parameters": {
@@ -3913,7 +3913,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.Network/bastionHosts",
-                      "apiVersion": "2021-03-01",
+                      "apiVersion": "2023-06-01",
                       "name": "[parameters('bastionName')]",
                       "location": "[parameters('location')]",
                       "properties": {
@@ -3941,7 +3941,7 @@
                     },
                     {
                       "type": "Microsoft.Network/publicIPAddresses",
-                      "apiVersion": "2021-05-01",
+                      "apiVersion": "2023-06-01",
                       "name": "[format('{0}-pip', parameters('bastionName'))]",
                       "location": "[parameters('location')]",
                       "properties": {
@@ -3991,7 +3991,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "8454430914102454911"
+                      "templateHash": "2434733889453208388"
                     }
                   },
                   "parameters": {
@@ -4013,7 +4013,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.Network/routeTables",
-                      "apiVersion": "2021-05-01",
+                      "apiVersion": "2023-06-01",
                       "name": "[parameters('rtName')]",
                       "location": "[parameters('location')]",
                       "properties": {
@@ -4063,7 +4063,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "4964701119160457850"
+                      "templateHash": "11368365051248336138"
                     }
                   },
                   "parameters": {
@@ -4084,7 +4084,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.Network/routeTables/routes",
-                      "apiVersion": "2021-03-01",
+                      "apiVersion": "2023-06-01",
                       "name": "[parameters('routeName')]",
                       "properties": {
                         "nextHopType": "[parameters('routeNextHopType')]",
@@ -4125,7 +4125,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "4964701119160457850"
+                      "templateHash": "11368365051248336138"
                     }
                   },
                   "parameters": {
@@ -4146,7 +4146,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.Network/routeTables/routes",
-                      "apiVersion": "2021-03-01",
+                      "apiVersion": "2023-06-01",
                       "name": "[parameters('routeName')]",
                       "properties": {
                         "nextHopType": "[parameters('routeNextHopType')]",
@@ -4234,7 +4234,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "4542744127873833826"
+              "templateHash": "9582046634601204441"
             }
           },
           "parameters": {
@@ -4302,7 +4302,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "7017103667899519745"
+                      "templateHash": "13246919997172795010"
                     }
                   },
                   "parameters": {
@@ -4330,7 +4330,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
-                      "apiVersion": "2021-05-01",
+                      "apiVersion": "2023-06-01",
                       "name": "[parameters('peeringName')]",
                       "properties": {
                         "remoteVirtualNetwork": {
@@ -4378,7 +4378,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "7017103667899519745"
+                      "templateHash": "13246919997172795010"
                     }
                   },
                   "parameters": {
@@ -4406,7 +4406,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
-                      "apiVersion": "2021-05-01",
+                      "apiVersion": "2023-06-01",
                       "name": "[parameters('peeringName')]",
                       "properties": {
                         "remoteVirtualNetwork": {
@@ -4473,7 +4473,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "15881073540321293555"
+              "templateHash": "5432727962053430075"
             }
           },
           "parameters": {
@@ -4528,7 +4528,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "7017103667899519745"
+                      "templateHash": "13246919997172795010"
                     }
                   },
                   "parameters": {
@@ -4556,7 +4556,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
-                      "apiVersion": "2021-05-01",
+                      "apiVersion": "2023-06-01",
                       "name": "[parameters('peeringName')]",
                       "properties": {
                         "remoteVirtualNetwork": {
@@ -4625,7 +4625,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "14281637406480962880"
+              "templateHash": "12565805987084917343"
             }
           },
           "parameters": {
@@ -4978,7 +4978,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "1326040358610834532"
+                      "templateHash": "2821211912930269109"
                     }
                   },
                   "parameters": {
@@ -4996,7 +4996,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
-                      "apiVersion": "2022-01-31-preview",
+                      "apiVersion": "2023-07-31-preview",
                       "name": "[format('{0}-{1}', parameters('uaiName'), parameters('location'))]",
                       "location": "[parameters('location')]",
                       "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.ManagedIdentity/userAssignedIdentities'), parameters('tagsByResource')['Microsoft.ManagedIdentity/userAssignedIdentities'], createObject())]"
@@ -5013,7 +5013,7 @@
                     },
                     "principalID": {
                       "type": "string",
-                      "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}-{1}', parameters('uaiName'), parameters('location'))), '2022-01-31-preview').principalId]"
+                      "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}-{1}', parameters('uaiName'), parameters('location'))), '2023-07-31-preview').principalId]"
                     }
                   }
                 }
@@ -5047,7 +5047,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "5005268480043591742"
+                      "templateHash": "2846552257746121152"
                     }
                   },
                   "parameters": {
@@ -5075,7 +5075,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.Authorization/roleAssignments",
-                      "apiVersion": "2020-04-01-preview",
+                      "apiVersion": "2022-04-01",
                       "scope": "[format('Microsoft.Network/networkManagers/{0}', parameters('avnmName'))]",
                       "name": "[guid(resourceGroup().id, parameters('principalID'))]",
                       "properties": {
@@ -5138,7 +5138,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "16023880974402923827"
+                      "templateHash": "6847898303490190399"
                     }
                   },
                   "parameters": {
@@ -5171,7 +5171,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.Resources/deploymentScripts",
-                      "apiVersion": "2020-10-01",
+                      "apiVersion": "2023-08-01",
                       "name": "[parameters('deploymentScriptName')]",
                       "location": "[parameters('location')]",
                       "kind": "AzurePowerShell",
@@ -5434,7 +5434,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "1756171467829584079"
+              "templateHash": "13165255453016387408"
             }
           },
           "parameters": {
@@ -5500,7 +5500,7 @@
           "resources": [
             {
               "type": "Microsoft.Resources/resourceGroups",
-              "apiVersion": "2021-04-01",
+              "apiVersion": "2023-07-01",
               "name": "[parameters('OnPremRgName')]",
               "location": "[parameters('location')]",
               "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Resources/subscriptions/resourceGroups'), parameters('tagsByResource')['Microsoft.Resources/subscriptions/resourceGroups'], createObject())]"
@@ -5552,7 +5552,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "3060282554717544862"
+                      "templateHash": "16711297951345346489"
                     }
                   },
                   "parameters": {
@@ -5636,7 +5636,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.Network/virtualNetworks",
-                      "apiVersion": "2021-05-01",
+                      "apiVersion": "2023-06-01",
                       "name": "[parameters('vnetname')]",
                       "location": "[parameters('location')]",
                       "properties": {
@@ -5664,11 +5664,11 @@
                     },
                     "vnetAddressSpace": {
                       "type": "array",
-                      "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetname')), '2021-05-01').addressSpace.addressPrefixes]"
+                      "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetname')), '2023-06-01').addressSpace.addressPrefixes]"
                     },
                     "defaultSubnetID": {
                       "type": "string",
-                      "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetname')), '2021-05-01').subnets[0].id]"
+                      "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetname')), '2023-06-01').subnets[0].id]"
                     },
                     "bastionSubnetID": {
                       "type": "string",
@@ -5740,7 +5740,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "309071062163378125"
+                      "templateHash": "16004497942441159913"
                     }
                   },
                   "parameters": {
@@ -5806,7 +5806,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.Compute/virtualMachines",
-                      "apiVersion": "2021-11-01",
+                      "apiVersion": "2023-09-01",
                       "name": "[parameters('vmName')]",
                       "location": "[parameters('location')]",
                       "identity": {
@@ -5892,7 +5892,7 @@
                     {
                       "condition": "[not(empty(parameters('diagnosticWorkspaceId')))]",
                       "type": "Microsoft.Insights/dataCollectionRuleAssociations",
-                      "apiVersion": "2021-04-01",
+                      "apiVersion": "2022-06-01",
                       "scope": "[format('Microsoft.Compute/virtualMachines/{0}', parameters('vmName'))]",
                       "name": "VMInsights-Dcr-Association",
                       "properties": {
@@ -5905,7 +5905,7 @@
                     },
                     {
                       "type": "Microsoft.Network/networkInterfaces",
-                      "apiVersion": "2021-05-01",
+                      "apiVersion": "2023-06-01",
                       "name": "[format('{0}-nic', parameters('vmName'))]",
                       "location": "[parameters('location')]",
                       "properties": {
@@ -5952,7 +5952,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.24.24.22086",
-                              "templateHash": "14089096452742633142"
+                              "templateHash": "17484088379431764793"
                             }
                           },
                           "parameters": {
@@ -5973,7 +5973,7 @@
                           "resources": [
                             {
                               "type": "Microsoft.Compute/virtualMachines/runCommands",
-                              "apiVersion": "2021-11-01",
+                              "apiVersion": "2023-09-01",
                               "name": "[format('{0}/{1}', parameters('vmName'), parameters('runName'))]",
                               "location": "[parameters('location')]",
                               "properties": {
@@ -6032,7 +6032,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "3767150420963256788"
+                      "templateHash": "5447800560129880359"
                     }
                   },
                   "parameters": {
@@ -6050,7 +6050,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.Network/networkSecurityGroups",
-                      "apiVersion": "2021-05-01",
+                      "apiVersion": "2023-06-01",
                       "name": "[parameters('nsgName')]",
                       "location": "[parameters('location')]",
                       "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/networkSecurityGroups'), parameters('tagsByResource')['Microsoft.Network/networkSecurityGroups'], createObject())]"
@@ -6101,7 +6101,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "7846533341944599853"
+                      "templateHash": "15493469195109027644"
                     }
                   },
                   "parameters": {
@@ -6129,7 +6129,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.Network/bastionHosts",
-                      "apiVersion": "2021-03-01",
+                      "apiVersion": "2023-06-01",
                       "name": "[parameters('bastionName')]",
                       "location": "[parameters('location')]",
                       "properties": {
@@ -6157,7 +6157,7 @@
                     },
                     {
                       "type": "Microsoft.Network/publicIPAddresses",
-                      "apiVersion": "2021-05-01",
+                      "apiVersion": "2023-06-01",
                       "name": "[format('{0}-pip', parameters('bastionName'))]",
                       "location": "[parameters('location')]",
                       "properties": {
@@ -6212,7 +6212,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "2552242427632126154"
+                      "templateHash": "5014566134989235154"
                     }
                   },
                   "parameters": {
@@ -6258,7 +6258,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.Network/virtualNetworkGateways",
-                      "apiVersion": "2021-05-01",
+                      "apiVersion": "2023-06-01",
                       "name": "[parameters('vpnGatewayName')]",
                       "location": "[parameters('location')]",
                       "properties": {
@@ -6296,7 +6296,7 @@
                     },
                     {
                       "type": "Microsoft.Network/publicIPAddresses",
-                      "apiVersion": "2021-05-01",
+                      "apiVersion": "2023-06-01",
                       "name": "[variables('pipName')]",
                       "location": "[parameters('location')]",
                       "properties": {
@@ -6313,7 +6313,7 @@
                   "outputs": {
                     "vpnGwPublicIP": {
                       "type": "string",
-                      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('pipName')), '2021-05-01').ipAddress]"
+                      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('pipName')), '2023-06-01').ipAddress]"
                     },
                     "vpnGwID": {
                       "type": "string",
@@ -6321,7 +6321,7 @@
                     },
                     "vpnGwBgpPeeringAddress": {
                       "type": "string",
-                      "value": "[reference(resourceId('Microsoft.Network/virtualNetworkGateways', parameters('vpnGatewayName')), '2021-05-01').bgpSettings.bgpPeeringAddress]"
+                      "value": "[reference(resourceId('Microsoft.Network/virtualNetworkGateways', parameters('vpnGatewayName')), '2023-06-01').bgpSettings.bgpPeeringAddress]"
                     },
                     "vpnGwName": {
                       "type": "string",
@@ -6329,7 +6329,7 @@
                     },
                     "vpnGwAsn": {
                       "type": "int",
-                      "value": "[reference(resourceId('Microsoft.Network/virtualNetworkGateways', parameters('vpnGatewayName')), '2021-05-01').bgpSettings.asn]"
+                      "value": "[reference(resourceId('Microsoft.Network/virtualNetworkGateways', parameters('vpnGatewayName')), '2023-06-01').bgpSettings.asn]"
                     }
                   }
                 }
@@ -6423,7 +6423,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "10685474840622684238"
+              "templateHash": "1888792833297272120"
             }
           },
           "parameters": {
@@ -6542,7 +6542,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "13477528933715167195"
+                      "templateHash": "9304577931307632954"
                     }
                   },
                   "parameters": {
@@ -6584,7 +6584,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.Network/localNetworkGateways",
-                      "apiVersion": "2021-05-01",
+                      "apiVersion": "2023-06-01",
                       "name": "[parameters('LocalGatewayName')]",
                       "location": "[parameters('location')]",
                       "properties": {
@@ -6596,7 +6596,7 @@
                     },
                     {
                       "type": "Microsoft.Network/connections",
-                      "apiVersion": "2020-07-01",
+                      "apiVersion": "2023-06-01",
                       "name": "[parameters('connectionName')]",
                       "location": "[parameters('location')]",
                       "properties": {
@@ -6678,7 +6678,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "13477528933715167195"
+                      "templateHash": "9304577931307632954"
                     }
                   },
                   "parameters": {
@@ -6720,7 +6720,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.Network/localNetworkGateways",
-                      "apiVersion": "2021-05-01",
+                      "apiVersion": "2023-06-01",
                       "name": "[parameters('LocalGatewayName')]",
                       "location": "[parameters('location')]",
                       "properties": {
@@ -6732,7 +6732,7 @@
                     },
                     {
                       "type": "Microsoft.Network/connections",
-                      "apiVersion": "2020-07-01",
+                      "apiVersion": "2023-06-01",
                       "name": "[parameters('connectionName')]",
                       "location": "[parameters('location')]",
                       "properties": {
@@ -6818,7 +6818,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "9245109333800098342"
+              "templateHash": "16177527518160832040"
             }
           },
           "parameters": {
@@ -7113,7 +7113,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "13477528933715167195"
+                      "templateHash": "9304577931307632954"
                     }
                   },
                   "parameters": {
@@ -7155,7 +7155,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.Network/localNetworkGateways",
-                      "apiVersion": "2021-05-01",
+                      "apiVersion": "2023-06-01",
                       "name": "[parameters('LocalGatewayName')]",
                       "location": "[parameters('location')]",
                       "properties": {
@@ -7167,7 +7167,7 @@
                     },
                     {
                       "type": "Microsoft.Network/connections",
-                      "apiVersion": "2020-07-01",
+                      "apiVersion": "2023-06-01",
                       "name": "[parameters('connectionName')]",
                       "location": "[parameters('location')]",
                       "properties": {

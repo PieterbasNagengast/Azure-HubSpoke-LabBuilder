@@ -38,7 +38,7 @@ var Linux = {
 
 var imagereference = osType == 'Windows' ? Windows : osType == 'Linux' ? Linux : {}
 
-resource vm 'Microsoft.Compute/virtualMachines@2021-11-01' = {
+resource vm 'Microsoft.Compute/virtualMachines@2023-09-01' = {
   name: vmName
   location: location
   identity: {
@@ -111,7 +111,7 @@ resource daextension 'Microsoft.Compute/virtualMachines/extensions@2022-03-01' =
   }
 }
 
-resource dcrassociation 'Microsoft.Insights/dataCollectionRuleAssociations@2021-04-01' = if (!empty(diagnosticWorkspaceId)) {
+resource dcrassociation 'Microsoft.Insights/dataCollectionRuleAssociations@2022-06-01' = if (!empty(diagnosticWorkspaceId)) {
   name: 'VMInsights-Dcr-Association'
   scope: vm
   properties: {
@@ -120,7 +120,7 @@ resource dcrassociation 'Microsoft.Insights/dataCollectionRuleAssociations@2021-
   }
 }
 
-resource nic 'Microsoft.Network/networkInterfaces@2021-05-01' = {
+resource nic 'Microsoft.Network/networkInterfaces@2023-06-01' = {
   name: '${vmName}-nic'
   location: location
   properties: {

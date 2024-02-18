@@ -4,7 +4,7 @@ param SpokeVnetName string
 param spokeVnets array
 param spokeSubscriptionID string
 
-resource spokerg 'Microsoft.Resources/resourceGroups@2021-04-01' existing = {
+resource spokerg 'Microsoft.Resources/resourceGroups@2023-07-01' existing = {
   scope: subscription(spokeSubscriptionID)
   name: SpokeResourceGroupName
 }

@@ -42,7 +42,7 @@ var hubVnetName = 'VNET-Hub'
 var firewallName = 'Firewall-Hub'
 var gatewayName = 'Gateway-Hub'
 
-resource hubrg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+resource hubrg 'Microsoft.Resources/resourceGroups@2023-07-01' = {
   name: hubRgName
   location: location
   tags: contains(tagsByResource, 'Microsoft.Resources/subscriptions/resourceGroups') ? tagsByResource['Microsoft.Resources/subscriptions/resourceGroups'] : {}

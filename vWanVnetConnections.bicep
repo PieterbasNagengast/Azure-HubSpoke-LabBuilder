@@ -9,7 +9,7 @@ param enableRoutingIntent bool = true
 
 var spokeName = split(SpokeVnetID, '/')[8]
 
-resource hubrg 'Microsoft.Resources/resourceGroups@2021-04-01' existing = {
+resource hubrg 'Microsoft.Resources/resourceGroups@2023-07-01' existing = {
   scope: subscription(hubSubscriptionID)
   name: HubResourceGroupName
 }

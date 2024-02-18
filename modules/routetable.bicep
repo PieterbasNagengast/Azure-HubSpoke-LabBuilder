@@ -3,7 +3,7 @@ param location string
 param disableRouteProp bool = true
 param tagsByResource object = {}
 
-resource rt 'Microsoft.Network/routeTables@2021-05-01' = {
+resource rt 'Microsoft.Network/routeTables@2023-06-01' = {
   name: rtName
   location: location
   properties: {

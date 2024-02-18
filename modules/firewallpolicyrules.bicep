@@ -2,7 +2,7 @@ param azFwPolicyName string
 param ruleCollectiongroupName string = 'HubSpokeLabBuilderCollectionGroup'
 param AddressSpace string
 
-resource ruleCollectionGroup 'Microsoft.Network/firewallPolicies/ruleCollectionGroups@2021-05-01' = {
+resource ruleCollectionGroup 'Microsoft.Network/firewallPolicies/ruleCollectionGroups@2023-06-01' = {
   name: '${azFwPolicyName}/${ruleCollectiongroupName}'
   properties: {
     priority: 400
