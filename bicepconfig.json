@@ -24,6 +24,66 @@
         },
         "use-recent-api-versions": {
           "level": "error"
+        },
+        "adminusername-should-not-be-literal": {
+          "level": "error"
+        },
+        "no-hardcoded-location": {
+          "level": "error"
+        },
+        "no-unnecessary-dependson": {
+          "level": "error"
+        },
+        "no-unused-existing-resources": {
+          "level": "error"
+        },
+        "outputs-should-not-contain-secrets": {
+          "level": "error"
+        },
+        "simplify-json-null": {
+          "level": "error"
+        },
+        "secure-params-in-nested-deploy": {
+          "level": "error"
+        },
+        "secure-secrets-in-params": {
+          "level": "error"
+        },
+        "no-deployments-resources": {
+          "level": "warning"
+        },
+        "protect-commandtoexecute-secrets": {
+          "level": "error"
+        },
+        "use-resource-id-functions": {
+          "level": "error"
+        },
+        "use-stable-vm-image": {
+          "level": "error"
+        },
+        "use-resource-symbol-reference": {
+          "level": "error"
+        },
+        "use-stable-resource-identifiers": {
+          "level": "warning"
+        },
+        "use-parent-property": {
+          "level": "error"
+        },
+        "no-conflicting-metadata": {
+          "level": "error"
+        },
+        "no-loc-expr-outside-params": {
+          "level": "error"
+        },
+        "explicit-values-for-loc-params": {
+          "level": "error"
+        },
+        "nested-deployment-template-scoping": {
+          "level": "error"
+        },
+        "prefer-unquoted-property-names": {
+          "level": "error"
         }
       }
     }
