@@ -5,10 +5,11 @@ param HubResourceGroupName string
 param counter int
 param deployFirewallInHub bool
 param hubSubscriptionID string
+param enableRoutingIntent bool = true
 
 var spokeName = split(SpokeVnetID, '/')[8]
 
-resource hubrg 'Microsoft.Resources/resourceGroups@2021-04-01' existing = {
+resource hubrg 'Microsoft.Resources/resourceGroups@2023-07-01' existing = {
   scope: subscription(hubSubscriptionID)
   name: HubResourceGroupName
 }
@@ -22,5 +23,6 @@ module vWanVnetConnection 'modules/vwanvnetconnection.bicep' = {
     spokeName: spokeName
     enableInternetSecurity: deployFirewallInHub
     propagateToNoneRouteTable: deployFirewallInHub
+    enableRoutingIntent: enableRoutingIntent
   }
 }

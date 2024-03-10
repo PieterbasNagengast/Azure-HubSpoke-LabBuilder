@@ -23,12 +23,13 @@
 8. [Azure Virtual Network Manager](#azure-virtual-network-manager)
 9. [Parameters overview](#parameters-overview)
 10. [Updates](#updates)
-    1. [Juni 2023 updates](#juni-2023-updates)
-    2. [May 2023 updates](#may-2023-updates)
-    3. [September 2022 updates](#september-2022-updates)
-    4. [July 2022 updates](#july-2022-updates)
-    5. [June 2022 updates](#june-2022-updates)
-    6. [May 2022 updates](#may-2022-updates)
+    1. [Februari 2024 updates](#februari-2024-updates)
+    2. [June 2023 updates](#june-2023-updates)
+    3. [May 2023 updates](#may-2023-updates)
+    4. [September 2022 updates](#september-2022-updates)
+    5. [July 2022 updates](#july-2022-updates)
+    6. [June 2022 updates](#june-2022-updates)
+    7. [May 2022 updates](#may-2022-updates)
 
 ## Deploy to Azure
 
@@ -241,12 +242,19 @@ When deploying a Hub you can also deploy a Azure Virtual Network Manager (AVNM).
 | `vmSizeHub` | string | Hub Virtual Machine SKU. Default = Standard_B2s | Standard_B2s |  |
 | `vmSizeOnPrem` | string | OnPrem Virtual Machine SKU. Default = Standard_B2s | Standard_B2s |  |
 | `vmSizeSpoke` | string | Spoke Virtual Machine SKU. Default = Standard_B2s | Standard_B2s |  |
-| `deployVnetPeeringMesh` | bool | Directly connect VNET Spokes (Fully Meshed Topology) with standard VNET Peerings. When using AVNM the Directly Connected Group will be used. | False |
-| `deployVnetPeeringAVNM` | bool | Deploy Azure Virtual Network Manager | False |
+| `deployVnetPeeringMesh` | bool | Directly connect VNET Spokes (Fully Meshed Topology) with standard VNET Peerings. When using AVNM the Directly Connected Group will be used. | False | |
+| `deployVnetPeeringAVNM` | bool | Deploy Azure Virtual Network Manager | False | |
+| `internetTrafficRoutingPolicy` | bool | Enable Internet traffic vWAN routing policy on Azure Firewall | False | |
+| `privateTrafficRoutingPolicy` | bool | Enable Private traffic vWAN routing policy on Azure Firewall | False | |
 
 ## Updates
 
-### Juni 2023 updates
+### Februari 2024 updates
+
+- Enable Azure vWAN Routing Intent Policy with Azure Firewall
+- Update Bicep code to use function CIDRSubet and CIDRHost
+
+### June 2023 updates
 
 - Deploy Azure Virtual Network Manager (AVNM) to manage VNET Peerings
 

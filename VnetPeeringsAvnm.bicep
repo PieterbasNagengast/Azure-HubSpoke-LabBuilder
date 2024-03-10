@@ -9,7 +9,7 @@ param useHubGateway bool
 param deployVnetPeeringMesh bool
 param tagsByResource object = {}
 
-resource hubrg 'Microsoft.Resources/resourceGroups@2021-04-01' existing = {
+resource hubrg 'Microsoft.Resources/resourceGroups@2023-07-01' existing = {
   name: HubResourceGroupName
 }
 

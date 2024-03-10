@@ -17,7 +17,7 @@ var azfwSKUname = deployInVWan ? 'AZFW_Hub' : 'AZFW_VNet'
 var pipName = '${firewallName}-pip'
 var firewallPolicyName = '${firewallName}-policy'
 
-resource azfw 'Microsoft.Network/azureFirewalls@2021-05-01' = {
+resource azfw 'Microsoft.Network/azureFirewalls@2023-06-01' = {
   name: firewallName
   location: location
   zones: []
@@ -54,7 +54,7 @@ resource azfw 'Microsoft.Network/azureFirewalls@2021-05-01' = {
   tags: contains(tagsByResource, 'Microsoft.Network/azureFirewalls') ? tagsByResource['Microsoft.Network/azureFirewalls'] : {}
 }
 
-resource azfwpolicy 'Microsoft.Network/firewallPolicies@2021-05-01' = {
+resource azfwpolicy 'Microsoft.Network/firewallPolicies@2023-06-01' = {
   name: firewallPolicyName
   location: location
   properties: {
@@ -69,7 +69,7 @@ resource azfwpolicy 'Microsoft.Network/firewallPolicies@2021-05-01' = {
   tags: contains(tagsByResource, 'Microsoft.Network/firewallPolicies') ? tagsByResource['Microsoft.Network/firewallPolicies'] : {}
 }
 
-resource azfwpip 'Microsoft.Network/publicIPAddresses@2021-05-01' = if (!deployInVWan) {
+resource azfwpip 'Microsoft.Network/publicIPAddresses@2023-06-01' = if (!deployInVWan) {
   name: pipName
   location: location
   properties: {
@@ -83,7 +83,7 @@ resource azfwpip 'Microsoft.Network/publicIPAddresses@2021-05-01' = if (!deployI
   tags: contains(tagsByResource, 'Microsoft.Network/publicIPAddresses') ? tagsByResource['Microsoft.Network/publicIPAddresses'] : {}
 }
 
-output azFwIP string = deployInVWan ? 'None' : azfw.properties.ipConfigurations[0].properties.privateIPAddress
+output azFwIP string = deployInVWan ? azfw.properties.hubIPAddresses.privateIPAddress : azfw.properties.ipConfigurations[0].properties.privateIPAddress
 output azFwIPvWan array = deployInVWan ? azfw.properties.hubIPAddresses.publicIPs.addresses : []
 output azFwID string = azfw.id
 output azFwPolicyName string = azfwpolicy.name

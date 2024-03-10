@@ -3,7 +3,7 @@ param vmName string
 param runName string = 'RunCommand'
 param runCommand string
 
-resource run 'Microsoft.Compute/virtualMachines/runCommands@2021-11-01' = {
+resource run 'Microsoft.Compute/virtualMachines/runCommands@2023-09-01' = {
   name: '${vmName}/${runName}'
   location: location
   properties: {

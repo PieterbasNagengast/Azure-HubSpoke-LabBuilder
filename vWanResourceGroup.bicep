@@ -10,14 +10,14 @@ param deployGatewayInHub bool
 param tagsByResource object = {}
 param firewallDNSproxy bool
 param diagnosticWorkspaceId string
-
-var vnetAddressSpace = AddressSpace
+param internetTrafficRoutingPolicy bool
+param privateTrafficRoutingPolicy bool
 
 var vWanName = 'vWAN'
 var firewallName = 'Firewall-Hub'
 var gatewayName = 'Gateway-Hub'
 
-resource hubrg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+resource hubrg 'Microsoft.Resources/resourceGroups@2023-07-01' = {
   name: hubRgName
   location: location
   tags: contains(tagsByResource, 'Microsoft.Resources/subscriptions/resourceGroups') ? tagsByResource['Microsoft.Resources/subscriptions/resourceGroups'] : {}
@@ -28,7 +28,7 @@ module vwan 'modules/vwan.bicep' = {
   scope: hubrg
   name: vWanName
   params: {
-    AddressPrefix: vnetAddressSpace
+    AddressPrefix: AddressSpace
     location: location
     vWanName: vWanName
     tagsByResource: tagsByResource
@@ -68,6 +68,8 @@ module vwanRouteTable 'modules/vwanhubroutes.bicep' = {
     vwanHubName: vwan.outputs.vWanHubName
     AzFirewallID: deployFirewallInHub ? AzFirewall.outputs.azFwID : 'none'
     deployFirewallInHub: deployFirewallInHub
+    internetTrafficRoutingPolicy: internetTrafficRoutingPolicy
+    privateTrafficRoutingPolicy: privateTrafficRoutingPolicy
   }
 }
 
@@ -99,7 +101,8 @@ output HubResourceGroupName string = hubrg.name
 output vWanVpnGwID string = deployGatewayInHub ? vpngateway.outputs.vpnGwID : 'none'
 output vWanVpnGwPip array = deployGatewayInHub ? vpngateway.outputs.vpnGwPip : []
 output vWanFwPublicIP array = deployFirewallInHub ? AzFirewall.outputs.azFwIPvWan : []
+output vWanFwIP string = deployFirewallInHub ? AzFirewall.outputs.azFwIP : 'none'
 output vpnGwBgpIp array = deployGatewayInHub ? vpngateway.outputs.vpnGwBgpIp : []
 output vpnGwBgpAsn int = deployGatewayInHub ? vpngateway.outputs.vpnGwBgpAsn : 0
 output vpnGwName string = deployGatewayInHub ? vpngateway.outputs.vpnGwName : 'none'
-output dcrvminsightsID string = !empty(diagnosticWorkspaceId) ? dcrvminsights.outputs.dcrID : ''
+output dcrvminsightsID string = !empty(diagnosticWorkspaceId) ? dcrvminsights.outputs.dcrID : 'none'

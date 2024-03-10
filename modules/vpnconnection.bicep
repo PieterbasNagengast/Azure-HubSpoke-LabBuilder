@@ -11,7 +11,7 @@ param enableBgp bool
 param BgpAsn int
 param BgpPeeringAddress string
 
-resource localNetworkGateway 'Microsoft.Network/localNetworkGateways@2021-05-01' = {
+resource localNetworkGateway 'Microsoft.Network/localNetworkGateways@2023-06-01' = {
   name: LocalGatewayName
   location: location
   properties: {
@@ -27,7 +27,7 @@ resource localNetworkGateway 'Microsoft.Network/localNetworkGateways@2021-05-01'
   tags: contains(tagsByResource, 'Microsoft.Network/localNetworkGateways') ? tagsByResource['Microsoft.Network/localNetworkGateways'] : {}
 }
 
-resource connection 'Microsoft.Network/connections@2020-07-01' = {
+resource connection 'Microsoft.Network/connections@2023-06-01' = {
   name: connectionName
   location: location
   properties: {
@@ -37,7 +37,7 @@ resource connection 'Microsoft.Network/connections@2020-07-01' = {
     useLocalAzureIpAddress: false
     usePolicyBasedTrafficSelectors: false
     enableBgp: enableBgp
-    sharedKey: sharedKey    
+    sharedKey: sharedKey
     virtualNetworkGateway1: {
       id: VpnGatewayID
       properties: {}
@@ -49,4 +49,3 @@ resource connection 'Microsoft.Network/connections@2020-07-01' = {
   }
   tags: contains(tagsByResource, 'Microsoft.Network/connections') ? tagsByResource['Microsoft.Network/connections'] : {}
 }
-

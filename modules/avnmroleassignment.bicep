@@ -14,7 +14,7 @@ resource avnmExisting 'Microsoft.Network/networkManagers@2022-11-01' existing = 
   name: avnmName
 }
 
-resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   scope: avnmExisting
   name: guid(resourceGroup().id, principalID)
   properties: {

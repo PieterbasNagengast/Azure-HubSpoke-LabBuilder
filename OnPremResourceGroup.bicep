@@ -31,7 +31,7 @@ var defaultSubnetPrefix = cidrSubnet(AddressSpace, 26, 0)
 var bastionSubnetPrefix = cidrSubnet(AddressSpace, 27, 4)
 var gatewaySubnetPrefix = cidrSubnet(AddressSpace, 27, 5)
 
-resource onpremrg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+resource onpremrg 'Microsoft.Resources/resourceGroups@2023-07-01' = {
   name: OnPremRgName
   location: location
   tags: contains(tagsByResource, 'Microsoft.Resources/subscriptions/resourceGroups') ? tagsByResource['Microsoft.Resources/subscriptions/resourceGroups'] : {}

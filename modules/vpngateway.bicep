@@ -11,7 +11,7 @@ param tagsByResource object = {}
 
 var pipName = '${vpnGatewayName}-pip'
 
-resource vpngw 'Microsoft.Network/virtualNetworkGateways@2021-05-01' = {
+resource vpngw 'Microsoft.Network/virtualNetworkGateways@2023-06-01' = {
   name: vpnGatewayName
   location: location
   properties: {
@@ -45,7 +45,7 @@ resource vpngw 'Microsoft.Network/virtualNetworkGateways@2021-05-01' = {
   tags: contains(tagsByResource, 'Microsoft.Network/virtualNetworkGateways') ? tagsByResource['Microsoft.Network/virtualNetworkGateways'] : {}
 }
 
-resource vpngwpip 'Microsoft.Network/publicIPAddresses@2021-05-01' = {
+resource vpngwpip 'Microsoft.Network/publicIPAddresses@2023-06-01' = {
   name: pipName
   location: location
   properties: {

@@ -10,34 +10,34 @@ param GatewayDeployed bool
 param hubSubscriptionID string
 param spokeSubscriptionID string
 
-resource hubrg 'Microsoft.Resources/resourceGroups@2021-04-01' existing = {
+resource hubrg 'Microsoft.Resources/resourceGroups@2023-07-01' existing = {
   scope: subscription(hubSubscriptionID)
   name: HubResourceGroupName
 }
 
 module peeringToSpoke 'modules/vnetpeeering.bicep' = {
   scope: hubrg
-  name: 'peeringToSpoke${counter+1}'
+  name: 'peeringToSpoke${counter + 1}'
   params: {
-    peeringName: '${HubVnetName}/peeringToSpoke${counter+1}'
+    peeringName: '${HubVnetName}/peeringToSpoke${counter + 1}'
     remoteVnetID: SpokeVnetID
     useRemoteGateways: false
     allowGatewayTransit: GatewayDeployed
   }
 }
 
-resource spokerg 'Microsoft.Resources/resourceGroups@2021-04-01' existing = {
+resource spokerg 'Microsoft.Resources/resourceGroups@2023-07-01' existing = {
   scope: subscription(spokeSubscriptionID)
   name: SpokeResourceGroupName
 }
 
 module peeringToHub 'modules/vnetpeeering.bicep' = {
   scope: spokerg
-  name: 'peeringToHub${counter+1}'
+  name: 'peeringToHub${counter + 1}'
   params: {
-    peeringName: '${SpokeVnetName}/peeringToHub${counter+1}'
+    peeringName: '${SpokeVnetName}/peeringToHub${counter + 1}'
     remoteVnetID: HubVnetID
-    useRemoteGateways: GatewayDeployed 
+    useRemoteGateways: GatewayDeployed
     allowGatewayTransit: false
   }
   dependsOn: [
