@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.24.24.22086",
-      "templateHash": "15487766769770280549"
+      "templateHash": "2513821539153771549"
     }
   },
   "parameters": {
@@ -3198,7 +3198,7 @@
           "firewallDNSproxy": {
             "value": "[and(parameters('firewallDNSproxy'), parameters('deployFirewallInHub'))]"
           },
-          "dcrID": "[if(variables('isVnetHub'), createObject('value', reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.dcrvminsightsID.value), if(variables('isVwanHub'), createObject('value', reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VWAN', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.dcrvminsightsID.value), createObject('value', '')))]"
+          "dcrID": "[if(and(parameters('deployHUB'), variables('isVnetHub')), createObject('value', reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.dcrvminsightsID.value), if(and(parameters('deployHUB'), variables('isVwanHub')), createObject('value', reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VWAN', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.dcrvminsightsID.value), createObject('value', '')))]"
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
