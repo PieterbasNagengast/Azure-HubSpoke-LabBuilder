@@ -34,7 +34,9 @@ var gatewaySubnetPrefix = cidrSubnet(AddressSpace, 27, 5)
 resource onpremrg 'Microsoft.Resources/resourceGroups@2023-07-01' = {
   name: OnPremRgName
   location: location
-  tags: contains(tagsByResource, 'Microsoft.Resources/subscriptions/resourceGroups') ? tagsByResource['Microsoft.Resources/subscriptions/resourceGroups'] : {}
+  tags: tagsByResource[?'Microsoft.Resources/subscriptions/resourceGroups']
+    ? tagsByResource['Microsoft.Resources/subscriptions/resourceGroups']
+    : {}
 }
 
 module vnet 'modules/vnet.bicep' = {

@@ -28,33 +28,39 @@ var defaultSubnet = [
   }
 ]
 
-var bastionSubnet = !deployBastionSubnet ? [] : [
-  {
-    name: 'AzureBastionSubnet'
-    properties: {
-      addressPrefix: bastionSubnetPrefix
-    }
-  }
-]
+var bastionSubnet = !deployBastionSubnet
+  ? []
+  : [
+      {
+        name: 'AzureBastionSubnet'
+        properties: {
+          addressPrefix: bastionSubnetPrefix
+        }
+      }
+    ]
 
-var firewallSubnet = !deployFirewallSubnet ? [] : [
-  {
-    name: 'AzureFirewallSubnet'
-    properties: {
-      addressPrefix: firewallSubnetPrefix
-    }
-  }
-]
+var firewallSubnet = !deployFirewallSubnet
+  ? []
+  : [
+      {
+        name: 'AzureFirewallSubnet'
+        properties: {
+          addressPrefix: firewallSubnetPrefix
+        }
+      }
+    ]
 
-var gatewaySubnet = !deployGatewaySubnet && !deployFirewallSubnet ? [] : [
-  {
-    name: 'GatewaySubnet'
-    properties: {
-      addressPrefix: GatewaySubnetPrefix
-      routeTable: rtGwID == 'none' ? null : json('{"id": "${rtGwID}"}"')
-    }
-  }
-]
+var gatewaySubnet = !deployGatewaySubnet && !deployFirewallSubnet
+  ? []
+  : [
+      {
+        name: 'GatewaySubnet'
+        properties: {
+          addressPrefix: GatewaySubnetPrefix
+          routeTable: rtGwID == 'none' ? null : json('{"id": "${rtGwID}"}"')
+        }
+      }
+    ]
 
 resource vnet 'Microsoft.Network/virtualNetworks@2023-06-01' = {
   name: vnetname
@@ -70,13 +76,19 @@ resource vnet 'Microsoft.Network/virtualNetworks@2023-06-01' = {
     }
     subnets: concat(defaultSubnet, bastionSubnet, firewallSubnet, gatewaySubnet)
   }
-  tags: contains(tagsByResource, 'Microsoft.Network/virtualNetworks') ? tagsByResource['Microsoft.Network/virtualNetworks'] : {}
+  tags: tagsByResource[?'Microsoft.Network/virtualNetworks'] ? tagsByResource['Microsoft.Network/virtualNetworks'] : {}
 }
 
 output vnetName string = vnet.name
 output vnetID string = vnet.id
 output vnetAddressSpace array = vnet.properties.addressSpace.addressPrefixes
 output defaultSubnetID string = vnet.properties.subnets[0].id
-output bastionSubnetID string = deployBastionSubnet ? resourceId('Microsoft.Network/VirtualNetworks/subnets', vnetname, 'AzureBastionSubnet') : 'Not deployed'
-output firewallSubnetID string = deployFirewallSubnet ? resourceId('Microsoft.Network/VirtualNetworks/subnets', vnetname, 'AzureFirewallSubnet') : 'Not deployed'
-output gatewaySubnetID string = deployGatewaySubnet ? resourceId('Microsoft.Network/VirtualNetworks/subnets', vnetname, 'GatewaySubnet') : 'Not deployed'
+output bastionSubnetID string = deployBastionSubnet
+  ? resourceId('Microsoft.Network/VirtualNetworks/subnets', vnetname, 'AzureBastionSubnet')
+  : 'Not deployed'
+output firewallSubnetID string = deployFirewallSubnet
+  ? resourceId('Microsoft.Network/VirtualNetworks/subnets', vnetname, 'AzureFirewallSubnet')
+  : 'Not deployed'
+output gatewaySubnetID string = deployGatewaySubnet
+  ? resourceId('Microsoft.Network/VirtualNetworks/subnets', vnetname, 'GatewaySubnet')
+  : 'Not deployed'

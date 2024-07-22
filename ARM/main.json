@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.24.24.22086",
-      "templateHash": "2513821539153771549"
+      "templateHash": "13917070308779079929"
     }
   },
   "parameters": {
@@ -480,7 +480,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "17623082576453203138"
+              "templateHash": "12947038552922757559"
             }
           },
           "parameters": {
@@ -637,7 +637,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "16711297951345346489"
+                      "templateHash": "14393312406282726560"
                     }
                   },
                   "parameters": {
@@ -735,7 +735,7 @@
                         },
                         "subnets": "[concat(variables('defaultSubnet'), variables('bastionSubnet'), variables('firewallSubnet'), variables('gatewaySubnet'))]"
                       },
-                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/virtualNetworks'), parameters('tagsByResource')['Microsoft.Network/virtualNetworks'], createObject())]"
+                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/virtualNetworks'), parameters('tagsByResource')['Microsoft.Network/virtualNetworks'], createObject())]"
                     }
                   ],
                   "outputs": {
@@ -806,7 +806,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "6780003595855327321"
+                      "templateHash": "12966844651123421505"
                     }
                   },
                   "parameters": {
@@ -824,7 +824,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.Insights/dataCollectionRules",
-                      "apiVersion": "2022-06-01",
+                      "apiVersion": "2023-03-11",
                       "name": "MSVMI-LabBuilder",
                       "location": "[parameters('location')]",
                       "properties": {
@@ -880,7 +880,7 @@
                           }
                         ]
                       },
-                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Insights/dataCollectionRules'), parameters('tagsByResource')['Microsoft.Insights/dataCollectionRules'], createObject())]"
+                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Insights/dataCollectionRules'), parameters('tagsByResource')['Microsoft.Insights/dataCollectionRules'], createObject())]"
                     }
                   ],
                   "outputs": {
@@ -943,7 +943,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "17382197643917029732"
+                      "templateHash": "11890095701129287228"
                     }
                   },
                   "parameters": {
@@ -1052,7 +1052,7 @@
                           }
                         }
                       },
-                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Compute/virtualMachines'), parameters('tagsByResource')['Microsoft.Compute/virtualMachines'], createObject())]",
+                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Compute/virtualMachines'), parameters('tagsByResource')['Microsoft.Compute/virtualMachines'], createObject())]",
                       "dependsOn": [
                         "[resourceId('Microsoft.Network/networkInterfaces', format('{0}-nic', parameters('vmName')))]"
                       ]
@@ -1095,7 +1095,7 @@
                     {
                       "condition": "[not(empty(parameters('diagnosticWorkspaceId')))]",
                       "type": "Microsoft.Insights/dataCollectionRuleAssociations",
-                      "apiVersion": "2022-06-01",
+                      "apiVersion": "2023-03-11",
                       "scope": "[format('Microsoft.Compute/virtualMachines/{0}', parameters('vmName'))]",
                       "name": "VMInsights-Dcr-Association",
                       "properties": {
@@ -1125,7 +1125,7 @@
                           }
                         ]
                       },
-                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Compute/virtualMachines'), parameters('tagsByResource')['Microsoft.Compute/virtualMachines'], createObject())]"
+                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Compute/virtualMachines'), parameters('tagsByResource')['Microsoft.Compute/virtualMachines'], createObject())]"
                     },
                     {
                       "condition": "[equals(parameters('osType'), 'Windows')]",
@@ -1236,7 +1236,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "5447800560129880359"
+                      "templateHash": "546536318447648044"
                     }
                   },
                   "parameters": {
@@ -1257,7 +1257,7 @@
                       "apiVersion": "2023-06-01",
                       "name": "[parameters('nsgName')]",
                       "location": "[parameters('location')]",
-                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/networkSecurityGroups'), parameters('tagsByResource')['Microsoft.Network/networkSecurityGroups'], createObject())]"
+                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/networkSecurityGroups'), parameters('tagsByResource')['Microsoft.Network/networkSecurityGroups'], createObject())]"
                     }
                   ],
                   "outputs": {
@@ -1305,7 +1305,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "15493469195109027644"
+                      "templateHash": "14046808772665883348"
                     }
                   },
                   "parameters": {
@@ -1354,7 +1354,7 @@
                       "sku": {
                         "name": "[parameters('bastionSku')]"
                       },
-                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/bastionHosts'), parameters('tagsByResource')['Microsoft.Network/bastionHosts'], createObject())]",
+                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/bastionHosts'), parameters('tagsByResource')['Microsoft.Network/bastionHosts'], createObject())]",
                       "dependsOn": [
                         "[resourceId('Microsoft.Network/publicIPAddresses', format('{0}-pip', parameters('bastionName')))]"
                       ]
@@ -1372,7 +1372,7 @@
                         "tier": "Regional",
                         "name": "Standard"
                       },
-                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/publicIPAddresses'), parameters('tagsByResource')['Microsoft.Network/publicIPAddresses'], createObject())]"
+                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/publicIPAddresses'), parameters('tagsByResource')['Microsoft.Network/publicIPAddresses'], createObject())]"
                     }
                   ]
                 }
@@ -1421,7 +1421,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "15124195053471237367"
+                      "templateHash": "10583245344725150356"
                     }
                   },
                   "parameters": {
@@ -1487,7 +1487,7 @@
                         "virtualHub": "[if(parameters('deployInVWan'), createObject('id', parameters('vWanID')), null())]",
                         "hubIPAddresses": "[if(parameters('deployInVWan'), createObject('publicIPs', createObject('count', parameters('vWanAzFwPublicIPcount'))), null())]"
                       },
-                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/azureFirewalls'), parameters('tagsByResource')['Microsoft.Network/azureFirewalls'], createObject())]",
+                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/azureFirewalls'), parameters('tagsByResource')['Microsoft.Network/azureFirewalls'], createObject())]",
                       "dependsOn": [
                         "[resourceId('Microsoft.Network/publicIPAddresses', variables('pipName'))]",
                         "[resourceId('Microsoft.Network/firewallPolicies', variables('firewallPolicyName'))]"
@@ -1507,7 +1507,7 @@
                           "enableProxy": "[parameters('firewallDNSproxy')]"
                         }
                       },
-                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/firewallPolicies'), parameters('tagsByResource')['Microsoft.Network/firewallPolicies'], createObject())]"
+                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/firewallPolicies'), parameters('tagsByResource')['Microsoft.Network/firewallPolicies'], createObject())]"
                     },
                     {
                       "condition": "[not(parameters('deployInVWan'))]",
@@ -1523,7 +1523,7 @@
                         "tier": "Regional",
                         "name": "Standard"
                       },
-                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/publicIPAddresses'), parameters('tagsByResource')['Microsoft.Network/publicIPAddresses'], createObject())]"
+                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/publicIPAddresses'), parameters('tagsByResource')['Microsoft.Network/publicIPAddresses'], createObject())]"
                     }
                   ],
                   "outputs": {
@@ -1700,7 +1700,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "2434733889453208388"
+                      "templateHash": "3949437965667667684"
                     }
                   },
                   "parameters": {
@@ -1728,7 +1728,7 @@
                       "properties": {
                         "disableBgpRoutePropagation": "[parameters('disableRouteProp')]"
                       },
-                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/routeTables'), parameters('tagsByResource')['Microsoft.Network/routeTables'], createObject())]"
+                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/routeTables'), parameters('tagsByResource')['Microsoft.Network/routeTables'], createObject())]"
                     }
                   ],
                   "outputs": {
@@ -1911,7 +1911,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "5014566134989235154"
+                      "templateHash": "13515852825941155578"
                     }
                   },
                   "parameters": {
@@ -1988,7 +1988,7 @@
                           }
                         ]
                       },
-                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/virtualNetworkGateways'), parameters('tagsByResource')['Microsoft.Network/virtualNetworkGateways'], createObject())]",
+                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/virtualNetworkGateways'), parameters('tagsByResource')['Microsoft.Network/virtualNetworkGateways'], createObject())]",
                       "dependsOn": [
                         "[resourceId('Microsoft.Network/publicIPAddresses', variables('pipName'))]"
                       ]
@@ -2006,7 +2006,7 @@
                         "tier": "Regional",
                         "name": "Standard"
                       },
-                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/publicIPAddresses'), parameters('tagsByResource')['Microsoft.Network/publicIPAddresses'], createObject())]"
+                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/publicIPAddresses'), parameters('tagsByResource')['Microsoft.Network/publicIPAddresses'], createObject())]"
                     }
                   ],
                   "outputs": {
@@ -2064,7 +2064,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "2434733889453208388"
+                      "templateHash": "3949437965667667684"
                     }
                   },
                   "parameters": {
@@ -2092,7 +2092,7 @@
                       "properties": {
                         "disableBgpRoutePropagation": "[parameters('disableRouteProp')]"
                       },
-                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/routeTables'), parameters('tagsByResource')['Microsoft.Network/routeTables'], createObject())]"
+                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/routeTables'), parameters('tagsByResource')['Microsoft.Network/routeTables'], createObject())]"
                     }
                   ],
                   "outputs": {
@@ -2285,7 +2285,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "10425357680068221720"
+              "templateHash": "13189532587449207227"
             }
           },
           "parameters": {
@@ -2338,7 +2338,7 @@
               "apiVersion": "2023-07-01",
               "name": "[parameters('hubRgName')]",
               "location": "[parameters('location')]",
-              "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Resources/subscriptions/resourceGroups'), parameters('tagsByResource')['Microsoft.Resources/subscriptions/resourceGroups'], createObject())]"
+              "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Resources/subscriptions/resourceGroups'), parameters('tagsByResource')['Microsoft.Resources/subscriptions/resourceGroups'], createObject())]"
             },
             {
               "type": "Microsoft.Resources/deployments",
@@ -2371,7 +2371,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "2156904347474288282"
+                      "templateHash": "5608671470080730335"
                     }
                   },
                   "parameters": {
@@ -2408,7 +2408,7 @@
                         "disableVpnEncryption": false,
                         "allowBranchToBranchTraffic": true
                       },
-                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/virtualWans'), parameters('tagsByResource')['Microsoft.Network/virtualWans'], createObject())]"
+                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/virtualWans'), parameters('tagsByResource')['Microsoft.Network/virtualWans'], createObject())]"
                     },
                     {
                       "type": "Microsoft.Network/virtualHubs",
@@ -2497,7 +2497,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "15124195053471237367"
+                      "templateHash": "10583245344725150356"
                     }
                   },
                   "parameters": {
@@ -2563,7 +2563,7 @@
                         "virtualHub": "[if(parameters('deployInVWan'), createObject('id', parameters('vWanID')), null())]",
                         "hubIPAddresses": "[if(parameters('deployInVWan'), createObject('publicIPs', createObject('count', parameters('vWanAzFwPublicIPcount'))), null())]"
                       },
-                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/azureFirewalls'), parameters('tagsByResource')['Microsoft.Network/azureFirewalls'], createObject())]",
+                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/azureFirewalls'), parameters('tagsByResource')['Microsoft.Network/azureFirewalls'], createObject())]",
                       "dependsOn": [
                         "[resourceId('Microsoft.Network/publicIPAddresses', variables('pipName'))]",
                         "[resourceId('Microsoft.Network/firewallPolicies', variables('firewallPolicyName'))]"
@@ -2583,7 +2583,7 @@
                           "enableProxy": "[parameters('firewallDNSproxy')]"
                         }
                       },
-                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/firewallPolicies'), parameters('tagsByResource')['Microsoft.Network/firewallPolicies'], createObject())]"
+                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/firewallPolicies'), parameters('tagsByResource')['Microsoft.Network/firewallPolicies'], createObject())]"
                     },
                     {
                       "condition": "[not(parameters('deployInVWan'))]",
@@ -2599,7 +2599,7 @@
                         "tier": "Regional",
                         "name": "Standard"
                       },
-                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/publicIPAddresses'), parameters('tagsByResource')['Microsoft.Network/publicIPAddresses'], createObject())]"
+                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/publicIPAddresses'), parameters('tagsByResource')['Microsoft.Network/publicIPAddresses'], createObject())]"
                     }
                   ],
                   "outputs": {
@@ -2981,7 +2981,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "6780003595855327321"
+                      "templateHash": "12966844651123421505"
                     }
                   },
                   "parameters": {
@@ -2999,7 +2999,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.Insights/dataCollectionRules",
-                      "apiVersion": "2022-06-01",
+                      "apiVersion": "2023-03-11",
                       "name": "MSVMI-LabBuilder",
                       "location": "[parameters('location')]",
                       "properties": {
@@ -3055,7 +3055,7 @@
                           }
                         ]
                       },
-                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Insights/dataCollectionRules'), parameters('tagsByResource')['Microsoft.Insights/dataCollectionRules'], createObject())]"
+                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Insights/dataCollectionRules'), parameters('tagsByResource')['Microsoft.Insights/dataCollectionRules'], createObject())]"
                     }
                   ],
                   "outputs": {
@@ -3207,7 +3207,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "14687335575722582970"
+              "templateHash": "1264474346477625603"
             }
           },
           "parameters": {
@@ -3287,7 +3287,7 @@
               "apiVersion": "2023-07-01",
               "name": "[format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))]",
               "location": "[parameters('location')]",
-              "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Resources/subscriptions/resourceGroups'), parameters('tagsByResource')['Microsoft.Resources/subscriptions/resourceGroups'], createObject())]"
+              "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Resources/subscriptions/resourceGroups'), parameters('tagsByResource')['Microsoft.Resources/subscriptions/resourceGroups'], createObject())]"
             },
             {
               "type": "Microsoft.Resources/deployments",
@@ -3337,7 +3337,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "16711297951345346489"
+                      "templateHash": "14393312406282726560"
                     }
                   },
                   "parameters": {
@@ -3435,7 +3435,7 @@
                         },
                         "subnets": "[concat(variables('defaultSubnet'), variables('bastionSubnet'), variables('firewallSubnet'), variables('gatewaySubnet'))]"
                       },
-                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/virtualNetworks'), parameters('tagsByResource')['Microsoft.Network/virtualNetworks'], createObject())]"
+                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/virtualNetworks'), parameters('tagsByResource')['Microsoft.Network/virtualNetworks'], createObject())]"
                     }
                   ],
                   "outputs": {
@@ -3526,7 +3526,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "17382197643917029732"
+                      "templateHash": "11890095701129287228"
                     }
                   },
                   "parameters": {
@@ -3635,7 +3635,7 @@
                           }
                         }
                       },
-                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Compute/virtualMachines'), parameters('tagsByResource')['Microsoft.Compute/virtualMachines'], createObject())]",
+                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Compute/virtualMachines'), parameters('tagsByResource')['Microsoft.Compute/virtualMachines'], createObject())]",
                       "dependsOn": [
                         "[resourceId('Microsoft.Network/networkInterfaces', format('{0}-nic', parameters('vmName')))]"
                       ]
@@ -3678,7 +3678,7 @@
                     {
                       "condition": "[not(empty(parameters('diagnosticWorkspaceId')))]",
                       "type": "Microsoft.Insights/dataCollectionRuleAssociations",
-                      "apiVersion": "2022-06-01",
+                      "apiVersion": "2023-03-11",
                       "scope": "[format('Microsoft.Compute/virtualMachines/{0}', parameters('vmName'))]",
                       "name": "VMInsights-Dcr-Association",
                       "properties": {
@@ -3708,7 +3708,7 @@
                           }
                         ]
                       },
-                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Compute/virtualMachines'), parameters('tagsByResource')['Microsoft.Compute/virtualMachines'], createObject())]"
+                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Compute/virtualMachines'), parameters('tagsByResource')['Microsoft.Compute/virtualMachines'], createObject())]"
                     },
                     {
                       "condition": "[equals(parameters('osType'), 'Windows')]",
@@ -3818,7 +3818,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "5447800560129880359"
+                      "templateHash": "546536318447648044"
                     }
                   },
                   "parameters": {
@@ -3839,7 +3839,7 @@
                       "apiVersion": "2023-06-01",
                       "name": "[parameters('nsgName')]",
                       "location": "[parameters('location')]",
-                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/networkSecurityGroups'), parameters('tagsByResource')['Microsoft.Network/networkSecurityGroups'], createObject())]"
+                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/networkSecurityGroups'), parameters('tagsByResource')['Microsoft.Network/networkSecurityGroups'], createObject())]"
                     }
                   ],
                   "outputs": {
@@ -3887,7 +3887,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "15493469195109027644"
+                      "templateHash": "14046808772665883348"
                     }
                   },
                   "parameters": {
@@ -3936,7 +3936,7 @@
                       "sku": {
                         "name": "[parameters('bastionSku')]"
                       },
-                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/bastionHosts'), parameters('tagsByResource')['Microsoft.Network/bastionHosts'], createObject())]",
+                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/bastionHosts'), parameters('tagsByResource')['Microsoft.Network/bastionHosts'], createObject())]",
                       "dependsOn": [
                         "[resourceId('Microsoft.Network/publicIPAddresses', format('{0}-pip', parameters('bastionName')))]"
                       ]
@@ -3954,7 +3954,7 @@
                         "tier": "Regional",
                         "name": "Standard"
                       },
-                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/publicIPAddresses'), parameters('tagsByResource')['Microsoft.Network/publicIPAddresses'], createObject())]"
+                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/publicIPAddresses'), parameters('tagsByResource')['Microsoft.Network/publicIPAddresses'], createObject())]"
                     }
                   ]
                 }
@@ -3993,7 +3993,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "2434733889453208388"
+                      "templateHash": "3949437965667667684"
                     }
                   },
                   "parameters": {
@@ -4021,7 +4021,7 @@
                       "properties": {
                         "disableBgpRoutePropagation": "[parameters('disableRouteProp')]"
                       },
-                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/routeTables'), parameters('tagsByResource')['Microsoft.Network/routeTables'], createObject())]"
+                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/routeTables'), parameters('tagsByResource')['Microsoft.Network/routeTables'], createObject())]"
                     }
                   ],
                   "outputs": {
@@ -4627,7 +4627,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "12565805987084917343"
+              "templateHash": "14092861188369830118"
             }
           },
           "parameters": {
@@ -4693,7 +4693,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "17581487643019361066"
+                      "templateHash": "6126634697144429099"
                     }
                   },
                   "parameters": {
@@ -4733,7 +4733,7 @@
                           "subscriptions": "[parameters('avnmSubscriptionScopes')]"
                         }
                       },
-                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/networkManagers'), parameters('tagsByResource')['Microsoft.Network/networkManagers'], createObject())]"
+                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/networkManagers'), parameters('tagsByResource')['Microsoft.Network/networkManagers'], createObject())]"
                     }
                   ],
                   "outputs": {
@@ -4980,7 +4980,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "2821211912930269109"
+                      "templateHash": "16221559437505263862"
                     }
                   },
                   "parameters": {
@@ -5001,7 +5001,7 @@
                       "apiVersion": "2023-07-31-preview",
                       "name": "[format('{0}-{1}', parameters('uaiName'), parameters('location'))]",
                       "location": "[parameters('location')]",
-                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.ManagedIdentity/userAssignedIdentities'), parameters('tagsByResource')['Microsoft.ManagedIdentity/userAssignedIdentities'], createObject())]"
+                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.ManagedIdentity/userAssignedIdentities'), parameters('tagsByResource')['Microsoft.ManagedIdentity/userAssignedIdentities'], createObject())]"
                     }
                   ],
                   "outputs": {
@@ -5140,7 +5140,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "6847898303490190399"
+                      "templateHash": "10188666336555448332"
                     }
                   },
                   "parameters": {
@@ -5190,7 +5190,7 @@
                         "arguments": "[format('-networkManagerName \"{0}\" -targetLocations {1} -configIds {2} -subscriptionId {3} -configType {4} -resourceGroupName {5}', parameters('avnmName'), parameters('location'), parameters('configurationId'), subscription().subscriptionId, parameters('configType'), resourceGroup().name)]",
                         "scriptContent": "    param (\r\n      # AVNM subscription id\r\n      [parameter(mandatory=$true)][string]$subscriptionId,\r\n\r\n      # AVNM resource name\r\n      [parameter(mandatory=$true)][string]$networkManagerName,\r\n\r\n      # string with comma-separated list of config ids to deploy. ids must be of the same config type\r\n      [parameter(mandatory=$true)][string[]]$configIds,\r\n\r\n      # string with comma-separated list of deployment target regions\r\n      [parameter(mandatory=$true)][string[]]$targetLocations,\r\n\r\n      # configuration type to deploy. must be either connecticity or securityadmin\r\n      [parameter(mandatory=$true)][ValidateSet('Connectivity','SecurityAdmin')][string]$configType,\r\n\r\n      # AVNM resource group name\r\n      [parameter(mandatory=$true)][string]$resourceGroupName\r\n    )\r\n  \r\n    $null = Login-AzAccount -Identity -Subscription $subscriptionId\r\n  \r\n    [System.Collections.Generic.List[string]]$configIdList = @()  \r\n    $configIdList.addRange($configIds) \r\n    [System.Collections.Generic.List[string]]$targetLocationList = @() # target locations for deployment\r\n    $targetLocationList.addRange($targetLocations)     \r\n    \r\n    $deployment = @{\r\n        Name = $networkManagerName\r\n        ResourceGroupName = $resourceGroupName\r\n        ConfigurationId = $configIdList\r\n        TargetLocation = $targetLocationList\r\n        CommitType = $configType\r\n    }\r\n  \r\n    try {\r\n      Deploy-AzNetworkManagerCommit @deployment -ErrorAction Stop\r\n    }\r\n    catch {\r\n      Write-Error \"Deployment failed with error: $_\"\r\n      throw \"Deployment failed with error: $_\"\r\n    }\r\n    "
                       },
-                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Resources/deploymentScripts'), parameters('tagsByResource')['Microsoft.Resources/deploymentScripts'], createObject())]"
+                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Resources/deploymentScripts'), parameters('tagsByResource')['Microsoft.Resources/deploymentScripts'], createObject())]"
                     }
                   ]
                 }
@@ -5436,7 +5436,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "616276941441969674"
+              "templateHash": "1722669023039036686"
             }
           },
           "parameters": {
@@ -5505,7 +5505,7 @@
               "apiVersion": "2023-07-01",
               "name": "[parameters('OnPremRgName')]",
               "location": "[parameters('location')]",
-              "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Resources/subscriptions/resourceGroups'), parameters('tagsByResource')['Microsoft.Resources/subscriptions/resourceGroups'], createObject())]"
+              "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Resources/subscriptions/resourceGroups'), parameters('tagsByResource')['Microsoft.Resources/subscriptions/resourceGroups'], createObject())]"
             },
             {
               "type": "Microsoft.Resources/deployments",
@@ -5554,7 +5554,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "16711297951345346489"
+                      "templateHash": "14393312406282726560"
                     }
                   },
                   "parameters": {
@@ -5652,7 +5652,7 @@
                         },
                         "subnets": "[concat(variables('defaultSubnet'), variables('bastionSubnet'), variables('firewallSubnet'), variables('gatewaySubnet'))]"
                       },
-                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/virtualNetworks'), parameters('tagsByResource')['Microsoft.Network/virtualNetworks'], createObject())]"
+                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/virtualNetworks'), parameters('tagsByResource')['Microsoft.Network/virtualNetworks'], createObject())]"
                     }
                   ],
                   "outputs": {
@@ -5742,7 +5742,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "17382197643917029732"
+                      "templateHash": "11890095701129287228"
                     }
                   },
                   "parameters": {
@@ -5851,7 +5851,7 @@
                           }
                         }
                       },
-                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Compute/virtualMachines'), parameters('tagsByResource')['Microsoft.Compute/virtualMachines'], createObject())]",
+                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Compute/virtualMachines'), parameters('tagsByResource')['Microsoft.Compute/virtualMachines'], createObject())]",
                       "dependsOn": [
                         "[resourceId('Microsoft.Network/networkInterfaces', format('{0}-nic', parameters('vmName')))]"
                       ]
@@ -5894,7 +5894,7 @@
                     {
                       "condition": "[not(empty(parameters('diagnosticWorkspaceId')))]",
                       "type": "Microsoft.Insights/dataCollectionRuleAssociations",
-                      "apiVersion": "2022-06-01",
+                      "apiVersion": "2023-03-11",
                       "scope": "[format('Microsoft.Compute/virtualMachines/{0}', parameters('vmName'))]",
                       "name": "VMInsights-Dcr-Association",
                       "properties": {
@@ -5924,7 +5924,7 @@
                           }
                         ]
                       },
-                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Compute/virtualMachines'), parameters('tagsByResource')['Microsoft.Compute/virtualMachines'], createObject())]"
+                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Compute/virtualMachines'), parameters('tagsByResource')['Microsoft.Compute/virtualMachines'], createObject())]"
                     },
                     {
                       "condition": "[equals(parameters('osType'), 'Windows')]",
@@ -6034,7 +6034,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "5447800560129880359"
+                      "templateHash": "546536318447648044"
                     }
                   },
                   "parameters": {
@@ -6055,7 +6055,7 @@
                       "apiVersion": "2023-06-01",
                       "name": "[parameters('nsgName')]",
                       "location": "[parameters('location')]",
-                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/networkSecurityGroups'), parameters('tagsByResource')['Microsoft.Network/networkSecurityGroups'], createObject())]"
+                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/networkSecurityGroups'), parameters('tagsByResource')['Microsoft.Network/networkSecurityGroups'], createObject())]"
                     }
                   ],
                   "outputs": {
@@ -6103,7 +6103,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "15493469195109027644"
+                      "templateHash": "14046808772665883348"
                     }
                   },
                   "parameters": {
@@ -6152,7 +6152,7 @@
                       "sku": {
                         "name": "[parameters('bastionSku')]"
                       },
-                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/bastionHosts'), parameters('tagsByResource')['Microsoft.Network/bastionHosts'], createObject())]",
+                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/bastionHosts'), parameters('tagsByResource')['Microsoft.Network/bastionHosts'], createObject())]",
                       "dependsOn": [
                         "[resourceId('Microsoft.Network/publicIPAddresses', format('{0}-pip', parameters('bastionName')))]"
                       ]
@@ -6170,7 +6170,7 @@
                         "tier": "Regional",
                         "name": "Standard"
                       },
-                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/publicIPAddresses'), parameters('tagsByResource')['Microsoft.Network/publicIPAddresses'], createObject())]"
+                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/publicIPAddresses'), parameters('tagsByResource')['Microsoft.Network/publicIPAddresses'], createObject())]"
                     }
                   ]
                 }
@@ -6214,7 +6214,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "5014566134989235154"
+                      "templateHash": "13515852825941155578"
                     }
                   },
                   "parameters": {
@@ -6291,7 +6291,7 @@
                           }
                         ]
                       },
-                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/virtualNetworkGateways'), parameters('tagsByResource')['Microsoft.Network/virtualNetworkGateways'], createObject())]",
+                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/virtualNetworkGateways'), parameters('tagsByResource')['Microsoft.Network/virtualNetworkGateways'], createObject())]",
                       "dependsOn": [
                         "[resourceId('Microsoft.Network/publicIPAddresses', variables('pipName'))]"
                       ]
@@ -6309,7 +6309,7 @@
                         "tier": "Regional",
                         "name": "Standard"
                       },
-                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/publicIPAddresses'), parameters('tagsByResource')['Microsoft.Network/publicIPAddresses'], createObject())]"
+                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/publicIPAddresses'), parameters('tagsByResource')['Microsoft.Network/publicIPAddresses'], createObject())]"
                     }
                   ],
                   "outputs": {
@@ -6425,7 +6425,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "1888792833297272120"
+              "templateHash": "7920561056906189534"
             }
           },
           "parameters": {
@@ -6544,7 +6544,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "9304577931307632954"
+                      "templateHash": "9216158642931690068"
                     }
                   },
                   "parameters": {
@@ -6594,7 +6594,7 @@
                         "bgpSettings": "[if(parameters('enableBgp'), createObject('asn', parameters('BgpAsn'), 'bgpPeeringAddress', parameters('BgpPeeringAddress')), null())]",
                         "localNetworkAddressSpace": "[if(parameters('enableBgp'), createObject(), createObject('addressPrefixes', parameters('LocalGatewayAddressPrefixes')))]"
                       },
-                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/localNetworkGateways'), parameters('tagsByResource')['Microsoft.Network/localNetworkGateways'], createObject())]"
+                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/localNetworkGateways'), parameters('tagsByResource')['Microsoft.Network/localNetworkGateways'], createObject())]"
                     },
                     {
                       "type": "Microsoft.Network/connections",
@@ -6618,7 +6618,7 @@
                           "properties": {}
                         }
                       },
-                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/connections'), parameters('tagsByResource')['Microsoft.Network/connections'], createObject())]",
+                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/connections'), parameters('tagsByResource')['Microsoft.Network/connections'], createObject())]",
                       "dependsOn": [
                         "[resourceId('Microsoft.Network/localNetworkGateways', parameters('LocalGatewayName'))]"
                       ]
@@ -6680,7 +6680,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "9304577931307632954"
+                      "templateHash": "9216158642931690068"
                     }
                   },
                   "parameters": {
@@ -6730,7 +6730,7 @@
                         "bgpSettings": "[if(parameters('enableBgp'), createObject('asn', parameters('BgpAsn'), 'bgpPeeringAddress', parameters('BgpPeeringAddress')), null())]",
                         "localNetworkAddressSpace": "[if(parameters('enableBgp'), createObject(), createObject('addressPrefixes', parameters('LocalGatewayAddressPrefixes')))]"
                       },
-                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/localNetworkGateways'), parameters('tagsByResource')['Microsoft.Network/localNetworkGateways'], createObject())]"
+                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/localNetworkGateways'), parameters('tagsByResource')['Microsoft.Network/localNetworkGateways'], createObject())]"
                     },
                     {
                       "type": "Microsoft.Network/connections",
@@ -6754,7 +6754,7 @@
                           "properties": {}
                         }
                       },
-                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/connections'), parameters('tagsByResource')['Microsoft.Network/connections'], createObject())]",
+                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/connections'), parameters('tagsByResource')['Microsoft.Network/connections'], createObject())]",
                       "dependsOn": [
                         "[resourceId('Microsoft.Network/localNetworkGateways', parameters('LocalGatewayName'))]"
                       ]
@@ -6820,7 +6820,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "16177527518160832040"
+              "templateHash": "17180724745288832783"
             }
           },
           "parameters": {
@@ -6931,7 +6931,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "17266242024081700010"
+                      "templateHash": "1839048249135414785"
                     }
                   },
                   "parameters": {
@@ -7003,7 +7003,7 @@
                           "id": "[parameters('vwanID')]"
                         }
                       },
-                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/vpnSites'), parameters('tagsByResource')['Microsoft.Network/vpnSites'], createObject())]"
+                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/vpnSites'), parameters('tagsByResource')['Microsoft.Network/vpnSites'], createObject())]"
                     },
                     {
                       "type": "Microsoft.Network/vpnGateways/vpnConnections",
@@ -7115,7 +7115,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "9304577931307632954"
+                      "templateHash": "9216158642931690068"
                     }
                   },
                   "parameters": {
@@ -7165,7 +7165,7 @@
                         "bgpSettings": "[if(parameters('enableBgp'), createObject('asn', parameters('BgpAsn'), 'bgpPeeringAddress', parameters('BgpPeeringAddress')), null())]",
                         "localNetworkAddressSpace": "[if(parameters('enableBgp'), createObject(), createObject('addressPrefixes', parameters('LocalGatewayAddressPrefixes')))]"
                       },
-                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/localNetworkGateways'), parameters('tagsByResource')['Microsoft.Network/localNetworkGateways'], createObject())]"
+                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/localNetworkGateways'), parameters('tagsByResource')['Microsoft.Network/localNetworkGateways'], createObject())]"
                     },
                     {
                       "type": "Microsoft.Network/connections",
@@ -7189,7 +7189,7 @@
                           "properties": {}
                         }
                       },
-                      "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Network/connections'), parameters('tagsByResource')['Microsoft.Network/connections'], createObject())]",
+                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/connections'), parameters('tagsByResource')['Microsoft.Network/connections'], createObject())]",
                       "dependsOn": [
                         "[resourceId('Microsoft.Network/localNetworkGateways', parameters('LocalGatewayName'))]"
                       ]

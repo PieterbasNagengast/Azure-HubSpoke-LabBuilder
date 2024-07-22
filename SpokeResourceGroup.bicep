@@ -36,7 +36,9 @@ var bastionSubnetPrefix = cidrSubnet(AddressSpace, 27, 4)
 resource spokerg 'Microsoft.Resources/resourceGroups@2023-07-01' = {
   name: '${spokeRgNamePrefix}${counter}'
   location: location
-  tags: contains(tagsByResource, 'Microsoft.Resources/subscriptions/resourceGroups') ? tagsByResource['Microsoft.Resources/subscriptions/resourceGroups'] : {}
+  tags: tagsByResource[?'Microsoft.Resources/subscriptions/resourceGroups']
+    ? tagsByResource['Microsoft.Resources/subscriptions/resourceGroups']
+    : {}
 }
 
 module vnet 'modules/vnet.bicep' = {

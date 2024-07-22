@@ -4,6 +4,9 @@
       "enabled": true,
       "verbose": false,
       "rules": {
+        "use-safe-access": {
+          "level": "error"
+        },
         "no-hardcoded-env-urls": {
           "level": "error"
         },

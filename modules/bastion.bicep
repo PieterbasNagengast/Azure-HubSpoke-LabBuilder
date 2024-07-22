@@ -29,7 +29,7 @@ resource bastion 'Microsoft.Network/bastionHosts@2023-06-01' = {
   sku: {
     name: bastionSku
   }
-  tags: contains(tagsByResource, 'Microsoft.Network/bastionHosts') ? tagsByResource['Microsoft.Network/bastionHosts'] : {}
+  tags: tagsByResource[?'Microsoft.Network/bastionHosts'] ? tagsByResource['Microsoft.Network/bastionHosts'] : {}
 }
 
 resource bastionpip 'Microsoft.Network/publicIPAddresses@2023-06-01' = {
@@ -43,5 +43,7 @@ resource bastionpip 'Microsoft.Network/publicIPAddresses@2023-06-01' = {
     tier: 'Regional'
     name: 'Standard'
   }
-  tags: contains(tagsByResource, 'Microsoft.Network/publicIPAddresses') ? tagsByResource['Microsoft.Network/publicIPAddresses'] : {}
+  tags: tagsByResource[?'Microsoft.Network/publicIPAddresses']
+    ? tagsByResource['Microsoft.Network/publicIPAddresses']
+    : {}
 }
