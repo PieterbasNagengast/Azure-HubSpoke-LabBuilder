@@ -31,9 +31,6 @@
         "deployVMsInSpokes": {
             "value": true
         },
-        "deployBastionInSpoke": {
-            "value": false
-        },
         "deployHUB": {
             "value": true
         },
@@ -44,9 +41,6 @@
             "value": "LabBuilderValidation-hub"
         },
         "deployBastionInHub": {
-            "value": true
-        },
-        "deployVMinHub": {
             "value": true
         },
         "deployGatewayInHub": {
@@ -65,7 +59,7 @@
             "value": false
         },
         "hubBgpAsn": {
-            "value": 65515
+            "value": 65010
         },
         "deployOnPrem": {
             "value": true

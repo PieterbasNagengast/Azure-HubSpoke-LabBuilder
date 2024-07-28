@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.24.24.22086",
-      "templateHash": "13917070308779079929"
+      "templateHash": "14831713263100104616"
     }
   },
   "parameters": {
@@ -42,13 +42,6 @@
         "description": "Admin Password for VM"
       }
     },
-    "vmSizeHub": {
-      "type": "string",
-      "defaultValue": "Standard_B2s",
-      "metadata": {
-        "description": "Hub Virtual Machine SKU. Default = Standard_B2s"
-      }
-    },
     "vmSizeSpoke": {
       "type": "string",
       "defaultValue": "Standard_B2s",
@@ -61,17 +54,6 @@
       "defaultValue": "Standard_B2s",
       "metadata": {
         "description": "OnPrem Virtual Machine SKU. Default = Standard_B2s"
-      }
-    },
-    "osTypeHub": {
-      "type": "string",
-      "defaultValue": "Windows",
-      "allowedValues": [
-        "Linux",
-        "Windows"
-      ],
-      "metadata": {
-        "description": "Hub Virtual Machine OS type. Windows or Linux. Default = Windows"
       }
     },
     "osTypeSpoke": {
@@ -152,24 +134,6 @@
         "description": "Deploy VM in every Spoke VNET"
       }
     },
-    "deployBastionInSpoke": {
-      "type": "bool",
-      "defaultValue": false,
-      "metadata": {
-        "description": "Deploy Bastion Host in every Spoke VNET"
-      }
-    },
-    "bastionInSpokeSKU": {
-      "type": "string",
-      "defaultValue": "Basic",
-      "allowedValues": [
-        "Basic",
-        "Standard"
-      ],
-      "metadata": {
-        "description": "Spoke Bastion SKU"
-      }
-    },
     "deployVnetPeeringMesh": {
       "type": "bool",
       "defaultValue": false,
@@ -214,17 +178,11 @@
       "defaultValue": "Basic",
       "allowedValues": [
         "Basic",
-        "Standard"
+        "Standard",
+        "Premium"
       ],
       "metadata": {
         "description": "Hub Bastion SKU"
-      }
-    },
-    "deployVMinHub": {
-      "type": "bool",
-      "defaultValue": true,
-      "metadata": {
-        "description": "Deploy VM in Hub VNET"
       }
     },
     "deployGatewayInHub": {
@@ -420,15 +378,6 @@
           "hubAddressSpace": {
             "value": "[variables('AllAddressSpaces')[0]]"
           },
-          "adminPassword": {
-            "value": "[parameters('adminPassword')]"
-          },
-          "adminUsername": {
-            "value": "[parameters('adminUsername')]"
-          },
-          "deployVMinHub": {
-            "value": "[and(parameters('deployVMinHub'), variables('isVnetHub'))]"
-          },
           "deployFirewallInHub": {
             "value": "[and(parameters('deployFirewallInHub'), variables('isVnetHub'))]"
           },
@@ -444,14 +393,8 @@
           "deployGatewayInHub": {
             "value": "[and(parameters('deployGatewayInHub'), variables('isVnetHub'))]"
           },
-          "vmSize": {
-            "value": "[parameters('vmSizeHub')]"
-          },
           "tagsByResource": {
             "value": "[parameters('tagsByResource')]"
-          },
-          "osType": {
-            "value": "[parameters('osTypeHub')]"
           },
           "AllSpokeAddressSpaces": {
             "value": "[skip(variables('AllAddressSpaces'), 1)]"
@@ -480,7 +423,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "12947038552922757559"
+              "templateHash": "4881500845051649288"
             }
           },
           "parameters": {
@@ -498,15 +441,6 @@
             },
             "bastionSku": {
               "type": "string"
-            },
-            "adminUsername": {
-              "type": "string"
-            },
-            "adminPassword": {
-              "type": "securestring"
-            },
-            "deployVMinHub": {
-              "type": "bool"
             },
             "deployFirewallInHub": {
               "type": "bool"
@@ -526,14 +460,8 @@
             "deployGatewayInHub": {
               "type": "bool"
             },
-            "vmSize": {
-              "type": "string"
-            },
             "tagsByResource": {
               "type": "object"
-            },
-            "osType": {
-              "type": "string"
             },
             "AllSpokeAddressSpaces": {
               "type": "array"
@@ -552,15 +480,11 @@
             }
           },
           "variables": {
-            "defaultSubnetPrefix": "[cidrSubnet(parameters('hubAddressSpace'), 26, 0)]",
-            "firewallSubnetPrefix": "[cidrSubnet(parameters('hubAddressSpace'), 26, 1)]",
-            "bastionSubnetPrefix": "[cidrSubnet(parameters('hubAddressSpace'), 27, 4)]",
-            "gatewaySubnetPrefix": "[cidrSubnet(parameters('hubAddressSpace'), 27, 5)]",
+            "firewallSubnetPrefix": "[cidrSubnet(parameters('hubAddressSpace'), 26, 0)]",
+            "bastionSubnetPrefix": "[cidrSubnet(parameters('hubAddressSpace'), 26, 1)]",
+            "gatewaySubnetPrefix": "[cidrSubnet(parameters('hubAddressSpace'), 26, 2)]",
             "firewallIP": "[cidrHost(variables('firewallSubnetPrefix'), 3)]",
-            "vmName": "VM-Hub",
-            "nsgName": "NSG-Hub",
             "bastionName": "Bastion-Hub",
-            "rtNameDefSubnet": "RT-Hub-DefaultSubnet",
             "rtNameVPNgwSubnet": "RT-Hub-GatewaySubnet",
             "hubVnetName": "VNET-Hub",
             "firewallName": "Firewall-Hub",
@@ -572,7 +496,7 @@
               "apiVersion": "2023-07-01",
               "name": "[parameters('hubRgName')]",
               "location": "[parameters('location')]",
-              "tags": "[if(contains(parameters('tagsByResource'), 'Microsoft.Resources/subscriptions/resourceGroups'), parameters('tagsByResource')['Microsoft.Resources/subscriptions/resourceGroups'], createObject())]"
+              "tags": "[coalesce(tryGet(parameters('tagsByResource'), 'Microsoft.Resources/subscriptions/resourceGroups'), createObject())]"
             },
             {
               "type": "Microsoft.Resources/deployments",
@@ -591,16 +515,9 @@
                   "vnetAddressSpcae": {
                     "value": "[parameters('hubAddressSpace')]"
                   },
-                  "nsgID": {
-                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'nsg'), '2022-09-01').outputs.nsgID.value]"
-                  },
-                  "rtDefID": "[if(and(parameters('deployFirewallInHub'), parameters('deployUDRs')), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'routeTable-Default'), '2022-09-01').outputs.rtID.value), createObject('value', 'none'))]",
                   "rtGwID": "[if(and(parameters('deployFirewallInHub'), parameters('deployGatewayInHub')), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'routeTable-VPNGW'), '2022-09-01').outputs.rtID.value), createObject('value', 'none'))]",
                   "vnetname": {
                     "value": "[variables('hubVnetName')]"
-                  },
-                  "defaultSubnetPrefix": {
-                    "value": "[variables('defaultSubnetPrefix')]"
                   },
                   "bastionSubnetPrefix": {
                     "value": "[variables('bastionSubnetPrefix')]"
@@ -610,6 +527,9 @@
                   },
                   "GatewaySubnetPrefix": {
                     "value": "[variables('gatewaySubnetPrefix')]"
+                  },
+                  "deployDefaultSubnet": {
+                    "value": false
                   },
                   "deployBastionSubnet": {
                     "value": "[parameters('deployBastionInHub')]"
@@ -637,7 +557,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "14393312406282726560"
+                      "templateHash": "8189173071027667867"
                     }
                   },
                   "parameters": {
@@ -651,7 +571,8 @@
                       "type": "string"
                     },
                     "defaultSubnetPrefix": {
-                      "type": "string"
+                      "type": "string",
+                      "defaultValue": ""
                     },
                     "bastionSubnetPrefix": {
                       "type": "string",
@@ -666,7 +587,8 @@
                       "defaultValue": ""
                     },
                     "nsgID": {
-                      "type": "string"
+                      "type": "string",
+                      "defaultValue": "none"
                     },
                     "rtDefID": {
                       "type": "string",
@@ -675,6 +597,9 @@
                     "rtGwID": {
                       "type": "string",
                       "defaultValue": "none"
+                    },
+                    "deployDefaultSubnet": {
+                      "type": "bool"
                     },
                     "deployBastionSubnet": {
                       "type": "bool",
@@ -702,21 +627,10 @@
                     }
                   },
                   "variables": {
-                    "defaultSubnet": [
-                      {
-                        "name": "default",
-                        "properties": {
-                          "addressPrefix": "[parameters('defaultSubnetPrefix')]",
-                          "networkSecurityGroup": {
-                            "id": "[parameters('nsgID')]"
-                          },
-                          "routeTable": "[if(equals(parameters('rtDefID'), 'none'), null(), json(format('{{\"id\": \"{0}\"}}\"', parameters('rtDefID'))))]"
-                        }
-                      }
-                    ],
-                    "bastionSubnet": "[if(not(parameters('deployBastionSubnet')), createArray(), createArray(createObject('name', 'AzureBastionSubnet', 'properties', createObject('addressPrefix', parameters('bastionSubnetPrefix')))))]",
-                    "firewallSubnet": "[if(not(parameters('deployFirewallSubnet')), createArray(), createArray(createObject('name', 'AzureFirewallSubnet', 'properties', createObject('addressPrefix', parameters('firewallSubnetPrefix')))))]",
-                    "gatewaySubnet": "[if(and(not(parameters('deployGatewaySubnet')), not(parameters('deployFirewallSubnet'))), createArray(), createArray(createObject('name', 'GatewaySubnet', 'properties', createObject('addressPrefix', parameters('GatewaySubnetPrefix'), 'routeTable', if(equals(parameters('rtGwID'), 'none'), null(), json(format('{{\"id\": \"{0}\"}}\"', parameters('rtGwID'))))))))]"
+                    "defaultSubnet": "[if(parameters('deployDefaultSubnet'), createArray(createObject('name', 'default', 'properties', createObject('addressPrefix', parameters('defaultSubnetPrefix'), 'networkSecurityGroup', if(equals(parameters('nsgID'), 'none'), null(), json(format('{{\"id\": \"{0}\"}}', parameters('nsgID')))), 'routeTable', if(equals(parameters('rtDefID'), 'none'), null(), json(format('{{\"id\": \"{0}\"}}\"', parameters('rtDefID'))))))), createArray())]",
+                    "bastionSubnet": "[if(parameters('deployBastionSubnet'), createArray(createObject('name', 'AzureBastionSubnet', 'properties', createObject('addressPrefix', parameters('bastionSubnetPrefix')))), createArray())]",
+                    "firewallSubnet": "[if(parameters('deployFirewallSubnet'), createArray(createObject('name', 'AzureFirewallSubnet', 'properties', createObject('addressPrefix', parameters('firewallSubnetPrefix')))), createArray())]",
+                    "gatewaySubnet": "[if(parameters('deployGatewaySubnet'), createArray(createObject('name', 'GatewaySubnet', 'properties', createObject('addressPrefix', parameters('GatewaySubnetPrefix'), 'routeTable', if(equals(parameters('rtGwID'), 'none'), null(), json(format('{{\"id\": \"{0}\"}}\"', parameters('rtGwID'))))))), createArray())]"
                   },
                   "resources": [
                     {
@@ -735,7 +649,7 @@
                         },
                         "subnets": "[concat(variables('defaultSubnet'), variables('bastionSubnet'), variables('firewallSubnet'), variables('gatewaySubnet'))]"
                       },
-                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/virtualNetworks'), parameters('tagsByResource')['Microsoft.Network/virtualNetworks'], createObject())]"
+                      "tags": "[coalesce(tryGet(parameters('tagsByResource'), 'Microsoft.Network/virtualNetworks'), createObject())]"
                     }
                   ],
                   "outputs": {
@@ -753,7 +667,7 @@
                     },
                     "defaultSubnetID": {
                       "type": "string",
-                      "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetname')), '2023-06-01').subnets[0].id]"
+                      "value": "[if(parameters('deployDefaultSubnet'), resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetname'), 'default'), 'Not deployed')]"
                     },
                     "bastionSubnetID": {
                       "type": "string",
@@ -772,8 +686,6 @@
               },
               "dependsOn": [
                 "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('hubRgName'))]",
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'nsg')]",
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'routeTable-Default')]",
                 "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'routeTable-VPNGW')]"
               ]
             },
@@ -806,7 +718,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "12966844651123421505"
+                      "templateHash": "14161820391776214194"
                     }
                   },
                   "parameters": {
@@ -880,390 +792,13 @@
                           }
                         ]
                       },
-                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Insights/dataCollectionRules'), parameters('tagsByResource')['Microsoft.Insights/dataCollectionRules'], createObject())]"
+                      "tags": "[coalesce(tryGet(parameters('tagsByResource'), 'Microsoft.Insights/dataCollectionRules'), createObject())]"
                     }
                   ],
                   "outputs": {
                     "dcrID": {
                       "type": "string",
                       "value": "[resourceId('Microsoft.Insights/dataCollectionRules', 'MSVMI-LabBuilder')]"
-                    }
-                  }
-                }
-              },
-              "dependsOn": [
-                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('hubRgName'))]"
-              ]
-            },
-            {
-              "condition": "[parameters('deployVMinHub')]",
-              "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2022-09-01",
-              "name": "virtualMachine",
-              "resourceGroup": "[parameters('hubRgName')]",
-              "properties": {
-                "expressionEvaluationOptions": {
-                  "scope": "inner"
-                },
-                "mode": "Incremental",
-                "parameters": {
-                  "adminPassword": {
-                    "value": "[parameters('adminPassword')]"
-                  },
-                  "adminUsername": {
-                    "value": "[parameters('adminUsername')]"
-                  },
-                  "location": {
-                    "value": "[parameters('location')]"
-                  },
-                  "subnetID": {
-                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'hubvnet'), '2022-09-01').outputs.defaultSubnetID.value]"
-                  },
-                  "vmName": {
-                    "value": "[variables('vmName')]"
-                  },
-                  "vmSize": {
-                    "value": "[parameters('vmSize')]"
-                  },
-                  "tagsByResource": {
-                    "value": "[parameters('tagsByResource')]"
-                  },
-                  "osType": {
-                    "value": "[parameters('osType')]"
-                  },
-                  "diagnosticWorkspaceId": {
-                    "value": "[parameters('diagnosticWorkspaceId')]"
-                  },
-                  "dcrID": "[if(not(empty(parameters('diagnosticWorkspaceId'))), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'dcr-vminsights'), '2022-09-01').outputs.dcrID.value), createObject('value', ''))]"
-                },
-                "template": {
-                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                  "contentVersion": "1.0.0.0",
-                  "metadata": {
-                    "_generator": {
-                      "name": "bicep",
-                      "version": "0.24.24.22086",
-                      "templateHash": "11890095701129287228"
-                    }
-                  },
-                  "parameters": {
-                    "location": {
-                      "type": "string"
-                    },
-                    "vmName": {
-                      "type": "string"
-                    },
-                    "adminUsername": {
-                      "type": "string"
-                    },
-                    "adminPassword": {
-                      "type": "securestring"
-                    },
-                    "subnetID": {
-                      "type": "string"
-                    },
-                    "vmSize": {
-                      "type": "string"
-                    },
-                    "storageType": {
-                      "type": "string",
-                      "defaultValue": "StandardSSD_LRS"
-                    },
-                    "osType": {
-                      "type": "string",
-                      "defaultValue": "Windows"
-                    },
-                    "tagsByResource": {
-                      "type": "object",
-                      "defaultValue": {}
-                    },
-                    "dcrID": {
-                      "type": "string"
-                    },
-                    "diagnosticWorkspaceId": {
-                      "type": "string"
-                    }
-                  },
-                  "variables": {
-                    "EnableICMPv4": "netsh advfirewall firewall add rule name=\"ICMP Allow incoming V4 echo request\" protocol=\"icmpv4:8,any\" dir=in action=allow",
-                    "AmaExtensionName": "[if(equals(parameters('osType'), 'Windows'), 'AzureMonitorWindowsAgent', 'AzureMonitorLinuxAgent')]",
-                    "AmaExtensionType": "[if(equals(parameters('osType'), 'Windows'), 'AzureMonitorWindowsAgent', 'AzureMonitorLinuxAgent')]",
-                    "AmaExtensionVersion": "1.0",
-                    "DaExtensionName": "DependencyAgentWindows",
-                    "DaExtensionType": "DependencyAgentWindows",
-                    "DaExtensionVersion": "9.5",
-                    "Windows": {
-                      "publisher": "MicrosoftWindowsServer",
-                      "offer": "WindowsServer",
-                      "sku": "2022-datacenter-g2",
-                      "version": "latest"
-                    },
-                    "Linux": {
-                      "publisher": "Canonical",
-                      "offer": "0001-com-ubuntu-server-jammy",
-                      "sku": "22_04-lts-gen2",
-                      "version": "latest"
-                    },
-                    "imagereference": "[if(equals(parameters('osType'), 'Windows'), variables('Windows'), if(equals(parameters('osType'), 'Linux'), variables('Linux'), createObject()))]"
-                  },
-                  "resources": [
-                    {
-                      "type": "Microsoft.Compute/virtualMachines",
-                      "apiVersion": "2023-09-01",
-                      "name": "[parameters('vmName')]",
-                      "location": "[parameters('location')]",
-                      "identity": {
-                        "type": "SystemAssigned"
-                      },
-                      "properties": {
-                        "osProfile": {
-                          "computerName": "[parameters('vmName')]",
-                          "adminUsername": "[parameters('adminUsername')]",
-                          "adminPassword": "[parameters('adminPassword')]"
-                        },
-                        "storageProfile": {
-                          "imageReference": "[variables('imagereference')]",
-                          "osDisk": {
-                            "createOption": "FromImage",
-                            "name": "[format('{0}-osDisk', parameters('vmName'))]",
-                            "managedDisk": {
-                              "storageAccountType": "[parameters('storageType')]"
-                            },
-                            "osType": "[parameters('osType')]",
-                            "deleteOption": "Delete"
-                          }
-                        },
-                        "networkProfile": {
-                          "networkInterfaces": [
-                            {
-                              "id": "[resourceId('Microsoft.Network/networkInterfaces', format('{0}-nic', parameters('vmName')))]",
-                              "properties": {
-                                "deleteOption": "Delete"
-                              }
-                            }
-                          ]
-                        },
-                        "hardwareProfile": {
-                          "vmSize": "[parameters('vmSize')]"
-                        },
-                        "diagnosticsProfile": {
-                          "bootDiagnostics": {
-                            "enabled": true
-                          }
-                        }
-                      },
-                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Compute/virtualMachines'), parameters('tagsByResource')['Microsoft.Compute/virtualMachines'], createObject())]",
-                      "dependsOn": [
-                        "[resourceId('Microsoft.Network/networkInterfaces', format('{0}-nic', parameters('vmName')))]"
-                      ]
-                    },
-                    {
-                      "condition": "[not(empty(parameters('diagnosticWorkspaceId')))]",
-                      "type": "Microsoft.Compute/virtualMachines/extensions",
-                      "apiVersion": "2023-09-01",
-                      "name": "[format('{0}/{1}', parameters('vmName'), variables('AmaExtensionName'))]",
-                      "location": "[parameters('location')]",
-                      "properties": {
-                        "publisher": "Microsoft.Azure.Monitor",
-                        "type": "[variables('AmaExtensionType')]",
-                        "typeHandlerVersion": "[variables('AmaExtensionVersion')]",
-                        "autoUpgradeMinorVersion": true
-                      },
-                      "dependsOn": [
-                        "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
-                      ]
-                    },
-                    {
-                      "condition": "[and(not(empty(parameters('diagnosticWorkspaceId'))), equals(parameters('osType'), 'Windows'))]",
-                      "type": "Microsoft.Compute/virtualMachines/extensions",
-                      "apiVersion": "2023-09-01",
-                      "name": "[format('{0}/{1}', parameters('vmName'), variables('DaExtensionName'))]",
-                      "location": "[parameters('location')]",
-                      "properties": {
-                        "publisher": "Microsoft.Azure.Monitoring.DependencyAgent",
-                        "type": "[variables('DaExtensionType')]",
-                        "typeHandlerVersion": "[variables('DaExtensionVersion')]",
-                        "autoUpgradeMinorVersion": true,
-                        "settings": {
-                          "enableAMA": true
-                        }
-                      },
-                      "dependsOn": [
-                        "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
-                      ]
-                    },
-                    {
-                      "condition": "[not(empty(parameters('diagnosticWorkspaceId')))]",
-                      "type": "Microsoft.Insights/dataCollectionRuleAssociations",
-                      "apiVersion": "2023-03-11",
-                      "scope": "[format('Microsoft.Compute/virtualMachines/{0}', parameters('vmName'))]",
-                      "name": "VMInsights-Dcr-Association",
-                      "properties": {
-                        "dataCollectionRuleId": "[parameters('dcrID')]",
-                        "description": "Association of data collection rule for VM Insights."
-                      },
-                      "dependsOn": [
-                        "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
-                      ]
-                    },
-                    {
-                      "type": "Microsoft.Network/networkInterfaces",
-                      "apiVersion": "2023-06-01",
-                      "name": "[format('{0}-nic', parameters('vmName'))]",
-                      "location": "[parameters('location')]",
-                      "properties": {
-                        "ipConfigurations": [
-                          {
-                            "name": "ipconfig1",
-                            "properties": {
-                              "primary": true,
-                              "privateIPAllocationMethod": "Dynamic",
-                              "subnet": {
-                                "id": "[parameters('subnetID')]"
-                              }
-                            }
-                          }
-                        ]
-                      },
-                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Compute/virtualMachines'), parameters('tagsByResource')['Microsoft.Compute/virtualMachines'], createObject())]"
-                    },
-                    {
-                      "condition": "[equals(parameters('osType'), 'Windows')]",
-                      "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2022-09-01",
-                      "name": "[format('{0}-runCommand', parameters('vmName'))]",
-                      "properties": {
-                        "expressionEvaluationOptions": {
-                          "scope": "inner"
-                        },
-                        "mode": "Incremental",
-                        "parameters": {
-                          "location": {
-                            "value": "[parameters('location')]"
-                          },
-                          "runCommand": {
-                            "value": "[variables('EnableICMPv4')]"
-                          },
-                          "vmName": {
-                            "value": "[parameters('vmName')]"
-                          }
-                        },
-                        "template": {
-                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                          "contentVersion": "1.0.0.0",
-                          "metadata": {
-                            "_generator": {
-                              "name": "bicep",
-                              "version": "0.24.24.22086",
-                              "templateHash": "17484088379431764793"
-                            }
-                          },
-                          "parameters": {
-                            "location": {
-                              "type": "string"
-                            },
-                            "vmName": {
-                              "type": "string"
-                            },
-                            "runName": {
-                              "type": "string",
-                              "defaultValue": "RunCommand"
-                            },
-                            "runCommand": {
-                              "type": "string"
-                            }
-                          },
-                          "resources": [
-                            {
-                              "type": "Microsoft.Compute/virtualMachines/runCommands",
-                              "apiVersion": "2023-09-01",
-                              "name": "[format('{0}/{1}', parameters('vmName'), parameters('runName'))]",
-                              "location": "[parameters('location')]",
-                              "properties": {
-                                "source": {
-                                  "script": "[parameters('runCommand')]"
-                                },
-                                "timeoutInSeconds": 60
-                              }
-                            }
-                          ]
-                        }
-                      },
-                      "dependsOn": [
-                        "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
-                      ]
-                    }
-                  ],
-                  "outputs": {
-                    "vmResourceID": {
-                      "type": "string",
-                      "value": "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
-                    }
-                  }
-                }
-              },
-              "dependsOn": [
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'dcr-vminsights')]",
-                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('hubRgName'))]",
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'hubvnet')]"
-              ]
-            },
-            {
-              "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2022-09-01",
-              "name": "nsg",
-              "resourceGroup": "[parameters('hubRgName')]",
-              "properties": {
-                "expressionEvaluationOptions": {
-                  "scope": "inner"
-                },
-                "mode": "Incremental",
-                "parameters": {
-                  "location": {
-                    "value": "[parameters('location')]"
-                  },
-                  "nsgName": {
-                    "value": "[variables('nsgName')]"
-                  },
-                  "tagsByResource": {
-                    "value": "[parameters('tagsByResource')]"
-                  }
-                },
-                "template": {
-                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                  "contentVersion": "1.0.0.0",
-                  "metadata": {
-                    "_generator": {
-                      "name": "bicep",
-                      "version": "0.24.24.22086",
-                      "templateHash": "546536318447648044"
-                    }
-                  },
-                  "parameters": {
-                    "location": {
-                      "type": "string"
-                    },
-                    "nsgName": {
-                      "type": "string"
-                    },
-                    "tagsByResource": {
-                      "type": "object",
-                      "defaultValue": {}
-                    }
-                  },
-                  "resources": [
-                    {
-                      "type": "Microsoft.Network/networkSecurityGroups",
-                      "apiVersion": "2023-06-01",
-                      "name": "[parameters('nsgName')]",
-                      "location": "[parameters('location')]",
-                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/networkSecurityGroups'), parameters('tagsByResource')['Microsoft.Network/networkSecurityGroups'], createObject())]"
-                    }
-                  ],
-                  "outputs": {
-                    "nsgID": {
-                      "type": "string",
-                      "value": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('nsgName'))]"
                     }
                   }
                 }
@@ -1305,7 +840,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "14046808772665883348"
+                      "templateHash": "8467164936320845896"
                     }
                   },
                   "parameters": {
@@ -1322,7 +857,8 @@
                       "type": "string",
                       "allowedValues": [
                         "Basic",
-                        "Standard"
+                        "Standard",
+                        "Premium"
                       ]
                     },
                     "tagsByResource": {
@@ -1333,7 +869,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.Network/bastionHosts",
-                      "apiVersion": "2023-06-01",
+                      "apiVersion": "2024-01-01",
                       "name": "[parameters('bastionName')]",
                       "location": "[parameters('location')]",
                       "properties": {
@@ -1354,7 +890,7 @@
                       "sku": {
                         "name": "[parameters('bastionSku')]"
                       },
-                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/bastionHosts'), parameters('tagsByResource')['Microsoft.Network/bastionHosts'], createObject())]",
+                      "tags": "[coalesce(tryGet(parameters('tagsByResource'), 'Microsoft.Network/bastionHosts'), createObject())]",
                       "dependsOn": [
                         "[resourceId('Microsoft.Network/publicIPAddresses', format('{0}-pip', parameters('bastionName')))]"
                       ]
@@ -1372,7 +908,7 @@
                         "tier": "Regional",
                         "name": "Standard"
                       },
-                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/publicIPAddresses'), parameters('tagsByResource')['Microsoft.Network/publicIPAddresses'], createObject())]"
+                      "tags": "[coalesce(tryGet(parameters('tagsByResource'), 'Microsoft.Network/publicIPAddresses'), createObject())]"
                     }
                   ]
                 }
@@ -1421,7 +957,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "10583245344725150356"
+                      "templateHash": "17253440458311607402"
                     }
                   },
                   "parameters": {
@@ -1487,7 +1023,7 @@
                         "virtualHub": "[if(parameters('deployInVWan'), createObject('id', parameters('vWanID')), null())]",
                         "hubIPAddresses": "[if(parameters('deployInVWan'), createObject('publicIPs', createObject('count', parameters('vWanAzFwPublicIPcount'))), null())]"
                       },
-                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/azureFirewalls'), parameters('tagsByResource')['Microsoft.Network/azureFirewalls'], createObject())]",
+                      "tags": "[coalesce(tryGet(parameters('tagsByResource'), 'Microsoft.Network/azureFirewalls'), createObject())]",
                       "dependsOn": [
                         "[resourceId('Microsoft.Network/publicIPAddresses', variables('pipName'))]",
                         "[resourceId('Microsoft.Network/firewallPolicies', variables('firewallPolicyName'))]"
@@ -1507,7 +1043,7 @@
                           "enableProxy": "[parameters('firewallDNSproxy')]"
                         }
                       },
-                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/firewallPolicies'), parameters('tagsByResource')['Microsoft.Network/firewallPolicies'], createObject())]"
+                      "tags": "[coalesce(tryGet(parameters('tagsByResource'), 'Microsoft.Network/firewallPolicies'), createObject())]"
                     },
                     {
                       "condition": "[not(parameters('deployInVWan'))]",
@@ -1523,7 +1059,7 @@
                         "tier": "Regional",
                         "name": "Standard"
                       },
-                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/publicIPAddresses'), parameters('tagsByResource')['Microsoft.Network/publicIPAddresses'], createObject())]"
+                      "tags": "[coalesce(tryGet(parameters('tagsByResource'), 'Microsoft.Network/publicIPAddresses'), createObject())]"
                     }
                   ],
                   "outputs": {
@@ -1672,212 +1208,6 @@
               ]
             },
             {
-              "condition": "[and(parameters('deployFirewallInHub'), parameters('deployUDRs'))]",
-              "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2022-09-01",
-              "name": "routeTable-Default",
-              "resourceGroup": "[parameters('hubRgName')]",
-              "properties": {
-                "expressionEvaluationOptions": {
-                  "scope": "inner"
-                },
-                "mode": "Incremental",
-                "parameters": {
-                  "location": {
-                    "value": "[parameters('location')]"
-                  },
-                  "rtName": {
-                    "value": "[variables('rtNameDefSubnet')]"
-                  },
-                  "tagsByResource": {
-                    "value": "[parameters('tagsByResource')]"
-                  }
-                },
-                "template": {
-                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                  "contentVersion": "1.0.0.0",
-                  "metadata": {
-                    "_generator": {
-                      "name": "bicep",
-                      "version": "0.24.24.22086",
-                      "templateHash": "3949437965667667684"
-                    }
-                  },
-                  "parameters": {
-                    "rtName": {
-                      "type": "string"
-                    },
-                    "location": {
-                      "type": "string"
-                    },
-                    "disableRouteProp": {
-                      "type": "bool",
-                      "defaultValue": true
-                    },
-                    "tagsByResource": {
-                      "type": "object",
-                      "defaultValue": {}
-                    }
-                  },
-                  "resources": [
-                    {
-                      "type": "Microsoft.Network/routeTables",
-                      "apiVersion": "2023-06-01",
-                      "name": "[parameters('rtName')]",
-                      "location": "[parameters('location')]",
-                      "properties": {
-                        "disableBgpRoutePropagation": "[parameters('disableRouteProp')]"
-                      },
-                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/routeTables'), parameters('tagsByResource')['Microsoft.Network/routeTables'], createObject())]"
-                    }
-                  ],
-                  "outputs": {
-                    "rtID": {
-                      "type": "string",
-                      "value": "[resourceId('Microsoft.Network/routeTables', parameters('rtName'))]"
-                    },
-                    "rtName": {
-                      "type": "string",
-                      "value": "[parameters('rtName')]"
-                    }
-                  }
-                }
-              },
-              "dependsOn": [
-                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('hubRgName'))]"
-              ]
-            },
-            {
-              "condition": "[and(parameters('deployFirewallInHub'), parameters('deployUDRs'))]",
-              "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2022-09-01",
-              "name": "RouteToInternet",
-              "resourceGroup": "[parameters('hubRgName')]",
-              "properties": {
-                "expressionEvaluationOptions": {
-                  "scope": "inner"
-                },
-                "mode": "Incremental",
-                "parameters": {
-                  "routeAddressPrefix": {
-                    "value": "0.0.0.0/0"
-                  },
-                  "routeName": "[if(and(parameters('deployFirewallInHub'), parameters('deployUDRs')), createObject('value', format('{0}/toInternet', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'routeTable-Default'), '2022-09-01').outputs.rtName.value)), createObject('value', 'dummy1'))]",
-                  "routeNextHopIpAddress": "[if(and(parameters('deployFirewallInHub'), parameters('deployUDRs')), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'hubFirewall'), '2022-09-01').outputs.azFwIP.value), createObject('value', '1.2.3.4'))]"
-                },
-                "template": {
-                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                  "contentVersion": "1.0.0.0",
-                  "metadata": {
-                    "_generator": {
-                      "name": "bicep",
-                      "version": "0.24.24.22086",
-                      "templateHash": "11368365051248336138"
-                    }
-                  },
-                  "parameters": {
-                    "routeName": {
-                      "type": "string"
-                    },
-                    "routeNextHopType": {
-                      "type": "string",
-                      "defaultValue": "VirtualAppliance"
-                    },
-                    "routeAddressPrefix": {
-                      "type": "string"
-                    },
-                    "routeNextHopIpAddress": {
-                      "type": "string"
-                    }
-                  },
-                  "resources": [
-                    {
-                      "type": "Microsoft.Network/routeTables/routes",
-                      "apiVersion": "2023-06-01",
-                      "name": "[parameters('routeName')]",
-                      "properties": {
-                        "nextHopType": "[parameters('routeNextHopType')]",
-                        "addressPrefix": "[parameters('routeAddressPrefix')]",
-                        "nextHopIpAddress": "[parameters('routeNextHopIpAddress')]"
-                      }
-                    }
-                  ]
-                }
-              },
-              "dependsOn": [
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'hubFirewall')]",
-                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('hubRgName'))]",
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'routeTable-Default')]"
-              ]
-            },
-            {
-              "copy": {
-                "name": "routeDefault2",
-                "count": "[length(parameters('AllSpokeAddressSpaces'))]"
-              },
-              "condition": "[and(parameters('deployFirewallInHub'), parameters('deployUDRs'))]",
-              "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2022-09-01",
-              "name": "[format('RouteToLocal{0}', copyIndex())]",
-              "resourceGroup": "[parameters('hubRgName')]",
-              "properties": {
-                "expressionEvaluationOptions": {
-                  "scope": "inner"
-                },
-                "mode": "Incremental",
-                "parameters": {
-                  "routeAddressPrefix": {
-                    "value": "[parameters('AllSpokeAddressSpaces')[copyIndex()]]"
-                  },
-                  "routeName": "[if(and(parameters('deployFirewallInHub'), parameters('deployUDRs')), createObject('value', format('{0}/LocalRoute{1}', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'routeTable-Default'), '2022-09-01').outputs.rtName.value, copyIndex())), createObject('value', 'dummy2'))]",
-                  "routeNextHopIpAddress": "[if(and(parameters('deployFirewallInHub'), parameters('deployUDRs')), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'hubFirewall'), '2022-09-01').outputs.azFwIP.value), createObject('value', '1.2.3.4'))]"
-                },
-                "template": {
-                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                  "contentVersion": "1.0.0.0",
-                  "metadata": {
-                    "_generator": {
-                      "name": "bicep",
-                      "version": "0.24.24.22086",
-                      "templateHash": "11368365051248336138"
-                    }
-                  },
-                  "parameters": {
-                    "routeName": {
-                      "type": "string"
-                    },
-                    "routeNextHopType": {
-                      "type": "string",
-                      "defaultValue": "VirtualAppliance"
-                    },
-                    "routeAddressPrefix": {
-                      "type": "string"
-                    },
-                    "routeNextHopIpAddress": {
-                      "type": "string"
-                    }
-                  },
-                  "resources": [
-                    {
-                      "type": "Microsoft.Network/routeTables/routes",
-                      "apiVersion": "2023-06-01",
-                      "name": "[parameters('routeName')]",
-                      "properties": {
-                        "nextHopType": "[parameters('routeNextHopType')]",
-                        "addressPrefix": "[parameters('routeAddressPrefix')]",
-                        "nextHopIpAddress": "[parameters('routeNextHopIpAddress')]"
-                      }
-                    }
-                  ]
-                }
-              },
-              "dependsOn": [
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'hubFirewall')]",
-                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('hubRgName'))]",
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'routeTable-Default')]"
-              ]
-            },
-            {
               "condition": "[parameters('deployGatewayInHub')]",
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
@@ -1911,7 +1241,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "13515852825941155578"
+                      "templateHash": "2411288153031389176"
                     }
                   },
                   "parameters": {
@@ -1988,7 +1318,7 @@
                           }
                         ]
                       },
-                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/virtualNetworkGateways'), parameters('tagsByResource')['Microsoft.Network/virtualNetworkGateways'], createObject())]",
+                      "tags": "[coalesce(tryGet(parameters('tagsByResource'), 'Microsoft.Network/virtualNetworkGateways'), createObject())]",
                       "dependsOn": [
                         "[resourceId('Microsoft.Network/publicIPAddresses', variables('pipName'))]"
                       ]
@@ -2006,7 +1336,7 @@
                         "tier": "Regional",
                         "name": "Standard"
                       },
-                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/publicIPAddresses'), parameters('tagsByResource')['Microsoft.Network/publicIPAddresses'], createObject())]"
+                      "tags": "[coalesce(tryGet(parameters('tagsByResource'), 'Microsoft.Network/publicIPAddresses'), createObject())]"
                     }
                   ],
                   "outputs": {
@@ -2055,6 +1385,9 @@
                   },
                   "rtName": {
                     "value": "[variables('rtNameVPNgwSubnet')]"
+                  },
+                  "disableRouteProp": {
+                    "value": false
                   }
                 },
                 "template": {
@@ -2064,7 +1397,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "3949437965667667684"
+                      "templateHash": "17913658026920684740"
                     }
                   },
                   "parameters": {
@@ -2092,7 +1425,7 @@
                       "properties": {
                         "disableBgpRoutePropagation": "[parameters('disableRouteProp')]"
                       },
-                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/routeTables'), parameters('tagsByResource')['Microsoft.Network/routeTables'], createObject())]"
+                      "tags": "[coalesce(tryGet(parameters('tagsByResource'), 'Microsoft.Network/routeTables'), createObject())]"
                     }
                   ],
                   "outputs": {
@@ -2114,7 +1447,7 @@
             {
               "copy": {
                 "name": "routeVPNgw",
-                "count": "[length(concat(parameters('AllSpokeAddressSpaces'), array(variables('defaultSubnetPrefix'))))]"
+                "count": "[length(parameters('AllSpokeAddressSpaces'))]"
               },
               "condition": "[and(and(parameters('deployFirewallInHub'), parameters('deployGatewayInHub')), parameters('deployUDRs'))]",
               "type": "Microsoft.Resources/deployments",
@@ -2128,7 +1461,7 @@
                 "mode": "Incremental",
                 "parameters": {
                   "routeAddressPrefix": {
-                    "value": "[concat(parameters('AllSpokeAddressSpaces'), array(variables('defaultSubnetPrefix')))[copyIndex()]]"
+                    "value": "[parameters('AllSpokeAddressSpaces')[copyIndex()]]"
                   },
                   "routeName": "[if(and(and(parameters('deployFirewallInHub'), parameters('deployGatewayInHub')), parameters('deployUDRs')), createObject('value', format('{0}/LocalRoute{1}', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'routeTable-VPNGW'), '2022-09-01').outputs.rtName.value, copyIndex())), createObject('value', 'dummy3'))]",
                   "routeNextHopIpAddress": "[if(and(parameters('deployFirewallInHub'), parameters('deployUDRs')), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'hubFirewall'), '2022-09-01').outputs.azFwIP.value), createObject('value', '1.2.3.4'))]"
@@ -2200,10 +1533,6 @@
               "type": "array",
               "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'hubvnet'), '2022-09-01').outputs.vnetAddressSpace.value]"
             },
-            "hubDefaultSubnetPrefix": {
-              "type": "string",
-              "value": "[variables('defaultSubnetPrefix')]"
-            },
             "hubGatewayPublicIP": {
               "type": "string",
               "value": "[if(parameters('deployGatewayInHub'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('gatewayName')), '2022-09-01').outputs.vpnGwPublicIP.value, 'none')]"
@@ -2215,10 +1544,6 @@
             "HubGwBgpPeeringAddress": {
               "type": "string",
               "value": "[if(parameters('deployGatewayInHub'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('gatewayName')), '2022-09-01').outputs.vpnGwBgpPeeringAddress.value, 'none')]"
-            },
-            "HubVmResourceID": {
-              "type": "string",
-              "value": "[if(parameters('deployVMinHub'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'virtualMachine'), '2022-09-01').outputs.vmResourceID.value, 'none')]"
             },
             "dcrvminsightsID": {
               "type": "string",
@@ -2285,7 +1610,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "13189532587449207227"
+              "templateHash": "834339580298485376"
             }
           },
           "parameters": {
@@ -2338,7 +1663,7 @@
               "apiVersion": "2023-07-01",
               "name": "[parameters('hubRgName')]",
               "location": "[parameters('location')]",
-              "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Resources/subscriptions/resourceGroups'), parameters('tagsByResource')['Microsoft.Resources/subscriptions/resourceGroups'], createObject())]"
+              "tags": "[coalesce(tryGet(parameters('tagsByResource'), 'Microsoft.Resources/subscriptions/resourceGroups'), createObject())]"
             },
             {
               "type": "Microsoft.Resources/deployments",
@@ -2371,7 +1696,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "5608671470080730335"
+                      "templateHash": "5453232517432113611"
                     }
                   },
                   "parameters": {
@@ -2408,7 +1733,7 @@
                         "disableVpnEncryption": false,
                         "allowBranchToBranchTraffic": true
                       },
-                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/virtualWans'), parameters('tagsByResource')['Microsoft.Network/virtualWans'], createObject())]"
+                      "tags": "[coalesce(tryGet(parameters('tagsByResource'), 'Microsoft.Network/virtualWans'), createObject())]"
                     },
                     {
                       "type": "Microsoft.Network/virtualHubs",
@@ -2497,7 +1822,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "10583245344725150356"
+                      "templateHash": "17253440458311607402"
                     }
                   },
                   "parameters": {
@@ -2563,7 +1888,7 @@
                         "virtualHub": "[if(parameters('deployInVWan'), createObject('id', parameters('vWanID')), null())]",
                         "hubIPAddresses": "[if(parameters('deployInVWan'), createObject('publicIPs', createObject('count', parameters('vWanAzFwPublicIPcount'))), null())]"
                       },
-                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/azureFirewalls'), parameters('tagsByResource')['Microsoft.Network/azureFirewalls'], createObject())]",
+                      "tags": "[coalesce(tryGet(parameters('tagsByResource'), 'Microsoft.Network/azureFirewalls'), createObject())]",
                       "dependsOn": [
                         "[resourceId('Microsoft.Network/publicIPAddresses', variables('pipName'))]",
                         "[resourceId('Microsoft.Network/firewallPolicies', variables('firewallPolicyName'))]"
@@ -2583,7 +1908,7 @@
                           "enableProxy": "[parameters('firewallDNSproxy')]"
                         }
                       },
-                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/firewallPolicies'), parameters('tagsByResource')['Microsoft.Network/firewallPolicies'], createObject())]"
+                      "tags": "[coalesce(tryGet(parameters('tagsByResource'), 'Microsoft.Network/firewallPolicies'), createObject())]"
                     },
                     {
                       "condition": "[not(parameters('deployInVWan'))]",
@@ -2599,7 +1924,7 @@
                         "tier": "Regional",
                         "name": "Standard"
                       },
-                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/publicIPAddresses'), parameters('tagsByResource')['Microsoft.Network/publicIPAddresses'], createObject())]"
+                      "tags": "[coalesce(tryGet(parameters('tagsByResource'), 'Microsoft.Network/publicIPAddresses'), createObject())]"
                     }
                   ],
                   "outputs": {
@@ -2981,7 +2306,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "12966844651123421505"
+                      "templateHash": "14161820391776214194"
                     }
                   },
                   "parameters": {
@@ -3055,7 +2380,7 @@
                           }
                         ]
                       },
-                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Insights/dataCollectionRules'), parameters('tagsByResource')['Microsoft.Insights/dataCollectionRules'], createObject())]"
+                      "tags": "[coalesce(tryGet(parameters('tagsByResource'), 'Microsoft.Insights/dataCollectionRules'), createObject())]"
                     }
                   ],
                   "outputs": {
@@ -3154,9 +2479,6 @@
           "AddressSpace": {
             "value": "[variables('AllAddressSpaces')[range(1, parameters('amountOfSpokes'))[copyIndex()]]]"
           },
-          "deployBastionInSpoke": {
-            "value": "[parameters('deployBastionInSpoke')]"
-          },
           "adminPassword": {
             "value": "[parameters('adminPassword')]"
           },
@@ -3185,12 +2507,8 @@
           "osType": {
             "value": "[parameters('osTypeSpoke')]"
           },
-          "hubDefaultSubnetPrefix": "[if(and(parameters('deployHUB'), variables('isVnetHub')), createObject('value', reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.hubDefaultSubnetPrefix.value), createObject('value', 'Not deployed'))]",
           "deployUDRs": {
             "value": "[parameters('deployUDRs')]"
-          },
-          "bastionSku": {
-            "value": "[parameters('bastionInSpokeSKU')]"
           },
           "diagnosticWorkspaceId": {
             "value": "[parameters('diagnosticWorkspaceId')]"
@@ -3207,7 +2525,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "1264474346477625603"
+              "templateHash": "18112913790987926806"
             }
           },
           "parameters": {
@@ -3219,12 +2537,6 @@
             },
             "counter": {
               "type": "int"
-            },
-            "deployBastionInSpoke": {
-              "type": "bool"
-            },
-            "bastionSku": {
-              "type": "string"
             },
             "adminUsername": {
               "type": "string"
@@ -3259,9 +2571,6 @@
             "osType": {
               "type": "string"
             },
-            "hubDefaultSubnetPrefix": {
-              "type": "string"
-            },
             "firewallDNSproxy": {
               "type": "bool"
             },
@@ -3277,9 +2586,7 @@
             "vmName": "[format('VM-Spoke{0}', parameters('counter'))]",
             "rtName": "[format('RT-Spoke{0}', parameters('counter'))]",
             "nsgName": "[format('NSG-Spoke{0}', parameters('counter'))]",
-            "bastionName": "[format('Bastion-Spoke{0}', parameters('counter'))]",
-            "defaultSubnetPrefix": "[cidrSubnet(parameters('AddressSpace'), 26, 0)]",
-            "bastionSubnetPrefix": "[cidrSubnet(parameters('AddressSpace'), 27, 4)]"
+            "defaultSubnetPrefix": "[cidrSubnet(parameters('AddressSpace'), 26, 0)]"
           },
           "resources": [
             {
@@ -3287,7 +2594,7 @@
               "apiVersion": "2023-07-01",
               "name": "[format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))]",
               "location": "[parameters('location')]",
-              "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Resources/subscriptions/resourceGroups'), parameters('tagsByResource')['Microsoft.Resources/subscriptions/resourceGroups'], createObject())]"
+              "tags": "[coalesce(tryGet(parameters('tagsByResource'), 'Microsoft.Resources/subscriptions/resourceGroups'), createObject())]"
             },
             {
               "type": "Microsoft.Resources/deployments",
@@ -3313,12 +2620,11 @@
                   "vnetname": {
                     "value": "[variables('vnetName')]"
                   },
+                  "deployDefaultSubnet": {
+                    "value": true
+                  },
                   "defaultSubnetPrefix": {
                     "value": "[variables('defaultSubnetPrefix')]"
-                  },
-                  "bastionSubnetPrefix": "[if(parameters('deployBastionInSpoke'), createObject('value', variables('bastionSubnetPrefix')), createObject('value', ''))]",
-                  "deployBastionSubnet": {
-                    "value": "[parameters('deployBastionInSpoke')]"
                   },
                   "tagsByResource": {
                     "value": "[parameters('tagsByResource')]"
@@ -3337,7 +2643,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "14393312406282726560"
+                      "templateHash": "8189173071027667867"
                     }
                   },
                   "parameters": {
@@ -3351,7 +2657,8 @@
                       "type": "string"
                     },
                     "defaultSubnetPrefix": {
-                      "type": "string"
+                      "type": "string",
+                      "defaultValue": ""
                     },
                     "bastionSubnetPrefix": {
                       "type": "string",
@@ -3366,7 +2673,8 @@
                       "defaultValue": ""
                     },
                     "nsgID": {
-                      "type": "string"
+                      "type": "string",
+                      "defaultValue": "none"
                     },
                     "rtDefID": {
                       "type": "string",
@@ -3375,6 +2683,9 @@
                     "rtGwID": {
                       "type": "string",
                       "defaultValue": "none"
+                    },
+                    "deployDefaultSubnet": {
+                      "type": "bool"
                     },
                     "deployBastionSubnet": {
                       "type": "bool",
@@ -3402,21 +2713,10 @@
                     }
                   },
                   "variables": {
-                    "defaultSubnet": [
-                      {
-                        "name": "default",
-                        "properties": {
-                          "addressPrefix": "[parameters('defaultSubnetPrefix')]",
-                          "networkSecurityGroup": {
-                            "id": "[parameters('nsgID')]"
-                          },
-                          "routeTable": "[if(equals(parameters('rtDefID'), 'none'), null(), json(format('{{\"id\": \"{0}\"}}\"', parameters('rtDefID'))))]"
-                        }
-                      }
-                    ],
-                    "bastionSubnet": "[if(not(parameters('deployBastionSubnet')), createArray(), createArray(createObject('name', 'AzureBastionSubnet', 'properties', createObject('addressPrefix', parameters('bastionSubnetPrefix')))))]",
-                    "firewallSubnet": "[if(not(parameters('deployFirewallSubnet')), createArray(), createArray(createObject('name', 'AzureFirewallSubnet', 'properties', createObject('addressPrefix', parameters('firewallSubnetPrefix')))))]",
-                    "gatewaySubnet": "[if(and(not(parameters('deployGatewaySubnet')), not(parameters('deployFirewallSubnet'))), createArray(), createArray(createObject('name', 'GatewaySubnet', 'properties', createObject('addressPrefix', parameters('GatewaySubnetPrefix'), 'routeTable', if(equals(parameters('rtGwID'), 'none'), null(), json(format('{{\"id\": \"{0}\"}}\"', parameters('rtGwID'))))))))]"
+                    "defaultSubnet": "[if(parameters('deployDefaultSubnet'), createArray(createObject('name', 'default', 'properties', createObject('addressPrefix', parameters('defaultSubnetPrefix'), 'networkSecurityGroup', if(equals(parameters('nsgID'), 'none'), null(), json(format('{{\"id\": \"{0}\"}}', parameters('nsgID')))), 'routeTable', if(equals(parameters('rtDefID'), 'none'), null(), json(format('{{\"id\": \"{0}\"}}\"', parameters('rtDefID'))))))), createArray())]",
+                    "bastionSubnet": "[if(parameters('deployBastionSubnet'), createArray(createObject('name', 'AzureBastionSubnet', 'properties', createObject('addressPrefix', parameters('bastionSubnetPrefix')))), createArray())]",
+                    "firewallSubnet": "[if(parameters('deployFirewallSubnet'), createArray(createObject('name', 'AzureFirewallSubnet', 'properties', createObject('addressPrefix', parameters('firewallSubnetPrefix')))), createArray())]",
+                    "gatewaySubnet": "[if(parameters('deployGatewaySubnet'), createArray(createObject('name', 'GatewaySubnet', 'properties', createObject('addressPrefix', parameters('GatewaySubnetPrefix'), 'routeTable', if(equals(parameters('rtGwID'), 'none'), null(), json(format('{{\"id\": \"{0}\"}}\"', parameters('rtGwID'))))))), createArray())]"
                   },
                   "resources": [
                     {
@@ -3435,7 +2735,7 @@
                         },
                         "subnets": "[concat(variables('defaultSubnet'), variables('bastionSubnet'), variables('firewallSubnet'), variables('gatewaySubnet'))]"
                       },
-                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/virtualNetworks'), parameters('tagsByResource')['Microsoft.Network/virtualNetworks'], createObject())]"
+                      "tags": "[coalesce(tryGet(parameters('tagsByResource'), 'Microsoft.Network/virtualNetworks'), createObject())]"
                     }
                   ],
                   "outputs": {
@@ -3453,7 +2753,7 @@
                     },
                     "defaultSubnetID": {
                       "type": "string",
-                      "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetname')), '2023-06-01').subnets[0].id]"
+                      "value": "[if(parameters('deployDefaultSubnet'), resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetname'), 'default'), 'Not deployed')]"
                     },
                     "bastionSubnetID": {
                       "type": "string",
@@ -3526,7 +2826,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "11890095701129287228"
+                      "templateHash": "16857714452646886301"
                     }
                   },
                   "parameters": {
@@ -3635,7 +2935,7 @@
                           }
                         }
                       },
-                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Compute/virtualMachines'), parameters('tagsByResource')['Microsoft.Compute/virtualMachines'], createObject())]",
+                      "tags": "[coalesce(tryGet(parameters('tagsByResource'), 'Microsoft.Compute/virtualMachines'), createObject())]",
                       "dependsOn": [
                         "[resourceId('Microsoft.Network/networkInterfaces', format('{0}-nic', parameters('vmName')))]"
                       ]
@@ -3708,7 +3008,7 @@
                           }
                         ]
                       },
-                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Compute/virtualMachines'), parameters('tagsByResource')['Microsoft.Compute/virtualMachines'], createObject())]"
+                      "tags": "[coalesce(tryGet(parameters('tagsByResource'), 'Microsoft.Compute/virtualMachines'), createObject())]"
                     },
                     {
                       "condition": "[equals(parameters('osType'), 'Windows')]",
@@ -3818,7 +3118,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "546536318447648044"
+                      "templateHash": "6858509797374338560"
                     }
                   },
                   "parameters": {
@@ -3839,7 +3139,7 @@
                       "apiVersion": "2023-06-01",
                       "name": "[parameters('nsgName')]",
                       "location": "[parameters('location')]",
-                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/networkSecurityGroups'), parameters('tagsByResource')['Microsoft.Network/networkSecurityGroups'], createObject())]"
+                      "tags": "[coalesce(tryGet(parameters('tagsByResource'), 'Microsoft.Network/networkSecurityGroups'), createObject())]"
                     }
                   ],
                   "outputs": {
@@ -3852,116 +3152,6 @@
               },
               "dependsOn": [
                 "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter')))]"
-              ]
-            },
-            {
-              "condition": "[parameters('deployBastionInSpoke')]",
-              "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2022-09-01",
-              "name": "[variables('bastionName')]",
-              "resourceGroup": "[format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))]",
-              "properties": {
-                "expressionEvaluationOptions": {
-                  "scope": "inner"
-                },
-                "mode": "Incremental",
-                "parameters": {
-                  "location": {
-                    "value": "[parameters('location')]"
-                  },
-                  "subnetID": "[if(parameters('deployBastionInSpoke'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))), 'Microsoft.Resources/deployments', variables('vnetName')), '2022-09-01').outputs.bastionSubnetID.value), createObject('value', ''))]",
-                  "bastionName": {
-                    "value": "[variables('bastionName')]"
-                  },
-                  "tagsByResource": {
-                    "value": "[parameters('tagsByResource')]"
-                  },
-                  "bastionSku": {
-                    "value": "[parameters('bastionSku')]"
-                  }
-                },
-                "template": {
-                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                  "contentVersion": "1.0.0.0",
-                  "metadata": {
-                    "_generator": {
-                      "name": "bicep",
-                      "version": "0.24.24.22086",
-                      "templateHash": "14046808772665883348"
-                    }
-                  },
-                  "parameters": {
-                    "location": {
-                      "type": "string"
-                    },
-                    "bastionName": {
-                      "type": "string"
-                    },
-                    "subnetID": {
-                      "type": "string"
-                    },
-                    "bastionSku": {
-                      "type": "string",
-                      "allowedValues": [
-                        "Basic",
-                        "Standard"
-                      ]
-                    },
-                    "tagsByResource": {
-                      "type": "object",
-                      "defaultValue": {}
-                    }
-                  },
-                  "resources": [
-                    {
-                      "type": "Microsoft.Network/bastionHosts",
-                      "apiVersion": "2023-06-01",
-                      "name": "[parameters('bastionName')]",
-                      "location": "[parameters('location')]",
-                      "properties": {
-                        "ipConfigurations": [
-                          {
-                            "name": "IpConf",
-                            "properties": {
-                              "subnet": {
-                                "id": "[parameters('subnetID')]"
-                              },
-                              "publicIPAddress": {
-                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', format('{0}-pip', parameters('bastionName')))]"
-                              }
-                            }
-                          }
-                        ]
-                      },
-                      "sku": {
-                        "name": "[parameters('bastionSku')]"
-                      },
-                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/bastionHosts'), parameters('tagsByResource')['Microsoft.Network/bastionHosts'], createObject())]",
-                      "dependsOn": [
-                        "[resourceId('Microsoft.Network/publicIPAddresses', format('{0}-pip', parameters('bastionName')))]"
-                      ]
-                    },
-                    {
-                      "type": "Microsoft.Network/publicIPAddresses",
-                      "apiVersion": "2023-06-01",
-                      "name": "[format('{0}-pip', parameters('bastionName'))]",
-                      "location": "[parameters('location')]",
-                      "properties": {
-                        "publicIPAddressVersion": "IPv4",
-                        "publicIPAllocationMethod": "Static"
-                      },
-                      "sku": {
-                        "tier": "Regional",
-                        "name": "Standard"
-                      },
-                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/publicIPAddresses'), parameters('tagsByResource')['Microsoft.Network/publicIPAddresses'], createObject())]"
-                    }
-                  ]
-                }
-              },
-              "dependsOn": [
-                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter')))]",
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))), 'Microsoft.Resources/deployments', variables('vnetName'))]"
               ]
             },
             {
@@ -3993,7 +3183,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "3949437965667667684"
+                      "templateHash": "17913658026920684740"
                     }
                   },
                   "parameters": {
@@ -4021,7 +3211,7 @@
                       "properties": {
                         "disableBgpRoutePropagation": "[parameters('disableRouteProp')]"
                       },
-                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/routeTables'), parameters('tagsByResource')['Microsoft.Network/routeTables'], createObject())]"
+                      "tags": "[coalesce(tryGet(parameters('tagsByResource'), 'Microsoft.Network/routeTables'), createObject())]"
                     }
                   ],
                   "outputs": {
@@ -4056,68 +3246,6 @@
                     "value": "0.0.0.0/0"
                   },
                   "routeName": "[if(and(and(parameters('deployFirewallInHub'), parameters('HubDeployed')), parameters('deployUDRs')), createObject('value', format('{0}/toInternet', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))), 'Microsoft.Resources/deployments', variables('rtName')), '2022-09-01').outputs.rtName.value)), createObject('value', 'dummy1'))]",
-                  "routeNextHopIpAddress": "[if(and(and(parameters('deployFirewallInHub'), parameters('HubDeployed')), parameters('deployUDRs')), createObject('value', parameters('AzureFirewallpip')), createObject('value', '1.2.3.4'))]"
-                },
-                "template": {
-                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                  "contentVersion": "1.0.0.0",
-                  "metadata": {
-                    "_generator": {
-                      "name": "bicep",
-                      "version": "0.24.24.22086",
-                      "templateHash": "11368365051248336138"
-                    }
-                  },
-                  "parameters": {
-                    "routeName": {
-                      "type": "string"
-                    },
-                    "routeNextHopType": {
-                      "type": "string",
-                      "defaultValue": "VirtualAppliance"
-                    },
-                    "routeAddressPrefix": {
-                      "type": "string"
-                    },
-                    "routeNextHopIpAddress": {
-                      "type": "string"
-                    }
-                  },
-                  "resources": [
-                    {
-                      "type": "Microsoft.Network/routeTables/routes",
-                      "apiVersion": "2023-06-01",
-                      "name": "[parameters('routeName')]",
-                      "properties": {
-                        "nextHopType": "[parameters('routeNextHopType')]",
-                        "addressPrefix": "[parameters('routeAddressPrefix')]",
-                        "nextHopIpAddress": "[parameters('routeNextHopIpAddress')]"
-                      }
-                    }
-                  ]
-                }
-              },
-              "dependsOn": [
-                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))), 'Microsoft.Resources/deployments', variables('rtName'))]",
-                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter')))]"
-              ]
-            },
-            {
-              "condition": "[and(and(parameters('deployFirewallInHub'), parameters('HubDeployed')), parameters('deployUDRs'))]",
-              "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2022-09-01",
-              "name": "RouteToLocal",
-              "resourceGroup": "[format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))]",
-              "properties": {
-                "expressionEvaluationOptions": {
-                  "scope": "inner"
-                },
-                "mode": "Incremental",
-                "parameters": {
-                  "routeAddressPrefix": {
-                    "value": "[parameters('hubDefaultSubnetPrefix')]"
-                  },
-                  "routeName": "[if(and(and(parameters('deployFirewallInHub'), parameters('HubDeployed')), parameters('deployUDRs')), createObject('value', format('{0}/toHubDefaultSubnet', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}{1}', parameters('spokeRgNamePrefix'), parameters('counter'))), 'Microsoft.Resources/deployments', variables('rtName')), '2022-09-01').outputs.rtName.value)), createObject('value', 'dummy2'))]",
                   "routeNextHopIpAddress": "[if(and(and(parameters('deployFirewallInHub'), parameters('HubDeployed')), parameters('deployUDRs')), createObject('value', parameters('AzureFirewallpip')), createObject('value', '1.2.3.4'))]"
                 },
                 "template": {
@@ -4438,151 +3566,6 @@
       ]
     },
     {
-      "copy": {
-        "name": "vnetPeeringsMesh",
-        "count": "[length(range(0, parameters('amountOfSpokes')))]"
-      },
-      "condition": "[and(and(parameters('deployVnetPeeringMesh'), parameters('deploySpokes')), not(parameters('deployVnetPeeringAVNM')))]",
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
-      "name": "[format('Prepare-Vnet-Peering-Mesh{0}', range(0, parameters('amountOfSpokes'))[copyIndex()])]",
-      "location": "[deployment().location]",
-      "properties": {
-        "expressionEvaluationOptions": {
-          "scope": "inner"
-        },
-        "mode": "Incremental",
-        "parameters": {
-          "SpokeResourceGroupName": "[if(and(and(parameters('deployVnetPeeringMesh'), parameters('deploySpokes')), not(parameters('deployVnetPeeringAVNM'))), createObject('value', reference(subscriptionResourceId(parameters('spokeSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]], parameters('location'))), '2022-09-01').outputs.spokeResourceGroupName.value), createObject('value', 'No VNET peering'))]",
-          "SpokeVnetName": "[if(and(and(parameters('deployVnetPeeringMesh'), parameters('deploySpokes')), not(parameters('deployVnetPeeringAVNM'))), createObject('value', reference(subscriptionResourceId(parameters('spokeSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex()]], parameters('location'))), '2022-09-01').outputs.spokeVnetName.value), createObject('value', 'No VNET peering'))]",
-          "spokeVnets": {
-            "copy": [
-              {
-                "name": "value",
-                "count": "[length(range(0, parameters('amountOfSpokes')))]",
-                "input": "[createObject('ID', if(and(and(parameters('deployVnetPeeringMesh'), parameters('deploySpokes')), not(parameters('deployVnetPeeringAVNM'))), reference(subscriptionResourceId(parameters('spokeSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex('value')]], parameters('location'))), '2022-09-01').outputs.spokeVnetID.value, 'No VNET peering'), 'Name', if(and(and(parameters('deployVnetPeeringMesh'), parameters('deploySpokes')), not(parameters('deployVnetPeeringAVNM'))), reference(subscriptionResourceId(parameters('spokeSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex('value')]], parameters('location'))), '2022-09-01').outputs.spokeVnetName.value, 'No VNET peering'), 'RgName', if(and(and(parameters('deployVnetPeeringMesh'), parameters('deploySpokes')), not(parameters('deployVnetPeeringAVNM'))), reference(subscriptionResourceId(parameters('spokeSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}{1}-{2}', parameters('spokeRgNamePrefix'), range(1, parameters('amountOfSpokes'))[range(0, parameters('amountOfSpokes'))[copyIndex('value')]], parameters('location'))), '2022-09-01').outputs.spokeResourceGroupName.value, 'No peering'))]"
-              }
-            ]
-          },
-          "spokeSubscriptionID": {
-            "value": "[parameters('spokeSubscriptionID')]"
-          }
-        },
-        "template": {
-          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
-          "contentVersion": "1.0.0.0",
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "0.24.24.22086",
-              "templateHash": "5432727962053430075"
-            }
-          },
-          "parameters": {
-            "SpokeResourceGroupName": {
-              "type": "string"
-            },
-            "SpokeVnetName": {
-              "type": "string"
-            },
-            "spokeVnets": {
-              "type": "array"
-            },
-            "spokeSubscriptionID": {
-              "type": "string"
-            }
-          },
-          "resources": [
-            {
-              "copy": {
-                "name": "peeringToHub",
-                "count": "[length(parameters('spokeVnets'))]"
-              },
-              "condition": "[not(equals(parameters('SpokeVnetName'), parameters('spokeVnets')[copyIndex()].Name))]",
-              "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2022-09-01",
-              "name": "[format('peeringMesh{0}To{1}', parameters('SpokeVnetName'), parameters('spokeVnets')[copyIndex()].Name)]",
-              "subscriptionId": "[parameters('spokeSubscriptionID')]",
-              "resourceGroup": "[parameters('SpokeResourceGroupName')]",
-              "properties": {
-                "expressionEvaluationOptions": {
-                  "scope": "inner"
-                },
-                "mode": "Incremental",
-                "parameters": {
-                  "peeringName": {
-                    "value": "[format('{0}/peeringMesh{1}To{2}', parameters('SpokeVnetName'), parameters('SpokeVnetName'), parameters('spokeVnets')[copyIndex()].Name)]"
-                  },
-                  "remoteVnetID": {
-                    "value": "[parameters('spokeVnets')[copyIndex()].ID]"
-                  },
-                  "useRemoteGateways": {
-                    "value": false
-                  },
-                  "allowGatewayTransit": {
-                    "value": false
-                  }
-                },
-                "template": {
-                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                  "contentVersion": "1.0.0.0",
-                  "metadata": {
-                    "_generator": {
-                      "name": "bicep",
-                      "version": "0.24.24.22086",
-                      "templateHash": "13246919997172795010"
-                    }
-                  },
-                  "parameters": {
-                    "remoteVnetID": {
-                      "type": "string"
-                    },
-                    "peeringName": {
-                      "type": "string"
-                    },
-                    "allowForwardedTraffic": {
-                      "type": "bool",
-                      "defaultValue": true
-                    },
-                    "allowGatewayTransit": {
-                      "type": "bool"
-                    },
-                    "allowVirtualNetworkAccess": {
-                      "type": "bool",
-                      "defaultValue": true
-                    },
-                    "useRemoteGateways": {
-                      "type": "bool"
-                    }
-                  },
-                  "resources": [
-                    {
-                      "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
-                      "apiVersion": "2023-06-01",
-                      "name": "[parameters('peeringName')]",
-                      "properties": {
-                        "remoteVirtualNetwork": {
-                          "id": "[parameters('remoteVnetID')]"
-                        },
-                        "allowForwardedTraffic": "[parameters('allowForwardedTraffic')]",
-                        "allowGatewayTransit": "[parameters('allowGatewayTransit')]",
-                        "allowVirtualNetworkAccess": "[parameters('allowVirtualNetworkAccess')]",
-                        "useRemoteGateways": "[parameters('useRemoteGateways')]"
-                      }
-                    }
-                  ]
-                }
-              }
-            }
-          ]
-        }
-      },
-      "dependsOn": [
-        "spokeVnets",
-        "vnetPeerings"
-      ]
-    },
-    {
       "condition": "[and(and(and(parameters('deployHUB'), parameters('deploySpokes')), variables('isVnetHub')), parameters('deployVnetPeeringAVNM'))]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
@@ -4627,7 +3610,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "14092861188369830118"
+              "templateHash": "16542708952810766865"
             }
           },
           "parameters": {
@@ -4693,7 +3676,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "6126634697144429099"
+                      "templateHash": "15540255825062446041"
                     }
                   },
                   "parameters": {
@@ -4733,7 +3716,7 @@
                           "subscriptions": "[parameters('avnmSubscriptionScopes')]"
                         }
                       },
-                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/networkManagers'), parameters('tagsByResource')['Microsoft.Network/networkManagers'], createObject())]"
+                      "tags": "[coalesce(tryGet(parameters('tagsByResource'), 'Microsoft.Network/networkManagers'), createObject())]"
                     }
                   ],
                   "outputs": {
@@ -4980,7 +3963,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "16221559437505263862"
+                      "templateHash": "8416966858811783822"
                     }
                   },
                   "parameters": {
@@ -5001,7 +3984,7 @@
                       "apiVersion": "2023-07-31-preview",
                       "name": "[format('{0}-{1}', parameters('uaiName'), parameters('location'))]",
                       "location": "[parameters('location')]",
-                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.ManagedIdentity/userAssignedIdentities'), parameters('tagsByResource')['Microsoft.ManagedIdentity/userAssignedIdentities'], createObject())]"
+                      "tags": "[coalesce(tryGet(parameters('tagsByResource'), 'Microsoft.ManagedIdentity/userAssignedIdentities'), createObject())]"
                     }
                   ],
                   "outputs": {
@@ -5140,7 +4123,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "10188666336555448332"
+                      "templateHash": "13798684972634526236"
                     }
                   },
                   "parameters": {
@@ -5190,7 +4173,7 @@
                         "arguments": "[format('-networkManagerName \"{0}\" -targetLocations {1} -configIds {2} -subscriptionId {3} -configType {4} -resourceGroupName {5}', parameters('avnmName'), parameters('location'), parameters('configurationId'), subscription().subscriptionId, parameters('configType'), resourceGroup().name)]",
                         "scriptContent": "    param (\r\n      # AVNM subscription id\r\n      [parameter(mandatory=$true)][string]$subscriptionId,\r\n\r\n      # AVNM resource name\r\n      [parameter(mandatory=$true)][string]$networkManagerName,\r\n\r\n      # string with comma-separated list of config ids to deploy. ids must be of the same config type\r\n      [parameter(mandatory=$true)][string[]]$configIds,\r\n\r\n      # string with comma-separated list of deployment target regions\r\n      [parameter(mandatory=$true)][string[]]$targetLocations,\r\n\r\n      # configuration type to deploy. must be either connecticity or securityadmin\r\n      [parameter(mandatory=$true)][ValidateSet('Connectivity','SecurityAdmin')][string]$configType,\r\n\r\n      # AVNM resource group name\r\n      [parameter(mandatory=$true)][string]$resourceGroupName\r\n    )\r\n  \r\n    $null = Login-AzAccount -Identity -Subscription $subscriptionId\r\n  \r\n    [System.Collections.Generic.List[string]]$configIdList = @()  \r\n    $configIdList.addRange($configIds) \r\n    [System.Collections.Generic.List[string]]$targetLocationList = @() # target locations for deployment\r\n    $targetLocationList.addRange($targetLocations)     \r\n    \r\n    $deployment = @{\r\n        Name = $networkManagerName\r\n        ResourceGroupName = $resourceGroupName\r\n        ConfigurationId = $configIdList\r\n        TargetLocation = $targetLocationList\r\n        CommitType = $configType\r\n    }\r\n  \r\n    try {\r\n      Deploy-AzNetworkManagerCommit @deployment -ErrorAction Stop\r\n    }\r\n    catch {\r\n      Write-Error \"Deployment failed with error: $_\"\r\n      throw \"Deployment failed with error: $_\"\r\n    }\r\n    "
                       },
-                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Resources/deploymentScripts'), parameters('tagsByResource')['Microsoft.Resources/deploymentScripts'], createObject())]"
+                      "tags": "[coalesce(tryGet(parameters('tagsByResource'), 'Microsoft.Resources/deploymentScripts'), createObject())]"
                     }
                   ]
                 }
@@ -5212,9 +4195,7 @@
     {
       "copy": {
         "name": "vnetConnections",
-        "count": "[length(range(0, parameters('amountOfSpokes')))]",
-        "mode": "serial",
-        "batchSize": 1
+        "count": "[length(range(0, parameters('amountOfSpokes')))]"
       },
       "condition": "[and(and(parameters('deployHUB'), parameters('deploySpokes')), variables('isVwanHub'))]",
       "type": "Microsoft.Resources/deployments",
@@ -5436,7 +4417,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "1722669023039036686"
+              "templateHash": "12189931865298944204"
             }
           },
           "parameters": {
@@ -5496,8 +4477,8 @@
             "bastionName": "Bastion-OnPrem",
             "gatewayName": "Gateway-OnPrem",
             "defaultSubnetPrefix": "[cidrSubnet(parameters('AddressSpace'), 26, 0)]",
-            "bastionSubnetPrefix": "[cidrSubnet(parameters('AddressSpace'), 27, 4)]",
-            "gatewaySubnetPrefix": "[cidrSubnet(parameters('AddressSpace'), 27, 5)]"
+            "bastionSubnetPrefix": "[cidrSubnet(parameters('AddressSpace'), 26, 1)]",
+            "gatewaySubnetPrefix": "[cidrSubnet(parameters('AddressSpace'), 26, 2)]"
           },
           "resources": [
             {
@@ -5505,7 +4486,7 @@
               "apiVersion": "2023-07-01",
               "name": "[parameters('OnPremRgName')]",
               "location": "[parameters('location')]",
-              "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Resources/subscriptions/resourceGroups'), parameters('tagsByResource')['Microsoft.Resources/subscriptions/resourceGroups'], createObject())]"
+              "tags": "[coalesce(tryGet(parameters('tagsByResource'), 'Microsoft.Resources/subscriptions/resourceGroups'), createObject())]"
             },
             {
               "type": "Microsoft.Resources/deployments",
@@ -5530,6 +4511,9 @@
                   "vnetname": {
                     "value": "[variables('vnetName')]"
                   },
+                  "deployDefaultSubnet": {
+                    "value": true
+                  },
                   "defaultSubnetPrefix": {
                     "value": "[variables('defaultSubnetPrefix')]"
                   },
@@ -5541,7 +4525,7 @@
                     "value": "[parameters('deployBastionInOnPrem')]"
                   },
                   "deployGatewaySubnet": {
-                    "value": true
+                    "value": "[parameters('deployGatewayInOnPrem')]"
                   },
                   "tagsByResource": {
                     "value": "[parameters('tagsByResource')]"
@@ -5554,7 +4538,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "14393312406282726560"
+                      "templateHash": "8189173071027667867"
                     }
                   },
                   "parameters": {
@@ -5568,7 +4552,8 @@
                       "type": "string"
                     },
                     "defaultSubnetPrefix": {
-                      "type": "string"
+                      "type": "string",
+                      "defaultValue": ""
                     },
                     "bastionSubnetPrefix": {
                       "type": "string",
@@ -5583,7 +4568,8 @@
                       "defaultValue": ""
                     },
                     "nsgID": {
-                      "type": "string"
+                      "type": "string",
+                      "defaultValue": "none"
                     },
                     "rtDefID": {
                       "type": "string",
@@ -5592,6 +4578,9 @@
                     "rtGwID": {
                       "type": "string",
                       "defaultValue": "none"
+                    },
+                    "deployDefaultSubnet": {
+                      "type": "bool"
                     },
                     "deployBastionSubnet": {
                       "type": "bool",
@@ -5619,21 +4608,10 @@
                     }
                   },
                   "variables": {
-                    "defaultSubnet": [
-                      {
-                        "name": "default",
-                        "properties": {
-                          "addressPrefix": "[parameters('defaultSubnetPrefix')]",
-                          "networkSecurityGroup": {
-                            "id": "[parameters('nsgID')]"
-                          },
-                          "routeTable": "[if(equals(parameters('rtDefID'), 'none'), null(), json(format('{{\"id\": \"{0}\"}}\"', parameters('rtDefID'))))]"
-                        }
-                      }
-                    ],
-                    "bastionSubnet": "[if(not(parameters('deployBastionSubnet')), createArray(), createArray(createObject('name', 'AzureBastionSubnet', 'properties', createObject('addressPrefix', parameters('bastionSubnetPrefix')))))]",
-                    "firewallSubnet": "[if(not(parameters('deployFirewallSubnet')), createArray(), createArray(createObject('name', 'AzureFirewallSubnet', 'properties', createObject('addressPrefix', parameters('firewallSubnetPrefix')))))]",
-                    "gatewaySubnet": "[if(and(not(parameters('deployGatewaySubnet')), not(parameters('deployFirewallSubnet'))), createArray(), createArray(createObject('name', 'GatewaySubnet', 'properties', createObject('addressPrefix', parameters('GatewaySubnetPrefix'), 'routeTable', if(equals(parameters('rtGwID'), 'none'), null(), json(format('{{\"id\": \"{0}\"}}\"', parameters('rtGwID'))))))))]"
+                    "defaultSubnet": "[if(parameters('deployDefaultSubnet'), createArray(createObject('name', 'default', 'properties', createObject('addressPrefix', parameters('defaultSubnetPrefix'), 'networkSecurityGroup', if(equals(parameters('nsgID'), 'none'), null(), json(format('{{\"id\": \"{0}\"}}', parameters('nsgID')))), 'routeTable', if(equals(parameters('rtDefID'), 'none'), null(), json(format('{{\"id\": \"{0}\"}}\"', parameters('rtDefID'))))))), createArray())]",
+                    "bastionSubnet": "[if(parameters('deployBastionSubnet'), createArray(createObject('name', 'AzureBastionSubnet', 'properties', createObject('addressPrefix', parameters('bastionSubnetPrefix')))), createArray())]",
+                    "firewallSubnet": "[if(parameters('deployFirewallSubnet'), createArray(createObject('name', 'AzureFirewallSubnet', 'properties', createObject('addressPrefix', parameters('firewallSubnetPrefix')))), createArray())]",
+                    "gatewaySubnet": "[if(parameters('deployGatewaySubnet'), createArray(createObject('name', 'GatewaySubnet', 'properties', createObject('addressPrefix', parameters('GatewaySubnetPrefix'), 'routeTable', if(equals(parameters('rtGwID'), 'none'), null(), json(format('{{\"id\": \"{0}\"}}\"', parameters('rtGwID'))))))), createArray())]"
                   },
                   "resources": [
                     {
@@ -5652,7 +4630,7 @@
                         },
                         "subnets": "[concat(variables('defaultSubnet'), variables('bastionSubnet'), variables('firewallSubnet'), variables('gatewaySubnet'))]"
                       },
-                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/virtualNetworks'), parameters('tagsByResource')['Microsoft.Network/virtualNetworks'], createObject())]"
+                      "tags": "[coalesce(tryGet(parameters('tagsByResource'), 'Microsoft.Network/virtualNetworks'), createObject())]"
                     }
                   ],
                   "outputs": {
@@ -5670,7 +4648,7 @@
                     },
                     "defaultSubnetID": {
                       "type": "string",
-                      "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetname')), '2023-06-01').subnets[0].id]"
+                      "value": "[if(parameters('deployDefaultSubnet'), resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetname'), 'default'), 'Not deployed')]"
                     },
                     "bastionSubnetID": {
                       "type": "string",
@@ -5742,7 +4720,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "11890095701129287228"
+                      "templateHash": "16857714452646886301"
                     }
                   },
                   "parameters": {
@@ -5851,7 +4829,7 @@
                           }
                         }
                       },
-                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Compute/virtualMachines'), parameters('tagsByResource')['Microsoft.Compute/virtualMachines'], createObject())]",
+                      "tags": "[coalesce(tryGet(parameters('tagsByResource'), 'Microsoft.Compute/virtualMachines'), createObject())]",
                       "dependsOn": [
                         "[resourceId('Microsoft.Network/networkInterfaces', format('{0}-nic', parameters('vmName')))]"
                       ]
@@ -5924,7 +4902,7 @@
                           }
                         ]
                       },
-                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Compute/virtualMachines'), parameters('tagsByResource')['Microsoft.Compute/virtualMachines'], createObject())]"
+                      "tags": "[coalesce(tryGet(parameters('tagsByResource'), 'Microsoft.Compute/virtualMachines'), createObject())]"
                     },
                     {
                       "condition": "[equals(parameters('osType'), 'Windows')]",
@@ -6034,7 +5012,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "546536318447648044"
+                      "templateHash": "6858509797374338560"
                     }
                   },
                   "parameters": {
@@ -6055,7 +5033,7 @@
                       "apiVersion": "2023-06-01",
                       "name": "[parameters('nsgName')]",
                       "location": "[parameters('location')]",
-                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/networkSecurityGroups'), parameters('tagsByResource')['Microsoft.Network/networkSecurityGroups'], createObject())]"
+                      "tags": "[coalesce(tryGet(parameters('tagsByResource'), 'Microsoft.Network/networkSecurityGroups'), createObject())]"
                     }
                   ],
                   "outputs": {
@@ -6103,7 +5081,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "14046808772665883348"
+                      "templateHash": "8467164936320845896"
                     }
                   },
                   "parameters": {
@@ -6120,7 +5098,8 @@
                       "type": "string",
                       "allowedValues": [
                         "Basic",
-                        "Standard"
+                        "Standard",
+                        "Premium"
                       ]
                     },
                     "tagsByResource": {
@@ -6131,7 +5110,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.Network/bastionHosts",
-                      "apiVersion": "2023-06-01",
+                      "apiVersion": "2024-01-01",
                       "name": "[parameters('bastionName')]",
                       "location": "[parameters('location')]",
                       "properties": {
@@ -6152,7 +5131,7 @@
                       "sku": {
                         "name": "[parameters('bastionSku')]"
                       },
-                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/bastionHosts'), parameters('tagsByResource')['Microsoft.Network/bastionHosts'], createObject())]",
+                      "tags": "[coalesce(tryGet(parameters('tagsByResource'), 'Microsoft.Network/bastionHosts'), createObject())]",
                       "dependsOn": [
                         "[resourceId('Microsoft.Network/publicIPAddresses', format('{0}-pip', parameters('bastionName')))]"
                       ]
@@ -6170,7 +5149,7 @@
                         "tier": "Regional",
                         "name": "Standard"
                       },
-                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/publicIPAddresses'), parameters('tagsByResource')['Microsoft.Network/publicIPAddresses'], createObject())]"
+                      "tags": "[coalesce(tryGet(parameters('tagsByResource'), 'Microsoft.Network/publicIPAddresses'), createObject())]"
                     }
                   ]
                 }
@@ -6214,7 +5193,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "13515852825941155578"
+                      "templateHash": "2411288153031389176"
                     }
                   },
                   "parameters": {
@@ -6291,7 +5270,7 @@
                           }
                         ]
                       },
-                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/virtualNetworkGateways'), parameters('tagsByResource')['Microsoft.Network/virtualNetworkGateways'], createObject())]",
+                      "tags": "[coalesce(tryGet(parameters('tagsByResource'), 'Microsoft.Network/virtualNetworkGateways'), createObject())]",
                       "dependsOn": [
                         "[resourceId('Microsoft.Network/publicIPAddresses', variables('pipName'))]"
                       ]
@@ -6309,7 +5288,7 @@
                         "tier": "Regional",
                         "name": "Standard"
                       },
-                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/publicIPAddresses'), parameters('tagsByResource')['Microsoft.Network/publicIPAddresses'], createObject())]"
+                      "tags": "[coalesce(tryGet(parameters('tagsByResource'), 'Microsoft.Network/publicIPAddresses'), createObject())]"
                     }
                   ],
                   "outputs": {
@@ -6425,7 +5404,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "7920561056906189534"
+              "templateHash": "7261283328420393287"
             }
           },
           "parameters": {
@@ -6544,7 +5523,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "9216158642931690068"
+                      "templateHash": "12778589233536007672"
                     }
                   },
                   "parameters": {
@@ -6594,7 +5573,7 @@
                         "bgpSettings": "[if(parameters('enableBgp'), createObject('asn', parameters('BgpAsn'), 'bgpPeeringAddress', parameters('BgpPeeringAddress')), null())]",
                         "localNetworkAddressSpace": "[if(parameters('enableBgp'), createObject(), createObject('addressPrefixes', parameters('LocalGatewayAddressPrefixes')))]"
                       },
-                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/localNetworkGateways'), parameters('tagsByResource')['Microsoft.Network/localNetworkGateways'], createObject())]"
+                      "tags": "[coalesce(tryGet(parameters('tagsByResource'), 'Microsoft.Network/localNetworkGateways'), createObject())]"
                     },
                     {
                       "type": "Microsoft.Network/connections",
@@ -6618,7 +5597,7 @@
                           "properties": {}
                         }
                       },
-                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/connections'), parameters('tagsByResource')['Microsoft.Network/connections'], createObject())]",
+                      "tags": "[coalesce(tryGet(parameters('tagsByResource'), 'Microsoft.Network/connections'), createObject())]",
                       "dependsOn": [
                         "[resourceId('Microsoft.Network/localNetworkGateways', parameters('LocalGatewayName'))]"
                       ]
@@ -6680,7 +5659,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "9216158642931690068"
+                      "templateHash": "12778589233536007672"
                     }
                   },
                   "parameters": {
@@ -6730,7 +5709,7 @@
                         "bgpSettings": "[if(parameters('enableBgp'), createObject('asn', parameters('BgpAsn'), 'bgpPeeringAddress', parameters('BgpPeeringAddress')), null())]",
                         "localNetworkAddressSpace": "[if(parameters('enableBgp'), createObject(), createObject('addressPrefixes', parameters('LocalGatewayAddressPrefixes')))]"
                       },
-                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/localNetworkGateways'), parameters('tagsByResource')['Microsoft.Network/localNetworkGateways'], createObject())]"
+                      "tags": "[coalesce(tryGet(parameters('tagsByResource'), 'Microsoft.Network/localNetworkGateways'), createObject())]"
                     },
                     {
                       "type": "Microsoft.Network/connections",
@@ -6754,7 +5733,7 @@
                           "properties": {}
                         }
                       },
-                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/connections'), parameters('tagsByResource')['Microsoft.Network/connections'], createObject())]",
+                      "tags": "[coalesce(tryGet(parameters('tagsByResource'), 'Microsoft.Network/connections'), createObject())]",
                       "dependsOn": [
                         "[resourceId('Microsoft.Network/localNetworkGateways', parameters('LocalGatewayName'))]"
                       ]
@@ -6820,7 +5799,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "17180724745288832783"
+              "templateHash": "17150606173916644364"
             }
           },
           "parameters": {
@@ -6931,7 +5910,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "1839048249135414785"
+                      "templateHash": "15312202247436782187"
                     }
                   },
                   "parameters": {
@@ -7003,7 +5982,7 @@
                           "id": "[parameters('vwanID')]"
                         }
                       },
-                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/vpnSites'), parameters('tagsByResource')['Microsoft.Network/vpnSites'], createObject())]"
+                      "tags": "[coalesce(tryGet(parameters('tagsByResource'), 'Microsoft.Network/vpnSites'), createObject())]"
                     },
                     {
                       "type": "Microsoft.Network/vpnGateways/vpnConnections",
@@ -7115,7 +6094,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "9216158642931690068"
+                      "templateHash": "12778589233536007672"
                     }
                   },
                   "parameters": {
@@ -7165,7 +6144,7 @@
                         "bgpSettings": "[if(parameters('enableBgp'), createObject('asn', parameters('BgpAsn'), 'bgpPeeringAddress', parameters('BgpPeeringAddress')), null())]",
                         "localNetworkAddressSpace": "[if(parameters('enableBgp'), createObject(), createObject('addressPrefixes', parameters('LocalGatewayAddressPrefixes')))]"
                       },
-                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/localNetworkGateways'), parameters('tagsByResource')['Microsoft.Network/localNetworkGateways'], createObject())]"
+                      "tags": "[coalesce(tryGet(parameters('tagsByResource'), 'Microsoft.Network/localNetworkGateways'), createObject())]"
                     },
                     {
                       "type": "Microsoft.Network/connections",
@@ -7189,7 +6168,7 @@
                           "properties": {}
                         }
                       },
-                      "tags": "[if(tryGet(parameters('tagsByResource'), 'Microsoft.Network/connections'), parameters('tagsByResource')['Microsoft.Network/connections'], createObject())]",
+                      "tags": "[coalesce(tryGet(parameters('tagsByResource'), 'Microsoft.Network/connections'), createObject())]",
                       "dependsOn": [
                         "[resourceId('Microsoft.Network/localNetworkGateways', parameters('LocalGatewayName'))]"
                       ]

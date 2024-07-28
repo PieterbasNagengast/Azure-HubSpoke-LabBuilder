@@ -16,7 +16,7 @@ resource vWan 'Microsoft.Network/virtualWans@2022-11-01' = {
     disableVpnEncryption: false
     allowBranchToBranchTraffic: true
   }
-  tags: tagsByResource[?'Microsoft.Network/virtualWans'] ? tagsByResource['Microsoft.Network/virtualWans'] : {}
+  tags: tagsByResource[?'Microsoft.Network/virtualWans'] ?? {}
 }
 
 resource vWanHub 'Microsoft.Network/virtualHubs@2022-11-01' = {

@@ -81,7 +81,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2023-09-01' = {
       }
     }
   }
-  tags: tagsByResource[?'Microsoft.Compute/virtualMachines'] ? tagsByResource['Microsoft.Compute/virtualMachines'] : {}
+  tags: tagsByResource[?'Microsoft.Compute/virtualMachines'] ?? {}
 }
 
 resource amaextension 'Microsoft.Compute/virtualMachines/extensions@2023-09-01' = if (!empty(diagnosticWorkspaceId)) {
@@ -137,7 +137,7 @@ resource nic 'Microsoft.Network/networkInterfaces@2023-06-01' = {
       }
     ]
   }
-  tags: tagsByResource[?'Microsoft.Compute/virtualMachines'] ? tagsByResource['Microsoft.Compute/virtualMachines'] : {}
+  tags: tagsByResource[?'Microsoft.Compute/virtualMachines'] ?? {}
 }
 
 module run 'runcommand.bicep' = if (osType == 'Windows') {

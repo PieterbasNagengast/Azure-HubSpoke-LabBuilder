@@ -9,7 +9,7 @@ resource rt 'Microsoft.Network/routeTables@2023-06-01' = {
   properties: {
     disableBgpRoutePropagation: disableRouteProp
   }
-  tags: tagsByResource[?'Microsoft.Network/routeTables'] ? tagsByResource['Microsoft.Network/routeTables'] : {}
+  tags: tagsByResource[?'Microsoft.Network/routeTables'] ?? {}
 }
 
 output rtID string = rt.id

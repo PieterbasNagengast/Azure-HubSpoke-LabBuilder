@@ -58,9 +58,7 @@ resource dcr 'Microsoft.Insights/dataCollectionRules@2023-03-11' = {
       }
     ]
   }
-  tags: tagsByResource[?'Microsoft.Insights/dataCollectionRules']
-    ? tagsByResource['Microsoft.Insights/dataCollectionRules']
-    : {}
+  tags: tagsByResource[?'Microsoft.Insights/dataCollectionRules'] ?? {}
 }
 
 output dcrID string = dcr.id

@@ -23,13 +23,14 @@
 8. [Azure Virtual Network Manager](#azure-virtual-network-manager)
 9. [Parameters overview](#parameters-overview)
 10. [Updates](#updates)
-    1. [Februari 2024 updates](#februari-2024-updates)
-    2. [June 2023 updates](#june-2023-updates)
-    3. [May 2023 updates](#may-2023-updates)
-    4. [September 2022 updates](#september-2022-updates)
-    5. [July 2022 updates](#july-2022-updates)
-    6. [June 2022 updates](#june-2022-updates)
-    7. [May 2022 updates](#may-2022-updates)
+    1. [Aug/July 2024 updates](#augjuly-2024-updates)
+    2. [Februari 2024 updates](#februari-2024-updates)
+    3. [June 2023 updates](#june-2023-updates)
+    4. [May 2023 updates](#may-2023-updates)
+    5. [September 2022 updates](#september-2022-updates)
+    6. [July 2022 updates](#july-2022-updates)
+    7. [June 2022 updates](#june-2022-updates)
+    8. [May 2022 updates](#may-2022-updates)
 
 ## Deploy to Azure
 
@@ -105,9 +106,9 @@ Within these **main** scenario's there are multiple options (but not limited to 
 - Route tables (UDR's) incl. Default route will be deployed if Azure Firewall is selected (0.0.0.0/0 -> Azure Firewall)
 - Network Security group will be deplyed to 'default' subnets only
 - At deployemt use a /16 subnet. every VNET (Hub and Spoke VNET's) will get a /24 subnet
-- Hub VNET will always get the first available /24 subnet. eg. 172.16.0.0/24
-- Spoke(s) VNET gets subsequent subnets. eg. 172.16.1.0/24, 172.16.2.0/24 etc.
-- OnPrem VNET will always get the latest available /24 subnet. eg. 172.16.255.0/24
+- Hub VNET will always get the first available /24 address space. eg. 172.16.0.0/24
+- Spoke(s) VNET gets subsequent address spaces. eg. 172.16.1.0/24, 172.16.2.0/24 etc.
+- OnPrem VNET will always get the latest available /24 address space. eg. 172.16.255.0/24
 - see subnet details:
 
 ### Subnet Ip Address range usage
@@ -117,16 +118,15 @@ Within these **main** scenario's there are multiple options (but not limited to 
 |Subnet Name|Subnet address range|notes|
 |-|-|-|
 |default|x.x.Y.0/26||
-|AzureBastionSubnet|x.x.Y.128/27|Only when Bastion is selected|
+|AzureBastionSubnet|x.x.Y.64/26|Only when Bastion is selected|
 
 *Hub VNET subnets:*
 
 |Subnet Name|Subnet address range|notes|
 |-|-|-|
-|default|x.x.0.0/26||
-|AzureFirewallSubnet|x.x.0.64/26|Only applicable for Hub VNET with Azure Firewall selected|
-|AzureBastionSubnet|x.x.0.128/27|Only when Bastion is selected|
-|GatewaySubnet|x.x.0.160/27|Only when Gateway is selected|
+|AzureFirewallSubnet|x.x.0.4/26|Only applicable for Hub VNET with Azure Firewall selected|
+|AzureBastionSubnet|x.x.0.64/26|Only when Bastion is selected|
+|GatewaySubnet|x.x.0.128/26|Only when Gateway is selected|
 
 *Azure virtual WAN Hub subnet:*
 
@@ -139,8 +139,8 @@ Within these **main** scenario's there are multiple options (but not limited to 
 |Subnet Name|Subnet address range|notes|
 |-|-|-|
 |default|x.x.255.0/26||
-|AzureBastionSubnet|x.x.255.128/27|Only when Bastion is selected|
-|GatewaySubnet|x.x.255.160/27|Only when Gateway is selected|
+|AzureBastionSubnet|x.x.255.64/26|Only when Bastion is selected|
+|GatewaySubnet|x.x.255.128/26|Only when Gateway is selected|
 
 ### Resource Names
 
@@ -148,7 +148,6 @@ Within these **main** scenario's there are multiple options (but not limited to 
 |-|-|
 |Hub VNET|VNET-Hub|
 |Spoke VNET's|VNET-Spoke#|
-|Hub Virtual Machine|VM-Hub|
 |Spoke Virtual Machines|VM-Spoke#|
 |Hub Route Table|RT-Hub|
 |Spoke Route tables|RT-Spoke#|
@@ -248,6 +247,29 @@ When deploying a Hub you can also deploy a Azure Virtual Network Manager (AVNM).
 | `privateTrafficRoutingPolicy` | bool | Enable Private traffic vWAN routing policy on Azure Firewall | False | |
 
 ## Updates
+
+### Aug/July 2024 updates
+
+- Updated Bicep code to use safe-access operator (?.) and null-coalescing operator (??)
+- Updated Resources API's to latest version
+- Add support for Azure Bastion Premium SKU
+- Modified VNET deployment so Default subnet is optional
+- Updated UI Definition; Removed 'deploy VM in Hub option'
+- Updated UI Definition; Added Azure Bastion Premium Option
+- Removed Default subnet in HUB VNET deployment
+- Removed option to deploy VM in HUB VNET (Default subnet)
+- Removed specific routes to Default subnet in HUB in Route tables
+- Resized Subnets to use /26 instead of a mix of /26 and /27
+- Updated validation and error description of BGP ASN usage in UI definition to make it more clear
+- Changed default values for BGP ASN's (for VNET deployment = 65010, VWAN deployment = 65515, OnPrem deployment = 65020)
+- Removed 'Deploy Bastion to Spokes'
+- Removed VNET peering fully meshed option (Deploy AVNM instead and use direct connected group)
+- Removed batched deployment of vWAN vnet connections
+
+TODO:
+
+- Modify parameter files for testing to not include Hub VM anymore
+- Update README
 
 ### Februari 2024 updates
 

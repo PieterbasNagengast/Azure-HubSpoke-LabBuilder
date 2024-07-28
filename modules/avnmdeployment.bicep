@@ -69,7 +69,5 @@ resource deploymentScript 'Microsoft.Resources/deploymentScripts@2023-08-01' = {
     }
     '''
   }
-  tags: tagsByResource[?'Microsoft.Resources/deploymentScripts']
-    ? tagsByResource['Microsoft.Resources/deploymentScripts']
-    : {}
+  tags: tagsByResource[?'Microsoft.Resources/deploymentScripts'] ?? {}
 }

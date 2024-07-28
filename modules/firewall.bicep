@@ -57,7 +57,7 @@ resource azfw 'Microsoft.Network/azureFirewalls@2023-06-01' = {
         }
       : null
   }
-  tags: tagsByResource[?'Microsoft.Network/azureFirewalls'] ? tagsByResource['Microsoft.Network/azureFirewalls'] : {}
+  tags: tagsByResource[?'Microsoft.Network/azureFirewalls'] ?? {}
 }
 
 resource azfwpolicy 'Microsoft.Network/firewallPolicies@2023-06-01' = {
@@ -72,9 +72,7 @@ resource azfwpolicy 'Microsoft.Network/firewallPolicies@2023-06-01' = {
       enableProxy: firewallDNSproxy
     }
   }
-  tags: tagsByResource[?'Microsoft.Network/firewallPolicies']
-    ? tagsByResource['Microsoft.Network/firewallPolicies']
-    : {}
+  tags: tagsByResource[?'Microsoft.Network/firewallPolicies'] ?? {}
 }
 
 resource azfwpip 'Microsoft.Network/publicIPAddresses@2023-06-01' = if (!deployInVWan) {
@@ -88,9 +86,7 @@ resource azfwpip 'Microsoft.Network/publicIPAddresses@2023-06-01' = if (!deployI
     tier: 'Regional'
     name: 'Standard'
   }
-  tags: tagsByResource[?'Microsoft.Network/publicIPAddresses']
-    ? tagsByResource['Microsoft.Network/publicIPAddresses']
-    : {}
+  tags: tagsByResource[?'Microsoft.Network/publicIPAddresses'] ?? {}
 }
 
 output azFwIP string = deployInVWan
