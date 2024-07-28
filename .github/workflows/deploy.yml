@@ -86,7 +86,7 @@ jobs:
             hubRgName="LabBuilderValidation-${{ inputs.LabBuilderType }}-hub"
             onpremRgName="LabBuilderValidation-${{ inputs.LabBuilderType }}-onprem"
           deploymentMode: "validate"
-          deploymentName: "LabBuilderValidation-${{ inputs.LabBuilderType }}"
+          deploymentName: "LabBuilderValidation-${{ inputs.LabBuilderType }}-${{ vars.GITHUB_RUN_ID}}"
       - name: "Deploy ${{ inputs.LabBuilderType }} scenario ${{ strategy.job-index }}"
         uses: Azure/arm-deploy@v1
         with:
