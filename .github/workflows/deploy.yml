@@ -105,7 +105,7 @@ jobs:
             spokeRgNamePrefix="LabBuilderValidation-${{ inputs.LabBuilderType }}-spoke"
             hubRgName="LabBuilderValidation-${{ inputs.LabBuilderType }}-hub"
             onpremRgName="LabBuilderValidation-${{ inputs.LabBuilderType }}-onprem"
-         deploymentName: "LabBuilderValidation-${{ inputs.LabBuilderType }}-${{ github.run_id }}"
+          deploymentName: "LabBuilderValidation-${{ inputs.LabBuilderType }}-${{ github.run_id }}"
       - name: "Waiting for vWAN routing to finish deploying"
         if: inputs.LabBuilderType == 'vwan'
         run: |
