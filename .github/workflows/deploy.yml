@@ -72,7 +72,7 @@ jobs:
         with:
           scope: "subscription"
           subscriptionId: ${{ secrets.HUB_SUBSCRIPTION_ID }}
-          region: westus3
+          region: swedencentral
           template: main.bicep
           parameters: 
             ARM/params/${{ matrix.scenarios }}
