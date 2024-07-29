@@ -7,6 +7,12 @@ on:
     branches: none
   workflow_dispatch:
     inputs:
+      LabBuilderLocation:
+        type: choice
+        options:
+          - swedencentral
+        required: true
+        default: swedencentral
       LabBuilderType:
         type: choice
         options:
@@ -72,7 +78,7 @@ jobs:
         with:
           scope: "subscription"
           subscriptionId: ${{ secrets.HUB_SUBSCRIPTION_ID }}
-          region: swedencentral
+          region: ${{ inputs.LabBuilderLocation}}
           template: main.bicep
           parameters: 
             ARM/params/${{ matrix.scenarios }}
@@ -92,7 +98,7 @@ jobs:
         with:
           scope: "subscription"
           subscriptionId: ${{ secrets.HUB_SUBSCRIPTION_ID }}
-          region: swedencentral
+          region: ${{ inputs.LabBuilderLocation}}
           template: main.bicep
           parameters: 
             ARM/params/${{ matrix.scenarios }}
@@ -113,7 +119,7 @@ jobs:
           while true
           do
             sleep 10
-            status=$(az network vhub show -g LabBuilderValidation-${{ inputs.LabBuilderType }}-hub -n HUB-westus3 --query routingState -o tsv)
+            status=$(az network vhub show -g LabBuilderValidation-${{ inputs.LabBuilderType }}-hub -n HUB-${{ inputs.LabBuilderLocation}} --query routingState -o tsv)
             echo "vWAN Hub Routing status: $status"
             if [ "$status" != "Provisioning" ]; then
               echo "vWAN Hub Routing status: $status"
@@ -126,7 +132,7 @@ jobs:
           while true
           do
             sleep 10
-            status=$(az network vhub show -g LabBuilderValidation-${{ inputs.LabBuilderType }}-hub -n HUB-westus3 --query provisioningState -o tsv)
+            status=$(az network vhub show -g LabBuilderValidation-${{ inputs.LabBuilderType }}-hub -n HUB-${{ inputs.LabBuilderLocation}} --query provisioningState -o tsv)
             echo "vWAN status: $status"
             if [ "$status" != "Updating" ]; then
               echo "vWAN status: $status"
