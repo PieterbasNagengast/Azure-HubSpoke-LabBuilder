@@ -32,6 +32,9 @@ on:
       LabBuilderCleanup:
         type: boolean
         required: true
+      LabBuilderLocation:
+        type: string
+        required: true
 
 jobs:
   BicepBuildandLint:

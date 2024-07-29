@@ -7,6 +7,12 @@ on:
     branches: none
   workflow_dispatch:
     inputs:
+      LabBuilderLocation:
+        type: choice
+        options:
+          - swedencentral
+        required: true
+        default: swedencentral
       LabBuilderCleanup:
         type: boolean
         required: true
@@ -18,5 +24,6 @@ jobs:
         with:
             LabBuilderType: vnet
             LabBuilderCleanup: ${{ inputs.LabBuilderCleanup }}
+            LabBuilderLocation: ${{ inputs.LabBuilderLocation }}
         secrets:
             inherit
