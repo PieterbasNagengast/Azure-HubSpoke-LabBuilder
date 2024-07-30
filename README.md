@@ -22,7 +22,7 @@
 7. [Azure Virtual Network Manager](#azure-virtual-network-manager)
 8. [Parameters overview](#parameters-overview)
 9. [Updates](#updates)
-   1. [Aug/July 2024 updates](#augjuly-2024-updates)
+   1. [July 2024 updates](#july-2024-updates)
    2. [Februari 2024 updates](#februari-2024-updates)
    3. [June 2023 updates](#june-2023-updates)
    4. [May 2023 updates](#may-2023-updates)
@@ -233,7 +233,7 @@ When deploying a Hub you can also deploy a Azure Virtual Network Manager (AVNM).
 
 ## Updates
 
-### Aug/July 2024 updates
+### July 2024 updates
 
 - Updated Bicep code to use safe-access operator (?.) and null-coalescing operator (??)
 - Updated Resources API's to latest version
