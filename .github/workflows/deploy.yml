@@ -1,4 +1,4 @@
-name: "LabBuilder - Deploy Scenarios"
+name: LabBuilder - Deploy Scenarios
 
 on:
   push:
