@@ -19,18 +19,17 @@
    2. [Subnet Ip Address range usage](#subnet-ip-address-range-usage)
    3. [Resource Names](#resource-names)
 6. [Azure Monitor Agent, VM Insights and Dependency Agent](#azure-monitor-agent-vm-insights-and-dependency-agent)
-7. [Spoke VNET peerings in a Fully Meshed topology (Whitout AVNM)](#spoke-vnet-peerings-in-a-fully-meshed-topology-whitout-avnm)
-8. [Azure Virtual Network Manager](#azure-virtual-network-manager)
-9. [Parameters overview](#parameters-overview)
-10. [Updates](#updates)
-    1. [Aug/July 2024 updates](#augjuly-2024-updates)
-    2. [Februari 2024 updates](#februari-2024-updates)
-    3. [June 2023 updates](#june-2023-updates)
-    4. [May 2023 updates](#may-2023-updates)
-    5. [September 2022 updates](#september-2022-updates)
-    6. [July 2022 updates](#july-2022-updates)
-    7. [June 2022 updates](#june-2022-updates)
-    8. [May 2022 updates](#may-2022-updates)
+7. [Azure Virtual Network Manager](#azure-virtual-network-manager)
+8. [Parameters overview](#parameters-overview)
+9. [Updates](#updates)
+   1. [Aug/July 2024 updates](#augjuly-2024-updates)
+   2. [Februari 2024 updates](#februari-2024-updates)
+   3. [June 2023 updates](#june-2023-updates)
+   4. [May 2023 updates](#may-2023-updates)
+   5. [September 2022 updates](#september-2022-updates)
+   6. [July 2022 updates](#july-2022-updates)
+   7. [June 2022 updates](#june-2022-updates)
+   8. [May 2022 updates](#may-2022-updates)
 
 ## Deploy to Azure
 
@@ -50,11 +49,10 @@ Optionaly you can deploy:
 
 - Azure Firewall (Standard or Premium) in the Hub (VNET or vWAN) incl. Route table
 - Azure Virtual network manager (AVNM) with Hub & Spoke topology and optionally Directly Connected network group.
-- Virtual Machines in Hub VNET and/or Spoke VNET's **
-- Bastion Host in Hub VNET and/or Spoke VNET's ****
+- Virtual Machines in Spoke VNET's **
+- Bastion Host in Hub VNET ****
 - Azure Monitor Agent and Dependency Agent on Virtual Machines
 - Azure Firewall rule Collection group which enables spoke-to-spoke and internet traffic.
-- Full meshed Spokes base on standard VNET peerings (Whitout AVNM)
 - Simulated 'OnPremises' VNET with optional ***:
   - VPN Gateway
   - Site-2-Site VPN connection to Hub (VNET or vWAN)
@@ -81,7 +79,7 @@ Within these **main** scenario's there are multiple options (but not limited to 
 |Scenrio|What gets deployed|
 |-|-|
 |**1. Only deploy Spokes**|- Resource Group (rg-Spoke#)<br>- Virtual Network (VNET-Spoke#)<br>- Network Security Group (NSG-Spoke#) linked to 'Default' Subnet<br>- Subnet (Default)<br>- [optional] Subnet (AzureBastionSubnet)<br>- [optional] Subnet (AzureFirewallSubnet)<br>- [optional] Azure Bastion Host (Bastion-Spoke#) incl. Public IP<br>- [optional] Azure Virtual Machine (Windows)<br><br>*Only in combination with Firewall in Hub:*<br>- Route table (RT-Hub) linked to 'Default' Subnet, with default route to Azure Firewall|
-|**2. Only deploy Hub or vWAN Hub**|- Resource Group (rg-Hub)<br>- Virtual Network (VNET-Hub)<br>- Network Security Group (NSG-Hub) linked to 'Default' Subnet<br>- Subnet (Default)<br>- [optional] Subnet (AzureBastionSubnet)<br>- [optional] Subnet (AzureFirewallSubnet)<br><br>- [optional] Subnet (GatewaySubnet)<br>- [optional] Azure Bastion Host (Bastion-Hub) incl. Public IP <br>- [optional] Azure Firewall (AzFw) incl. Public IP<br>- [optional] Azure Firewall Policy (AzFwPolicy)<br>- [optional] Azure Firewall Policy rule Collection Group<br>- [optional] Azure Virtual Machine (Windows)<br>- [optional] Virtual Network Gateway<br><br>*Only in combination with Firewall in Hub:*<br>- Route table (RT-Hub) linked to 'Default' Subnet, with default route to Azure Firewall|
+|**2. Only deploy Hub or vWAN Hub**|- Resource Group (rg-Hub)<br>- Virtual Network (VNET-Hub)<br>- [optional] Subnet (AzureBastionSubnet)<br>- [optional] Subnet (AzureFirewallSubnet)<br><br>- [optional] Subnet (GatewaySubnet)<br>- [optional] Azure Bastion Host (Bastion-Hub) incl. Public IP <br>- [optional] Azure Firewall (AzFw) incl. Public IP<br>- [optional] Azure Firewall Policy (AzFwPolicy)<br>- [optional] Azure Firewall Policy rule Collection Group<br>- [optional] Virtual Network Gateway<br><br>*Only in combination with Firewall in Hub:*<br>- Route table (RT-Hub) linked to 'Default' Subnet, with default route to Azure Firewall|
 |**3. Deploy Hub or vWAN Hub and Spokes**|includes all from scenario 1 and 2, incl:<br>- VNET Peerings|
 |**4. Deploy Hub or vWAN Hub and Spokes + OnPrem**|includes all from scenario 1, 2 and 3 incl:<br>- Resource Group (rg-OnPrem)<br>- Virtual Network (VNET-OnPrem)<br>- Network Security Group (NSG-OnPrem) linked to 'Default' Subnet<br>- Subnet (Default)<br>- [optional] Subnet (AzureBastionSubnet)<br>- [optional] Subnet (GatewaySubnet)<br>- [optional] Azure Bastion Host (Bastion-Hub) incl. Public IP<br>- [optional] Azure Virtual Machine (Windows)<br><br>*Only in combination with Hub:*<br>- [optional] Site-to-Site VPN Connection to Hub Gateway
 
@@ -171,18 +169,6 @@ Within these **main** scenario's there are multiple options (but not limited to 
 - Data collection rule includes all configuration for VMInsights including Service Map (Dependency agent)
 - Dependency Agent will be installed on Windows VM's only.
 
-## Spoke VNET peerings in a Fully Meshed topology (Whitout AVNM)
-
-- With this option all Spoke VNET's will be directly connected using standard VNET peerings.
-
-- ![Fully Meshed](images/FullMeshedPeerings.png)
-
-- When you directly connect spoke virtual networks to each other in a fully meshed topology, you need to consider the potentially high number of virtual network peerings required
-  
-- ![Peerings required for Fully Meshed topology](https://learn.microsoft.com/en-us/azure/architecture/networking/media/peering-number-chart.png)
-
-- ref to MS docs: [Patterns and topologies for inter-spoke communication](https://learn.microsoft.com/en-us/azure/architecture/networking/spoke-to-spoke-networking)
-
 ## Azure Virtual Network Manager
 
 When deploying a Hub you can also deploy a Azure Virtual Network Manager (AVNM). AVNM will be deployed in the HUB resource group and will add the Spoke VNET's as 'static' members of the Network Group. Connectivity configuration is added to support HUB&Spoke topology. Configuration will be deployed using a Deployment Script and User Assigned Identity.
@@ -216,13 +202,12 @@ When deploying a Hub you can also deploy a Azure Virtual Network Manager (AVNM).
 | `deploySiteToSite` | bool | Deploy Site-to-Site VPN connection between OnPrem and Hub Gateways | True |  |
 | `deploySpokes` | bool | Deploy Spoke VNETs | True |  |
 | `deployUDRs` | bool | Dploy route tables (UDR's) to VM subnet(s) in Hub and Spokes | True |  |
-| `deployVMinHub` | bool | Deploy VM in Hub VNET | False |  |
 | `deployVMinOnPrem` | bool | Deploy VM in OnPrem VNET | True |  |
 | `deployVMsInSpokes` | bool | Deploy VM in every Spoke VNET | True |  |
 | `diagnosticWorkspaceId` | string | Workspace ID of exsisting LogAnalytics Workspace | | |
 | `firewallDNSproxy` | bool | Enable Azure Firewall DNS proxy | False | |
 | `hubBgp` | bool | Enable BGP on Hub Gateway | True |  |
-| `hubBgpAsn` | int | Hub BGP ASN | 65515 |  |
+| `hubBgpAsn` | int | Hub BGP ASN | 65010 |  |
 | `hubRgName` | string | Hub resource group pre-fix name | rg-hub |  |
 | `hubSubscriptionID` | string | SubscriptionID for HUB deployemnt | [subscription().subscriptionId] |  |
 | `hubType` | string | Deploy Hub VNET or Azuere vWAN | VWAN | `VNET` or `VWAN` |
@@ -265,10 +250,7 @@ When deploying a Hub you can also deploy a Azure Virtual Network Manager (AVNM).
 - Removed 'Deploy Bastion to Spokes'
 - Removed VNET peering fully meshed option (Deploy AVNM instead and use direct connected group)
 - Removed batched deployment of vWAN vnet connections
-
-TODO:
-
-- Modify parameter files for testing to not include Hub VM anymore
+- Modify parameter files for testing to not include Hub VM's anymore
 - Update README
 
 ### Februari 2024 updates
