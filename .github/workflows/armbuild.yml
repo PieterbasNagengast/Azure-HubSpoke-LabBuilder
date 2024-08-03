@@ -1,6 +1,8 @@
 name: LabBuilder - Bicep ARM Build
 
 on: 
+    pull_request:
+        branches: none
     workflow_dispatch:
 
 jobs:
