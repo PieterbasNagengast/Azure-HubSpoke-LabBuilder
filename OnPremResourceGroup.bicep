@@ -47,7 +47,7 @@ module vnet 'modules/vnet.bicep' = {
     vnetname: vnetName
     deployDefaultSubnet: true
     defaultSubnetPrefix: defaultSubnetPrefix
-    bastionSubnetPrefix: deployBastionInOnPrem ? bastionSubnetPrefix : ''
+    bastionSubnetPrefix: bastionSubnetPrefix
     GatewaySubnetPrefix: gatewaySubnetPrefix
     deployBastionSubnet: deployBastionInOnPrem
     deployGatewaySubnet: deployGatewayInOnPrem
