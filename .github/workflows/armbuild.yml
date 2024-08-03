@@ -1,4 +1,4 @@
-name: "LabBuilder - Bicep ARM Build"
+name: LabBuilder - Bicep ARM Build
 
 on: 
     workflow_dispatch:
