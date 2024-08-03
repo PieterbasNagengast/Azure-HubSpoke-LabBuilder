@@ -1,7 +1,10 @@
 name: LabBuilder - Bicep ARM Build
 
 on: 
-    pull_request:
+    push:
+        paths:
+            # Only run the workflow when any bicep file is changed
+            - '**.bicep'
     workflow_dispatch:
 
 jobs:
@@ -21,7 +24,7 @@ jobs:
                 bicepFilePath: ./main.bicep
                 outputFilePath: ./ARM/main.json
 
-            # commit the ./ARM/main.json file to the repository
+            # commit and push the ./ARM/main.json file to the branch that triggered the workflow
           - name: Commit ARM Template
             run: |
               git config --global user.email "
