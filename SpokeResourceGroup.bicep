@@ -28,12 +28,14 @@ var nsgName = 'NSG-Spoke${counter}'
 
 var defaultSubnetPrefix = cidrSubnet(AddressSpace, 26, 0)
 
+// Create a resource group
 resource spokerg 'Microsoft.Resources/resourceGroups@2023-07-01' = {
   name: '${spokeRgNamePrefix}${counter}'
   location: location
   tags: tagsByResource[?'Microsoft.Resources/subscriptions/resourceGroups'] ?? {}
 }
 
+// Create a VNET
 module vnet 'modules/vnet.bicep' = {
   scope: spokerg
   name: vnetName
@@ -51,6 +53,7 @@ module vnet 'modules/vnet.bicep' = {
   }
 }
 
+// Create a VM
 module vm 'modules/vm.bicep' = if (deployVMsInSpokes) {
   scope: spokerg
   name: vmName
@@ -68,6 +71,7 @@ module vm 'modules/vm.bicep' = if (deployVMsInSpokes) {
   }
 }
 
+// create NSG
 module nsg 'modules/nsg.bicep' = {
   scope: spokerg
   name: nsgName
@@ -78,6 +82,7 @@ module nsg 'modules/nsg.bicep' = {
   }
 }
 
+// Create route table
 module rt 'modules/routetable.bicep' = if (deployFirewallInHub && HubDeployed && deployUDRs) {
   scope: spokerg
   name: rtName
@@ -88,6 +93,7 @@ module rt 'modules/routetable.bicep' = if (deployFirewallInHub && HubDeployed &&
   }
 }
 
+// Create route
 module route1 'modules/route.bicep' = if (deployFirewallInHub && HubDeployed && deployUDRs) {
   scope: spokerg
   name: 'RouteToInternet'
