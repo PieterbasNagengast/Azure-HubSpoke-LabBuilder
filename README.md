@@ -251,7 +251,8 @@ When deploying a Hub you can also deploy a Azure Virtual Network Manager (AVNM).
 - Removed VNET peering fully meshed option (Deploy AVNM instead and use direct connected group)
 - Removed batched deployment of vWAN vnet connections
 - Modify parameter files for testing to not include Hub VM's anymore
-- Update README
+- Update README file
+- Update topology drawings
 
 ### Februari 2024 updates
 
