@@ -19,7 +19,7 @@ jobs:
           - name: Checkout
             uses: actions/checkout@v4
             with:
-              ref: ${{ github.event.pull_request.head.sha }}
+              ref: ${{ github.event.pull_request.base.ref }}
             
             # build the Bicep file and output the ARM template
           - name: Bicep Build and Lint
