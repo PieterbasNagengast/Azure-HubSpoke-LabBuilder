@@ -18,7 +18,9 @@ jobs:
             # Checkout the repository
           - name: Checkout
             uses: actions/checkout@v4
-                
+            with:
+              ref: ${{ github.event.pull_request.head.sha }}
+            
             # build the Bicep file and output the ARM template
           - name: Bicep Build and Lint
             uses: azure/bicep-build-action@v1.0.0
