@@ -6,6 +6,8 @@
 
 [![LabBuilder - Deploy AVNM Scenarios](https://github.com/PieterbasNagengast/Azure-HubSpoke-LabBuilder/actions/workflows/avnm.yml/badge.svg)](https://github.com/PieterbasNagengast/Azure-HubSpoke-LabBuilder/actions/workflows/avnm.yml)
 
+[![LabBuilder - Bicep ARM Build](https://github.com/PieterbasNagengast/Azure-HubSpoke-LabBuilder/actions/workflows/armbuild.yml/badge.svg?event=pull_request)](https://github.com/PieterbasNagengast/Azure-HubSpoke-LabBuilder/actions/workflows/armbuild.yml)
+
 ## Table of contents
 
 1. [Table of contents](#table-of-contents)
