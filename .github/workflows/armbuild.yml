@@ -18,7 +18,9 @@ jobs:
             # Checkout the repository
           - name: Checkout
             uses: actions/checkout@v4
-                
+            with:
+              ref: ${{ github.event.pull_request.head.ref }}
+            
             # build the Bicep file and output the ARM template
           - name: Bicep Build and Lint
             uses: azure/bicep-build-action@v1.0.0
@@ -33,7 +35,7 @@ jobs:
               git config --global user.name "github-actions[bot]"
               git add ./ARM/main.json
               git commit -m "ARM Template Build-${{ github.run_id }}"
-              git push origin HEAD:${{ github.ref_name }}
+              git push origin HEAD:${{ github.event.pull_request.head.ref }}
               
 
                 

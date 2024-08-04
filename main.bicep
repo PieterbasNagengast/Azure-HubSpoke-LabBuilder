@@ -167,11 +167,11 @@ param onpremBgpAsn int = 65020
 // Create array of all Address Spaces used for site-to-site connection from Hub to OnPrem
 var AllAddressSpaces = [for i in range(0, amountOfSpokes + 1): cidrSubnet(AddressSpace, 24, i)]
 
-// set HubType variables
+// set HubType variables 
 var isVnetHub = hubType == 'VNET'
 var isVwanHub = hubType == 'VWAN'
 
-// Deploy Hub VNET including VM, Bastion Host, Route Table, Network Security group and Azure Firewall
+// Deploy Hub VNET including Bastion Host, Route Table, Network Security group and Azure Firewall
 module hubVnet 'HubResourceGroup.bicep' = if (deployHUB && isVnetHub) {
   scope: subscription(hubSubscriptionID)
   name: '${hubRgName}-${location}-VNET'
