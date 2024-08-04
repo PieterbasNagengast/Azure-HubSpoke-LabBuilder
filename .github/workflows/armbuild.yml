@@ -31,13 +31,16 @@ jobs:
                 bicepFilePath: ./main.bicep
                 outputFilePath: ./ARM/main.json
 
-            # commit and push the ./ARM/main.json file to the branch that triggered the workflow
+            # push branch commit and push the ./ARM/main.json file to the branch that triggered the workflow
           - name: Commit ARM Template
             run: |
+
               git config --global user.email "github-actions[bot]@users.noreply.github.com"
               git config --global user.name "github-actions[bot]"
               git add ./ARM/main.json
               git commit -m "ARM Template Build-${{ github.run_id }}"
-              git push --set-upstream origin arm-build-${{ github.ref }}
+              # push branch
+              git push --set-upstream origin arm-build-${{ github.run_id }}
+              
 
                 
