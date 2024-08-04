@@ -128,7 +128,7 @@ param internetTrafficRoutingPolicy bool = false
 @description('Enable Azure vWAN routing Intent Policy for Private Traffic')
 param privateTrafficRoutingPolicy bool = false
 
-// OnPrem parameters\
+// OnPrem parameters
 @description('Deploy Virtual Network Gateway in OnPrem')
 param deployOnPrem bool = false
 
