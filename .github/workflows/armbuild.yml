@@ -27,7 +27,6 @@ jobs:
             # commit and push the ./ARM/main.json file to the branch that triggered the workflow
           - name: Commit ARM Template
             run: |
-              git config --global user.email "
               git config --global user.name "GitHub Actions"
               git add ./ARM/main.json
               git commit -m "ARM Template Build"
