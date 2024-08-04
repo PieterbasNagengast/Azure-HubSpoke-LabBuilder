@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.29.47.4906",
-      "templateHash": "16993094311153279325"
+      "templateHash": "4340450326454855651"
     }
   },
   "parameters": {
@@ -33,13 +33,13 @@
     "adminUsername": {
       "type": "string",
       "metadata": {
-        "description": "Admin username for VM"
+        "description": "Admin username for Virtual Machines"
       }
     },
     "adminPassword": {
       "type": "securestring",
       "metadata": {
-        "description": "Admin Password for VM"
+        "description": "Admin Password for Virtual Machines"
       }
     },
     "vmSizeSpoke": {
