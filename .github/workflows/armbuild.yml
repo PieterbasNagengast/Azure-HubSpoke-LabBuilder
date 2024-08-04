@@ -24,14 +24,14 @@ jobs:
             # build the Bicep file and output the ARM template
           - name: Bicep Build and Lint
             run: |
-              bicep build ./main.bicep --outdir ./ARM              
+              bicep build main.bicep --outdir ARM              
 
             # push branch commit and push the ./ARM/main.json file to the branch that triggered the workflow
           - name: Commit ARM Template
             run: |
               git config --global user.email "github-actions[bot]@users.noreply.github.com"
               git config --global user.name "github-actions[bot]"
-              git add ./ARM/main.json
+              git add ARM/main.json
               git commit -m "ARM Template Build-${{ github.run_id }}"
               git status
               git push origin HEAD:${{ github.event.pull_request.head.ref }}
