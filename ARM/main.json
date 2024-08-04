@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.29.47.4906",
-      "templateHash": "13128417007525872786"
+      "templateHash": "2866396942282851435"
     }
   },
   "parameters": {
@@ -4417,7 +4417,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.29.47.4906",
-              "templateHash": "12361434361377678110"
+              "templateHash": "8450382727461538823"
             }
           },
           "parameters": {
@@ -4517,7 +4517,9 @@
                   "defaultSubnetPrefix": {
                     "value": "[variables('defaultSubnetPrefix')]"
                   },
-                  "bastionSubnetPrefix": "[if(parameters('deployBastionInOnPrem'), createObject('value', variables('bastionSubnetPrefix')), createObject('value', ''))]",
+                  "bastionSubnetPrefix": {
+                    "value": "[variables('bastionSubnetPrefix')]"
+                  },
                   "GatewaySubnetPrefix": {
                     "value": "[variables('gatewaySubnetPrefix')]"
                   },
