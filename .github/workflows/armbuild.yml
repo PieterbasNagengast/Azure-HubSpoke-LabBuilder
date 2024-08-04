@@ -1,10 +1,7 @@
 name: LabBuilder - Bicep ARM Build
 
 on: 
-    push:
-        paths:
-            # Only run the workflow when any bicep file is changed
-            - '**.bicep'
+    pull_request: 
     workflow_dispatch:
 
 permissions:
@@ -19,10 +16,6 @@ jobs:
             # Checkout the repository
           - name: Checkout
             uses: actions/checkout@v4
-
-            # create new branch
-          - name: Create Branch
-            run: git checkout -b arm-build-${{ github.run_id }}
                 
             # build the Bicep file and output the ARM template
           - name: Bicep Build and Lint
@@ -34,13 +27,10 @@ jobs:
             # push branch commit and push the ./ARM/main.json file to the branch that triggered the workflow
           - name: Commit ARM Template
             run: |
-
               git config --global user.email "github-actions[bot]@users.noreply.github.com"
               git config --global user.name "github-actions[bot]"
               git add ./ARM/main.json
               git commit -m "ARM Template Build-${{ github.run_id }}"
-              # push branch
-              git push --set-upstream origin arm-build-${{ github.run_id }}
               
 
                 
