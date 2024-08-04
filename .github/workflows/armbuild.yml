@@ -2,6 +2,8 @@ name: LabBuilder - Bicep ARM Build
 
 on: 
     pull_request: 
+      paths:
+        - '**.bicep'
     workflow_dispatch:
 
 permissions:
