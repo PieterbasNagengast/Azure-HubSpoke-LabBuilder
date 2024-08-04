@@ -35,7 +35,7 @@ jobs:
               git config --global user.name "github-actions[bot]"
               git add ./ARM/main.json
               git commit -m "ARM Template Build-${{ github.run_id }}"
-              git push origin HEAD:${{ github.event.pull_request.head.ref }}
+              git push
               
 
                 
