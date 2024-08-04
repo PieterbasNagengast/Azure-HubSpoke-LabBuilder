@@ -1,6 +1,6 @@
 targetScope = 'subscription'
 
-// Subscriptions
+// Subscription ID's for HUB, Spoke and OnPrem deployments
 @description('SubscriptionID for HUB deployemnt')
 param hubSubscriptionID string = subscription().subscriptionId
 
