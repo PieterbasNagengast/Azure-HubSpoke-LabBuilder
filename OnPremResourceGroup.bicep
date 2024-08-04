@@ -28,13 +28,13 @@ var bastionName = 'Bastion-OnPrem'
 var gatewayName = 'Gateway-OnPrem'
 
 var defaultSubnetPrefix = cidrSubnet(AddressSpace, 26, 0)
-var bastionSubnetPrefix = cidrSubnet(AddressSpace, 27, 4)
-var gatewaySubnetPrefix = cidrSubnet(AddressSpace, 27, 5)
+var bastionSubnetPrefix = cidrSubnet(AddressSpace, 26, 1)
+var gatewaySubnetPrefix = cidrSubnet(AddressSpace, 26, 2)
 
 resource onpremrg 'Microsoft.Resources/resourceGroups@2023-07-01' = {
   name: OnPremRgName
   location: location
-  tags: contains(tagsByResource, 'Microsoft.Resources/subscriptions/resourceGroups') ? tagsByResource['Microsoft.Resources/subscriptions/resourceGroups'] : {}
+  tags: tagsByResource[?'Microsoft.Resources/subscriptions/resourceGroups'] ?? {}
 }
 
 module vnet 'modules/vnet.bicep' = {
@@ -45,11 +45,12 @@ module vnet 'modules/vnet.bicep' = {
     vnetAddressSpcae: AddressSpace
     nsgID: nsg.outputs.nsgID
     vnetname: vnetName
+    deployDefaultSubnet: true
     defaultSubnetPrefix: defaultSubnetPrefix
-    bastionSubnetPrefix: deployBastionInOnPrem ? bastionSubnetPrefix : ''
+    bastionSubnetPrefix: bastionSubnetPrefix
     GatewaySubnetPrefix: gatewaySubnetPrefix
     deployBastionSubnet: deployBastionInOnPrem
-    deployGatewaySubnet: true
+    deployGatewaySubnet: deployGatewayInOnPrem
     tagsByResource: tagsByResource
   }
 }

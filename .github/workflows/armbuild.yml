@@ -1,0 +1,36 @@
+name: LabBuilder - Bicep ARM Build
+
+on: 
+    push:
+        paths:
+            # Only run the workflow when any bicep file is changed
+            - '**.bicep'
+    workflow_dispatch:
+
+jobs:
+    BicepBuildandLint:
+        name: "Bicep Build and Lint"
+        runs-on: ubuntu-latest
+    
+        steps:
+            # Checkout the repository
+          - name: Checkout
+            uses: actions/checkout@v4
+    
+            # build the Bicep file and output the ARM template
+          - name: Bicep Build and Lint
+            uses: azure/bicep-build-action@v1.0.0
+            with:
+                bicepFilePath: ./main.bicep
+                outputFilePath: ./ARM/main.json
+
+            # commit and push the ./ARM/main.json file to the branch that triggered the workflow
+          - name: Commit ARM Template
+            run: |
+              git config --global user.email "
+              git config --global user.name "GitHub Actions"
+              git add ./ARM/main.json
+              git commit -m "ARM Template Build"
+              git push
+
+                

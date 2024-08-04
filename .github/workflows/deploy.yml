@@ -7,6 +7,12 @@ on:
     branches: none
   workflow_dispatch:
     inputs:
+      LabBuilderLocation:
+        type: choice
+        options:
+          - swedencentral
+        required: true
+        default: swedencentral
       LabBuilderType:
         type: choice
         options:
@@ -26,6 +32,9 @@ on:
       LabBuilderCleanup:
         type: boolean
         required: true
+      LabBuilderLocation:
+        type: string
+        required: true
 
 jobs:
   BicepBuildandLint:
@@ -34,7 +43,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Bicep Build and Lint
         run: |
@@ -62,17 +71,17 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Azure Login
-        uses: azure/login@v1
+        uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
       - name: "Validating ${{ inputs.LabBuilderType }} scenario ${{ strategy.job-index }}"
-        uses: Azure/arm-deploy@v1
+        uses: Azure/arm-deploy@v2
         with:
           scope: "subscription"
           subscriptionId: ${{ secrets.HUB_SUBSCRIPTION_ID }}
-          region: westus3
+          region: ${{ inputs.LabBuilderLocation}}
           template: main.bicep
           parameters: 
             ARM/params/${{ matrix.scenarios }}
@@ -86,13 +95,13 @@ jobs:
             hubRgName="LabBuilderValidation-${{ inputs.LabBuilderType }}-hub"
             onpremRgName="LabBuilderValidation-${{ inputs.LabBuilderType }}-onprem"
           deploymentMode: "validate"
-          deploymentName: "LabBuilderValidation-${{ inputs.LabBuilderType }}"
+          deploymentName: "LabBuilderValidation-${{ inputs.LabBuilderType }}-${{ github.run_id }}"
       - name: "Deploy ${{ inputs.LabBuilderType }} scenario ${{ strategy.job-index }}"
-        uses: Azure/arm-deploy@v1
+        uses: Azure/arm-deploy@v2
         with:
           scope: "subscription"
           subscriptionId: ${{ secrets.HUB_SUBSCRIPTION_ID }}
-          region: westus3
+          region: ${{ inputs.LabBuilderLocation}}
           template: main.bicep
           parameters: 
             ARM/params/${{ matrix.scenarios }}
@@ -105,7 +114,7 @@ jobs:
             spokeRgNamePrefix="LabBuilderValidation-${{ inputs.LabBuilderType }}-spoke"
             hubRgName="LabBuilderValidation-${{ inputs.LabBuilderType }}-hub"
             onpremRgName="LabBuilderValidation-${{ inputs.LabBuilderType }}-onprem"
-          deploymentName: "LabBuilderValidation-${{ inputs.LabBuilderType }}"
+          deploymentName: "LabBuilderValidation-${{ inputs.LabBuilderType }}-${{ github.run_id }}"
       - name: "Waiting for vWAN routing to finish deploying"
         if: inputs.LabBuilderType == 'vwan'
         run: |
@@ -113,7 +122,7 @@ jobs:
           while true
           do
             sleep 10
-            status=$(az network vhub show -g LabBuilderValidation-${{ inputs.LabBuilderType }}-hub -n HUB-westus3 --query routingState -o tsv)
+            status=$(az network vhub show -g LabBuilderValidation-${{ inputs.LabBuilderType }}-hub -n HUB-${{ inputs.LabBuilderLocation}} --query routingState -o tsv)
             echo "vWAN Hub Routing status: $status"
             if [ "$status" != "Provisioning" ]; then
               echo "vWAN Hub Routing status: $status"
@@ -126,7 +135,7 @@ jobs:
           while true
           do
             sleep 10
-            status=$(az network vhub show -g LabBuilderValidation-${{ inputs.LabBuilderType }}-hub -n HUB-westus3 --query provisioningState -o tsv)
+            status=$(az network vhub show -g LabBuilderValidation-${{ inputs.LabBuilderType }}-hub -n HUB-${{ inputs.LabBuilderLocation}} --query provisioningState -o tsv)
             echo "vWAN status: $status"
             if [ "$status" != "Updating" ]; then
               echo "vWAN status: $status"

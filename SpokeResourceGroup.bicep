@@ -3,8 +3,6 @@ targetScope = 'subscription'
 param location string
 param AddressSpace string
 param counter int
-param deployBastionInSpoke bool
-param bastionSku string
 param adminUsername string
 @secure()
 param adminPassword string
@@ -17,7 +15,6 @@ param spokeRgNamePrefix string
 param vmSize string
 param tagsByResource object
 param osType string
-param hubDefaultSubnetPrefix string
 param firewallDNSproxy bool
 
 param diagnosticWorkspaceId string
@@ -28,15 +25,13 @@ var vnetName = 'VNET-Spoke${counter}'
 var vmName = 'VM-Spoke${counter}'
 var rtName = 'RT-Spoke${counter}'
 var nsgName = 'NSG-Spoke${counter}'
-var bastionName = 'Bastion-Spoke${counter}'
 
 var defaultSubnetPrefix = cidrSubnet(AddressSpace, 26, 0)
-var bastionSubnetPrefix = cidrSubnet(AddressSpace, 27, 4)
 
 resource spokerg 'Microsoft.Resources/resourceGroups@2023-07-01' = {
   name: '${spokeRgNamePrefix}${counter}'
   location: location
-  tags: contains(tagsByResource, 'Microsoft.Resources/subscriptions/resourceGroups') ? tagsByResource['Microsoft.Resources/subscriptions/resourceGroups'] : {}
+  tags: tagsByResource[?'Microsoft.Resources/subscriptions/resourceGroups'] ?? {}
 }
 
 module vnet 'modules/vnet.bicep' = {
@@ -48,9 +43,8 @@ module vnet 'modules/vnet.bicep' = {
     nsgID: nsg.outputs.nsgID
     rtDefID: deployFirewallInHub && HubDeployed && deployUDRs ? rt.outputs.rtID : 'none'
     vnetname: vnetName
+    deployDefaultSubnet: true
     defaultSubnetPrefix: defaultSubnetPrefix
-    bastionSubnetPrefix: deployBastionInSpoke ? bastionSubnetPrefix : ''
-    deployBastionSubnet: deployBastionInSpoke
     tagsByResource: tagsByResource
     firewallDNSproxy: firewallDNSproxy
     azFwIp: AzureFirewallpip
@@ -84,18 +78,6 @@ module nsg 'modules/nsg.bicep' = {
   }
 }
 
-module bastion 'modules/bastion.bicep' = if (deployBastionInSpoke) {
-  scope: spokerg
-  name: bastionName
-  params: {
-    location: location
-    subnetID: deployBastionInSpoke ? vnet.outputs.bastionSubnetID : ''
-    bastionName: bastionName
-    tagsByResource: tagsByResource
-    bastionSku: bastionSku
-  }
-}
-
 module rt 'modules/routetable.bicep' = if (deployFirewallInHub && HubDeployed && deployUDRs) {
   scope: spokerg
   name: rtName
@@ -112,16 +94,6 @@ module route1 'modules/route.bicep' = if (deployFirewallInHub && HubDeployed && 
   params: {
     routeAddressPrefix: '0.0.0.0/0'
     routeName: deployFirewallInHub && HubDeployed && deployUDRs ? '${rt.outputs.rtName}/toInternet' : 'dummy1'
-    routeNextHopIpAddress: deployFirewallInHub && HubDeployed && deployUDRs ? AzureFirewallpip : '1.2.3.4'
-  }
-}
-
-module route2 'modules/route.bicep' = if (deployFirewallInHub && HubDeployed && deployUDRs) {
-  scope: spokerg
-  name: 'RouteToLocal'
-  params: {
-    routeAddressPrefix: hubDefaultSubnetPrefix
-    routeName: deployFirewallInHub && HubDeployed && deployUDRs ? '${rt.outputs.rtName}/toHubDefaultSubnet' : 'dummy2'
     routeNextHopIpAddress: deployFirewallInHub && HubDeployed && deployUDRs ? AzureFirewallpip : '1.2.3.4'
   }
 }

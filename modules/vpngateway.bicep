@@ -42,7 +42,7 @@ resource vpngw 'Microsoft.Network/virtualNetworkGateways@2023-06-01' = {
       }
     ]
   }
-  tags: contains(tagsByResource, 'Microsoft.Network/virtualNetworkGateways') ? tagsByResource['Microsoft.Network/virtualNetworkGateways'] : {}
+  tags: tagsByResource[?'Microsoft.Network/virtualNetworkGateways'] ?? {}
 }
 
 resource vpngwpip 'Microsoft.Network/publicIPAddresses@2023-06-01' = {
@@ -56,7 +56,7 @@ resource vpngwpip 'Microsoft.Network/publicIPAddresses@2023-06-01' = {
     tier: 'Regional'
     name: 'Standard'
   }
-  tags: contains(tagsByResource, 'Microsoft.Network/publicIPAddresses') ? tagsByResource['Microsoft.Network/publicIPAddresses'] : {}
+  tags: tagsByResource[?'Microsoft.Network/publicIPAddresses'] ?? {}
 }
 
 output vpnGwPublicIP string = vpngwpip.properties.ipAddress

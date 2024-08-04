@@ -16,15 +16,19 @@ resource localNetworkGateway 'Microsoft.Network/localNetworkGateways@2023-06-01'
   location: location
   properties: {
     gatewayIpAddress: LocalGatewayPublicIP
-    bgpSettings: enableBgp ? {
-      asn: BgpAsn
-      bgpPeeringAddress: BgpPeeringAddress
-    } : null
-    localNetworkAddressSpace: enableBgp ? {} : {
-      addressPrefixes: LocalGatewayAddressPrefixes
-    }
+    bgpSettings: enableBgp
+      ? {
+          asn: BgpAsn
+          bgpPeeringAddress: BgpPeeringAddress
+        }
+      : null
+    localNetworkAddressSpace: enableBgp
+      ? {}
+      : {
+          addressPrefixes: LocalGatewayAddressPrefixes
+        }
   }
-  tags: contains(tagsByResource, 'Microsoft.Network/localNetworkGateways') ? tagsByResource['Microsoft.Network/localNetworkGateways'] : {}
+  tags: tagsByResource[?'Microsoft.Network/localNetworkGateways'] ?? {}
 }
 
 resource connection 'Microsoft.Network/connections@2023-06-01' = {
@@ -47,5 +51,5 @@ resource connection 'Microsoft.Network/connections@2023-06-01' = {
       properties: {}
     }
   }
-  tags: contains(tagsByResource, 'Microsoft.Network/connections') ? tagsByResource['Microsoft.Network/connections'] : {}
+  tags: tagsByResource[?'Microsoft.Network/connections'] ?? {}
 }

@@ -20,7 +20,7 @@ var gatewayName = 'Gateway-Hub'
 resource hubrg 'Microsoft.Resources/resourceGroups@2023-07-01' = {
   name: hubRgName
   location: location
-  tags: contains(tagsByResource, 'Microsoft.Resources/subscriptions/resourceGroups') ? tagsByResource['Microsoft.Resources/subscriptions/resourceGroups'] : {}
+  tags: tagsByResource[?'Microsoft.Resources/subscriptions/resourceGroups'] ?? {}
 }
 
 // Deploy vWan and vWan Hub

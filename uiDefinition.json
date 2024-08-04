@@ -167,6 +167,10 @@
 									{
 										"label": "Basic",
 										"value": "Basic"
+									},
+									{
+										"label": "Premium",
+										"value": "Premium"
 									}
 								]
 							},
@@ -218,9 +222,9 @@
 							"name": "hubBgpAsn",
 							"type": "Microsoft.Common.TextBox",
 							"label": "Hub BGP ASN",
-							"defaultValue": "65515",
-							"toolTip": "Use only allowed characters",
-							"placeholder": "",
+							"defaultValue": "",
+							"toolTip": "Use only allowed characters. For VNET deployments: default BGP ASN for Hub = 65010. For vWAN deployments: default BGP for vWAN Hub = 65515",
+							"placeholder": "[if(equals(steps('HubVNET').VNETorVWAN,'VNET'),65010,65515)]",
 							"multiLine": false,
 							"constraints": {
 								"required": true,
@@ -231,7 +235,7 @@
 									},
 									{
 										"isValid": "[or(and(equals(steps('HubVNET').hubBgpAsn,'65515'),equals(steps('HubVNET').VNETorVWAN,'VWAN')),and(not(equals(steps('HubVNET').hubBgpAsn,'65515')),equals(steps('HubVNET').VNETorVWAN,'VNET')))]",
-										"message": "Cannot change BGP ASN. Azure Virtual vWAN requires BGP ASN 65515"
+										"message": "Use only allowed characters. For VNET deployments: default BGP ASN for Hub = 65010. For vWAN deployments: default BGP for vWAN Hub = 6551. Note1: Hub BGP and OnPrem BGP cannot be the same. Note2: BGP on Site-to-Site VPN tunnels between Azure VPN gateways (VNET only) cannot use the Azure default BGP ASN 65515, therefore defaulting to BGP ASN 65010."
 									}
 								]
 							},
@@ -448,7 +452,7 @@
 						{
 							"name": "deployVnetPeeringMesh",
 							"type": "Microsoft.Common.OptionsGroup",
-							"label": "Directly connect Spoke VNET's in a Fully Meshed topology",
+							"label": "Directly connect Spoke VNET's in AVNM topology",
 							"defaultValue": "no",
 							"toolTip": "directly connect spoke virtual networks to each other in a fully meshed topology using standard VNET peerings.",
 							"constraints": {
@@ -464,7 +468,7 @@
 								],
 								"required": true
 							},
-							"visible": "[equals(steps('SpokeVNETs').deploySpokes,true)]"
+							"visible": "[equals(steps('HubVNET').deployVnetPeeringAVNM,true)]"
 						},
 						{
 							"name": "PeeringMeshInfoAVNM",
@@ -474,57 +478,6 @@
 								"style": "Info"
 							},
 							"visible": "[and(equals(steps('SpokeVNETs').deployVnetPeeringMesh,true),equals(steps('HubVNET').deployVnetPeeringAVNM,true))]"
-						},
-						{
-							"name": "PeeringMeshInfo",
-							"type": "Microsoft.Common.InfoBox",
-							"options": {
-								"text": "[concat(string(mul(sub(steps('SpokeVNETs').amountOfSpokes,1),steps('SpokeVNETs').amountOfSpokes)), 'x VNET Peerings are created for ', string(steps('SpokeVNETs').amountOfSpokes),'x Spoke VNETs')]",
-								"style": "Warning"
-							},
-							"visible": "[and(equals(steps('SpokeVNETs').deployVnetPeeringMesh,true),equals(steps('HubVNET').deployVnetPeeringAVNM,false))]"
-						},
-						{
-							"name": "deployBastionInSpoke",
-							"type": "Microsoft.Common.OptionsGroup",
-							"label": "Deploy Bastion In Spoke",
-							"defaultValue": "no",
-							"toolTip": "Deploy Bastion Host in every Spoke VNET",
-							"constraints": {
-								"allowedValues": [
-									{
-										"label": "yes",
-										"value": true
-									},
-									{
-										"label": "no",
-										"value": false
-									}
-								],
-								"required": true
-							},
-							"visible": "[equals(steps('SpokeVNETs').deploySpokes,true)]"
-						},
-						{
-							"name": "bastionInSpokeSKU",
-							"type": "Microsoft.Common.DropDown",
-							"label": "Azure Bastion SKU",
-							"defaultValue": "Basic",
-							"toolTip": "Azure Bastion SKU: Basic or Standard",
-							"constraints": {
-								"required": false,
-								"allowedValues": [
-									{
-										"label": "Standard",
-										"value": "Standard"
-									},
-									{
-										"label": "Basic",
-										"value": "Basic"
-									}
-								]
-							},
-							"visible": "[equals(steps('SpokeVNETs').deployBastionInSpoke,true)]"
 						}
 					]
 				},
@@ -673,7 +626,7 @@
 							"name": "onpremBgpAsn",
 							"type": "Microsoft.Common.TextBox",
 							"label": "OnPrem BGP ASN",
-							"defaultValue": "65010",
+							"defaultValue": "65020",
 							"toolTip": "Use only allowed characters",
 							"placeholder": "",
 							"multiLine": false,
@@ -743,27 +696,6 @@
 					"label": "Virtual Machines",
 					"elements": [
 						{
-							"name": "deployVMinHub",
-							"type": "Microsoft.Common.OptionsGroup",
-							"label": "Deploy VM in Hub",
-							"defaultValue": "no",
-							"toolTip": "Deploy VM in Hub VNET",
-							"constraints": {
-								"allowedValues": [
-									{
-										"label": "yes",
-										"value": true
-									},
-									{
-										"label": "no",
-										"value": false
-									}
-								],
-								"required": true
-							},
-							"visible": "[and(coalesce(steps('HubVNET').deployHUB,false),equals(steps('HubVNET').VNETorVWAN,'VNET'))]"
-						},
-						{
 							"name": "deployVMsInSpokes",
 							"type": "Microsoft.Common.OptionsGroup",
 							"label": "Deploy VM's In Spokes",
@@ -821,7 +753,7 @@
 								"text": "OS types: Windows = Windows Server 2022 Datacenter - Gen2, Linux = Ubuntu Server 22.04 LTS Gen2",
 								"style": "Info"
 							},
-							"visible": "[or(equals(steps('VirtualMachines').deployVMsInSpokes,true),equals(steps('VirtualMachines').deployVMinHub,true),equals(steps('VirtualMachines').deployVMinOnPrem,true))]"
+							"visible": "[or(equals(steps('VirtualMachines').deployVMsInSpokes,true),equals(steps('VirtualMachines').deployVMinOnPrem,true))]"
 						},
 						{
 							"name": "deployAMA",
@@ -842,7 +774,7 @@
 								],
 								"required": true
 							},
-							"visible": "[or(equals(steps('VirtualMachines').deployVMsInSpokes,true),equals(steps('VirtualMachines').deployVMinHub,true),equals(steps('VirtualMachines').deployVMinOnPrem,true))]"
+							"visible": "[or(equals(steps('VirtualMachines').deployVMsInSpokes,true),equals(steps('VirtualMachines').deployVMinOnPrem,true))]"
 						},
 						{
 							"name": "lawSelectorForAMA",
@@ -850,62 +782,6 @@
 							"label": "LogAnalytics Workspace",
 							"resourceType": "Microsoft.OperationalInsights/workspaces",
 							"visible": "[equals(steps('VirtualMachines').deployAMA,true)]"
-						},
-						{
-							"name": "HubvmSizeSection",
-							"type": "Microsoft.Common.Section",
-							"label": "Hub Virtual Machines settings:",
-							"elements": [
-								{
-									"name": "osType",
-									"type": "Microsoft.Common.OptionsGroup",
-									"label": "Virtual Machine OS Type (Hub)",
-									"defaultValue": "Windows",
-									"toolTip": "Virtual Machine OS type. Windows or Linux. Default = Windows",
-									"constraints": {
-										"allowedValues": [
-											{
-												"label": "Windows",
-												"value": "Windows"
-											},
-											{
-												"label": "Linux",
-												"value": "Linux"
-											}
-										],
-										"required": true
-									},
-									"visible": true
-								},
-								{
-									"name": "LinuxDAInfo",
-									"type": "Microsoft.Common.InfoBox",
-									"options": {
-										"text": "VM Dependency Agent won't be installed on Linux.",
-										"style": "Warning"
-									},
-									"visible": "[and(equals(steps('VirtualMachines').HubvmSizeSection.osType,'Linux'),equals(steps('VirtualMachines').deployAMA,true))]"
-								},
-								{
-									"name": "vmSize",
-									"type": "Microsoft.Compute.SizeSelector",
-									"label": "Virtual Machine SKU Size (Hub)",
-									"toolTip": "Virtual Machine SKU Siz. Default = Standard_B2s",
-									"recommendedSizes": [
-										"Standard_B2s"
-									],
-									"constraints": {
-										"allowedSizes": []
-									},
-									"options": {
-										"hideDiskTypeFilter": false
-									},
-									"osPlatform": "Windows",
-									"count": 1,
-									"visible": true
-								}
-							],
-							"visible": "[equals(steps('VirtualMachines').deployVMinHub,true)]"
 						},
 						{
 							"name": "SpokevmSizeSection",
@@ -1017,7 +893,7 @@
 								"text": "Enter Local Admin Username and Password for Virtual Machine deployement.",
 								"style": "Info"
 							},
-							"visible": "[or(equals(steps('VirtualMachines').deployVMsInSpokes,true),equals(steps('VirtualMachines').deployVMinHub,true),equals(steps('VirtualMachines').deployVMinOnPrem,true))]"
+							"visible": "[or(equals(steps('VirtualMachines').deployVMsInSpokes,true),equals(steps('VirtualMachines').deployVMinOnPrem,true))]"
 						},
 						{
 							"name": "adminUsername",
@@ -1028,7 +904,7 @@
 							"constraints": {
 								"required": true
 							},
-							"visible": "[or(equals(steps('VirtualMachines').deployVMsInSpokes,true),equals(steps('VirtualMachines').deployVMinHub,true),equals(steps('VirtualMachines').deployVMinOnPrem,true))]"
+							"visible": "[or(equals(steps('VirtualMachines').deployVMsInSpokes,true),equals(steps('VirtualMachines').deployVMinOnPrem,true))]"
 						},
 						{
 							"name": "adminPassword",
@@ -1047,7 +923,7 @@
 							"options": {
 								"hideConfirmation": false
 							},
-							"visible": "[or(equals(steps('VirtualMachines').deployVMsInSpokes,true),equals(steps('VirtualMachines').deployVMinHub,true),equals(steps('VirtualMachines').deployVMinOnPrem,true))]"
+							"visible": "[or(equals(steps('VirtualMachines').deployVMsInSpokes,true),equals(steps('VirtualMachines').deployVMinOnPrem,true))]"
 						}
 					]
 				},
@@ -1089,11 +965,9 @@
 				"adminUsername": "[coalesce(steps('VirtualMachines').adminUsername,'')]",
 				"adminPassword": "[coalesce(steps('VirtualMachines').adminPassword.password,'')]",
 				"deployVMsInSpokes": "[coalesce(steps('VirtualMachines').deployVMsInSpokes,false)]",
-				"deployVMinHub": "[coalesce(steps('VirtualMachines').deployVMinHub,false)]",
 				"deployVMinOnPrem": "[coalesce(steps('VirtualMachines').deployVMinOnPrem,false)]",
 				"deploySpokes": "[coalesce(steps('SpokeVNETs').deploySpokes,false)]",
 				"amountOfSpokes": "[steps('SpokeVNETs').amountOfSpokes]",
-				"deployBastionInSpoke": "[coalesce(steps('SpokeVNETs').deployBastionInSpoke,false)]",
 				"deployVnetPeeringMesh": "[coalesce(steps('SpokeVNETs').deployVnetPeeringMesh,false)]",
 				"deployHUB": "[coalesce(steps('HubVNET').deployHUB,false)]",
 				"hubType": "[steps('HubVNET').VNETorVWAN]",
@@ -1121,12 +995,9 @@
 				"spokeSubscriptionID": "[steps('SpokeVNETs').spokeSubSection.spokeSubscriptionID.subscriptionId]",
 				"onPremSubscriptionID": "[steps('OnPrem').onPremSubSection.onPremSubscriptionID.subscriptionId]",
 				"bastionInHubSKU": "[steps('HubVNET').bastionInHubSKU]",
-				"bastionInSpokeSKU": "[steps('SpokeVNETs').bastionInSpokeSKU]",
 				"bastionInOnPremSKU": "[steps('OnPrem').bastionInOnPremSKU]",
-				"vmSizeHub": "[steps('VirtualMachines').HubvmSizeSection.vmSize]",
 				"vmSizeSpoke": "[steps('VirtualMachines').SpokevmSizeSection.vmSize]",
 				"vmSizeOnPrem": "[steps('VirtualMachines').OnPremvmSizeSection.vmSize]",
-				"osTypeHub": "[steps('VirtualMachines').HubvmSizeSection.osType]",
 				"osTypeSpoke": "[steps('VirtualMachines').SpokevmSizeSection.osType]",
 				"osTypeOnPrem": "[steps('VirtualMachines').OnPremvmSizeSection.osType]",
 				"diagnosticWorkspaceId": "[steps('VirtualMachines').lawSelectorForAMA.id]",

@@ -41,7 +41,7 @@ resource vpnsite 'Microsoft.Network/vpnSites@2022-11-01' = {
       id: vwanID
     }
   }
-  tags: contains(tagsByResource, 'Microsoft.Network/vpnSites') ? tagsByResource['Microsoft.Network/vpnSites'] : {}
+  tags: tagsByResource[?'Microsoft.Network/vpnSites'] ?? {}
 }
 
 resource vpnconnection 'Microsoft.Network/vpnGateways/vpnConnections@2022-11-01' = {
@@ -57,7 +57,11 @@ resource vpnconnection 'Microsoft.Network/vpnGateways/vpnConnections@2022-11-01'
       propagatedRouteTables: {
         ids: [
           {
-            id: resourceId('Microsoft.Network/virtualHubs/hubRouteTables', vwanHubName, propagateToNoneRouteTable ? 'noneRouteTable' : 'defaultRouteTable')
+            id: resourceId(
+              'Microsoft.Network/virtualHubs/hubRouteTables',
+              vwanHubName,
+              propagateToNoneRouteTable ? 'noneRouteTable' : 'defaultRouteTable'
+            )
           }
         ]
         labels: [

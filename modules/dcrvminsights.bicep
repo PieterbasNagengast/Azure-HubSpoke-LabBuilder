@@ -2,7 +2,7 @@ param location string
 param diagnosticWorkspaceId string
 param tagsByResource object = {}
 
-resource dcr 'Microsoft.Insights/dataCollectionRules@2022-06-01' = {
+resource dcr 'Microsoft.Insights/dataCollectionRules@2023-03-11' = {
   name: 'MSVMI-LabBuilder'
   location: location
   properties: {
@@ -58,7 +58,7 @@ resource dcr 'Microsoft.Insights/dataCollectionRules@2022-06-01' = {
       }
     ]
   }
-  tags: contains(tagsByResource, 'Microsoft.Insights/dataCollectionRules') ? tagsByResource['Microsoft.Insights/dataCollectionRules'] : {}
+  tags: tagsByResource[?'Microsoft.Insights/dataCollectionRules'] ?? {}
 }
 
 output dcrID string = dcr.id
