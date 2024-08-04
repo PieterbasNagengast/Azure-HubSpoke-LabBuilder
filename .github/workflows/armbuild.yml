@@ -23,10 +23,8 @@ jobs:
             
             # build the Bicep file and output the ARM template
           - name: Bicep Build and Lint
-            uses: azure/bicep-build-action@v1.0.0
-            with:
-                bicepFilePath: ./main.bicep
-                outputFilePath: ./ARM/main.json
+            run: |
+              bicep build ./main.bicep --outdir ./ARM              
 
             # push branch commit and push the ./ARM/main.json file to the branch that triggered the workflow
           - name: Commit ARM Template
@@ -35,7 +33,7 @@ jobs:
               git config --global user.name "github-actions[bot]"
               git add ./ARM/main.json
               git commit -m "ARM Template Build-${{ github.run_id }}"
-              git push
+              git push origin HEAD:${{ github.event.pull_request.head.ref }}
               
 
                 
