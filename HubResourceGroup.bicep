@@ -32,6 +32,7 @@ var hubVnetName = 'VNET-Hub'
 var firewallName = 'Firewall-Hub'
 var gatewayName = 'Gateway-Hub'
 
+// Create the resource group for the hub
 resource hubrg 'Microsoft.Resources/resourceGroups@2023-07-01' = {
   name: hubRgName
   location: location

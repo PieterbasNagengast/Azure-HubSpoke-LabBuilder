@@ -11,10 +11,10 @@ param spokeSubscriptionID string = subscription().subscriptionId
 param onPremSubscriptionID string = subscription().subscriptionId
 
 // Virtual Machine parameters
-@description('Admin username for VM')
+@description('Admin username for Virtual Machines')
 param adminUsername string
 
-@description('Admin Password for VM')
+@description('Admin Password for Virtual Machines')
 @secure()
 param adminPassword string
 
