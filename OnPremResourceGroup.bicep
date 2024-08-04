@@ -31,12 +31,14 @@ var defaultSubnetPrefix = cidrSubnet(AddressSpace, 26, 0)
 var bastionSubnetPrefix = cidrSubnet(AddressSpace, 26, 1)
 var gatewaySubnetPrefix = cidrSubnet(AddressSpace, 26, 2)
 
+// Create a resource group
 resource onpremrg 'Microsoft.Resources/resourceGroups@2023-07-01' = {
   name: OnPremRgName
   location: location
   tags: tagsByResource[?'Microsoft.Resources/subscriptions/resourceGroups'] ?? {}
 }
 
+// Create a VNET
 module vnet 'modules/vnet.bicep' = {
   scope: onpremrg
   name: vnetName
@@ -55,6 +57,7 @@ module vnet 'modules/vnet.bicep' = {
   }
 }
 
+// Create a VM
 module vm 'modules/vm.bicep' = if (deployVMsInOnPrem) {
   scope: onpremrg
   name: vmName
@@ -72,6 +75,7 @@ module vm 'modules/vm.bicep' = if (deployVMsInOnPrem) {
   }
 }
 
+// Create a NSG
 module nsg 'modules/nsg.bicep' = {
   scope: onpremrg
   name: nsgName
@@ -82,6 +86,7 @@ module nsg 'modules/nsg.bicep' = {
   }
 }
 
+// Create a Bastion
 module bastion 'modules/bastion.bicep' = if (deployBastionInOnPrem) {
   scope: onpremrg
   name: bastionName
@@ -94,6 +99,7 @@ module bastion 'modules/bastion.bicep' = if (deployBastionInOnPrem) {
   }
 }
 
+// Create a VPN Gateway
 module vpngw 'modules/vpngateway.bicep' = if (deployGatewayInOnPrem) {
   scope: onpremrg
   name: gatewayName
