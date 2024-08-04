@@ -28,7 +28,7 @@ jobs:
           - name: Commit ARM Template
             run: |
               git config --global user.email "pieterbas@azureitis.nl"	
-              git config --global user.name "GitHub Actions"
+              git config --global user.name "PieterbasNagengast"
               git add ./ARM/main.json
               git commit -m "ARM Template Build"
               git push
