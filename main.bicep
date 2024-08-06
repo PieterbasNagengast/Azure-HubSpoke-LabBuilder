@@ -66,6 +66,9 @@ param deployVMsInSpokes bool = false
 @description('Directly connect VNET Spokes (Fully Meshed Topology)')
 param deployVnetPeeringMesh bool = false
 
+@description('Enable Private Subnet in Default Subnet in Spoke VNETs')
+param EnablePrivateSubnet bool = false
+
 // Hub VNET Parameters
 @description('Deploy Hub')
 param deployHUB bool = true
@@ -243,6 +246,7 @@ module spokeVnets 'SpokeResourceGroup.bicep' = [
       dcrID: deployHUB && isVnetHub
         ? hubVnet.outputs.dcrvminsightsID
         : deployHUB && isVwanHub ? vwan.outputs.dcrvminsightsID : ''
+      EnablePrivateSubnet: EnablePrivateSubnet
     }
   }
 ]

@@ -478,6 +478,27 @@
 								"style": "Info"
 							},
 							"visible": "[and(equals(steps('SpokeVNETs').deployVnetPeeringMesh,true),equals(steps('HubVNET').deployVnetPeeringAVNM,true))]"
+						},
+						{
+							"name": "EnablePrivateSubnet",
+							"type": "Microsoft.Common.OptionsGroup",
+							"label": "Enable Private Subnet",
+							"defaultValue": "no",
+							"toolTip": "Enable Private Subnet on Default Subnet in Spoke VNET/'s",
+							"constraints": {
+								"allowedValues": [
+									{
+										"label": "yes",
+										"value": true
+									},
+									{
+										"label": "no",
+										"value": false
+									}
+								],
+								"required": true
+							},
+							"visible": "[and(equals(steps('SpokeVNETs').deploySpokes,true),equals(steps('HubVNET').deployFirewallInHub,true),equals(steps('HubVNET').deployUDRs,true))]"
 						}
 					]
 				},
@@ -967,6 +988,7 @@
 				"deployVMsInSpokes": "[coalesce(steps('VirtualMachines').deployVMsInSpokes,false)]",
 				"deployVMinOnPrem": "[coalesce(steps('VirtualMachines').deployVMinOnPrem,false)]",
 				"deploySpokes": "[coalesce(steps('SpokeVNETs').deploySpokes,false)]",
+				"EnablePrivateSubnet": "[coalesce(steps('SpokeVNETs').EnablePrivateSubnet,false)]",
 				"amountOfSpokes": "[steps('SpokeVNETs').amountOfSpokes]",
 				"deployVnetPeeringMesh": "[coalesce(steps('SpokeVNETs').deployVnetPeeringMesh,false)]",
 				"deployHUB": "[coalesce(steps('HubVNET').deployHUB,false)]",

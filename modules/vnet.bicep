@@ -15,6 +15,7 @@ param deployGatewaySubnet bool = false
 param tagsByResource object = {}
 param firewallDNSproxy bool = false
 param azFwIp string = ''
+param EnablePrivateSubnet bool = false
 
 var defaultSubnet = deployDefaultSubnet
   ? [
@@ -24,6 +25,7 @@ var defaultSubnet = deployDefaultSubnet
           addressPrefix: defaultSubnetPrefix
           networkSecurityGroup: nsgID == 'none' ? null : json('{"id": "${nsgID}"}')
           routeTable: rtDefID == 'none' ? null : json('{"id": "${rtDefID}"}"')
+          defaultOutboundAccess: EnablePrivateSubnet
         }
       }
     ]

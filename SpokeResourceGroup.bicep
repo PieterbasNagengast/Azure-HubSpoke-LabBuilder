@@ -16,6 +16,7 @@ param vmSize string
 param tagsByResource object
 param osType string
 param firewallDNSproxy bool
+param EnablePrivateSubnet bool
 
 param diagnosticWorkspaceId string
 
@@ -48,6 +49,7 @@ module vnet 'modules/vnet.bicep' = {
     tagsByResource: tagsByResource
     firewallDNSproxy: firewallDNSproxy
     azFwIp: AzureFirewallpip
+    EnablePrivateSubnet: EnablePrivateSubnet && deployFirewallInHub && deployUDRs
   }
 }
 
