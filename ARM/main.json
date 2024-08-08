@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.29.47.4906",
-      "templateHash": "4340450326454855651"
+      "templateHash": "15267482503852963843"
     }
   },
   "parameters": {
@@ -139,6 +139,13 @@
       "defaultValue": false,
       "metadata": {
         "description": "Directly connect VNET Spokes (Fully Meshed Topology)"
+      }
+    },
+    "EnablePrivateSubnet": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Enable Private Subnet in Default Subnet in Spoke VNETs"
       }
     },
     "deployHUB": {
@@ -423,7 +430,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.29.47.4906",
-              "templateHash": "8628231579858590847"
+              "templateHash": "15050937809281611249"
             }
           },
           "parameters": {
@@ -557,7 +564,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.29.47.4906",
-                      "templateHash": "7931326192284124820"
+                      "templateHash": "14298496357464947178"
                     }
                   },
                   "parameters": {
@@ -624,10 +631,14 @@
                     "azFwIp": {
                       "type": "string",
                       "defaultValue": ""
+                    },
+                    "EnablePrivateSubnet": {
+                      "type": "bool",
+                      "defaultValue": false
                     }
                   },
                   "variables": {
-                    "defaultSubnet": "[if(parameters('deployDefaultSubnet'), createArray(createObject('name', 'default', 'properties', createObject('addressPrefix', parameters('defaultSubnetPrefix'), 'networkSecurityGroup', if(equals(parameters('nsgID'), 'none'), null(), json(format('{{\"id\": \"{0}\"}}', parameters('nsgID')))), 'routeTable', if(equals(parameters('rtDefID'), 'none'), null(), json(format('{{\"id\": \"{0}\"}}\"', parameters('rtDefID'))))))), createArray())]",
+                    "defaultSubnet": "[if(parameters('deployDefaultSubnet'), createArray(createObject('name', 'default', 'properties', createObject('addressPrefix', parameters('defaultSubnetPrefix'), 'networkSecurityGroup', if(equals(parameters('nsgID'), 'none'), null(), json(format('{{\"id\": \"{0}\"}}', parameters('nsgID')))), 'routeTable', if(equals(parameters('rtDefID'), 'none'), null(), json(format('{{\"id\": \"{0}\"}}\"', parameters('rtDefID')))), 'defaultOutboundAccess', parameters('EnablePrivateSubnet')))), createArray())]",
                     "bastionSubnet": "[if(parameters('deployBastionSubnet'), createArray(createObject('name', 'AzureBastionSubnet', 'properties', createObject('addressPrefix', parameters('bastionSubnetPrefix')))), createArray())]",
                     "firewallSubnet": "[if(parameters('deployFirewallSubnet'), createArray(createObject('name', 'AzureFirewallSubnet', 'properties', createObject('addressPrefix', parameters('firewallSubnetPrefix')))), createArray())]",
                     "gatewaySubnet": "[if(parameters('deployGatewaySubnet'), createArray(createObject('name', 'GatewaySubnet', 'properties', createObject('addressPrefix', parameters('GatewaySubnetPrefix'), 'routeTable', if(equals(parameters('rtGwID'), 'none'), null(), json(format('{{\"id\": \"{0}\"}}\"', parameters('rtGwID'))))))), createArray())]"
@@ -2516,7 +2527,10 @@
           "firewallDNSproxy": {
             "value": "[and(parameters('firewallDNSproxy'), parameters('deployFirewallInHub'))]"
           },
-          "dcrID": "[if(and(parameters('deployHUB'), variables('isVnetHub')), createObject('value', reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.dcrvminsightsID.value), if(and(parameters('deployHUB'), variables('isVwanHub')), createObject('value', reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VWAN', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.dcrvminsightsID.value), createObject('value', '')))]"
+          "dcrID": "[if(and(parameters('deployHUB'), variables('isVnetHub')), createObject('value', reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.dcrvminsightsID.value), if(and(parameters('deployHUB'), variables('isVwanHub')), createObject('value', reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VWAN', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.dcrvminsightsID.value), createObject('value', '')))]",
+          "EnablePrivateSubnet": {
+            "value": "[parameters('EnablePrivateSubnet')]"
+          }
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
@@ -2525,7 +2539,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.29.47.4906",
-              "templateHash": "100982012962699437"
+              "templateHash": "7411898838089431507"
             }
           },
           "parameters": {
@@ -2572,6 +2586,9 @@
               "type": "string"
             },
             "firewallDNSproxy": {
+              "type": "bool"
+            },
+            "EnablePrivateSubnet": {
               "type": "bool"
             },
             "diagnosticWorkspaceId": {
@@ -2634,6 +2651,9 @@
                   },
                   "azFwIp": {
                     "value": "[parameters('AzureFirewallpip')]"
+                  },
+                  "EnablePrivateSubnet": {
+                    "value": "[and(and(parameters('EnablePrivateSubnet'), parameters('deployFirewallInHub')), parameters('deployUDRs'))]"
                   }
                 },
                 "template": {
@@ -2643,7 +2663,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.29.47.4906",
-                      "templateHash": "7931326192284124820"
+                      "templateHash": "14298496357464947178"
                     }
                   },
                   "parameters": {
@@ -2710,10 +2730,14 @@
                     "azFwIp": {
                       "type": "string",
                       "defaultValue": ""
+                    },
+                    "EnablePrivateSubnet": {
+                      "type": "bool",
+                      "defaultValue": false
                     }
                   },
                   "variables": {
-                    "defaultSubnet": "[if(parameters('deployDefaultSubnet'), createArray(createObject('name', 'default', 'properties', createObject('addressPrefix', parameters('defaultSubnetPrefix'), 'networkSecurityGroup', if(equals(parameters('nsgID'), 'none'), null(), json(format('{{\"id\": \"{0}\"}}', parameters('nsgID')))), 'routeTable', if(equals(parameters('rtDefID'), 'none'), null(), json(format('{{\"id\": \"{0}\"}}\"', parameters('rtDefID'))))))), createArray())]",
+                    "defaultSubnet": "[if(parameters('deployDefaultSubnet'), createArray(createObject('name', 'default', 'properties', createObject('addressPrefix', parameters('defaultSubnetPrefix'), 'networkSecurityGroup', if(equals(parameters('nsgID'), 'none'), null(), json(format('{{\"id\": \"{0}\"}}', parameters('nsgID')))), 'routeTable', if(equals(parameters('rtDefID'), 'none'), null(), json(format('{{\"id\": \"{0}\"}}\"', parameters('rtDefID')))), 'defaultOutboundAccess', parameters('EnablePrivateSubnet')))), createArray())]",
                     "bastionSubnet": "[if(parameters('deployBastionSubnet'), createArray(createObject('name', 'AzureBastionSubnet', 'properties', createObject('addressPrefix', parameters('bastionSubnetPrefix')))), createArray())]",
                     "firewallSubnet": "[if(parameters('deployFirewallSubnet'), createArray(createObject('name', 'AzureFirewallSubnet', 'properties', createObject('addressPrefix', parameters('firewallSubnetPrefix')))), createArray())]",
                     "gatewaySubnet": "[if(parameters('deployGatewaySubnet'), createArray(createObject('name', 'GatewaySubnet', 'properties', createObject('addressPrefix', parameters('GatewaySubnetPrefix'), 'routeTable', if(equals(parameters('rtGwID'), 'none'), null(), json(format('{{\"id\": \"{0}\"}}\"', parameters('rtGwID'))))))), createArray())]"
@@ -3610,7 +3634,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.29.47.4906",
-              "templateHash": "11617404838694106400"
+              "templateHash": "17792674735148938304"
             }
           },
           "parameters": {
@@ -4123,7 +4147,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.29.47.4906",
-                      "templateHash": "3200759614727061478"
+                      "templateHash": "7389889085147064535"
                     }
                   },
                   "parameters": {
@@ -4171,7 +4195,7 @@
                         "retentionInterval": "PT1H",
                         "timeout": "PT1H",
                         "arguments": "[format('-networkManagerName \"{0}\" -targetLocations {1} -configIds {2} -subscriptionId {3} -configType {4} -resourceGroupName {5}', parameters('avnmName'), parameters('location'), parameters('configurationId'), subscription().subscriptionId, parameters('configType'), resourceGroup().name)]",
-                        "scriptContent": "    param (\n      # AVNM subscription id\n      [parameter(mandatory=$true)][string]$subscriptionId,\n\n      # AVNM resource name\n      [parameter(mandatory=$true)][string]$networkManagerName,\n\n      # string with comma-separated list of config ids to deploy. ids must be of the same config type\n      [parameter(mandatory=$true)][string[]]$configIds,\n\n      # string with comma-separated list of deployment target regions\n      [parameter(mandatory=$true)][string[]]$targetLocations,\n\n      # configuration type to deploy. must be either connecticity or securityadmin\n      [parameter(mandatory=$true)][ValidateSet('Connectivity','SecurityAdmin')][string]$configType,\n\n      # AVNM resource group name\n      [parameter(mandatory=$true)][string]$resourceGroupName\n    )\n  \n    $null = Login-AzAccount -Identity -Subscription $subscriptionId\n  \n    [System.Collections.Generic.List[string]]$configIdList = @()  \n    $configIdList.addRange($configIds) \n    [System.Collections.Generic.List[string]]$targetLocationList = @() # target locations for deployment\n    $targetLocationList.addRange($targetLocations)     \n    \n    $deployment = @{\n        Name = $networkManagerName\n        ResourceGroupName = $resourceGroupName\n        ConfigurationId = $configIdList\n        TargetLocation = $targetLocationList\n        CommitType = $configType\n    }\n  \n    try {\n      Deploy-AzNetworkManagerCommit @deployment -ErrorAction Stop\n    }\n    catch {\n      Write-Error \"Deployment failed with error: $_\"\n      throw \"Deployment failed with error: $_\"\n    }\n    "
+                        "scriptContent": "    param (\r\n      # AVNM subscription id\r\n      [parameter(mandatory=$true)][string]$subscriptionId,\r\n\r\n      # AVNM resource name\r\n      [parameter(mandatory=$true)][string]$networkManagerName,\r\n\r\n      # string with comma-separated list of config ids to deploy. ids must be of the same config type\r\n      [parameter(mandatory=$true)][string[]]$configIds,\r\n\r\n      # string with comma-separated list of deployment target regions\r\n      [parameter(mandatory=$true)][string[]]$targetLocations,\r\n\r\n      # configuration type to deploy. must be either connecticity or securityadmin\r\n      [parameter(mandatory=$true)][ValidateSet('Connectivity','SecurityAdmin')][string]$configType,\r\n\r\n      # AVNM resource group name\r\n      [parameter(mandatory=$true)][string]$resourceGroupName\r\n    )\r\n  \r\n    $null = Login-AzAccount -Identity -Subscription $subscriptionId\r\n  \r\n    [System.Collections.Generic.List[string]]$configIdList = @()  \r\n    $configIdList.addRange($configIds) \r\n    [System.Collections.Generic.List[string]]$targetLocationList = @() # target locations for deployment\r\n    $targetLocationList.addRange($targetLocations)     \r\n    \r\n    $deployment = @{\r\n        Name = $networkManagerName\r\n        ResourceGroupName = $resourceGroupName\r\n        ConfigurationId = $configIdList\r\n        TargetLocation = $targetLocationList\r\n        CommitType = $configType\r\n    }\r\n  \r\n    try {\r\n      Deploy-AzNetworkManagerCommit @deployment -ErrorAction Stop\r\n    }\r\n    catch {\r\n      Write-Error \"Deployment failed with error: $_\"\r\n      throw \"Deployment failed with error: $_\"\r\n    }\r\n    "
                       },
                       "tags": "[coalesce(tryGet(parameters('tagsByResource'), 'Microsoft.Resources/deploymentScripts'), createObject())]"
                     }
@@ -4417,7 +4441,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.29.47.4906",
-              "templateHash": "8450382727461538823"
+              "templateHash": "8589116024979061786"
             }
           },
           "parameters": {
@@ -4540,7 +4564,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.29.47.4906",
-                      "templateHash": "7931326192284124820"
+                      "templateHash": "14298496357464947178"
                     }
                   },
                   "parameters": {
@@ -4607,10 +4631,14 @@
                     "azFwIp": {
                       "type": "string",
                       "defaultValue": ""
+                    },
+                    "EnablePrivateSubnet": {
+                      "type": "bool",
+                      "defaultValue": false
                     }
                   },
                   "variables": {
-                    "defaultSubnet": "[if(parameters('deployDefaultSubnet'), createArray(createObject('name', 'default', 'properties', createObject('addressPrefix', parameters('defaultSubnetPrefix'), 'networkSecurityGroup', if(equals(parameters('nsgID'), 'none'), null(), json(format('{{\"id\": \"{0}\"}}', parameters('nsgID')))), 'routeTable', if(equals(parameters('rtDefID'), 'none'), null(), json(format('{{\"id\": \"{0}\"}}\"', parameters('rtDefID'))))))), createArray())]",
+                    "defaultSubnet": "[if(parameters('deployDefaultSubnet'), createArray(createObject('name', 'default', 'properties', createObject('addressPrefix', parameters('defaultSubnetPrefix'), 'networkSecurityGroup', if(equals(parameters('nsgID'), 'none'), null(), json(format('{{\"id\": \"{0}\"}}', parameters('nsgID')))), 'routeTable', if(equals(parameters('rtDefID'), 'none'), null(), json(format('{{\"id\": \"{0}\"}}\"', parameters('rtDefID')))), 'defaultOutboundAccess', parameters('EnablePrivateSubnet')))), createArray())]",
                     "bastionSubnet": "[if(parameters('deployBastionSubnet'), createArray(createObject('name', 'AzureBastionSubnet', 'properties', createObject('addressPrefix', parameters('bastionSubnetPrefix')))), createArray())]",
                     "firewallSubnet": "[if(parameters('deployFirewallSubnet'), createArray(createObject('name', 'AzureFirewallSubnet', 'properties', createObject('addressPrefix', parameters('firewallSubnetPrefix')))), createArray())]",
                     "gatewaySubnet": "[if(parameters('deployGatewaySubnet'), createArray(createObject('name', 'GatewaySubnet', 'properties', createObject('addressPrefix', parameters('GatewaySubnetPrefix'), 'routeTable', if(equals(parameters('rtGwID'), 'none'), null(), json(format('{{\"id\": \"{0}\"}}\"', parameters('rtGwID'))))))), createArray())]"
