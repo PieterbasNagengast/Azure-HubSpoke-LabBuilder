@@ -29,11 +29,11 @@ jobs:
         subscription: [hub,spoke,onprem]
         include:
           - subscription: hub
-            subscription_id: HUB_SUBSCRIPTION_ID
+            subscription_id: AZURE_SUBSCRIPTION_ID
           - subscription: spoke
-            subscription_id: SPOKE_SUBSCRIPTION_ID
+            subscription_id: AZURE_SUBSCRIPTION_ID
           - subscription: onprem
-            subscription_id: ONPREM_SUBSCRIPTION_ID
+            subscription_id: AZURE_SUBSCRIPTION_ID
 
     steps:
       - name: Checkout
