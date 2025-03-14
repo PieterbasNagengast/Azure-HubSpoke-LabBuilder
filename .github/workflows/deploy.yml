@@ -93,9 +93,9 @@ jobs:
             adminUsername=${{ secrets.ADMINUSERNAME }}
             adminPassword=${{ secrets.ADMINPASSWORD }}
             sharedKey=${{ secrets.SHAREDKEY }}
-            hubSubscriptionID=${{ secrets.AZURE_SUBSCRIPTION_ID }}
-            spokeSubscriptionID=${{ secrets.AZURE_SUBSCRIPTION_ID }}
-            onPremSubscriptionID=${{ secrets.AZURE_SUBSCRIPTION_ID }}
+            hubSubscriptionID=${{ secrets.HUB_SUBSCRIPTION_ID }}
+            spokeSubscriptionID=${{ secrets.SPOKE_SUBSCRIPTION_ID }}
+            onPremSubscriptionID=${{ secrets.ONPREM_SUBSCRIPTION_ID }}
             spokeRgNamePrefix="LabBuilderValidation-${{ inputs.LabBuilderType }}-spoke"
             hubRgName="LabBuilderValidation-${{ inputs.LabBuilderType }}-hub"
             onpremRgName="LabBuilderValidation-${{ inputs.LabBuilderType }}-onprem"
@@ -113,9 +113,9 @@ jobs:
             adminUsername=${{ secrets.ADMINUSERNAME }}
             adminPassword=${{ secrets.ADMINPASSWORD }}
             sharedKey=${{ secrets.SHAREDKEY }}
-            hubSubscriptionID=${{ secrets.AZURE_SUBSCRIPTION_ID }}
-            spokeSubscriptionID=${{ secrets.AZURE_SUBSCRIPTION_ID }}
-            onPremSubscriptionID=${{ secrets.AZURE_SUBSCRIPTION_ID }}
+            hubSubscriptionID=${{ secrets.HUB_SUBSCRIPTION_ID }}
+            spokeSubscriptionID=${{ secrets.SPOKE_SUBSCRIPTION_ID }}
+            onPremSubscriptionID=${{ secrets.ONPREM_SUBSCRIPTION_ID }}
             spokeRgNamePrefix="LabBuilderValidation-${{ inputs.LabBuilderType }}-spoke"
             hubRgName="LabBuilderValidation-${{ inputs.LabBuilderType }}-hub"
             onpremRgName="LabBuilderValidation-${{ inputs.LabBuilderType }}-onprem"
