@@ -11,7 +11,7 @@ param sharedKey string
 param tagsByResource object = {}
 param propagateToNoneRouteTable bool
 
-resource vpnsite 'Microsoft.Network/vpnSites@2022-11-01' = {
+resource vpnsite 'Microsoft.Network/vpnSites@2024-05-01' = {
   name: vpnSiteName
   location: location
   properties: {
@@ -44,7 +44,7 @@ resource vpnsite 'Microsoft.Network/vpnSites@2022-11-01' = {
   tags: tagsByResource[?'Microsoft.Network/vpnSites'] ?? {}
 }
 
-resource vpnconnection 'Microsoft.Network/vpnGateways/vpnConnections@2022-11-01' = {
+resource vpnconnection 'Microsoft.Network/vpnGateways/vpnConnections@2024-05-01' = {
   name: '${vwanGatewayName}/Connection-${vpnSiteName}'
   properties: {
     remoteVpnSite: {

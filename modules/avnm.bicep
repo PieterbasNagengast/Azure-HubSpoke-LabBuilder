@@ -11,7 +11,7 @@ param avnmScopeAccesses array = [
 ]
 param avnmSubscriptionScopes array
 
-resource avnm 'Microsoft.Network/networkManagers@2022-11-01' = {
+resource avnm 'Microsoft.Network/networkManagers@2024-05-01' = {
   name: avnmName
   location: location
   properties: {

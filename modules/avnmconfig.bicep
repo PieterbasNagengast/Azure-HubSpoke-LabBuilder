@@ -20,7 +20,7 @@ param avnmNetworkGroupID string
 param groupConnectivity string = 'None'
 param useHubGateway bool = false
 
-resource avnmConnectivityConfig 'Microsoft.Network/networkManagers/connectivityConfigurations@2022-11-01' = {
+resource avnmConnectivityConfig 'Microsoft.Network/networkManagers/connectivityConfigurations@2024-05-01' = {
   name: '${avnmName}/${avvmConnectivityConfigName}'
   properties: {
     connectivityTopology: connectivityTopology
