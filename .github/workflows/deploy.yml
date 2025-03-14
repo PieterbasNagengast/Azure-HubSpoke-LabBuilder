@@ -36,6 +36,9 @@ on:
         type: string
         required: true
 
+permissions:
+  id-token: write
+
 jobs:
   BicepBuildandLint:
     name: "Bicep Build and Lint"
