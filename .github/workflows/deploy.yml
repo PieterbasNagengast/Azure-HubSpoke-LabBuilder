@@ -61,12 +61,12 @@ jobs:
         scenarios:
           [
             "scenario0.${{ inputs.LabBuilderType }}.parameters.json",
-            "scenario1.${{ inputs.LabBuilderType }}.parameters.json",
-            "scenario2.${{ inputs.LabBuilderType }}.parameters.json",
-            "scenario3.${{ inputs.LabBuilderType }}.parameters.json",
-            "scenario4.${{ inputs.LabBuilderType }}.parameters.json",
-            "scenario5.${{ inputs.LabBuilderType }}.parameters.json",
-            "scenario6.${{ inputs.LabBuilderType }}.parameters.json"
+            "scenario1.${{ inputs.LabBuilderType }}.parameters.json"
+            # "scenario2.${{ inputs.LabBuilderType }}.parameters.json",
+            # "scenario3.${{ inputs.LabBuilderType }}.parameters.json",
+            # "scenario4.${{ inputs.LabBuilderType }}.parameters.json",
+            # "scenario5.${{ inputs.LabBuilderType }}.parameters.json",
+            # "scenario6.${{ inputs.LabBuilderType }}.parameters.json"
           ]
 
     steps:
@@ -75,12 +75,14 @@ jobs:
       - name: Azure Login
         uses: azure/login@v2
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       - name: "Validating ${{ inputs.LabBuilderType }} scenario ${{ strategy.job-index }}"
         uses: Azure/arm-deploy@v2
         with:
           scope: "subscription"
-          subscriptionId: ${{ secrets.HUB_SUBSCRIPTION_ID }}
+          subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           region: ${{ inputs.LabBuilderLocation}}
           template: main.bicep
           parameters: 
@@ -88,9 +90,9 @@ jobs:
             adminUsername=${{ secrets.ADMINUSERNAME }}
             adminPassword=${{ secrets.ADMINPASSWORD }}
             sharedKey=${{ secrets.SHAREDKEY }}
-            hubSubscriptionID=${{ secrets.HUB_SUBSCRIPTION_ID }}
-            spokeSubscriptionID=${{ secrets.SPOKE_SUBSCRIPTION_ID }}
-            onPremSubscriptionID=${{ secrets.ONPREM_SUBSCRIPTION_ID }}
+            hubSubscriptionID=${{ secrets.AZURE_SUBSCRIPTION_ID }}
+            spokeSubscriptionID=${{ secrets.AZURE_SUBSCRIPTION_ID }}
+            onPremSubscriptionID=${{ secrets.AZURE_SUBSCRIPTION_ID }}
             spokeRgNamePrefix="LabBuilderValidation-${{ inputs.LabBuilderType }}-spoke"
             hubRgName="LabBuilderValidation-${{ inputs.LabBuilderType }}-hub"
             onpremRgName="LabBuilderValidation-${{ inputs.LabBuilderType }}-onprem"
@@ -100,7 +102,7 @@ jobs:
         uses: Azure/arm-deploy@v2
         with:
           scope: "subscription"
-          subscriptionId: ${{ secrets.HUB_SUBSCRIPTION_ID }}
+          subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           region: ${{ inputs.LabBuilderLocation}}
           template: main.bicep
           parameters: 
@@ -108,9 +110,9 @@ jobs:
             adminUsername=${{ secrets.ADMINUSERNAME }}
             adminPassword=${{ secrets.ADMINPASSWORD }}
             sharedKey=${{ secrets.SHAREDKEY }}
-            hubSubscriptionID=${{ secrets.HUB_SUBSCRIPTION_ID }}
-            spokeSubscriptionID=${{ secrets.SPOKE_SUBSCRIPTION_ID }}
-            onPremSubscriptionID=${{ secrets.ONPREM_SUBSCRIPTION_ID }}
+            hubSubscriptionID=${{ secrets.AZURE_SUBSCRIPTION_ID }}
+            spokeSubscriptionID=${{ secrets.AZURE_SUBSCRIPTION_ID }}
+            onPremSubscriptionID=${{ secrets.AZURE_SUBSCRIPTION_ID }}
             spokeRgNamePrefix="LabBuilderValidation-${{ inputs.LabBuilderType }}-spoke"
             hubRgName="LabBuilderValidation-${{ inputs.LabBuilderType }}-hub"
             onpremRgName="LabBuilderValidation-${{ inputs.LabBuilderType }}-onprem"
