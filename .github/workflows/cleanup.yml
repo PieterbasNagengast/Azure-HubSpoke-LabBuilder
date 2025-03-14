@@ -23,7 +23,7 @@ jobs:
   VNETremoval:
     name: "Remove deployments"
     runs-on: ubuntu-latest
-    environment: LabBuilderCleanup
+    # environment: LabBuilderCleanup
     strategy:
       matrix:
         subscription: [hub,spoke,onprem]
