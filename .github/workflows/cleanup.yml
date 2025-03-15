@@ -8,6 +8,7 @@ on:
         options:
           - vnet
           - vwan
+          - avnm
         required: true
         default: vnet
   workflow_call:
