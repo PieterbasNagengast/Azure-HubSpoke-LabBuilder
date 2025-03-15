@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.32.4.45862",
-      "templateHash": "7023256109896492221"
+      "templateHash": "5596729675808742891"
     }
   },
   "parameters": {
@@ -430,7 +430,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.32.4.45862",
-              "templateHash": "478809056578464351"
+              "templateHash": "1654283780252837925"
             }
           },
           "parameters": {
@@ -495,7 +495,8 @@
             "rtNameVPNgwSubnet": "RT-Hub-GatewaySubnet",
             "hubVnetName": "VNET-Hub",
             "firewallName": "Firewall-Hub",
-            "gatewayName": "Gateway-Hub"
+            "gatewayName": "Gateway-Hub",
+            "bastionNsgName": "NSG-Bastion-Hub"
           },
           "resources": [
             {
@@ -504,6 +505,84 @@
               "name": "[parameters('hubRgName')]",
               "location": "[parameters('location')]",
               "tags": "[coalesce(tryGet(parameters('tagsByResource'), 'Microsoft.Resources/subscriptions/resourceGroups'), createObject())]"
+            },
+            {
+              "condition": "[parameters('deployBastionInHub')]",
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2022-09-01",
+              "name": "[variables('bastionNsgName')]",
+              "resourceGroup": "[parameters('hubRgName')]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
+                  "nsgName": {
+                    "value": "[variables('bastionNsgName')]"
+                  },
+                  "isBastionNSG": {
+                    "value": true
+                  },
+                  "tagsByResource": {
+                    "value": "[parameters('tagsByResource')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.32.4.45862",
+                      "templateHash": "860358004623211623"
+                    }
+                  },
+                  "parameters": {
+                    "location": {
+                      "type": "string"
+                    },
+                    "nsgName": {
+                      "type": "string"
+                    },
+                    "tagsByResource": {
+                      "type": "object",
+                      "defaultValue": {}
+                    },
+                    "isBastionNSG": {
+                      "type": "bool",
+                      "defaultValue": false
+                    }
+                  },
+                  "variables": {
+                    "securityRules": "[if(parameters('isBastionNSG'), createArray(createObject('name', 'AllowGatewayManager', 'properties', createObject('description', 'Allow GatewayManager', 'protocol', '*', 'sourcePortRange', '*', 'destinationPortRange', '443', 'sourceAddressPrefix', 'GatewayManager', 'destinationAddressPrefix', '*', 'access', 'Allow', 'priority', 2702, 'direction', 'Inbound', 'sourcePortRanges', createArray(), 'destinationPortRanges', createArray(), 'sourceAddressPrefixes', createArray(), 'destinationAddressPrefixes', createArray())), createObject('name', 'AllowHttpsInBound', 'properties', createObject('description', 'Allow HTTPs', 'protocol', '*', 'sourcePortRange', '*', 'destinationPortRange', '443', 'sourceAddressPrefix', 'Internet', 'destinationAddressPrefix', '*', 'access', 'Allow', 'priority', 2703, 'direction', 'Inbound', 'sourcePortRanges', createArray(), 'destinationPortRanges', createArray(), 'sourceAddressPrefixes', createArray(), 'destinationAddressPrefixes', createArray())), createObject('name', 'AllowSshRdpOutbound', 'properties', createObject('protocol', '*', 'sourcePortRange', '*', 'sourceAddressPrefix', '*', 'destinationAddressPrefix', 'VirtualNetwork', 'access', 'Allow', 'priority', 100, 'direction', 'Outbound', 'sourcePortRanges', createArray(), 'destinationPortRanges', createArray('22', '3389'), 'sourceAddressPrefixes', createArray(), 'destinationAddressPrefixes', createArray())), createObject('name', 'AllowAzureCloudOutbound', 'properties', createObject('protocol', 'TCP', 'sourcePortRange', '*', 'destinationPortRange', '443', 'sourceAddressPrefix', '*', 'destinationAddressPrefix', 'AzureCloud', 'access', 'Allow', 'priority', 110, 'direction', 'Outbound', 'sourcePortRanges', createArray(), 'destinationPortRanges', createArray(), 'sourceAddressPrefixes', createArray(), 'destinationAddressPrefixes', createArray()))), createArray())]"
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Network/networkSecurityGroups",
+                      "apiVersion": "2023-06-01",
+                      "name": "[parameters('nsgName')]",
+                      "location": "[parameters('location')]",
+                      "tags": "[coalesce(tryGet(parameters('tagsByResource'), 'Microsoft.Network/networkSecurityGroups'), createObject())]",
+                      "properties": {
+                        "securityRules": "[variables('securityRules')]"
+                      }
+                    }
+                  ],
+                  "outputs": {
+                    "nsgID": {
+                      "type": "string",
+                      "value": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('nsgName'))]"
+                    }
+                  }
+                }
+              },
+              "dependsOn": [
+                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('hubRgName'))]"
+              ]
             },
             {
               "type": "Microsoft.Resources/deployments",
@@ -564,7 +643,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.32.4.45862",
-                      "templateHash": "1958304937625058309"
+                      "templateHash": "14711260188238668350"
                     }
                   },
                   "parameters": {
@@ -594,6 +673,10 @@
                       "defaultValue": ""
                     },
                     "nsgID": {
+                      "type": "string",
+                      "defaultValue": "none"
+                    },
+                    "bastionNSGID": {
                       "type": "string",
                       "defaultValue": "none"
                     },
@@ -639,7 +722,7 @@
                   },
                   "variables": {
                     "defaultSubnet": "[if(parameters('deployDefaultSubnet'), createArray(createObject('name', 'default', 'properties', createObject('addressPrefix', parameters('defaultSubnetPrefix'), 'networkSecurityGroup', if(equals(parameters('nsgID'), 'none'), null(), json(format('{{\"id\": \"{0}\"}}', parameters('nsgID')))), 'routeTable', if(equals(parameters('rtDefID'), 'none'), null(), json(format('{{\"id\": \"{0}\"}}\"', parameters('rtDefID')))), 'defaultOutboundAccess', parameters('defaultOutboundAccess')))), createArray())]",
-                    "bastionSubnet": "[if(parameters('deployBastionSubnet'), createArray(createObject('name', 'AzureBastionSubnet', 'properties', createObject('addressPrefix', parameters('bastionSubnetPrefix')))), createArray())]",
+                    "bastionSubnet": "[if(parameters('deployBastionSubnet'), createArray(createObject('name', 'AzureBastionSubnet', 'properties', createObject('addressPrefix', parameters('bastionSubnetPrefix'), 'networkSecurityGroup', if(equals(parameters('bastionNSGID'), 'none'), null(), json(format('{{\"id\": \"{0}\"}}', parameters('bastionNSGID'))))))), createArray())]",
                     "firewallSubnet": "[if(parameters('deployFirewallSubnet'), createArray(createObject('name', 'AzureFirewallSubnet', 'properties', createObject('addressPrefix', parameters('firewallSubnetPrefix')))), createArray())]",
                     "gatewaySubnet": "[if(parameters('deployGatewaySubnet'), createArray(createObject('name', 'GatewaySubnet', 'properties', createObject('addressPrefix', parameters('GatewaySubnetPrefix'), 'routeTable', if(equals(parameters('rtGwID'), 'none'), null(), json(format('{{\"id\": \"{0}\"}}\"', parameters('rtGwID'))))))), createArray())]"
                   },
@@ -2539,7 +2622,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.32.4.45862",
-              "templateHash": "16491857021297898971"
+              "templateHash": "1033440972806672303"
             }
           },
           "parameters": {
@@ -2663,7 +2746,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.32.4.45862",
-                      "templateHash": "1958304937625058309"
+                      "templateHash": "14711260188238668350"
                     }
                   },
                   "parameters": {
@@ -2693,6 +2776,10 @@
                       "defaultValue": ""
                     },
                     "nsgID": {
+                      "type": "string",
+                      "defaultValue": "none"
+                    },
+                    "bastionNSGID": {
                       "type": "string",
                       "defaultValue": "none"
                     },
@@ -2738,7 +2825,7 @@
                   },
                   "variables": {
                     "defaultSubnet": "[if(parameters('deployDefaultSubnet'), createArray(createObject('name', 'default', 'properties', createObject('addressPrefix', parameters('defaultSubnetPrefix'), 'networkSecurityGroup', if(equals(parameters('nsgID'), 'none'), null(), json(format('{{\"id\": \"{0}\"}}', parameters('nsgID')))), 'routeTable', if(equals(parameters('rtDefID'), 'none'), null(), json(format('{{\"id\": \"{0}\"}}\"', parameters('rtDefID')))), 'defaultOutboundAccess', parameters('defaultOutboundAccess')))), createArray())]",
-                    "bastionSubnet": "[if(parameters('deployBastionSubnet'), createArray(createObject('name', 'AzureBastionSubnet', 'properties', createObject('addressPrefix', parameters('bastionSubnetPrefix')))), createArray())]",
+                    "bastionSubnet": "[if(parameters('deployBastionSubnet'), createArray(createObject('name', 'AzureBastionSubnet', 'properties', createObject('addressPrefix', parameters('bastionSubnetPrefix'), 'networkSecurityGroup', if(equals(parameters('bastionNSGID'), 'none'), null(), json(format('{{\"id\": \"{0}\"}}', parameters('bastionNSGID'))))))), createArray())]",
                     "firewallSubnet": "[if(parameters('deployFirewallSubnet'), createArray(createObject('name', 'AzureFirewallSubnet', 'properties', createObject('addressPrefix', parameters('firewallSubnetPrefix')))), createArray())]",
                     "gatewaySubnet": "[if(parameters('deployGatewaySubnet'), createArray(createObject('name', 'GatewaySubnet', 'properties', createObject('addressPrefix', parameters('GatewaySubnetPrefix'), 'routeTable', if(equals(parameters('rtGwID'), 'none'), null(), json(format('{{\"id\": \"{0}\"}}\"', parameters('rtGwID'))))))), createArray())]"
                   },
@@ -3142,7 +3229,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.32.4.45862",
-                      "templateHash": "14299553736312573167"
+                      "templateHash": "860358004623211623"
                     }
                   },
                   "parameters": {
@@ -3155,7 +3242,14 @@
                     "tagsByResource": {
                       "type": "object",
                       "defaultValue": {}
+                    },
+                    "isBastionNSG": {
+                      "type": "bool",
+                      "defaultValue": false
                     }
+                  },
+                  "variables": {
+                    "securityRules": "[if(parameters('isBastionNSG'), createArray(createObject('name', 'AllowGatewayManager', 'properties', createObject('description', 'Allow GatewayManager', 'protocol', '*', 'sourcePortRange', '*', 'destinationPortRange', '443', 'sourceAddressPrefix', 'GatewayManager', 'destinationAddressPrefix', '*', 'access', 'Allow', 'priority', 2702, 'direction', 'Inbound', 'sourcePortRanges', createArray(), 'destinationPortRanges', createArray(), 'sourceAddressPrefixes', createArray(), 'destinationAddressPrefixes', createArray())), createObject('name', 'AllowHttpsInBound', 'properties', createObject('description', 'Allow HTTPs', 'protocol', '*', 'sourcePortRange', '*', 'destinationPortRange', '443', 'sourceAddressPrefix', 'Internet', 'destinationAddressPrefix', '*', 'access', 'Allow', 'priority', 2703, 'direction', 'Inbound', 'sourcePortRanges', createArray(), 'destinationPortRanges', createArray(), 'sourceAddressPrefixes', createArray(), 'destinationAddressPrefixes', createArray())), createObject('name', 'AllowSshRdpOutbound', 'properties', createObject('protocol', '*', 'sourcePortRange', '*', 'sourceAddressPrefix', '*', 'destinationAddressPrefix', 'VirtualNetwork', 'access', 'Allow', 'priority', 100, 'direction', 'Outbound', 'sourcePortRanges', createArray(), 'destinationPortRanges', createArray('22', '3389'), 'sourceAddressPrefixes', createArray(), 'destinationAddressPrefixes', createArray())), createObject('name', 'AllowAzureCloudOutbound', 'properties', createObject('protocol', 'TCP', 'sourcePortRange', '*', 'destinationPortRange', '443', 'sourceAddressPrefix', '*', 'destinationAddressPrefix', 'AzureCloud', 'access', 'Allow', 'priority', 110, 'direction', 'Outbound', 'sourcePortRanges', createArray(), 'destinationPortRanges', createArray(), 'sourceAddressPrefixes', createArray(), 'destinationAddressPrefixes', createArray()))), createArray())]"
                   },
                   "resources": [
                     {
@@ -3163,7 +3257,10 @@
                       "apiVersion": "2023-06-01",
                       "name": "[parameters('nsgName')]",
                       "location": "[parameters('location')]",
-                      "tags": "[coalesce(tryGet(parameters('tagsByResource'), 'Microsoft.Network/networkSecurityGroups'), createObject())]"
+                      "tags": "[coalesce(tryGet(parameters('tagsByResource'), 'Microsoft.Network/networkSecurityGroups'), createObject())]",
+                      "properties": {
+                        "securityRules": "[variables('securityRules')]"
+                      }
                     }
                   ],
                   "outputs": {
@@ -4441,7 +4538,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.32.4.45862",
-              "templateHash": "6141776722773815249"
+              "templateHash": "1615412258066629625"
             }
           },
           "parameters": {
@@ -4500,6 +4597,7 @@
             "nsgName": "NSG-OnPrem",
             "bastionName": "Bastion-OnPrem",
             "gatewayName": "Gateway-OnPrem",
+            "bastionNsgName": "NSG-Bastion-OnPrm",
             "defaultSubnetPrefix": "[cidrSubnet(parameters('AddressSpace'), 26, 0)]",
             "bastionSubnetPrefix": "[cidrSubnet(parameters('AddressSpace'), 26, 1)]",
             "gatewaySubnetPrefix": "[cidrSubnet(parameters('AddressSpace'), 26, 2)]"
@@ -4511,6 +4609,84 @@
               "name": "[parameters('OnPremRgName')]",
               "location": "[parameters('location')]",
               "tags": "[coalesce(tryGet(parameters('tagsByResource'), 'Microsoft.Resources/subscriptions/resourceGroups'), createObject())]"
+            },
+            {
+              "condition": "[parameters('deployBastionInOnPrem')]",
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2022-09-01",
+              "name": "[variables('bastionNsgName')]",
+              "resourceGroup": "[parameters('OnPremRgName')]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
+                  "nsgName": {
+                    "value": "[variables('bastionNsgName')]"
+                  },
+                  "isBastionNSG": {
+                    "value": true
+                  },
+                  "tagsByResource": {
+                    "value": "[parameters('tagsByResource')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.32.4.45862",
+                      "templateHash": "860358004623211623"
+                    }
+                  },
+                  "parameters": {
+                    "location": {
+                      "type": "string"
+                    },
+                    "nsgName": {
+                      "type": "string"
+                    },
+                    "tagsByResource": {
+                      "type": "object",
+                      "defaultValue": {}
+                    },
+                    "isBastionNSG": {
+                      "type": "bool",
+                      "defaultValue": false
+                    }
+                  },
+                  "variables": {
+                    "securityRules": "[if(parameters('isBastionNSG'), createArray(createObject('name', 'AllowGatewayManager', 'properties', createObject('description', 'Allow GatewayManager', 'protocol', '*', 'sourcePortRange', '*', 'destinationPortRange', '443', 'sourceAddressPrefix', 'GatewayManager', 'destinationAddressPrefix', '*', 'access', 'Allow', 'priority', 2702, 'direction', 'Inbound', 'sourcePortRanges', createArray(), 'destinationPortRanges', createArray(), 'sourceAddressPrefixes', createArray(), 'destinationAddressPrefixes', createArray())), createObject('name', 'AllowHttpsInBound', 'properties', createObject('description', 'Allow HTTPs', 'protocol', '*', 'sourcePortRange', '*', 'destinationPortRange', '443', 'sourceAddressPrefix', 'Internet', 'destinationAddressPrefix', '*', 'access', 'Allow', 'priority', 2703, 'direction', 'Inbound', 'sourcePortRanges', createArray(), 'destinationPortRanges', createArray(), 'sourceAddressPrefixes', createArray(), 'destinationAddressPrefixes', createArray())), createObject('name', 'AllowSshRdpOutbound', 'properties', createObject('protocol', '*', 'sourcePortRange', '*', 'sourceAddressPrefix', '*', 'destinationAddressPrefix', 'VirtualNetwork', 'access', 'Allow', 'priority', 100, 'direction', 'Outbound', 'sourcePortRanges', createArray(), 'destinationPortRanges', createArray('22', '3389'), 'sourceAddressPrefixes', createArray(), 'destinationAddressPrefixes', createArray())), createObject('name', 'AllowAzureCloudOutbound', 'properties', createObject('protocol', 'TCP', 'sourcePortRange', '*', 'destinationPortRange', '443', 'sourceAddressPrefix', '*', 'destinationAddressPrefix', 'AzureCloud', 'access', 'Allow', 'priority', 110, 'direction', 'Outbound', 'sourcePortRanges', createArray(), 'destinationPortRanges', createArray(), 'sourceAddressPrefixes', createArray(), 'destinationAddressPrefixes', createArray()))), createArray())]"
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Network/networkSecurityGroups",
+                      "apiVersion": "2023-06-01",
+                      "name": "[parameters('nsgName')]",
+                      "location": "[parameters('location')]",
+                      "tags": "[coalesce(tryGet(parameters('tagsByResource'), 'Microsoft.Network/networkSecurityGroups'), createObject())]",
+                      "properties": {
+                        "securityRules": "[variables('securityRules')]"
+                      }
+                    }
+                  ],
+                  "outputs": {
+                    "nsgID": {
+                      "type": "string",
+                      "value": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('nsgName'))]"
+                    }
+                  }
+                }
+              },
+              "dependsOn": [
+                "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('OnPremRgName'))]"
+              ]
             },
             {
               "type": "Microsoft.Resources/deployments",
@@ -4564,7 +4740,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.32.4.45862",
-                      "templateHash": "1958304937625058309"
+                      "templateHash": "14711260188238668350"
                     }
                   },
                   "parameters": {
@@ -4594,6 +4770,10 @@
                       "defaultValue": ""
                     },
                     "nsgID": {
+                      "type": "string",
+                      "defaultValue": "none"
+                    },
+                    "bastionNSGID": {
                       "type": "string",
                       "defaultValue": "none"
                     },
@@ -4639,7 +4819,7 @@
                   },
                   "variables": {
                     "defaultSubnet": "[if(parameters('deployDefaultSubnet'), createArray(createObject('name', 'default', 'properties', createObject('addressPrefix', parameters('defaultSubnetPrefix'), 'networkSecurityGroup', if(equals(parameters('nsgID'), 'none'), null(), json(format('{{\"id\": \"{0}\"}}', parameters('nsgID')))), 'routeTable', if(equals(parameters('rtDefID'), 'none'), null(), json(format('{{\"id\": \"{0}\"}}\"', parameters('rtDefID')))), 'defaultOutboundAccess', parameters('defaultOutboundAccess')))), createArray())]",
-                    "bastionSubnet": "[if(parameters('deployBastionSubnet'), createArray(createObject('name', 'AzureBastionSubnet', 'properties', createObject('addressPrefix', parameters('bastionSubnetPrefix')))), createArray())]",
+                    "bastionSubnet": "[if(parameters('deployBastionSubnet'), createArray(createObject('name', 'AzureBastionSubnet', 'properties', createObject('addressPrefix', parameters('bastionSubnetPrefix'), 'networkSecurityGroup', if(equals(parameters('bastionNSGID'), 'none'), null(), json(format('{{\"id\": \"{0}\"}}', parameters('bastionNSGID'))))))), createArray())]",
                     "firewallSubnet": "[if(parameters('deployFirewallSubnet'), createArray(createObject('name', 'AzureFirewallSubnet', 'properties', createObject('addressPrefix', parameters('firewallSubnetPrefix')))), createArray())]",
                     "gatewaySubnet": "[if(parameters('deployGatewaySubnet'), createArray(createObject('name', 'GatewaySubnet', 'properties', createObject('addressPrefix', parameters('GatewaySubnetPrefix'), 'routeTable', if(equals(parameters('rtGwID'), 'none'), null(), json(format('{{\"id\": \"{0}\"}}\"', parameters('rtGwID'))))))), createArray())]"
                   },
@@ -5042,7 +5222,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.32.4.45862",
-                      "templateHash": "14299553736312573167"
+                      "templateHash": "860358004623211623"
                     }
                   },
                   "parameters": {
@@ -5055,7 +5235,14 @@
                     "tagsByResource": {
                       "type": "object",
                       "defaultValue": {}
+                    },
+                    "isBastionNSG": {
+                      "type": "bool",
+                      "defaultValue": false
                     }
+                  },
+                  "variables": {
+                    "securityRules": "[if(parameters('isBastionNSG'), createArray(createObject('name', 'AllowGatewayManager', 'properties', createObject('description', 'Allow GatewayManager', 'protocol', '*', 'sourcePortRange', '*', 'destinationPortRange', '443', 'sourceAddressPrefix', 'GatewayManager', 'destinationAddressPrefix', '*', 'access', 'Allow', 'priority', 2702, 'direction', 'Inbound', 'sourcePortRanges', createArray(), 'destinationPortRanges', createArray(), 'sourceAddressPrefixes', createArray(), 'destinationAddressPrefixes', createArray())), createObject('name', 'AllowHttpsInBound', 'properties', createObject('description', 'Allow HTTPs', 'protocol', '*', 'sourcePortRange', '*', 'destinationPortRange', '443', 'sourceAddressPrefix', 'Internet', 'destinationAddressPrefix', '*', 'access', 'Allow', 'priority', 2703, 'direction', 'Inbound', 'sourcePortRanges', createArray(), 'destinationPortRanges', createArray(), 'sourceAddressPrefixes', createArray(), 'destinationAddressPrefixes', createArray())), createObject('name', 'AllowSshRdpOutbound', 'properties', createObject('protocol', '*', 'sourcePortRange', '*', 'sourceAddressPrefix', '*', 'destinationAddressPrefix', 'VirtualNetwork', 'access', 'Allow', 'priority', 100, 'direction', 'Outbound', 'sourcePortRanges', createArray(), 'destinationPortRanges', createArray('22', '3389'), 'sourceAddressPrefixes', createArray(), 'destinationAddressPrefixes', createArray())), createObject('name', 'AllowAzureCloudOutbound', 'properties', createObject('protocol', 'TCP', 'sourcePortRange', '*', 'destinationPortRange', '443', 'sourceAddressPrefix', '*', 'destinationAddressPrefix', 'AzureCloud', 'access', 'Allow', 'priority', 110, 'direction', 'Outbound', 'sourcePortRanges', createArray(), 'destinationPortRanges', createArray(), 'sourceAddressPrefixes', createArray(), 'destinationAddressPrefixes', createArray()))), createArray())]"
                   },
                   "resources": [
                     {
@@ -5063,7 +5250,10 @@
                       "apiVersion": "2023-06-01",
                       "name": "[parameters('nsgName')]",
                       "location": "[parameters('location')]",
-                      "tags": "[coalesce(tryGet(parameters('tagsByResource'), 'Microsoft.Network/networkSecurityGroups'), createObject())]"
+                      "tags": "[coalesce(tryGet(parameters('tagsByResource'), 'Microsoft.Network/networkSecurityGroups'), createObject())]",
+                      "properties": {
+                        "securityRules": "[variables('securityRules')]"
+                      }
                     }
                   ],
                   "outputs": {

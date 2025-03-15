@@ -58,6 +58,7 @@ module vnet 'modules/vnet.bicep' = {
     location: location
     vnetAddressSpcae: hubAddressSpace
     rtGwID: deployFirewallInHub && deployGatewayInHub ? rtvpngw.outputs.rtID : 'none'
+    bastionNSGID: deployBastionInHub ? bastioNsg.outputs.nsgID : 'none'
     vnetname: hubVnetName
     bastionSubnetPrefix: bastionSubnetPrefix
     firewallSubnetPrefix: firewallSubnetPrefix

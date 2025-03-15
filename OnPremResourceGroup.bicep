@@ -58,6 +58,7 @@ module vnet 'modules/vnet.bicep' = {
     location: location
     vnetAddressSpcae: AddressSpace
     nsgID: nsg.outputs.nsgID
+    bastionNSGID: deployBastionInOnPrem ? bastioNsg.outputs.nsgID : 'none'
     vnetname: vnetName
     deployDefaultSubnet: true
     defaultSubnetPrefix: defaultSubnetPrefix
