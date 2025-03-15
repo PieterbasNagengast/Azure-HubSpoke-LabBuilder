@@ -6,6 +6,7 @@ param bastionSubnetPrefix string = ''
 param firewallSubnetPrefix string = ''
 param GatewaySubnetPrefix string = ''
 param nsgID string = 'none'
+param bastionNSGID string = 'none'
 param rtDefID string = 'none'
 param rtGwID string = 'none'
 param deployDefaultSubnet bool
@@ -37,6 +38,7 @@ var bastionSubnet = deployBastionSubnet
         name: 'AzureBastionSubnet'
         properties: {
           addressPrefix: bastionSubnetPrefix
+          networkSecurityGroup: bastionNSGID == 'none' ? null : json('{"id": "${bastionNSGID}"}')
         }
       }
     ]

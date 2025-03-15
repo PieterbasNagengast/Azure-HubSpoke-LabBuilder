@@ -239,6 +239,7 @@ When deploying a Hub you can also deploy a Azure Virtual Network Manager (AVNM).
 ### March 2025 updates
 - Updated Resources API's to latest version
 - Add support for Private Subnet on Spoke VNET's
+- Added NSG for Bastion Subnets
 
 ### July 2024 updates
 

@@ -26,6 +26,7 @@ var vmName = 'VM-OnPrem'
 var nsgName = 'NSG-OnPrem'
 var bastionName = 'Bastion-OnPrem'
 var gatewayName = 'Gateway-OnPrem'
+var bastionNsgName = 'NSG-Bastion-OnPrm'
 
 var defaultSubnetPrefix = cidrSubnet(AddressSpace, 26, 0)
 var bastionSubnetPrefix = cidrSubnet(AddressSpace, 26, 1)
@@ -36,6 +37,17 @@ resource onpremrg 'Microsoft.Resources/resourceGroups@2023-07-01' = {
   name: OnPremRgName
   location: location
   tags: tagsByResource[?'Microsoft.Resources/subscriptions/resourceGroups'] ?? {}
+}
+
+module bastioNsg 'modules/nsg.bicep' = {
+  scope: onpremrg
+  name: bastionNsgName
+  params: {
+    location: location
+    nsgName: bastionNsgName
+    isBastionNSG: true
+    tagsByResource: tagsByResource
+  }
 }
 
 // Create a VNET

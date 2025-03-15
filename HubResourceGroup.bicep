@@ -31,12 +31,24 @@ var rtNameVPNgwSubnet = 'RT-Hub-GatewaySubnet'
 var hubVnetName = 'VNET-Hub'
 var firewallName = 'Firewall-Hub'
 var gatewayName = 'Gateway-Hub'
+var bastionNsgName = 'NSG-Bastion-Hub'
 
 // Create the resource group for the hub
 resource hubrg 'Microsoft.Resources/resourceGroups@2023-07-01' = {
   name: hubRgName
   location: location
   tags: tagsByResource[?'Microsoft.Resources/subscriptions/resourceGroups'] ?? {}
+}
+
+module bastioNsg 'modules/nsg.bicep' = {
+  scope: hubrg
+  name: bastionNsgName
+  params: {
+    location: location
+    nsgName: bastionNsgName
+    isBastionNSG: true
+    tagsByResource: tagsByResource
+  }
 }
 
 module vnet 'modules/vnet.bicep' = {
