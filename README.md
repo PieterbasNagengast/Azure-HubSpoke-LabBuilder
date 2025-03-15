@@ -22,6 +22,7 @@
   - [Resource Names](#resource-names)
 - [Azure Monitor Agent, VM Insights and Dependency Agent](#azure-monitor-agent-vm-insights-and-dependency-agent)
 - [Azure Virtual Network Manager](#azure-virtual-network-manager)
+- [Private Subnets (Disable Default Outbound Access)](#private-subnets-disable-default-outbound-access)
 - [Parameters overview](#parameters-overview)
 - [Updates](#updates)
   - [March 2025 updates](#march-2025-updates)
@@ -145,25 +146,26 @@ Within these **main** scenario's there are multiple options (but not limited to 
 
 ### Resource Names
 
-| Type                           | Name            |
-| ------------------------------ | --------------- |
-| Hub VNET                       | VNET-Hub        |
-| Spoke VNET's                   | VNET-Spoke#     |
-| Spoke Virtual Machines         | VM-Spoke#       |
-| Hub Route Table                | RT-Hub          |
-| Spoke Route tables             | RT-Spoke#       |
-| Hub Bastion Host               | Bastion-Hub     |
-| Spoke Bastion Hosts            | Bastion-Spoke#  |
-| Hub Network Security Group     | NSG-Hub         |
-| Spoke Network Security Groups  | NSG-Spoke#      |
-| Hub Azure Firewall             | Firewall-Hub    |
-| Hub Virtual Network Gateway    | Gateway-Hub     |
-| OnPrem VNET                    | VNET-OnPrem     |
-| OnPrem Virtual Machine         | VM-OnPrem       |
-| OnPrem Bastion Host            | Bastion-OnPrem  |
-| OnPrem Network Security Group  | NSG-OnPrem      |
-| OnPrem Virtual Network gateway | Gateway-OnPrem  |
-| Azure Virtual Network Manager  | LabBuilder-AVNM |
+| Type                                      | Name               |
+| ----------------------------------------- | ------------------ |
+| Hub VNET                                  | VNET-Hub           |
+| Spoke VNET's                              | VNET-Spoke#        |
+| Spoke Virtual Machines                    | VM-Spoke#          |
+| Hub Route Table                           | RT-Hub             |
+| Spoke Route tables                        | RT-Spoke#          |
+| Hub Bastion Host                          | Bastion-Hub        |
+| Spoke Bastion Hosts                       | Bastion-Spoke#     |
+| Hub Network Security Group for Bastion    | NSG-Bastion-Hub    |
+| Spoke Network Security Groups             | NSG-Spoke#         |
+| Hub Azure Firewall                        | Firewall-Hub       |
+| Hub Virtual Network Gateway               | Gateway-Hub        |
+| OnPrem VNET                               | VNET-OnPrem        |
+| OnPrem Virtual Machine                    | VM-OnPrem          |
+| OnPrem Bastion Host                       | Bastion-OnPrem     |
+| OnPrem Network Security Group             | NSG-OnPrem         |
+| OnPrem Network Security Group for Bastion | NSG-Bastion-OnPrem |
+| OnPrem Virtual Network gateway            | Gateway-OnPrem     |
+| Azure Virtual Network Manager             | LabBuilder-AVNM    |
 
 ## Azure Monitor Agent, VM Insights and Dependency Agent
 
@@ -180,6 +182,10 @@ When deploying a Hub you can also deploy a Azure Virtual Network Manager (AVNM).
 > You will need to have 'Owner' rights on the HUB resource group to deploy AVNM. 
 > The deployment script will create a User Assigned Identity and assign the 'Network Contributor' role to the HUB resource group.
 > This is required to run the Deployment Script which deploys the AVNM configuration.
+
+## Private Subnets (Disable Default Outbound Access)
+
+When deploying Private Subnets in the Spoke VNET's you can disable the default outbound access. This is only available when deploying Azure Firewall in the Hub VNET. The default outbound access will be disabled on the Spoke VNET subnets and all traffic will be routed to the Azure Firewall (Explicit outbound access).
 
 ## Parameters overview
 
@@ -233,6 +239,7 @@ When deploying a Hub you can also deploy a Azure Virtual Network Manager (AVNM).
 | `deployVnetPeeringAVNM`        | bool         | Deploy Azure Virtual Network Manager                                                                                                         | False                           |                         |
 | `internetTrafficRoutingPolicy` | bool         | Enable Internet traffic vWAN routing policy on Azure Firewall                                                                                | False                           |                         |
 | `privateTrafficRoutingPolicy`  | bool         | Enable Private traffic vWAN routing policy on Azure Firewall                                                                                 | False                           |                         |
+| `defaultOutboundAccess`        | bool         | Disbale Default outbound access on Spoke VNET subnets. Only available if Firewall is deployed in Hub.                                        | False                           |                         |
 
 ## Updates
 
