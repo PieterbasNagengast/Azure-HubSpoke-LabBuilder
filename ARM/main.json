@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.32.4.45862",
-      "templateHash": "5596729675808742891"
+      "templateHash": "16813951402775409836"
     }
   },
   "parameters": {
@@ -430,7 +430,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.32.4.45862",
-              "templateHash": "1654283780252837925"
+              "templateHash": "13502406220187168078"
             }
           },
           "parameters": {
@@ -602,6 +602,7 @@
                     "value": "[parameters('hubAddressSpace')]"
                   },
                   "rtGwID": "[if(and(parameters('deployFirewallInHub'), parameters('deployGatewayInHub')), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'routeTable-VPNGW'), '2022-09-01').outputs.rtID.value), createObject('value', 'none'))]",
+                  "bastionNSGID": "[if(parameters('deployBastionInHub'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('bastionNsgName')), '2022-09-01').outputs.nsgID.value), createObject('value', 'none'))]",
                   "vnetname": {
                     "value": "[variables('hubVnetName')]"
                   },
@@ -779,6 +780,7 @@
                 }
               },
               "dependsOn": [
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', variables('bastionNsgName'))]",
                 "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('hubRgName'))]",
                 "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hubRgName')), 'Microsoft.Resources/deployments', 'routeTable-VPNGW')]"
               ]
@@ -4538,7 +4540,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.32.4.45862",
-              "templateHash": "1615412258066629625"
+              "templateHash": "10923596702715016134"
             }
           },
           "parameters": {
@@ -4708,6 +4710,7 @@
                   "nsgID": {
                     "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('OnPremRgName')), 'Microsoft.Resources/deployments', variables('nsgName')), '2022-09-01').outputs.nsgID.value]"
                   },
+                  "bastionNSGID": "[if(parameters('deployBastionInOnPrem'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('OnPremRgName')), 'Microsoft.Resources/deployments', variables('bastionNsgName')), '2022-09-01').outputs.nsgID.value), createObject('value', 'none'))]",
                   "vnetname": {
                     "value": "[variables('vnetName')]"
                   },
@@ -4876,6 +4879,7 @@
                 }
               },
               "dependsOn": [
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('OnPremRgName')), 'Microsoft.Resources/deployments', variables('bastionNsgName'))]",
                 "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('OnPremRgName')), 'Microsoft.Resources/deployments', variables('nsgName'))]",
                 "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('OnPremRgName'))]"
               ]
