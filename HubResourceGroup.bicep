@@ -40,7 +40,7 @@ resource hubrg 'Microsoft.Resources/resourceGroups@2023-07-01' = {
   tags: tagsByResource[?'Microsoft.Resources/subscriptions/resourceGroups'] ?? {}
 }
 
-module bastioNsg 'modules/nsg.bicep' = {
+module bastioNsg 'modules/nsg.bicep' = if (deployBastionInHub) {
   scope: hubrg
   name: bastionNsgName
   params: {

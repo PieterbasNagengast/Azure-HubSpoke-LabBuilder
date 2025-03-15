@@ -39,7 +39,7 @@ resource onpremrg 'Microsoft.Resources/resourceGroups@2023-07-01' = {
   tags: tagsByResource[?'Microsoft.Resources/subscriptions/resourceGroups'] ?? {}
 }
 
-module bastioNsg 'modules/nsg.bicep' = {
+module bastioNsg 'modules/nsg.bicep' = if (deployBastionInOnPrem) {
   scope: onpremrg
   name: bastionNsgName
   params: {
