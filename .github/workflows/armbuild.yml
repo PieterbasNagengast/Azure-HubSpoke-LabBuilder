@@ -84,8 +84,14 @@ jobs:
 
             # Delete the branch
           - name: Delete Branch
-            uses: oktokit/request-action@v2.x
+            uses: actions/github-script@v5
             with:
-              route: DELETE /repos/${{ github.repository }}/git/refs/heads/bicep-build-${{ github.run_id }}
+              github-token: ${{ secrets.GITHUB_TOKEN }}
+              script: |
+                await github.git.deleteRef({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  ref: 'heads/bicep-build-${{ github.run_id }}'
+                });
 
 
