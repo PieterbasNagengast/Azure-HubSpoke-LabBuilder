@@ -90,7 +90,7 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           location: ${{ inputs.LabBuilderLocation}}
           template-file: main.bicep
-          parameters-file: ARM/params/${{ matrix.scenarios }}
+          parameters-file: bicepparams/${{ matrix.scenarios }}
           parameters: >-
             {
             "adminUsername": "${{ secrets.ADMINUSERNAME }}",
@@ -113,7 +113,7 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           location: ${{ inputs.LabBuilderLocation}}
           template-file: main.bicep
-          parameters-file: ARM/params/${{ matrix.scenarios }}
+          parameters-file: bicepparams/${{ matrix.scenarios }}
           parameters: >-
             {
             "adminUsername": "${{ secrets.ADMINUSERNAME }}",
