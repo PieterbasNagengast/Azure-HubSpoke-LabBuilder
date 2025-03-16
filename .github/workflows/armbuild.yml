@@ -81,10 +81,11 @@ jobs:
             with:
               github-token: ${{ secrets.GITHUB_TOKEN }}
               script: |
+                const pullRequestNumber = ${{ steps.create_pr.outputs.pullRequestNumber }};
                 await github.rest.pulls.createReview({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
-                  pull_number: ${{ steps.create_pr.outputs.pullRequestNumber }},
+                  pull_number: pullRequestNumber,
                   event: 'APPROVE'
                 });
 
@@ -94,10 +95,11 @@ jobs:
             with:
               github-token: ${{ secrets.GITHUB_TOKEN }}
               script: |
+                const pullRequestNumber = ${{ steps.create_pr.outputs.pullRequestNumber }};
                 await github.rest.pulls.merge({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
-                  pull_number: ${{ steps.create_pr.outputs.pullRequestNumber }},
+                  pull_number: pullRequestNumber,
                   merge_method: 'squash'
                 });
 
@@ -107,10 +109,11 @@ jobs:
             with:
               github-token: ${{ secrets.GITHUB_TOKEN }}
               script: |
+                const branchName = `bicep-build-${{ github.run_id }}`;
                 await github.rest.git.deleteRef({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
-                  ref: `heads/bicep-build-${{ github.run_id }}`
+                  ref: `heads/${branchName}`
                 });
 
 
