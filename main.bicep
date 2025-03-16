@@ -73,17 +73,17 @@ param defaultOutboundAccess bool = true
 @description('Deploy Hub')
 param deployHUB bool = true
 
-@description('Deploy Hub VNET or Azuere vWAN')
+@description('Deploy Hub VNET or Azuere vWAN. Default = VNET')
 @allowed([
   'VNET'
   'VWAN'
 ])
 param hubType string = 'VNET'
 
-@description('Hub resource group pre-fix name')
+@description('Hub resource group pre-fix name. Default = rg-hub')
 param hubRgName string = 'rg-hub'
 
-@description('Deploy Bastion Host in Hub VNET')
+@description('Deploy Bastion Host in Hub VNET. Default = true')
 param deployBastionInHub bool = true
 
 @description('Hub Bastion SKU')
