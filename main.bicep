@@ -51,10 +51,10 @@ param tagsByResource object = {}
 param diagnosticWorkspaceId string = ''
 
 // Spoke VNET Parameters
-@description('Deploy Spoke VNETs')
+@description('Deploy Spoke VNETs. Default = true')
 param deploySpokes bool = true
 
-@description('Spoke resource group prefix name')
+@description('Spoke resource group prefix name. Default = rg-spoke')
 param spokeRgNamePrefix string = 'rg-spoke'
 
 @description('Amount of Spoke VNETs you want to deploy. Default = 2')
