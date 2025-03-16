@@ -31,8 +31,17 @@ jobs:
             
             # Create a new branch
           - name: Create new branch
-            run: |
-              git checkout -b bicep-build-${{ github.run_id }}
+            uses: actions/github-script@v5
+            with:
+              github-token: ${{ secrets.GITHUB_TOKEN }}
+              script: |
+                const branchName = `bicep-build-${{ github.run_id }}`;
+                await github.git.createRef({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  ref: `refs/heads/${branchName}`,
+                  sha: context.sha
+                });
             
             # Build the Bicep file and output the ARM template
           - name: Bicep Build and Lint
@@ -51,22 +60,33 @@ jobs:
             # Create a pull request
           - name: Create Pull Request
             id: create_pr
-            uses: peter-evans/create-pull-request@v3
+            uses: actions/github-script@v5
             with:
-              token: ${{ secrets.GITHUB_TOKEN }}
-              commit-message: "ARM Template Build-${{ github.run_id }}"
-              branch: bicep-build-${{ github.run_id }}
-              base: main
-              title: "ARM Template Build-${{ github.run_id }}"
-              body: "This PR contains the ARM template build output."
-              draft: false
+              github-token: ${{ secrets.GITHUB_TOKEN }}
+              script: |
+                const { data: pullRequest } = await github.pulls.create({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  title: `ARM Template Build-${{ github.run_id }}`,
+                  head: `bicep-build-${{ github.run_id }}`,
+                  base: 'main',
+                  body: 'This PR contains the ARM template build output.',
+                  draft: false
+                });
+                return { pullRequestNumber: pullRequest.number };
 
             # Approve the pull request
           - name: Approve Pull Request
-            uses: hmarr/auto-approve-action@v2
+            uses: actions/github-script@v5
             with:
               github-token: ${{ secrets.GITHUB_TOKEN }}
-              pull-request-number: ${{ steps.create_pr.outputs.pull-request-number }}
+              script: |
+                await github.pulls.createReview({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: ${{ steps.create_pr.outputs.pullRequestNumber }},
+                  event: 'APPROVE'
+                });
 
             # Merge the pull request
           - name: Merge Pull Request
@@ -74,11 +94,10 @@ jobs:
             with:
               github-token: ${{ secrets.GITHUB_TOKEN }}
               script: |
-                const pr_number = ${{ steps.create_pr.outputs.pull-request-number }};
                 await github.pulls.merge({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
-                  pull_number: pr_number,
+                  pull_number: ${{ steps.create_pr.outputs.pullRequestNumber }},
                   merge_method: 'squash'
                 });
 
@@ -91,7 +110,7 @@ jobs:
                 await github.git.deleteRef({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
-                  ref: 'heads/bicep-build-${{ github.run_id }}'
+                  ref: `heads/bicep-build-${{ github.run_id }}`
                 });
 
 
