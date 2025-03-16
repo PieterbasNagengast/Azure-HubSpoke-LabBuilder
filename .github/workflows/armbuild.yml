@@ -1,13 +1,21 @@
 name: LabBuilder - Bicep ARM Build
 
 on: 
+    push: 
+      branches: 
+        - main
+      paths:
+        - '**.bicep'
     pull_request: 
+      branches:
+        - main
       paths:
         - '**.bicep'
     workflow_dispatch:
 
 permissions:
     contents: write
+    pull-requests: write
 
 jobs:
     BicepBuildandLint:
@@ -21,20 +29,63 @@ jobs:
             with:
               ref: ${{ github.event.pull_request.head.ref }}
             
-            # build the Bicep file and output the ARM template
+            # Create a new branch
+          - name: Create new branch
+            run: |
+              git checkout -b bicep-build-${{ github.run_id }}
+            
+            # Build the Bicep file and output the ARM template
           - name: Bicep Build and Lint
             run: |
               bicep build main.bicep --outdir ARM              
 
-            # push branch commit and push the ./ARM/main.json file to the branch that triggered the workflow
+            # Commit and push the ./ARM/main.json file to the new branch
           - name: Commit ARM Template
             run: |
               git config --global user.email "github-actions[bot]@users.noreply.github.com"
               git config --global user.name "github-actions[bot]"
               git add ARM/main.json
               git commit -m "ARM Template Build-${{ github.run_id }}"
-              git status
-              git push origin HEAD:${{ github.event.pull_request.head.ref }}
-              
+              git push origin HEAD:bicep-build-${{ github.run_id }}
 
-                
+            # Create a pull request
+          - name: Create Pull Request
+            id: create_pr
+            uses: peter-evans/create-pull-request@v3
+            with:
+              token: ${{ secrets.GITHUB_TOKEN }}
+              commit-message: "ARM Template Build-${{ github.run_id }}"
+              branch: bicep-build-${{ github.run_id }}
+              base: main
+              title: "ARM Template Build-${{ github.run_id }}"
+              body: "This PR contains the ARM template build output."
+              draft: false
+
+            # Approve the pull request
+          - name: Approve Pull Request
+            uses: hmarr/auto-approve-action@v2
+            with:
+              github-token: ${{ secrets.GITHUB_TOKEN }}
+              pull-request-number: ${{ steps.create_pr.outputs.pull-request-number }}
+
+            # Merge the pull request
+          - name: Merge Pull Request
+            uses: actions/github-script@v5
+            with:
+              github-token: ${{ secrets.GITHUB_TOKEN }}
+              script: |
+                const pr_number = ${{ steps.create_pr.outputs.pull-request-number }};
+                await github.pulls.merge({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: pr_number,
+                  merge_method: 'squash'
+                });
+
+            # Delete the branch
+          - name: Delete Branch
+            uses: oktokit/request-action@v2.x
+            with:
+              route: DELETE /repos/${{ github.repository }}/git/refs/heads/bicep-build-${{ github.run_id }}
+
+
