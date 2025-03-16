@@ -1,11 +1,13 @@
 using '../main.bicep'
 param adminUsername = ''
 param adminPassword = ''
+param deployVnetPeeringMesh = false
+param deployVnetPeeringAVNM = true
 param AddressSpace = '172.16.0.0/16'
 param tagsByResource = {
   'Microsoft.Resources/subscriptions/resourceGroups': {
     LabBuilder: 'validation'
-    LabBuilderType: 'vnet'
+    LabBuilderType: 'avnm'
   }
 }
 param deploySpokes = true
@@ -15,16 +17,16 @@ param deployVMsInSpokes = true
 param deployHUB = true
 param hubType = 'VNET'
 param hubRgName = 'LabBuilderValidation-hub'
-param deployBastionInHub = true
+param deployBastionInHub = false
 param deployGatewayInHub = false
-param deployFirewallInHub = true
+param deployFirewallInHub = false
 param AzureFirewallTier = 'Standard'
-param deployFirewallrules = true
+param deployFirewallrules = false
 param hubBgp = false
 param hubBgpAsn = 65010
 param deployOnPrem = true
 param onpremRgName = 'LabBuilderValidation-onprem'
-param deployBastionInOnPrem = true
+param deployBastionInOnPrem = false
 param deployVMinOnPrem = true
 param deployGatewayinOnPrem = false
 param deploySiteToSite = false

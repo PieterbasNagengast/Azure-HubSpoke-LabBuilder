@@ -5,7 +5,7 @@ param AddressSpace = '172.16.0.0/16'
 param tagsByResource = {
   'Microsoft.Resources/subscriptions/resourceGroups': {
     LabBuilder: 'validation'
-    LabBuilderType: 'vnet'
+    LabBuilderType: 'vwan'
   }
 }
 param deploySpokes = true
@@ -13,21 +13,21 @@ param spokeRgNamePrefix = 'LabBuilderValidation-spoke'
 param amountOfSpokes = 2
 param deployVMsInSpokes = true
 param deployHUB = true
-param hubType = 'VNET'
+param hubType = 'VWAN'
 param hubRgName = 'LabBuilderValidation-hub'
-param deployBastionInHub = true
-param deployGatewayInHub = false
+param deployBastionInHub = false
+param deployGatewayInHub = true
 param deployFirewallInHub = true
 param AzureFirewallTier = 'Standard'
 param deployFirewallrules = true
-param hubBgp = false
-param hubBgpAsn = 65010
+param hubBgp = true
+param hubBgpAsn = 65515
 param deployOnPrem = true
 param onpremRgName = 'LabBuilderValidation-onprem'
 param deployBastionInOnPrem = true
 param deployVMinOnPrem = true
-param deployGatewayinOnPrem = false
+param deployGatewayinOnPrem = true
 param deploySiteToSite = false
 param sharedKey = ''
-param onpremBgp = false
+param onpremBgp = true
 param onpremBgpAsn = 65020

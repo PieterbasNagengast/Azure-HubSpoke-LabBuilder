@@ -65,10 +65,10 @@ jobs:
           [
             "scenario0.${{ inputs.LabBuilderType }}.bicepparam",
             "scenario1.${{ inputs.LabBuilderType }}.bicepparam",
-            # "scenario2.${{ inputs.LabBuilderType }}.parameters.json",
-            # "scenario3.${{ inputs.LabBuilderType }}.parameters.json",
-            # "scenario4.${{ inputs.LabBuilderType }}.parameters.json",
-            # "scenario5.${{ inputs.LabBuilderType }}.parameters.json"
+            # "scenario2.${{ inputs.LabBuilderType }}.bicepparam",
+            # "scenario3.${{ inputs.LabBuilderType }}.bicepparam",
+            # "scenario4.${{ inputs.LabBuilderType }}.bicepparam",
+            # "scenario5.${{ inputs.LabBuilderType }}.bicepparam"
           ]
 
     steps:
