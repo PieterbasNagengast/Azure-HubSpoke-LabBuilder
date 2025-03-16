@@ -73,7 +73,7 @@ jobs:
                   body: 'This PR contains the ARM template build output.',
                   draft: false
                 });
-                return { pullRequestNumber: pullRequest.number };
+                core.setOutput('pullRequestNumber', pullRequest.number);
 
             # Approve the pull request
           - name: Approve Pull Request
@@ -81,7 +81,7 @@ jobs:
             with:
               github-token: ${{ secrets.GITHUB_TOKEN }}
               script: |
-                const pullRequestNumber = ${{ steps.create_pr.outputs.pullRequestNumber }};
+                const pullRequestNumber = core.getInput('pullRequestNumber');
                 await github.rest.pulls.createReview({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
@@ -95,7 +95,7 @@ jobs:
             with:
               github-token: ${{ secrets.GITHUB_TOKEN }}
               script: |
-                const pullRequestNumber = ${{ steps.create_pr.outputs.pullRequestNumber }};
+                const pullRequestNumber = core.getInput('pullRequestNumber');
                 await github.rest.pulls.merge({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
