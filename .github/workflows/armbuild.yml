@@ -81,7 +81,7 @@ jobs:
             with:
               github-token: ${{ secrets.GITHUB_TOKEN }}
               script: |
-                const pullRequestNumber = core.getInput('pullRequestNumber');
+                const pullRequestNumber = "${{ steps.create_pr.outputs.pullRequestNumber }}";
                 await github.rest.pulls.createReview({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
@@ -95,7 +95,7 @@ jobs:
             with:
               github-token: ${{ secrets.GITHUB_TOKEN }}
               script: |
-                const pullRequestNumber = core.getInput('pullRequestNumber');
+                const pullRequestNumber = "${{ steps.create_pr.outputs.pullRequestNumber }}";
                 await github.rest.pulls.merge({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
