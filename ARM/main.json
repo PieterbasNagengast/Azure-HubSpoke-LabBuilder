@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.33.93.31351",
-      "templateHash": "8615639866236794712"
+      "templateHash": "9036639043159177607"
     }
   },
   "parameters": {
@@ -3733,7 +3733,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.33.93.31351",
-              "templateHash": "14925001641401672786"
+              "templateHash": "15764857999971346901"
             }
           },
           "parameters": {
@@ -3799,7 +3799,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.33.93.31351",
-                      "templateHash": "1154465171878150657"
+                      "templateHash": "4728971605355033625"
                     }
                   },
                   "parameters": {
@@ -3816,11 +3816,16 @@
                     "avnmScopeAccesses": {
                       "type": "array",
                       "defaultValue": [
-                        "Connectivity"
+                        "Connectivity",
+                        "Routing",
+                        "SecurityAdmin",
+                        "SecurityUser"
                       ],
                       "allowedValues": [
                         "Connectivity",
-                        "SecurityAdmin"
+                        "Routing",
+                        "SecurityAdmin",
+                        "SecurityUser"
                       ]
                     },
                     "avnmSubscriptionScopes": {
