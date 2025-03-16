@@ -36,7 +36,7 @@ jobs:
               github-token: ${{ secrets.GITHUB_TOKEN }}
               script: |
                 const branchName = `bicep-build-${{ github.run_id }}`;
-                await github.git.createRef({
+                await github.rest.git.createRef({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   ref: `refs/heads/${branchName}`,
@@ -64,7 +64,7 @@ jobs:
             with:
               github-token: ${{ secrets.GITHUB_TOKEN }}
               script: |
-                const { data: pullRequest } = await github.pulls.create({
+                const { data: pullRequest } = await github.rest.pulls.create({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   title: `ARM Template Build-${{ github.run_id }}`,
@@ -81,7 +81,7 @@ jobs:
             with:
               github-token: ${{ secrets.GITHUB_TOKEN }}
               script: |
-                await github.pulls.createReview({
+                await github.rest.pulls.createReview({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   pull_number: ${{ steps.create_pr.outputs.pullRequestNumber }},
@@ -94,7 +94,7 @@ jobs:
             with:
               github-token: ${{ secrets.GITHUB_TOKEN }}
               script: |
-                await github.pulls.merge({
+                await github.rest.pulls.merge({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   pull_number: ${{ steps.create_pr.outputs.pullRequestNumber }},
@@ -107,7 +107,7 @@ jobs:
             with:
               github-token: ${{ secrets.GITHUB_TOKEN }}
               script: |
-                await github.git.deleteRef({
+                await github.rest.git.deleteRef({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   ref: `heads/bicep-build-${{ github.run_id }}`
