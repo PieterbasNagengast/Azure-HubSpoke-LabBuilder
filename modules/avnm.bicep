@@ -6,13 +6,11 @@ param tagsByResource object = {}
   'Connectivity'
   'Routing'
   'SecurityAdmin'
-  'SecurityUser'
 ])
 param avnmScopeAccesses array = [
   'Connectivity'
   'Routing'
   'SecurityAdmin'
-  'SecurityUser'
 ]
 param avnmSubscriptionScopes array
 
