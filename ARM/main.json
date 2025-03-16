@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.33.93.31351",
-      "templateHash": "1007295340863943563"
+      "templateHash": "8615639866236794712"
     }
   },
   "parameters": {
@@ -163,21 +163,21 @@
         "VWAN"
       ],
       "metadata": {
-        "description": "Deploy Hub VNET or Azuere vWAN"
+        "description": "Deploy Hub VNET or Azuere vWAN. Default = VNET"
       }
     },
     "hubRgName": {
       "type": "string",
       "defaultValue": "rg-hub",
       "metadata": {
-        "description": "Hub resource group pre-fix name"
+        "description": "Hub resource group pre-fix name. Default = rg-hub"
       }
     },
     "deployBastionInHub": {
       "type": "bool",
       "defaultValue": true,
       "metadata": {
-        "description": "Deploy Bastion Host in Hub VNET"
+        "description": "Deploy Bastion Host in Hub VNET. Default = true"
       }
     },
     "bastionInHubSKU": {
