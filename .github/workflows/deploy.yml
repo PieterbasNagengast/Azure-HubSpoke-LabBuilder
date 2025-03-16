@@ -63,8 +63,8 @@ jobs:
       matrix:
         scenarios:
           [
-            "scenario0.${{ inputs.LabBuilderType }}.parameters.json",
-            "scenario1.${{ inputs.LabBuilderType }}.parameters.json"
+            "scenario0.${{ inputs.LabBuilderType }}.bicepparam",
+            "scenario1.${{ inputs.LabBuilderType }}.bicepparam",
             # "scenario2.${{ inputs.LabBuilderType }}.parameters.json",
             # "scenario3.${{ inputs.LabBuilderType }}.parameters.json",
             # "scenario4.${{ inputs.LabBuilderType }}.parameters.json",
