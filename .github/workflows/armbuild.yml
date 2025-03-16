@@ -79,7 +79,7 @@ jobs:
           - name: Approve Pull Request
             uses: actions/github-script@v5
             with:
-              github-token: ${{ secrets.GITHUB_TOKEN }}
+              github-token: ${{ secrets.PR_APPROVE_TOKEN }}
               script: |
                 const pullRequestNumber = "${{ steps.create_pr.outputs.pullRequestNumber }}";
                 await github.rest.pulls.createReview({
