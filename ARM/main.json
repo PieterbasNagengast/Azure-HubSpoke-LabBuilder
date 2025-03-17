@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.33.93.31351",
-      "templateHash": "15183007610954805283"
+      "templateHash": "52814557451258607"
     }
   },
   "parameters": {
@@ -139,6 +139,13 @@
       "defaultValue": false,
       "metadata": {
         "description": "Directly connect VNET Spokes (Fully Meshed Topology)"
+      }
+    },
+    "deployAvnmUDRs": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Let Azure Virtual Network Manager manage UDRs in Spoke VNETs"
       }
     },
     "defaultOutboundAccess": {
@@ -2603,9 +2610,7 @@
           "osType": {
             "value": "[parameters('osTypeSpoke')]"
           },
-          "deployUDRs": {
-            "value": "[parameters('deployUDRs')]"
-          },
+          "deployUDRs": "[if(parameters('deployAvnmUDRs'), createObject('value', false()), createObject('value', parameters('deployUDRs')))]",
           "diagnosticWorkspaceId": {
             "value": "[parameters('diagnosticWorkspaceId')]"
           },
@@ -3717,8 +3722,12 @@
             "value": "[parameters('deployGatewayInHub')]"
           },
           "deployVnetPeeringMesh": {
-            "value": "[parameters('deployVnetPeeringMesh')]"
+            "value": "[and(and(and(and(parameters('deployHUB'), parameters('deploySpokes')), variables('isVnetHub')), parameters('deployVnetPeeringAVNM')), parameters('deployVnetPeeringMesh'))]"
           },
+          "deployAvnmUDRs": {
+            "value": "[and(and(and(and(parameters('deployHUB'), parameters('deploySpokes')), variables('isVnetHub')), parameters('deployVnetPeeringAVNM')), parameters('deployAvnmUDRs'))]"
+          },
+          "AzFwPrivateIP": "[if(and(and(and(and(parameters('deployHUB'), parameters('deploySpokes')), variables('isVnetHub')), parameters('deployVnetPeeringAVNM')), parameters('deployAvnmUDRs')), createObject('value', reference(subscriptionResourceId(parameters('hubSubscriptionID'), 'Microsoft.Resources/deployments', format('{0}-{1}-VNET', parameters('hubRgName'), parameters('location'))), '2022-09-01').outputs.azFwIp.value), createObject('value', 'none'))]",
           "location": {
             "value": "[parameters('location')]"
           },
@@ -3733,7 +3742,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.33.93.31351",
-              "templateHash": "10683353880849175205"
+              "templateHash": "17608860033145131337"
             }
           },
           "parameters": {
@@ -3762,9 +3771,16 @@
             "deployVnetPeeringMesh": {
               "type": "bool"
             },
+            "deployAvnmUDRs": {
+              "type": "bool",
+              "defaultValue": false
+            },
             "tagsByResource": {
               "type": "object",
               "defaultValue": {}
+            },
+            "AzFwPrivateIP": {
+              "type": "string"
             }
           },
           "resources": [
@@ -4062,6 +4078,112 @@
               ]
             },
             {
+              "condition": "[parameters('deployAvnmUDRs')]",
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2022-09-01",
+              "name": "AVNM-RoutingConfig",
+              "resourceGroup": "[parameters('HubResourceGroupName')]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "avnmName": {
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HubResourceGroupName')), 'Microsoft.Resources/deployments', 'AVNM'), '2022-09-01').outputs.name.value]"
+                  },
+                  "avnmNetworkGroupId": {
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HubResourceGroupName')), 'Microsoft.Resources/deployments', 'AVNM-NetworkGroup'), '2022-09-01').outputs.id.value]"
+                  },
+                  "AzFwPrivateIP": {
+                    "value": "[parameters('AzFwPrivateIP')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.33.93.31351",
+                      "templateHash": "7103167831263573843"
+                    }
+                  },
+                  "parameters": {
+                    "avnmName": {
+                      "type": "string"
+                    },
+                    "avnmNetworkGroupId": {
+                      "type": "string"
+                    },
+                    "AzFwPrivateIP": {
+                      "type": "string"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Network/networkManagers/routingConfigurations",
+                      "apiVersion": "2024-05-01",
+                      "name": "[format('{0}/{1}-RoutingConfig', parameters('avnmName'), parameters('avnmName'))]",
+                      "properties": {
+                        "description": "LabBuilder AVNM - Routing Configuration"
+                      }
+                    },
+                    {
+                      "type": "Microsoft.Network/networkManagers/routingConfigurations/ruleCollections",
+                      "apiVersion": "2024-05-01",
+                      "name": "[format('{0}/{1}/{2}', split(format('{0}/{1}-RoutingConfig', parameters('avnmName'), parameters('avnmName')), '/')[0], split(format('{0}/{1}-RoutingConfig', parameters('avnmName'), parameters('avnmName')), '/')[1], format('{0}-RuleCollection', parameters('avnmName')))]",
+                      "properties": {
+                        "description": "LabBuilder AVNM - Routing Configuration Rule Collection",
+                        "appliesTo": [
+                          {
+                            "networkGroupId": "[parameters('avnmNetworkGroupId')]"
+                          }
+                        ],
+                        "disableBgpRoutePropagation": "True"
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/networkManagers/routingConfigurations', split(format('{0}/{1}-RoutingConfig', parameters('avnmName'), parameters('avnmName')), '/')[0], split(format('{0}/{1}-RoutingConfig', parameters('avnmName'), parameters('avnmName')), '/')[1])]"
+                      ]
+                    },
+                    {
+                      "type": "Microsoft.Network/networkManagers/routingConfigurations/ruleCollections/rules",
+                      "apiVersion": "2024-05-01",
+                      "name": "[format('{0}/{1}/{2}/{3}', split(format('{0}/{1}-RoutingConfig', parameters('avnmName'), parameters('avnmName')), '/')[0], split(format('{0}/{1}-RoutingConfig', parameters('avnmName'), parameters('avnmName')), '/')[1], format('{0}-RuleCollection', parameters('avnmName')), 'toInternet')]",
+                      "properties": {
+                        "description": "LabBuilder AVNM - Routing Configuration Rule",
+                        "destination": {
+                          "destinationAddress": "0.0.0.0/0",
+                          "type": "AddressPrefix"
+                        },
+                        "nextHop": {
+                          "nextHopType": "VirtualAppliance",
+                          "nextHopAddress": "[parameters('AzFwPrivateIP')]"
+                        }
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/networkManagers/routingConfigurations/ruleCollections', split(format('{0}/{1}-RoutingConfig', parameters('avnmName'), parameters('avnmName')), '/')[0], split(format('{0}/{1}-RoutingConfig', parameters('avnmName'), parameters('avnmName')), '/')[1], format('{0}-RuleCollection', parameters('avnmName')))]"
+                      ]
+                    }
+                  ],
+                  "outputs": {
+                    "id": {
+                      "type": "string",
+                      "value": "[resourceId('Microsoft.Network/networkManagers/routingConfigurations', split(format('{0}/{1}-RoutingConfig', parameters('avnmName'), parameters('avnmName')), '/')[0], split(format('{0}/{1}-RoutingConfig', parameters('avnmName'), parameters('avnmName')), '/')[1])]"
+                    },
+                    "name": {
+                      "type": "string",
+                      "value": "[format('{0}/{1}-RoutingConfig', parameters('avnmName'), parameters('avnmName'))]"
+                    }
+                  }
+                }
+              },
+              "dependsOn": [
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HubResourceGroupName')), 'Microsoft.Resources/deployments', 'AVNM')]",
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HubResourceGroupName')), 'Microsoft.Resources/deployments', 'AVNM-NetworkGroup')]"
+              ]
+            },
+            {
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
               "name": "UserAssignedIdentityForAVNM",
@@ -4212,7 +4334,7 @@
             {
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
-              "name": "AVNM-ConfigurationDeployment",
+              "name": "AVNM-ConnectivityConfig-Deployment",
               "resourceGroup": "[parameters('HubResourceGroupName')]",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -4230,7 +4352,7 @@
                     "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HubResourceGroupName')), 'Microsoft.Resources/deployments', 'AVNM-ConnectivityConfig'), '2022-09-01').outputs.id.value]"
                   },
                   "deploymentScriptName": {
-                    "value": "[format('{0}-DeploymentScript', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HubResourceGroupName')), 'Microsoft.Resources/deployments', 'AVNM'), '2022-09-01').outputs.name.value)]"
+                    "value": "[format('{0}-ConnectivityConfig-DeploymentScript', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HubResourceGroupName')), 'Microsoft.Resources/deployments', 'AVNM'), '2022-09-01').outputs.name.value)]"
                   },
                   "location": {
                     "value": "[parameters('location')]"
@@ -4249,7 +4371,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.33.93.31351",
-                      "templateHash": "8099061741763720663"
+                      "templateHash": "9684264804540718041"
                     }
                   },
                   "parameters": {
@@ -4271,12 +4393,17 @@
                     "configType": {
                       "type": "string",
                       "allowedValues": [
-                        "Connectivity"
+                        "Connectivity",
+                        "Routing"
                       ]
                     },
                     "tagsByResource": {
                       "type": "object",
                       "defaultValue": {}
+                    },
+                    "timeStamp": {
+                      "type": "string",
+                      "defaultValue": "[utcNow()]"
                     }
                   },
                   "resources": [
@@ -4293,11 +4420,12 @@
                         }
                       },
                       "properties": {
+                        "forceUpdateTag": "[parameters('timeStamp')]",
                         "azPowerShellVersion": "8.3",
                         "retentionInterval": "PT1H",
                         "timeout": "PT1H",
                         "arguments": "[format('-networkManagerName \"{0}\" -targetLocations {1} -configIds {2} -subscriptionId {3} -configType {4} -resourceGroupName {5}', parameters('avnmName'), parameters('location'), parameters('configurationId'), subscription().subscriptionId, parameters('configType'), resourceGroup().name)]",
-                        "scriptContent": "    param (\n      # AVNM subscription id\n      [parameter(mandatory=$true)][string]$subscriptionId,\n\n      # AVNM resource name\n      [parameter(mandatory=$true)][string]$networkManagerName,\n\n      # string with comma-separated list of config ids to deploy. ids must be of the same config type\n      [parameter(mandatory=$true)][string[]]$configIds,\n\n      # string with comma-separated list of deployment target regions\n      [parameter(mandatory=$true)][string[]]$targetLocations,\n\n      # configuration type to deploy. must be either connecticity or securityadmin\n      [parameter(mandatory=$true)][ValidateSet('Connectivity','SecurityAdmin')][string]$configType,\n\n      # AVNM resource group name\n      [parameter(mandatory=$true)][string]$resourceGroupName\n    )\n  \n    $null = Login-AzAccount -Identity -Subscription $subscriptionId\n  \n    [System.Collections.Generic.List[string]]$configIdList = @()  \n    $configIdList.addRange($configIds) \n    [System.Collections.Generic.List[string]]$targetLocationList = @() # target locations for deployment\n    $targetLocationList.addRange($targetLocations)     \n    \n    $deployment = @{\n        Name = $networkManagerName\n        ResourceGroupName = $resourceGroupName\n        ConfigurationId = $configIdList\n        TargetLocation = $targetLocationList\n        CommitType = $configType\n    }\n  \n    try {\n      Deploy-AzNetworkManagerCommit @deployment -ErrorAction Stop\n    }\n    catch {\n      Write-Error \"Deployment failed with error: $_\"\n      throw \"Deployment failed with error: $_\"\n    }\n    "
+                        "scriptContent": "    param (\n      # AVNM subscription id\n      [parameter(mandatory=$true)][string]$subscriptionId,\n\n      # AVNM resource name\n      [parameter(mandatory=$true)][string]$networkManagerName,\n\n      # string with comma-separated list of config ids to deploy. ids must be of the same config type\n      [parameter(mandatory=$true)][string[]]$configIds,\n\n      # string with comma-separated list of deployment target regions\n      [parameter(mandatory=$true)][string[]]$targetLocations,\n\n      # configuration type to deploy. must be either connecticity or securityadmin\n      [parameter(mandatory=$true)][ValidateSet('Connectivity','Routing')][string]$configType,\n\n      # AVNM resource group name\n      [parameter(mandatory=$true)][string]$resourceGroupName\n    )\n  \n    $null = Login-AzAccount -Identity -Subscription $subscriptionId\n  \n    [System.Collections.Generic.List[string]]$configIdList = @()  \n    $configIdList.addRange($configIds) \n    [System.Collections.Generic.List[string]]$targetLocationList = @() # target locations for deployment\n    $targetLocationList.addRange($targetLocations)     \n    \n    $deployment = @{\n        Name = $networkManagerName\n        ResourceGroupName = $resourceGroupName\n        ConfigurationId = $configIdList\n        TargetLocation = $targetLocationList\n        CommitType = $configType\n    }\n  \n    try {\n      Deploy-AzNetworkManagerCommit @deployment -ErrorAction Stop\n    }\n    catch {\n      Write-Error \"Deployment failed with error: $_\"\n      throw \"Deployment failed with error: $_\"\n    }\n    "
                       },
                       "tags": "[coalesce(tryGet(parameters('tagsByResource'), 'Microsoft.Resources/deploymentScripts'), createObject())]"
                     }
@@ -4307,6 +4435,112 @@
               "dependsOn": [
                 "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HubResourceGroupName')), 'Microsoft.Resources/deployments', 'AVNM')]",
                 "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HubResourceGroupName')), 'Microsoft.Resources/deployments', 'AVNM-ConnectivityConfig')]",
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HubResourceGroupName')), 'Microsoft.Resources/deployments', 'UserAssignedIdentityForAVNM')]"
+              ]
+            },
+            {
+              "condition": "[parameters('deployAvnmUDRs')]",
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2022-09-01",
+              "name": "AVNM-RoutingConfig-Deployment",
+              "resourceGroup": "[parameters('HubResourceGroupName')]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "avnmName": {
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HubResourceGroupName')), 'Microsoft.Resources/deployments', 'AVNM'), '2022-09-01').outputs.name.value]"
+                  },
+                  "configType": {
+                    "value": "Routing"
+                  },
+                  "configurationId": "[if(parameters('deployAvnmUDRs'), createObject('value', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HubResourceGroupName')), 'Microsoft.Resources/deployments', 'AVNM-RoutingConfig'), '2022-09-01').outputs.id.value), createObject('value', ''))]",
+                  "deploymentScriptName": {
+                    "value": "[format('{0}-RoutingConfig-DeploymentScript', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HubResourceGroupName')), 'Microsoft.Resources/deployments', 'AVNM'), '2022-09-01').outputs.name.value)]"
+                  },
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
+                  "userAssignedIdentityId": {
+                    "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HubResourceGroupName')), 'Microsoft.Resources/deployments', 'UserAssignedIdentityForAVNM'), '2022-09-01').outputs.id.value]"
+                  },
+                  "tagsByResource": {
+                    "value": "[parameters('tagsByResource')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.33.93.31351",
+                      "templateHash": "9684264804540718041"
+                    }
+                  },
+                  "parameters": {
+                    "location": {
+                      "type": "string"
+                    },
+                    "userAssignedIdentityId": {
+                      "type": "string"
+                    },
+                    "avnmName": {
+                      "type": "string"
+                    },
+                    "configurationId": {
+                      "type": "string"
+                    },
+                    "deploymentScriptName": {
+                      "type": "string"
+                    },
+                    "configType": {
+                      "type": "string",
+                      "allowedValues": [
+                        "Connectivity",
+                        "Routing"
+                      ]
+                    },
+                    "tagsByResource": {
+                      "type": "object",
+                      "defaultValue": {}
+                    },
+                    "timeStamp": {
+                      "type": "string",
+                      "defaultValue": "[utcNow()]"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Resources/deploymentScripts",
+                      "apiVersion": "2023-08-01",
+                      "name": "[parameters('deploymentScriptName')]",
+                      "location": "[parameters('location')]",
+                      "kind": "AzurePowerShell",
+                      "identity": {
+                        "type": "UserAssigned",
+                        "userAssignedIdentities": {
+                          "[format('{0}', parameters('userAssignedIdentityId'))]": {}
+                        }
+                      },
+                      "properties": {
+                        "forceUpdateTag": "[parameters('timeStamp')]",
+                        "azPowerShellVersion": "8.3",
+                        "retentionInterval": "PT1H",
+                        "timeout": "PT1H",
+                        "arguments": "[format('-networkManagerName \"{0}\" -targetLocations {1} -configIds {2} -subscriptionId {3} -configType {4} -resourceGroupName {5}', parameters('avnmName'), parameters('location'), parameters('configurationId'), subscription().subscriptionId, parameters('configType'), resourceGroup().name)]",
+                        "scriptContent": "    param (\n      # AVNM subscription id\n      [parameter(mandatory=$true)][string]$subscriptionId,\n\n      # AVNM resource name\n      [parameter(mandatory=$true)][string]$networkManagerName,\n\n      # string with comma-separated list of config ids to deploy. ids must be of the same config type\n      [parameter(mandatory=$true)][string[]]$configIds,\n\n      # string with comma-separated list of deployment target regions\n      [parameter(mandatory=$true)][string[]]$targetLocations,\n\n      # configuration type to deploy. must be either connecticity or securityadmin\n      [parameter(mandatory=$true)][ValidateSet('Connectivity','Routing')][string]$configType,\n\n      # AVNM resource group name\n      [parameter(mandatory=$true)][string]$resourceGroupName\n    )\n  \n    $null = Login-AzAccount -Identity -Subscription $subscriptionId\n  \n    [System.Collections.Generic.List[string]]$configIdList = @()  \n    $configIdList.addRange($configIds) \n    [System.Collections.Generic.List[string]]$targetLocationList = @() # target locations for deployment\n    $targetLocationList.addRange($targetLocations)     \n    \n    $deployment = @{\n        Name = $networkManagerName\n        ResourceGroupName = $resourceGroupName\n        ConfigurationId = $configIdList\n        TargetLocation = $targetLocationList\n        CommitType = $configType\n    }\n  \n    try {\n      Deploy-AzNetworkManagerCommit @deployment -ErrorAction Stop\n    }\n    catch {\n      Write-Error \"Deployment failed with error: $_\"\n      throw \"Deployment failed with error: $_\"\n    }\n    "
+                      },
+                      "tags": "[coalesce(tryGet(parameters('tagsByResource'), 'Microsoft.Resources/deploymentScripts'), createObject())]"
+                    }
+                  ]
+                }
+              },
+              "dependsOn": [
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HubResourceGroupName')), 'Microsoft.Resources/deployments', 'AVNM')]",
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HubResourceGroupName')), 'Microsoft.Resources/deployments', 'AVNM-RoutingConfig')]",
                 "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HubResourceGroupName')), 'Microsoft.Resources/deployments', 'UserAssignedIdentityForAVNM')]"
               ]
             }
