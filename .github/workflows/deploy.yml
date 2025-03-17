@@ -149,7 +149,7 @@ jobs:
             }
                 
       - name: "Waiting for vWAN routing to finish deploying"
-        if: inputs.LabBuilderType == 'vwan'
+        if: inputs.LabBuilderType == 'vwan' && inputs.OnlyValidate == 'false'
         run: |
           az config set extension.use_dynamic_install=yes_without_prompt
           while true
@@ -163,7 +163,7 @@ jobs:
             fi
           done
       - name: "Waiting for vWAN to finish deploying"
-        if: inputs.LabBuilderType == 'vwan'
+        if: inputs.LabBuilderType == 'vwan' && inputs.OnlyValidate == 'false'
         run: |
           while true
           do
