@@ -66,6 +66,9 @@ param deployVMsInSpokes bool = false
 @description('Directly connect VNET Spokes (Fully Meshed Topology)')
 param deployVnetPeeringMesh bool = false
 
+@description('Let Azure Virtual Network Manager manage UDRs in Spoke VNETs')
+param deployAvnmUDRs bool = false
+
 @description('Enable Private Subnet in Default Subnet in Spoke VNETs')
 param defaultOutboundAccess bool = true
 
@@ -240,7 +243,7 @@ module spokeVnets 'SpokeResourceGroup.bicep' = [
       vmSize: vmSizeSpoke
       tagsByResource: tagsByResource
       osType: osTypeSpoke
-      deployUDRs: deployUDRs
+      deployUDRs: deployAvnmUDRs ? false : deployUDRs
       diagnosticWorkspaceId: diagnosticWorkspaceId
       firewallDNSproxy: firewallDNSproxy && deployFirewallInHub
       dcrID: deployHUB && isVnetHub
@@ -275,7 +278,7 @@ module vnetPeerings 'VnetPeerings.bicep' = [
 ]
 
 // VNET Peerings AVNM
-module vnetPeeringsAVNM 'VnetPeeringsAvnm.bicep' = if (deployHUB && deploySpokes && isVnetHub && deployVnetPeeringAVNM) {
+module vnetPeeringsAVNM 'Avnm.bicep' = if (deployHUB && deploySpokes && isVnetHub && deployVnetPeeringAVNM) {
   scope: subscription(hubSubscriptionID)
   name: '${hubRgName}-${location}-AVNM'
   params: {
@@ -292,7 +295,11 @@ module vnetPeeringsAVNM 'VnetPeeringsAvnm.bicep' = if (deployHUB && deploySpokes
     ]
     hubVNETid: deployHUB && deploySpokes && isVnetHub && deployVnetPeeringAVNM ? hubVnet.outputs.hubVnetID : 'No Hub'
     useHubGateway: deployGatewayInHub
-    deployVnetPeeringMesh: deployVnetPeeringMesh
+    deployVnetPeeringMesh: deployHUB && deploySpokes && isVnetHub && deployVnetPeeringAVNM && deployVnetPeeringMesh
+    deployAvnmUDRs: deployHUB && deploySpokes && isVnetHub && deployVnetPeeringAVNM && deployAvnmUDRs
+    AzFwPrivateIP: deployHUB && deploySpokes && isVnetHub && deployVnetPeeringAVNM && deployAvnmUDRs
+      ? hubVnet.outputs.azFwIp
+      : 'none'
     location: location
     tagsByResource: tagsByResource
   }

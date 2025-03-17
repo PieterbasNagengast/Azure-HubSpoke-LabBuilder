@@ -5,9 +5,11 @@ param configurationId string
 param deploymentScriptName string
 @allowed([
   'Connectivity'
+  'Routing'
 ])
 param configType string
 param tagsByResource object = {}
+param timeStamp string = utcNow()
 
 resource deploymentScript 'Microsoft.Resources/deploymentScripts@2023-08-01' = {
   name: deploymentScriptName
@@ -20,6 +22,7 @@ resource deploymentScript 'Microsoft.Resources/deploymentScripts@2023-08-01' = {
     }
   }
   properties: {
+    forceUpdateTag: timeStamp
     azPowerShellVersion: '8.3'
     retentionInterval: 'PT1H'
     timeout: 'PT1H'
@@ -39,7 +42,7 @@ resource deploymentScript 'Microsoft.Resources/deploymentScripts@2023-08-01' = {
       [parameter(mandatory=$true)][string[]]$targetLocations,
 
       # configuration type to deploy. must be either connecticity or securityadmin
-      [parameter(mandatory=$true)][ValidateSet('Connectivity','SecurityAdmin')][string]$configType,
+      [parameter(mandatory=$true)][ValidateSet('Connectivity','Routing')][string]$configType,
 
       # AVNM resource group name
       [parameter(mandatory=$true)][string]$resourceGroupName
