@@ -24,6 +24,10 @@ on:
         type: boolean
         required: true
         default: true
+      OnlyValidate:
+        type: boolean
+        required: true
+        default: false
   workflow_call:
     inputs:
       LabBuilderType:
@@ -34,6 +38,9 @@ on:
         required: true
       LabBuilderLocation:
         type: string
+        required: true
+      OnlyValidate:
+        type: boolean
         required: true
 
 permissions:
@@ -87,95 +94,96 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-  #     - name: Azure Login
-  #       uses: azure/login@v2
-  #       with:
-  #         client-id: ${{ secrets.AZURE_CLIENT_ID }}
-  #         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-  #         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-  #     - name: "Validating ${{ inputs.LabBuilderType }} scenario ${{ strategy.job-index }}"
-  #       uses: azure/bicep-deploy@v2
-  #       with:
-  #         type: "deployment"
-  #         scope: "subscription"
-  #         operation: "validate"
-  #         name: "LabBuilderValidation-${{ inputs.LabBuilderType }}-${{ github.run_id }}"    
-  #         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-  #         location: ${{ inputs.LabBuilderLocation}}
-  #         template-file: main.bicep
-  #         parameters-file: bicepparams/${{ matrix.scenarios }}
-  #         parameters: >-
-  #           {
-  #           "adminUsername": "${{ secrets.ADMINUSERNAME }}",
-  #           "adminPassword": "${{ secrets.ADMINPASSWORD }}",
-  #           "sharedKey": "${{ secrets.SHAREDKEY }}",
-  #           "hubSubscriptionID": "${{ secrets.HUB_SUBSCRIPTION_ID }}",
-  #           "spokeSubscriptionID": "${{ secrets.SPOKE_SUBSCRIPTION_ID }}",
-  #           "onPremSubscriptionID": "${{ secrets.ONPREM_SUBSCRIPTION_ID }}",
-  #           "spokeRgNamePrefix": "LabBuilderValidation-${{ inputs.LabBuilderType }}-spoke",
-  #           "hubRgName": "LabBuilderValidation-${{ inputs.LabBuilderType }}-hub",
-  #           "onpremRgName": "LabBuilderValidation-${{ inputs.LabBuilderType }}-onprem"
-  #           }
-  #     - name: "Deploy ${{ inputs.LabBuilderType }} scenario ${{ strategy.job-index }}"
-  #       uses: azure/bicep-deploy@v2
-  #       with:
-  #         type: "deployment"
-  #         operation: "create"
-  #         scope: "subscription"
-  #         name: "LabBuilderValidation-${{ inputs.LabBuilderType }}-${{ github.run_id }}"
-  #         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-  #         location: ${{ inputs.LabBuilderLocation}}
-  #         template-file: main.bicep
-  #         parameters-file: bicepparams/${{ matrix.scenarios }}
-  #         parameters: >-
-  #           {
-  #           "adminUsername": "${{ secrets.ADMINUSERNAME }}",
-  #           "adminPassword": "${{ secrets.ADMINPASSWORD }}",
-  #           "sharedKey": "${{ secrets.SHAREDKEY }}",
-  #           "hubSubscriptionID": "${{ secrets.HUB_SUBSCRIPTION_ID }}",
-  #           "spokeSubscriptionID": "${{ secrets.SPOKE_SUBSCRIPTION_ID }}",
-  #           "onPremSubscriptionID": "${{ secrets.ONPREM_SUBSCRIPTION_ID }}",
-  #           "spokeRgNamePrefix": "LabBuilderValidation-${{ inputs.LabBuilderType }}-spoke",
-  #           "hubRgName": "LabBuilderValidation-${{ inputs.LabBuilderType }}-hub",
-  #           "onpremRgName": "LabBuilderValidation-${{ inputs.LabBuilderType }}-onprem"
-  #           }
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - name: "Validating ${{ inputs.LabBuilderType }} scenario ${{ strategy.job-index }}"
+        uses: azure/bicep-deploy@v2
+        with:
+          type: "deployment"
+          scope: "subscription"
+          operation: "validate"
+          name: "LabBuilderValidation-${{ inputs.LabBuilderType }}-${{ github.run_id }}"    
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          location: ${{ inputs.LabBuilderLocation}}
+          template-file: main.bicep
+          parameters-file: bicepparams/${{ matrix.scenarios }}
+          parameters: >-
+            {
+            "adminUsername": "${{ secrets.ADMINUSERNAME }}",
+            "adminPassword": "${{ secrets.ADMINPASSWORD }}",
+            "sharedKey": "${{ secrets.SHAREDKEY }}",
+            "hubSubscriptionID": "${{ secrets.HUB_SUBSCRIPTION_ID }}",
+            "spokeSubscriptionID": "${{ secrets.SPOKE_SUBSCRIPTION_ID }}",
+            "onPremSubscriptionID": "${{ secrets.ONPREM_SUBSCRIPTION_ID }}",
+            "spokeRgNamePrefix": "LabBuilderValidation-${{ inputs.LabBuilderType }}-spoke",
+            "hubRgName": "LabBuilderValidation-${{ inputs.LabBuilderType }}-hub",
+            "onpremRgName": "LabBuilderValidation-${{ inputs.LabBuilderType }}-onprem"
+            }
+      - name: "Deploy ${{ inputs.LabBuilderType }} scenario ${{ strategy.job-index }}"
+        if: inputs.OnlyValidate == 'false'
+        uses: azure/bicep-deploy@v2
+        with:
+          type: "deployment"
+          operation: "create"
+          scope: "subscription"
+          name: "LabBuilderValidation-${{ inputs.LabBuilderType }}-${{ github.run_id }}"
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          location: ${{ inputs.LabBuilderLocation}}
+          template-file: main.bicep
+          parameters-file: bicepparams/${{ matrix.scenarios }}
+          parameters: >-
+            {
+            "adminUsername": "${{ secrets.ADMINUSERNAME }}",
+            "adminPassword": "${{ secrets.ADMINPASSWORD }}",
+            "sharedKey": "${{ secrets.SHAREDKEY }}",
+            "hubSubscriptionID": "${{ secrets.HUB_SUBSCRIPTION_ID }}",
+            "spokeSubscriptionID": "${{ secrets.SPOKE_SUBSCRIPTION_ID }}",
+            "onPremSubscriptionID": "${{ secrets.ONPREM_SUBSCRIPTION_ID }}",
+            "spokeRgNamePrefix": "LabBuilderValidation-${{ inputs.LabBuilderType }}-spoke",
+            "hubRgName": "LabBuilderValidation-${{ inputs.LabBuilderType }}-hub",
+            "onpremRgName": "LabBuilderValidation-${{ inputs.LabBuilderType }}-onprem"
+            }
                 
-  #     - name: "Waiting for vWAN routing to finish deploying"
-  #       if: inputs.LabBuilderType == 'vwan'
-  #       run: |
-  #         az config set extension.use_dynamic_install=yes_without_prompt
-  #         while true
-  #         do
-  #           sleep 10
-  #           status=$(az network vhub show -g LabBuilderValidation-${{ inputs.LabBuilderType }}-hub -n HUB-${{ inputs.LabBuilderLocation}} --query routingState -o tsv)
-  #           echo "vWAN Hub Routing status: $status"
-  #           if [ "$status" != "Provisioning" ]; then
-  #             echo "vWAN Hub Routing status: $status"
-  #             break
-  #           fi
-  #         done
-  #     - name: "Waiting for vWAN to finish deploying"
-  #       if: inputs.LabBuilderType == 'vwan'
-  #       run: |
-  #         while true
-  #         do
-  #           sleep 10
-  #           status=$(az network vhub show -g LabBuilderValidation-${{ inputs.LabBuilderType }}-hub -n HUB-${{ inputs.LabBuilderLocation}} --query provisioningState -o tsv)
-  #           echo "vWAN status: $status"
-  #           if [ "$status" != "Updating" ]; then
-  #             echo "vWAN status: $status"
-  #             break
-  #           fi
-  #         done
+      - name: "Waiting for vWAN routing to finish deploying"
+        if: inputs.LabBuilderType == 'vwan'
+        run: |
+          az config set extension.use_dynamic_install=yes_without_prompt
+          while true
+          do
+            sleep 10
+            status=$(az network vhub show -g LabBuilderValidation-${{ inputs.LabBuilderType }}-hub -n HUB-${{ inputs.LabBuilderLocation}} --query routingState -o tsv)
+            echo "vWAN Hub Routing status: $status"
+            if [ "$status" != "Provisioning" ]; then
+              echo "vWAN Hub Routing status: $status"
+              break
+            fi
+          done
+      - name: "Waiting for vWAN to finish deploying"
+        if: inputs.LabBuilderType == 'vwan'
+        run: |
+          while true
+          do
+            sleep 10
+            status=$(az network vhub show -g LabBuilderValidation-${{ inputs.LabBuilderType }}-hub -n HUB-${{ inputs.LabBuilderLocation}} --query provisioningState -o tsv)
+            echo "vWAN status: $status"
+            if [ "$status" != "Updating" ]; then
+              echo "vWAN status: $status"
+              break
+            fi
+          done
           
-  # Cleanup:
-  #   if: inputs.LabBuilderCleanup
-  #   needs: DeployScenarios
-  #   uses: ./.github/workflows/cleanup.yml
-  #   with:
-  #       LabBuilderType: ${{ inputs.LabBuilderType }}
-  #   secrets:
-  #       inherit
+  Cleanup:
+    if: inputs.LabBuilderCleanup
+    needs: DeployScenarios
+    uses: ./.github/workflows/cleanup.yml
+    with:
+        LabBuilderType: ${{ inputs.LabBuilderType }}
+    secrets:
+        inherit
 
 
 

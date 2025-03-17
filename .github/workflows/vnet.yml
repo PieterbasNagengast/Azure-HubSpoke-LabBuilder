@@ -17,6 +17,10 @@ on:
         type: boolean
         required: true
         default: true
+      OnlyValidate:
+        type: boolean
+        required: true
+        default: false
 
 jobs:
     Deploy:
@@ -25,5 +29,6 @@ jobs:
             LabBuilderType: vnet
             LabBuilderCleanup: ${{ inputs.LabBuilderCleanup }}
             LabBuilderLocation: ${{ inputs.LabBuilderLocation }}
+            OnlyValidate: ${{ inputs.OnlyValidate }}
         secrets:
             inherit
