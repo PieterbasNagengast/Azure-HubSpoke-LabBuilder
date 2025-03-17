@@ -9,6 +9,7 @@ param deploymentScriptName string
 ])
 param configType string
 param tagsByResource object = {}
+param timeStamp string = utcNow()
 
 resource deploymentScript 'Microsoft.Resources/deploymentScripts@2023-08-01' = {
   name: deploymentScriptName
@@ -21,6 +22,7 @@ resource deploymentScript 'Microsoft.Resources/deploymentScripts@2023-08-01' = {
     }
   }
   properties: {
+    forceUpdateTag: timeStamp
     azPowerShellVersion: '8.3'
     retentionInterval: 'PT1H'
     timeout: 'PT1H'
