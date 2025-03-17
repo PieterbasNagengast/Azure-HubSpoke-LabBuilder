@@ -278,7 +278,7 @@ module vnetPeerings 'VnetPeerings.bicep' = [
 ]
 
 // VNET Peerings AVNM
-module vnetPeeringsAVNM 'VnetPeeringsAvnm.bicep' = if (deployHUB && deploySpokes && isVnetHub && deployVnetPeeringAVNM) {
+module vnetPeeringsAVNM 'Avnm.bicep' = if (deployHUB && deploySpokes && isVnetHub && deployVnetPeeringAVNM) {
   scope: subscription(hubSubscriptionID)
   name: '${hubRgName}-${location}-AVNM'
   params: {

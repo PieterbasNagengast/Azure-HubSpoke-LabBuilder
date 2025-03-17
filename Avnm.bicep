@@ -36,7 +36,7 @@ module avnmGroup 'modules/avnmgroup.bicep' = {
   }
 }
 
-module avnmConnectivityConfig 'modules/avnmconfig.bicep' = {
+module avnmConnectivityConfig 'modules/avnmconfigconnectivity.bicep' = {
   scope: hubrg
   name: 'AVNM-ConnectivityConfig'
   params: {
@@ -49,7 +49,7 @@ module avnmConnectivityConfig 'modules/avnmconfig.bicep' = {
   }
 }
 
-module avnmRoutingConfig 'modules/avnmroutingconfig.bicep' = if (deployAvnmUDRs) {
+module avnmRoutingConfig 'modules/avnmconfigrouting.bicep' = if (deployAvnmUDRs) {
   scope: hubrg
   name: 'AVNM-RoutingConfig'
   params: {
@@ -92,7 +92,7 @@ module avnmConnectivityConfigDeployment 'modules/avnmdeployment.bicep' = {
   }
 }
 
-module avnmRoutingConfigDeployment 'modules/avnmdeployment.bicep' = {
+module avnmRoutingConfigDeployment 'modules/avnmdeployment.bicep' = if (deployAvnmUDRs) {
   scope: hubrg
   name: 'AVNM-RoutingConfig-Deployment'
   params: {
