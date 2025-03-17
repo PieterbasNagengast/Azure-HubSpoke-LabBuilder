@@ -471,6 +471,27 @@
 							"visible": "[equals(steps('HubVNET').deployVnetPeeringAVNM,true)]"
 						},
 						{
+							"name": "deployAvnmUDRs",
+							"type": "Microsoft.Common.OptionsGroup",
+							"label": "Let AVNM manage UDR's in Spokes",
+							"defaultValue": "no",
+							"toolTip": "Let AVNM manage UDR's in Spokes VNET's. This will override the UDR's deployed in the Spokes VNET's. Note: this will only work if AVNM is deployed in Hub VNET.",
+							"constraints": {
+								"allowedValues": [
+									{
+										"label": "yes",
+										"value": true
+									},
+									{
+										"label": "no",
+										"value": false
+									}
+								],
+								"required": true
+							},
+							"visible": "[and(equals(steps('HubVNET').deployVnetPeeringAVNM,true),equals(steps('HubVNET').deployFirewallInHub,true))]"
+						},
+						{
 							"name": "PeeringMeshInfoAVNM",
 							"type": "Microsoft.Common.InfoBox",
 							"options": {
@@ -991,6 +1012,7 @@
 				"defaultOutboundAccess": "[coalesce(steps('SpokeVNETs').EnablePrivateSubnet,true)]",
 				"amountOfSpokes": "[steps('SpokeVNETs').amountOfSpokes]",
 				"deployVnetPeeringMesh": "[coalesce(steps('SpokeVNETs').deployVnetPeeringMesh,false)]",
+				"deployAvnmUDRs": "[coalesce(steps('SpokeVNETs').deployAvnmUDRs,false)]",
 				"deployHUB": "[coalesce(steps('HubVNET').deployHUB,false)]",
 				"hubType": "[steps('HubVNET').VNETorVWAN]",
 				"deployVnetPeeringAVNM": "[steps('HubVNET').deployVnetPeeringAVNM]",
