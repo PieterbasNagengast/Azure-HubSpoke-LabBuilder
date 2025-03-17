@@ -68,7 +68,7 @@ jobs:
         id: generate_list
         run: |
           files=$(ls bicepparams/*.bicepparam)
-          filtered_files=$(echo "$files" | grep "${{ inputs.LabBuilderType }}" | sed '/^$/d')
+          filtered_files=$(echo "$files" | grep "${{ inputs.LabBuilderType }}" | sed '/^$/d' | sed 's|bicepparams/||g')
           json_array=$(echo "$filtered_files" | jq -R . | jq -s .)
           echo "$json_array" | jq .
           echo "parameter_files=$json_array" >> $GITHUB_OUTPUT
