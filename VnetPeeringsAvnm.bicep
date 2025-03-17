@@ -7,7 +7,9 @@ param spokeVNETids array
 param hubVNETid string
 param useHubGateway bool
 param deployVnetPeeringMesh bool
+param deployAvnmUDRs bool = false
 param tagsByResource object = {}
+param AzFwPrivateIP string
 
 resource hubrg 'Microsoft.Resources/resourceGroups@2023-07-01' existing = {
   name: HubResourceGroupName
@@ -47,6 +49,16 @@ module avnmConnectivityConfig 'modules/avnmconfig.bicep' = {
   }
 }
 
+module avnmRoutingConfig 'modules/avnmroutingconfig.bicep' = if (deployAvnmUDRs) {
+  scope: hubrg
+  name: 'AVNM-RoutingConfig'
+  params: {
+    avnmName: avnm.outputs.name
+    avnmNetworkGroupId: avnmGroup.outputs.id
+    AzFwPrivateIP: AzFwPrivateIP
+  }
+}
+
 module userAssignedIdentity 'modules/uai.bicep' = {
   scope: hubrg
   name: 'UserAssignedIdentityForAVNM'
@@ -66,14 +78,28 @@ module roleAssignment 'modules/avnmroleassignment.bicep' = {
   }
 }
 
-module avnmConfigDeployment 'modules/avnmdeployment.bicep' = {
+module avnmConnectivityConfigDeployment 'modules/avnmdeployment.bicep' = {
   scope: hubrg
-  name: 'AVNM-ConfigurationDeployment'
+  name: 'AVNM-ConnectivityConfig-Deployment'
   params: {
     avnmName: avnm.outputs.name
     configType: 'Connectivity'
     configurationId: avnmConnectivityConfig.outputs.id
-    deploymentScriptName: '${avnm.outputs.name}-DeploymentScript'
+    deploymentScriptName: '${avnm.outputs.name}-ConnectivityConfig-DeploymentScript'
+    location: location
+    userAssignedIdentityId: userAssignedIdentity.outputs.id
+    tagsByResource: tagsByResource
+  }
+}
+
+module avnmRoutingConfigDeployment 'modules/avnmdeployment.bicep' = {
+  scope: hubrg
+  name: 'AVNM-RoutingConfig-Deployment'
+  params: {
+    avnmName: avnm.outputs.name
+    configType: 'Routing'
+    configurationId: deployAvnmUDRs ? avnmRoutingConfig.outputs.id : ''
+    deploymentScriptName: '${avnm.outputs.name}-RoutingConfig-DeploymentScript'
     location: location
     userAssignedIdentityId: userAssignedIdentity.outputs.id
     tagsByResource: tagsByResource

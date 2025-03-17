@@ -247,6 +247,7 @@ When deploying Private Subnets in the Spoke VNET's you can disable the default o
 - Updated Resources API's to latest version
 - Add support for Private Subnet on Spoke VNET's
 - Added NSG for Bastion Subnets
+- for AVNM deployments: added support for AVNM managed Route tables (UDR's)
 - for Test Pipelines: moved from JSON paramters files to bicep parameters files
 - for Test Pipelines: move to azure/bicep-deploy@v2
 
