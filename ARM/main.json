@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.33.93.31351",
-      "templateHash": "52814557451258607"
+      "templateHash": "16895014207348898373"
     }
   },
   "parameters": {
@@ -96,7 +96,7 @@
       "type": "object",
       "defaultValue": {},
       "metadata": {
-        "description": "Tags by resource types"
+        "description": "Tags by resource types. Default = empty"
       }
     },
     "diagnosticWorkspaceId": {
