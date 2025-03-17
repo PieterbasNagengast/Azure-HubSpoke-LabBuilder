@@ -44,7 +44,7 @@ param AddressSpace string = '172.16.0.0/16'
 @description('Azure Region. Defualt = Deployment location')
 param location string = deployment().location
 
-@description('Tags by resource types')
+@description('Tags by resource types. Default = empty')
 param tagsByResource object = {}
 
 @description('LogAnalytics Workspace resourceID')
