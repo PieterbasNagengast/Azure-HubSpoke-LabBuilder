@@ -67,13 +67,10 @@ jobs:
       - name: Generate list of parameter files
         id: generate_list
         run: |
-          # Get the list of parameter files
           files=$(ls bicepparams/*.bicepparam)
-          # Filter the files based on the LabBuilderType input
-          filtered_files=$(echo "$files" | grep "${{ inputs.LabBuilderType }}")
-          # Convert the filtered files to a JSON array
+          filtered_files=$(echo "$files" | grep "${{ inputs.LabBuilderType }}" | sed '/^$/d')
           json_array=$(echo "$filtered_files" | jq -R . | jq -s .)
-          # Set the output variable
+          echo "$json_array" | jq .
           echo "parameter_files=$json_array" >> $GITHUB_OUTPUT
 
   DeployScenarios:
