@@ -37,7 +37,7 @@ resource vWanSecureRoutes 'Microsoft.Network/virtualHubs/hubRouteTables@2024-05-
   }
 }
 
-resource vWANHubRoutingIntent 'Microsoft.Network/virtualHubs/routingIntent@2023-04-01' = if (deployFirewallInHub && (internetTrafficRoutingPolicy || privateTrafficRoutingPolicy)) {
+resource vWANHubRoutingIntent 'Microsoft.Network/virtualHubs/routingIntent@2024-05-01' = if (deployFirewallInHub && (internetTrafficRoutingPolicy || privateTrafficRoutingPolicy)) {
   name: '${vwanHubName}/${vwanHubName}-RoutingIntent'
   properties: {
     routingPolicies: (internetTrafficRoutingPolicy == true && privateTrafficRoutingPolicy == true)

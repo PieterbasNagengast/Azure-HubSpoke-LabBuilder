@@ -2,7 +2,7 @@ param location string
 param uaiName string
 param tagsByResource object = {}
 
-resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-07-31-preview' = {
+resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2024-11-30' = {
   name: '${uaiName}-${location}'
   location: location
   tags: tagsByResource[?'Microsoft.ManagedIdentity/userAssignedIdentities'] ?? {}
