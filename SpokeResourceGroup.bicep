@@ -1,6 +1,7 @@
 targetScope = 'subscription'
 
 param location string
+param shortLocationCode string
 param AddressSpace string
 param counter int
 param adminUsername string
@@ -11,7 +12,7 @@ param deployFirewallInHub bool
 param deployUDRs bool
 param AzureFirewallpip string
 param HubDeployed bool
-param spokeRgNamePrefix string
+param spokeRgName string
 param vmSize string
 param tagsByResource object
 param osType string
@@ -22,15 +23,15 @@ param diagnosticWorkspaceId string
 
 param dcrID string
 
-var vnetName = 'VNET-Spoke${counter}'
-var vmName = 'VM-Spoke${counter}'
-var rtName = 'RT-Spoke${counter}'
-var nsgName = 'NSG-Spoke${counter}'
+var vnetName = 'VNET-Spoke${counter}-${shortLocationCode}'
+var vmName = 'VM-Spoke${counter}-${shortLocationCode}'
+var rtName = 'RT-Spoke${counter}-${shortLocationCode}'
+var nsgName = 'NSG-Spoke${counter}-${shortLocationCode}'
 
 var defaultSubnetPrefix = cidrSubnet(AddressSpace, 26, 0)
 
 resource spokerg 'Microsoft.Resources/resourceGroups@2023-07-01' = {
-  name: '${spokeRgNamePrefix}${counter}'
+  name: spokeRgName
   location: location
   tags: tagsByResource[?'Microsoft.Resources/subscriptions/resourceGroups'] ?? {}
 }

@@ -1,6 +1,7 @@
 targetScope = 'subscription'
 
 param location string
+param shortLocationCode string
 param AddressSpace string
 param hubAddressSpace string
 param deployBastionInHub bool
@@ -26,12 +27,12 @@ var gatewaySubnetPrefix = cidrSubnet(hubAddressSpace, 26, 2)
 
 var firewallIP = cidrHost(firewallSubnetPrefix, 3)
 
-var bastionName = 'Bastion-Hub'
-var rtNameVPNgwSubnet = 'RT-Hub-GatewaySubnet'
-var hubVnetName = 'VNET-Hub'
-var firewallName = 'Firewall-Hub'
-var gatewayName = 'Gateway-Hub'
-var bastionNsgName = 'NSG-Bastion-Hub'
+var bastionName = 'Bastion-Hub-${shortLocationCode}'
+var rtNameVPNgwSubnet = 'RT-Hub-GatewaySubnet-${shortLocationCode}'
+var hubVnetName = 'VNET-Hub-${shortLocationCode}'
+var firewallName = 'Firewall-Hub-${shortLocationCode}'
+var gatewayName = 'Gateway-Hub-${shortLocationCode}'
+var bastionNsgName = 'NSG-Bastion-Hub-${shortLocationCode}'
 
 // Create the resource group for the hub
 resource hubrg 'Microsoft.Resources/resourceGroups@2023-07-01' = {
