@@ -28,16 +28,6 @@ type _Locations = {
   onPremSubscriptionID: string
 }[]
 
-// // Subscriptions
-// @description('SubscriptionID for HUB deployemnt')
-// param hubSubscriptionID string = subscription().subscriptionId
-
-// @description('SubscriptionID for Spoke deployemnt')
-// param spokeSubscriptionID string = subscription().subscriptionId
-
-// @description('SubscriptionID for OnPrem deployemnt')
-// param onPremSubscriptionID string = subscription().subscriptionId
-
 // Virtual Machine parameters
 @description('Admin username for Virtual Machines')
 param adminUsername string
@@ -65,13 +55,7 @@ param osTypeSpoke string = 'Windows'
 ])
 param osTypeOnPrem string = 'Windows'
 
-// // Shared parameters
-// @description('IP Address space used for VNETs in deployment. Only enter a /16 subnet. Default = 172.16.0.0/16')
-// param AddressSpace string = '172.16.0.0/16'
-
-// @description('Azure Region. Defualt = Deployment location')
-// param location string = deployment().location
-
+// Shared parameters
 @description('Tags by resource types. Default = empty')
 param tagsByResource object = {}
 
@@ -129,7 +113,7 @@ param bastionInHubSKU string = 'Basic'
 param deployGatewayInHub bool = false
 
 @description('Deploy Azure Firewall in Hub VNET. includes deployment of custom route tables in Spokes and Hub VNETs')
-param deployFirewallInHub bool = false
+param deployFirewallInHub bool = true
 
 @description('Azure Firewall Tier: Standard or Premium')
 @allowed([
@@ -234,11 +218,14 @@ var regionShortCodes = {
   westus3: 'WUS'
 }
 
+var isMultiRegion = length(locations) > 1
+
 module deployRegion 'mainRegion.bicep' = [
-  for location in locations: {
+  for (location, i) in locations: {
     name: 'deployRegion-${regionShortCodes[location.region]}'
     params: {
       location: location.region
+      isMultiRegion: isMultiRegion
       shortLocationCode: regionShortCodes[location.region]
       hubSubscriptionID: location.hubSubscriptionID
       spokeSubscriptionID: location.spokeSubscriptionID
@@ -289,10 +276,25 @@ module deployRegion 'mainRegion.bicep' = [
   }
 ]
 
-module deployGlobalVnetPeerings 'VnetPeeringsNEW.bicep' = if (length(locations) == 2) {
+module deployGlobalVnetPeerings 'VnetPeeringsNEW.bicep' = if (isMultiRegion) {
   name: 'deployGlobalVnetPeerings'
   params: {
     vnetIDA: deployRegion[0].outputs.HubVnetID
     vnetIDB: deployRegion[1].outputs.HubVnetID
   }
 }
+
+module route 'modules/route.bicep' = [
+  for (location, i) in locations: if (isMultiRegion && deployFirewallInHub && deployUDRs) {
+    scope: resourceGroup(location.hubSubscriptionID, '${hubRgName}-${regionShortCodes[location.region]}')
+    name: 'DeployRegionRoute-${regionShortCodes[location.region]}'
+    params: {
+      routeName: '${deployRegion[i].outputs.HubRtFirewallName}/toRegion${regionShortCodes[location.region]}'
+      routeNextHopType: 'VirtualAppliance'
+      routeNextHopIpAddress: i == 0
+        ? deployRegion[1].outputs.VNET_AzFwPrivateIp
+        : deployRegion[0].outputs.VNET_AzFwPrivateIp
+      routeAddressPrefix: i == 0 ? locations[1].regionAddressSpace : locations[0].regionAddressSpace
+    }
+  }
+]

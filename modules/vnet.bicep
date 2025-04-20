@@ -9,6 +9,7 @@ param nsgID string = 'none'
 param bastionNSGID string = 'none'
 param rtDefID string = 'none'
 param rtGwID string = 'none'
+param rtFwID string = 'none'
 param deployDefaultSubnet bool
 param deployBastionSubnet bool = false
 param deployFirewallSubnet bool = false
@@ -50,6 +51,7 @@ var firewallSubnet = deployFirewallSubnet
         name: 'AzureFirewallSubnet'
         properties: {
           addressPrefix: firewallSubnetPrefix
+          routeTable: rtFwID == 'none' ? null : json('{"id": "${rtFwID}"}"')
         }
       }
     ]

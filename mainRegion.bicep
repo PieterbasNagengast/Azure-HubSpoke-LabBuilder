@@ -122,6 +122,8 @@ param firewallDNSproxy bool
 @description('Dploy route tables (UDR\'s) to VM subnet(s) in Hub and Spokes')
 param deployUDRs bool
 
+param isMultiRegion bool
+
 @description('Enable BGP on Hub Gateway')
 param hubBgp bool
 
@@ -187,6 +189,7 @@ module hubVnet 'HubResourceGroup.bicep' = if (deployHUB && isVnetHub) {
   params: {
     deployBastionInHub: deployBastionInHub && isVnetHub
     location: location
+    isMultiRegion: isMultiRegion
     shortLocationCode: shortLocationCode
     AddressSpace: AddressSpace
     hubAddressSpace: AllAddressSpaces[0]
@@ -421,6 +424,9 @@ module vwans2s 'vWanVpnConnections.bicep' = if (deployGatewayInHub && deployGate
 }
 
 // Outputs
+output HubRtFirewallName string = deployFirewallInHub && deployHUB && isVnetHub
+  ? hubVnet.outputs.rtFirewallName
+  : 'none'
 output VNET_AzFwPrivateIp string = deployFirewallInHub && deployHUB && isVnetHub ? hubVnet.outputs.azFwIp : 'none'
 output VWAN_AzFwPublicIp array = deployFirewallInHub && deployHUB && isVwanHub ? vwan.outputs.vWanFwPublicIP : []
 output HubVnetID string = deployHUB && isVnetHub ? hubVnet.outputs.hubVnetID : 'none'

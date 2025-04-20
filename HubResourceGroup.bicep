@@ -3,6 +3,7 @@ targetScope = 'subscription'
 param location string
 param shortLocationCode string
 param AddressSpace string
+param isMultiRegion bool
 param hubAddressSpace string
 param deployBastionInHub bool
 param bastionSku string
@@ -70,6 +71,7 @@ module vnet 'modules/vnet.bicep' = {
     deployGatewaySubnet: deployGatewayInHub
     tagsByResource: tagsByResource
     azFwIp: firewallIP
+    rtFwID: isMultiRegion ? rtFirewall.outputs.rtID : 'none'
     firewallDNSproxy: firewallDNSproxy
   }
 }
@@ -139,6 +141,7 @@ module rtvpngw 'modules/routetable.bicep' = if (deployFirewallInHub && deployGat
     location: location
     rtName: rtNameVPNgwSubnet
     disableRouteProp: false
+    tagsByResource: tagsByResource
   }
 }
 
@@ -156,6 +159,18 @@ module routeVPNgw 'modules/route.bicep' = [
   }
 ]
 
+module rtFirewall 'modules/routetable.bicep' = if (deployFirewallInHub && deployUDRs && isMultiRegion) {
+  scope: hubrg
+  name: 'routeTable-FW'
+  params: {
+    location: location
+    rtName: 'RT-Hub-FW-${shortLocationCode}'
+    disableRouteProp: false
+    isFirewallSubnet: true
+    tagsByResource: tagsByResource
+  }
+}
+
 output hubVnetID string = vnet.outputs.vnetID
 output azFwIp string = deployFirewallInHub ? firewall.outputs.azFwIP : '1.2.3.4'
 output HubResourceGroupName string = hubrg.name
@@ -165,3 +180,4 @@ output hubGatewayPublicIP string = deployGatewayInHub ? vpngw.outputs.vpnGwPubli
 output hubGatewayID string = deployGatewayInHub ? vpngw.outputs.vpnGwID : 'none'
 output HubGwBgpPeeringAddress string = deployGatewayInHub ? vpngw.outputs.vpnGwBgpPeeringAddress : 'none'
 output dcrvminsightsID string = !empty(diagnosticWorkspaceId) ? dcrvminsights.outputs.dcrID : ''
+output rtFirewallName string = rtFirewall.outputs.rtName
