@@ -214,8 +214,8 @@ var regionShortCodes = {
   centralus: 'CUS'
   eastus: 'EUS'
   southcentralus: 'SCU'
-  westus2: 'WUS'
-  westus3: 'WUS'
+  westus2: 'WUS2'
+  westus3: 'WUS3'
 }
 
 var isMultiRegion = length(locations) > 1
