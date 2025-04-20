@@ -19,24 +19,4 @@ resource vWan 'Microsoft.Network/virtualWans@2024-05-01' = {
   tags: tagsByResource[?'Microsoft.Network/virtualWans'] ?? {}
 }
 
-// resource vWanHub 'Microsoft.Network/virtualHubs@2024-05-01' = {
-//   name: 'HUB-${location}'
-//   location: location
-//   properties: {
-//     allowBranchToBranchTraffic: true
-//     hubRoutingPreference: 'ExpressRoute'
-//     virtualRouterAsn: 65515
-//     virtualRouterAutoScaleConfiguration: {
-//       minCapacity: 2
-//     }
-//     addressPrefix: AddressPrefix
-//     virtualWan: {
-//       id: vWan.id
-//     }
-//   }
-// }
-
 output ID string = vWan.id
-// output vWanHubID string = vWanHub.id
-// output vWanHubAddressSpace string = vWanHub.properties.addressPrefix
-// output vWanHubName string = vWanHub.name

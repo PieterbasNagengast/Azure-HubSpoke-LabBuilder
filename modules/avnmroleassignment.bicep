@@ -6,7 +6,6 @@ param principalID string
   'ForeignGroup'
 ])
 param principalType string = 'ServicePrincipal'
-// param roleID string = 'b24988ac-6180-42a0-ab88-20f7382dd24c' // Contributor: b24988ac-6180-42a0-ab88-20f7382dd24c
 param roleID string = '4d97b98b-1d4f-4787-a291-c67834d212e7' // Network Contributor: 4d97b98b-1d4f-4787-a291-c67834d212e7
 param avnmName string
 

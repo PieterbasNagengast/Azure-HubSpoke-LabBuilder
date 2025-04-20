@@ -4,17 +4,6 @@ param vWanID string
 param tagsByResource object = {}
 param AddressPrefix string
 
-// resource vWan 'Microsoft.Network/virtualWans@2024-05-01' = {
-//   name: vWanName
-//   location: location
-//   properties: {
-//     type: vWanType
-//     disableVpnEncryption: false
-//     allowBranchToBranchTraffic: true
-//   }
-//   tags: tagsByResource[?'Microsoft.Network/virtualWans'] ?? {}
-// }
-
 resource vWanHub 'Microsoft.Network/virtualHubs@2024-05-01' = {
   name: 'HUB-${shortLocationCode}'
   location: location
@@ -33,7 +22,5 @@ resource vWanHub 'Microsoft.Network/virtualHubs@2024-05-01' = {
   tags: tagsByResource[?'Microsoft.Network/virtualHubs'] ?? {}
 }
 
-// output vWanID string = vWan.id
 output ID string = vWanHub.id
-output AddressSpace string = vWanHub.properties.addressPrefix
 output Name string = vWanHub.name
