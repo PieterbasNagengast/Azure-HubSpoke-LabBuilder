@@ -18,6 +18,7 @@ param privateTrafficRoutingPolicy bool
 // var vWanName = 'vWAN'
 var firewallName = 'Firewall-Hub-${shortLocationCode}'
 var gatewayName = 'Gateway-Hub-${shortLocationCode}'
+var vwanHubName = 'HUB-${shortLocationCode}'
 
 // Reference existing the resource group for the hub
 resource hubrg 'Microsoft.Resources/resourceGroups@2023-07-01' existing = {
@@ -27,10 +28,10 @@ resource hubrg 'Microsoft.Resources/resourceGroups@2023-07-01' existing = {
 // Deploy vWan and vWan Hub
 module vwanHub 'modules/vwanhub.bicep' = {
   scope: hubrg
-  name: 'vWanHub-${shortLocationCode}'
+  name: vwanHubName
   params: {
+    HubName: vwanHubName
     AddressPrefix: AddressSpace
-    shortLocationCode: shortLocationCode
     location: location
     tagsByResource: tagsByResource
     vWanID: vWanID
@@ -55,7 +56,7 @@ module AzFirewall 'modules/firewall.bicep' = if (deployFirewallInHub) {
 // If Azure Firewall deployed in vWan Hub AND Firewall policy rules is selected
 module firewallrules 'modules/firewallpolicyrules.bicep' = if (deployFirewallrules && deployFirewallInHub) {
   scope: hubrg
-  name: 'firewallRules'
+  name: 'firewallRules-${shortLocationCode}'
   params: {
     azFwPolicyName: deployFirewallInHub && deployFirewallrules ? AzFirewall.outputs.azFwPolicyName : 'none'
     AddressSpace: AddressSpace
@@ -65,7 +66,7 @@ module firewallrules 'modules/firewallpolicyrules.bicep' = if (deployFirewallrul
 // If Azure Firewall deployed in vWan Hub: Add routes to default route table in vWan Hub for all RFC1918 address spaces + default route to Azure Firewall
 module vwanRouteTable 'modules/vwanhubroutes.bicep' = {
   scope: hubrg
-  name: 'routeTable'
+  name: 'routeTable-${shortLocationCode}'
   params: {
     vwanHubName: vwanHub.outputs.Name
     AzFirewallID: deployFirewallInHub ? AzFirewall.outputs.azFwID : 'none'
@@ -87,7 +88,7 @@ module vpngateway 'modules/vwanvpngateway.bicep' = if (deployGatewayInHub) {
 
 module dcrvminsights 'modules/dcrvminsights.bicep' = if (!empty(diagnosticWorkspaceId)) {
   scope: hubrg
-  name: 'dcr-vminsights'
+  name: 'dcr-vminsights-${shortLocationCode}'
   params: {
     diagnosticWorkspaceId: diagnosticWorkspaceId
     location: location

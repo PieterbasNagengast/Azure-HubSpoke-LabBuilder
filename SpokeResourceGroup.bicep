@@ -93,7 +93,7 @@ module rt 'modules/routetable.bicep' = if (deployFirewallInHub && HubDeployed &&
 
 module route1 'modules/route.bicep' = if (deployFirewallInHub && HubDeployed && deployUDRs) {
   scope: spokerg
-  name: 'RouteToInternet'
+  name: '${rtName}-RouteToInternet'
   params: {
     routeAddressPrefix: '0.0.0.0/0'
     routeName: deployFirewallInHub && HubDeployed && deployUDRs ? '${rt.outputs.rtName}/toInternet' : 'dummy1'

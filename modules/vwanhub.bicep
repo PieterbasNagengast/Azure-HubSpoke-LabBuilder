@@ -1,11 +1,11 @@
 param location string
-param shortLocationCode string
 param vWanID string
 param tagsByResource object = {}
 param AddressPrefix string
+param HubName string
 
 resource vWanHub 'Microsoft.Network/virtualHubs@2024-05-01' = {
-  name: 'HUB-${shortLocationCode}'
+  name: HubName
   location: location
   properties: {
     allowBranchToBranchTraffic: true
