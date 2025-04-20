@@ -1,6 +1,8 @@
 targetScope = 'subscription'
 
 param location string
+param shortLocationCode string
+param vWanID string
 param AddressSpace string
 param deployFirewallInHub bool
 param AzureFirewallTier string
@@ -13,25 +15,25 @@ param diagnosticWorkspaceId string
 param internetTrafficRoutingPolicy bool
 param privateTrafficRoutingPolicy bool
 
-var vWanName = 'vWAN'
-var firewallName = 'Firewall-Hub'
-var gatewayName = 'Gateway-Hub'
+// var vWanName = 'vWAN'
+var firewallName = 'Firewall-Hub-${shortLocationCode}'
+var gatewayName = 'Gateway-Hub-${shortLocationCode}'
 
-resource hubrg 'Microsoft.Resources/resourceGroups@2023-07-01' = {
+// Reference existing the resource group for the hub
+resource hubrg 'Microsoft.Resources/resourceGroups@2023-07-01' existing = {
   name: hubRgName
-  location: location
-  tags: tagsByResource[?'Microsoft.Resources/subscriptions/resourceGroups'] ?? {}
 }
 
 // Deploy vWan and vWan Hub
-module vwan 'modules/vwan.bicep' = {
+module vwanHub 'modules/vwanhub.bicep' = {
   scope: hubrg
-  name: vWanName
+  name: 'vWanHub-${shortLocationCode}'
   params: {
     AddressPrefix: AddressSpace
+    shortLocationCode: shortLocationCode
     location: location
-    vWanName: vWanName
     tagsByResource: tagsByResource
+    vWanID: vWanID
   }
 }
 
@@ -43,7 +45,7 @@ module AzFirewall 'modules/firewall.bicep' = if (deployFirewallInHub) {
     deployInVWan: true
     azfwTier: AzureFirewallTier
     firewallName: firewallName
-    vWanID: vwan.outputs.vWanHubID
+    vWanID: vwanHub.outputs.ID
     location: location
     tagsByResource: tagsByResource
     firewallDNSproxy: firewallDNSproxy
@@ -65,7 +67,7 @@ module vwanRouteTable 'modules/vwanhubroutes.bicep' = {
   scope: hubrg
   name: 'routeTable'
   params: {
-    vwanHubName: vwan.outputs.vWanHubName
+    vwanHubName: vwanHub.outputs.Name
     AzFirewallID: deployFirewallInHub ? AzFirewall.outputs.azFwID : 'none'
     deployFirewallInHub: deployFirewallInHub
     internetTrafficRoutingPolicy: internetTrafficRoutingPolicy
@@ -79,7 +81,7 @@ module vpngateway 'modules/vwanvpngateway.bicep' = if (deployGatewayInHub) {
   params: {
     location: location
     vpnGwName: gatewayName
-    vWanHubID: vwan.outputs.vWanHubID
+    vWanHubID: vwanHub.outputs.ID
   }
 }
 
@@ -93,10 +95,9 @@ module dcrvminsights 'modules/dcrvminsights.bicep' = if (!empty(diagnosticWorksp
   }
 }
 
-output vwanHubName string = vwan.outputs.vWanHubName
-output vWanHubID string = vwan.outputs.vWanHubID
-output vWanID string = vwan.outputs.vWanID
-output vWanHubAddressSpace string = vwan.outputs.vWanHubAddressSpace
+output vWanHubID string = vwanHub.outputs.ID
+output vWanHubName string = vwanHub.outputs.Name
+output vWanHubAddressSpace string = vwanHub.outputs.AddressSpace
 output HubResourceGroupName string = hubrg.name
 output vWanVpnGwID string = deployGatewayInHub ? vpngateway.outputs.vpnGwID : 'none'
 output vWanVpnGwPip array = deployGatewayInHub ? vpngateway.outputs.vpnGwPip : []

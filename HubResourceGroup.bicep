@@ -35,11 +35,11 @@ var firewallName = 'Firewall-Hub-${shortLocationCode}'
 var gatewayName = 'Gateway-Hub-${shortLocationCode}'
 var bastionNsgName = 'NSG-Bastion-Hub-${shortLocationCode}'
 
-// Create the resource group for the hub
-resource hubrg 'Microsoft.Resources/resourceGroups@2023-07-01' = {
+// reference existing the resource group for the hub
+resource hubrg 'Microsoft.Resources/resourceGroups@2023-07-01' existing = {
   name: hubRgName
-  location: location
-  tags: tagsByResource[?'Microsoft.Resources/subscriptions/resourceGroups'] ?? {}
+  // location: location
+  // tags: tagsByResource[?'Microsoft.Resources/subscriptions/resourceGroups'] ?? {}
 }
 
 module bastioNsg 'modules/nsg.bicep' = if (deployBastionInHub) {

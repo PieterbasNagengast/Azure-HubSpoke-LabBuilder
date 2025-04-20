@@ -93,7 +93,7 @@ param deployHUB bool = true
   'VNET'
   'VWAN'
 ])
-param hubType string = 'VNET'
+param hubType string = 'VWAN'
 
 @description('Hub resource group pre-fix name. Default = rg-hub')
 param hubRgName string = 'rg-hub'
@@ -113,7 +113,7 @@ param bastionInHubSKU string = 'Basic'
 param deployGatewayInHub bool = false
 
 @description('Deploy Azure Firewall in Hub VNET. includes deployment of custom route tables in Spokes and Hub VNETs')
-param deployFirewallInHub bool = true
+param deployFirewallInHub bool = false
 
 @description('Azure Firewall Tier: Standard or Premium')
 @allowed([
@@ -219,9 +219,31 @@ var regionShortCodes = {
 }
 
 var isMultiRegion = length(locations) > 1
+var isVnetHub = hubType == 'VNET'
+var isVwanHub = hubType == 'VWAN'
 
+// Create the resource group for the vWAN Hub
+resource vwanhubrg 'Microsoft.Resources/resourceGroups@2023-07-01' = if (deployHUB && isVwanHub) {
+  name: hubRgName
+  location: locations[0].region
+  tags: tagsByResource[?'Microsoft.Resources/subscriptions/resourceGroups'] ?? {}
+}
+
+// Create vWAN instance in the vWAN Hub resource group
+module vwan 'modules/vwan.bicep' = if (deployHUB && isVwanHub) {
+  scope: vwanhubrg
+  name: 'vWAN'
+  params: {
+    location: locations[0].region
+    tagsByResource: tagsByResource
+    vWanName: 'vWAN'
+  }
+}
+
+// Deploy region(s)
 module deployRegion 'mainRegion.bicep' = [
   for (location, i) in locations: {
+    scope: subscription(location.hubSubscriptionID)
     name: 'deployRegion-${regionShortCodes[location.region]}'
     params: {
       location: location.region
@@ -269,14 +291,16 @@ module deployRegion 'mainRegion.bicep' = [
       firewallDNSproxy: firewallDNSproxy
       deploySiteToSite: deploySiteToSite
       deployVMinOnPrem: deployVMinOnPrem
-      hubRgName: hubRgName
+      hubRgName: vwanhubrg.name
       onpremRgName: onpremRgName
       hubType: hubType
+      vWanID: vwan.outputs.ID
     }
   }
 ]
 
-module deployGlobalVnetPeerings 'VnetPeeringsNEW.bicep' = if (isMultiRegion) {
+//  If MultiRegion and VnetHub, deploy Global Vnet Peerings
+module deployGlobalVnetPeerings 'VnetPeeringsNEW.bicep' = if (isMultiRegion && isVnetHub) {
   name: 'deployGlobalVnetPeerings'
   params: {
     vnetIDA: deployRegion[0].outputs.HubVnetID
@@ -284,6 +308,7 @@ module deployGlobalVnetPeerings 'VnetPeeringsNEW.bicep' = if (isMultiRegion) {
   }
 }
 
+// If MultiRegion and deployFirewallInHub and deployUDRs, deploy routes ion both Hubs
 module route 'modules/route.bicep' = [
   for (location, i) in locations: if (isMultiRegion && deployFirewallInHub && deployUDRs) {
     scope: resourceGroup(location.hubSubscriptionID, '${hubRgName}-${regionShortCodes[location.region]}')

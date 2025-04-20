@@ -86,6 +86,9 @@ param deployHUB bool
 ])
 param hubType string
 
+@description('Virtual WAN ID')
+param vWanID string
+
 @description('Hub resource group pre-fix name. Default = rg-hub')
 param hubRgName string
 
@@ -182,6 +185,15 @@ var AllAddressSpaces = [for i in range(0, amountOfSpokes + 1): cidrSubnet(Addres
 var isVnetHub = hubType == 'VNET'
 var isVwanHub = hubType == 'VWAN'
 
+var varHubRgName = '${hubRgName}-${shortLocationCode}'
+
+// Create the resource group for the hub
+resource hubrg 'Microsoft.Resources/resourceGroups@2023-07-01' = if (deployHUB && isVnetHub) {
+  name: varHubRgName
+  location: location
+  tags: tagsByResource[?'Microsoft.Resources/subscriptions/resourceGroups'] ?? {}
+}
+
 // Deploy Hub VNET including Bastion Host, Route Table, Network Security group and Azure Firewall
 module hubVnet 'HubResourceGroup.bicep' = if (deployHUB && isVnetHub) {
   scope: subscription(hubSubscriptionID)
@@ -195,7 +207,7 @@ module hubVnet 'HubResourceGroup.bicep' = if (deployHUB && isVnetHub) {
     hubAddressSpace: AllAddressSpaces[0]
     deployFirewallInHub: deployFirewallInHub && isVnetHub
     AzureFirewallTier: AzureFirewallTier
-    hubRgName: '${hubRgName}-${shortLocationCode}'
+    hubRgName: hubrg.name
     deployFirewallrules: deployFirewallrules && isVnetHub
     deployGatewayInHub: deployGatewayInHub && isVnetHub
     tagsByResource: tagsByResource
@@ -212,9 +224,11 @@ module hubVnet 'HubResourceGroup.bicep' = if (deployHUB && isVnetHub) {
 //  Deploy Azure vWAN with vWAN Hub and Azure Firewall
 module vwan 'vWanResourceGroup.bicep' = if (deployHUB && isVwanHub) {
   scope: subscription(hubSubscriptionID)
-  name: '${hubRgName}-${location}-VWAN'
+  name: 'VWAN-${location}-Hub'
   params: {
     location: location
+    shortLocationCode: shortLocationCode
+    vWanID: vWanID
     deployFirewallInHub: deployFirewallInHub && isVwanHub
     AddressSpace: AllAddressSpaces[0]
     AzureFirewallTier: AzureFirewallTier
@@ -329,17 +343,18 @@ module vnetPeeringsAVNM 'Avnm.bicep' = if (deployHUB && deploySpokes && isVnetHu
 // VNET Connections to Azure vWAN
 module vnetConnections 'vWanVnetConnections.bicep' = [
   for i in range(0, amountOfSpokes): if (deployHUB && deploySpokes && isVwanHub) {
-    name: '${hubRgName}-VnetConnection${i + 1}-${location}'
+    name: 'VWAN-VnetConnection${i + 1}-${shortLocationCode}'
     params: {
       HubResourceGroupName: deployHUB && deploySpokes && isVwanHub
         ? vwan.outputs.HubResourceGroupName
         : 'No VNET peering'
       SpokeVnetID: deployHUB && deploySpokes && isVwanHub ? spokeVnets[i].outputs.spokeVnetID : 'No VNET peering'
-      vwanHubName: deployHUB && deploySpokes && isVwanHub ? vwan.outputs.vwanHubName : 'No VNET peering'
+      vwanHubName: deployHUB && deploySpokes && isVwanHub ? vwan.outputs.vWanHubName : 'No VNET peering'
       deployFirewallInHub: deployFirewallInHub && isVwanHub
       counter: i
       hubSubscriptionID: hubSubscriptionID
       enableRoutingIntent: internetTrafficRoutingPolicy || privateTrafficRoutingPolicy
+      shortLocationCode: shortLocationCode
     }
   }
 ]
@@ -410,8 +425,8 @@ module vwans2s 'vWanVpnConnections.bicep' = if (deployGatewayInHub && deployGate
       ? onprem.outputs.OnPremGwBgpPeeringAddress
       : 'none'
     vwanVpnSiteName: 'OnPrem'
-    vwanID: deployHUB && isVwanHub ? vwan.outputs.vWanID : 'none'
-    vwanHubName: deployHUB && isVwanHub ? vwan.outputs.vwanHubName : 'none'
+    vwanID: deployHUB && isVwanHub ? vWanID : 'none'
+    vwanHubName: deployHUB && isVwanHub ? vwan.outputs.vWanHubName : 'none'
     OnPremVpnGwID: deployOnPrem && deployGatewayinOnPrem ? onprem.outputs.OnPremGatewayID : 'none'
     OnPremRgName: deployOnPrem ? onpremRgName : 'none'
     HubRgName: deployHUB ? hubRgName : 'none'
@@ -435,7 +450,7 @@ output HubGatewayPublicIP string = deployGatewayInHub && isVnetHub ? hubVnet.out
 output HubGatewayID string = deployGatewayInHub && isVnetHub ? hubVnet.outputs.hubGatewayID : 'none'
 output HubBgpPeeringAddress string = deployGatewayInHub && isVnetHub ? hubVnet.outputs.HubGwBgpPeeringAddress : 'none'
 output vWanHubID string = deployHUB && isVwanHub ? vwan.outputs.vWanHubID : 'none'
-output vWanID string = deployHUB && isVwanHub ? vwan.outputs.vWanID : 'none'
+output vWanID string = deployHUB && isVwanHub ? vWanID : 'none'
 output vWanVpnGwID string = deployHUB && deployGatewayInHub && isVwanHub ? vwan.outputs.vWanVpnGwID : 'none'
 output vWanVpnGwPip array = deployHUB && deployGatewayInHub && isVwanHub ? vwan.outputs.vWanVpnGwPip : []
 output vWanVpnBgpIp array = deployHUB && deployGatewayInHub && isVwanHub ? vwan.outputs.vpnGwBgpIp : []

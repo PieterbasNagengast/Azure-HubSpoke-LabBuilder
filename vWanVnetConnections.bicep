@@ -1,4 +1,5 @@
 targetScope = 'subscription'
+param shortLocationCode string
 param vwanHubName string
 param SpokeVnetID string
 param HubResourceGroupName string
@@ -16,7 +17,7 @@ resource hubrg 'Microsoft.Resources/resourceGroups@2023-07-01' existing = {
 
 module vWanVnetConnection 'modules/vwanvnetconnection.bicep' = {
   scope: hubrg
-  name: 'VnetConnection${counter + 1}'
+  name: 'VWAN-VnetConnection${counter + 1}-${shortLocationCode}'
   params: {
     SpokeVnetID: SpokeVnetID
     vwanHubName: vwanHubName
