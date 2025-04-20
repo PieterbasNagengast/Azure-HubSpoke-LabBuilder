@@ -95,15 +95,9 @@ module dcrvminsights 'modules/dcrvminsights.bicep' = if (!empty(diagnosticWorksp
   }
 }
 
-output vWanHubID string = vwanHub.outputs.ID
 output vWanHubName string = vwanHub.outputs.Name
-output vWanHubAddressSpace string = vwanHub.outputs.AddressSpace
 output HubResourceGroupName string = hubrg.name
-output vWanVpnGwID string = deployGatewayInHub ? vpngateway.outputs.vpnGwID : 'none'
-output vWanVpnGwPip array = deployGatewayInHub ? vpngateway.outputs.vpnGwPip : []
-output vWanFwPublicIP array = deployFirewallInHub ? AzFirewall.outputs.azFwIPvWan : []
 output vWanFwIP string = deployFirewallInHub ? AzFirewall.outputs.azFwIP : 'none'
 output vpnGwBgpIp array = deployGatewayInHub ? vpngateway.outputs.vpnGwBgpIp : []
-output vpnGwBgpAsn int = deployGatewayInHub ? vpngateway.outputs.vpnGwBgpAsn : 0
 output vpnGwName string = deployGatewayInHub ? vpngateway.outputs.vpnGwName : 'none'
 output dcrvminsightsID string = !empty(diagnosticWorkspaceId) ? dcrvminsights.outputs.dcrID : 'none'

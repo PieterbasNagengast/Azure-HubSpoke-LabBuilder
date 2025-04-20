@@ -102,7 +102,3 @@ module route1 'modules/route.bicep' = if (deployFirewallInHub && HubDeployed && 
 }
 
 output spokeVnetID string = vnet.outputs.vnetID
-output spokeVnetAddressSpace string = AddressSpace
-output spokeResourceGroupName string = spokerg.name
-output spokeVnetName string = vnet.outputs.vnetName
-output spokeVmResourceID string = deployVMsInSpokes ? vm.outputs.vmResourceID : 'none'

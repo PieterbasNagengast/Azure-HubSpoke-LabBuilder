@@ -300,7 +300,7 @@ module deployRegion 'mainRegion.bicep' = [
 ]
 
 //  If MultiRegion and VnetHub, deploy Global Vnet Peerings
-module deployGlobalVnetPeerings 'VnetPeeringsNEW.bicep' = if (isMultiRegion && isVnetHub) {
+module deployGlobalVnetPeerings 'VnetPeerings.bicep' = if (isMultiRegion && isVnetHub) {
   name: 'deployGlobalVnetPeerings'
   params: {
     vnetIDA: deployRegion[0].outputs.HubVnetID

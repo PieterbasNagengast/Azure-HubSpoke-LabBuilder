@@ -277,7 +277,7 @@ module spokeVnets 'SpokeResourceGroup.bicep' = [
 ]
 
 // VNET Peerings NEW
-module vnetPeerings 'VnetPeeringsNEW.bicep' = [
+module vnetPeerings 'VnetPeerings.bicep' = [
   for i in range(0, amountOfSpokes): if (deployHUB && deploySpokes && isVnetHub && !deployVnetPeeringAVNM) {
     name: '${hubRgName}-VnetPeering${i + 1}-${location}'
     params: {
@@ -288,29 +288,6 @@ module vnetPeerings 'VnetPeeringsNEW.bicep' = [
     }
   }
 ]
-
-// // VNET Peerings
-// module vnetPeerings 'VnetPeerings.bicep' = [
-//   for i in range(0, amountOfSpokes): if (deployHUB && deploySpokes && isVnetHub && !deployVnetPeeringAVNM) {
-//     name: '${hubRgName}-VnetPeering${i + 1}-${location}'
-//     params: {
-//       HubResourceGroupName: deployHUB && deploySpokes && isVnetHub
-//         ? hubVnet.outputs.HubResourceGroupName
-//         : 'No VNET peering'
-//       SpokeResourceGroupName: deployHUB && deploySpokes && isVnetHub
-//         ? spokeVnets[i].outputs.spokeResourceGroupName
-//         : 'No peering'
-//       HubVnetName: deployHUB && deploySpokes && isVnetHub ? hubVnet.outputs.hubVnetName : 'No VNET peering'
-//       SpokeVnetID: deployHUB && deploySpokes && isVnetHub ? spokeVnets[i].outputs.spokeVnetID : 'No VNET peering'
-//       HubVnetID: deployHUB && deploySpokes && isVnetHub ? hubVnet.outputs.hubVnetID : 'No VNET peering'
-//       SpokeVnetName: deployHUB && deploySpokes && isVnetHub ? spokeVnets[i].outputs.spokeVnetName : 'No VNET peering'
-//       counter: i
-//       GatewayDeployed: deployGatewayInHub
-//       hubSubscriptionID: hubSubscriptionID
-//       spokeSubscriptionID: spokeSubscriptionID
-//     }
-//   }
-// ]
 
 // VNET Peerings AVNM
 module vnetPeeringsAVNM 'Avnm.bicep' = if (deployHUB && deploySpokes && isVnetHub && deployVnetPeeringAVNM) {
@@ -443,28 +420,4 @@ output HubRtFirewallName string = deployFirewallInHub && deployHUB && isVnetHub
   ? hubVnet.outputs.rtFirewallName
   : 'none'
 output VNET_AzFwPrivateIp string = deployFirewallInHub && deployHUB && isVnetHub ? hubVnet.outputs.azFwIp : 'none'
-output VWAN_AzFwPublicIp array = deployFirewallInHub && deployHUB && isVwanHub ? vwan.outputs.vWanFwPublicIP : []
 output HubVnetID string = deployHUB && isVnetHub ? hubVnet.outputs.hubVnetID : 'none'
-output HubVnetAddressSpace array = deployHUB && isVnetHub ? hubVnet.outputs.hubVnetAddressSpace : []
-output HubGatewayPublicIP string = deployGatewayInHub && isVnetHub ? hubVnet.outputs.hubGatewayPublicIP : 'none'
-output HubGatewayID string = deployGatewayInHub && isVnetHub ? hubVnet.outputs.hubGatewayID : 'none'
-output HubBgpPeeringAddress string = deployGatewayInHub && isVnetHub ? hubVnet.outputs.HubGwBgpPeeringAddress : 'none'
-output vWanHubID string = deployHUB && isVwanHub ? vwan.outputs.vWanHubID : 'none'
-output vWanID string = deployHUB && isVwanHub ? vWanID : 'none'
-output vWanVpnGwID string = deployHUB && deployGatewayInHub && isVwanHub ? vwan.outputs.vWanVpnGwID : 'none'
-output vWanVpnGwPip array = deployHUB && deployGatewayInHub && isVwanHub ? vwan.outputs.vWanVpnGwPip : []
-output vWanVpnBgpIp array = deployHUB && deployGatewayInHub && isVwanHub ? vwan.outputs.vpnGwBgpIp : []
-output vWanVpnBgpAsn int = deployHUB && deployGatewayInHub && isVwanHub ? vwan.outputs.vpnGwBgpAsn : 0
-output vWanHubAddressSpace string = deployHUB && isVwanHub ? vwan.outputs.vWanHubAddressSpace : 'none'
-output OnPremVnetAddressSpace string = deployOnPrem ? onprem.outputs.OnPremAddressSpace : 'none'
-output OnPremGatewayPublicIP string = deployGatewayinOnPrem ? onprem.outputs.OnPremGatewayPublicIP : 'none'
-output OnPremGatewayID string = deployGatewayinOnPrem ? onprem.outputs.OnPremGatewayID : 'none'
-output OnPremBgpPeeringAddress string = deployGatewayinOnPrem ? onprem.outputs.OnPremGwBgpPeeringAddress : 'none'
-output SpokeVnets array = [
-  for i in range(0, amountOfSpokes): deploySpokes
-    ? {
-        SpokeVnetId: spokeVnets[i].outputs.spokeVnetID
-        SpokeVnetAddressSpace: spokeVnets[i].outputs.spokeVnetAddressSpace
-      }
-    : 'none'
-]
