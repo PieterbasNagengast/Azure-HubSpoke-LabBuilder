@@ -293,8 +293,8 @@ module vnetPeerings 'VnetPeerings.bicep' = [
     params: {
       vnetIDA: deployHUB && deploySpokes && isVnetHub ? spokeVnets[i].outputs.spokeVnetID : 'No VNET peering'
       vnetIDB: deployHUB && deploySpokes && isVnetHub ? hubVnet.outputs.hubVnetID : 'No VNET peering'
-      useRemoteGatewaysVnetB: deployGatewayInHub
-      allowGatewayTransitVnetA: deployGatewayInHub
+      useRemoteGatewaysVnetA: deployGatewayInHub
+      allowGatewayTransitVnetB: deployGatewayInHub
     }
   }
 ]
@@ -371,30 +371,31 @@ module onprem 'OnPremResourceGroup.bicep' = if (deployOnPrem) {
   }
 }
 
+// variable to validate if we need to deploy VPN connections
+var deployVPNConnections = deployGatewayInHub && deployGatewayinOnPrem && deploySiteToSite && isVnetHub && deployHUB
+
 // Deploy S2s VPN from OnPrem Gateway to Hub Gateway
-module s2s 'VpnConnections.bicep' = if (deployGatewayInHub && deployGatewayinOnPrem && deploySiteToSite && isVnetHub) {
-  name: '${hubRgName}-s2s-Hub-OnPrem-${location}'
+module s2s 'VpnConnections.bicep' = if (deployVPNConnections) {
+  name: 'VPN-s2s-Hub-to-OnPrem-${location}'
   params: {
     location: location
-    HubRgName: deployHUB && isVnetHub ? hubRgName : 'none'
-    HubGatewayID: deployGatewayInHub && isVnetHub ? hubVnet.outputs.hubGatewayID : 'none'
-    HubGatewayPublicIP: deployGatewayInHub && isVnetHub ? hubVnet.outputs.hubGatewayPublicIP : 'none'
-    HubAddressPrefixes: deployHUB && isVnetHub ? AllAddressSpaces : []
-    HubLocalGatewayName: deploySiteToSite && isVnetHub ? 'LocalGateway-Hub' : 'none'
-    OnPremRgName: deployOnPrem && isVnetHub ? onpremRgName : 'none'
-    OnPremGatewayID: deployGatewayinOnPrem && isVnetHub ? onprem.outputs.OnPremGatewayID : 'none'
-    OnPremGatewayPublicIP: deployGatewayinOnPrem && isVnetHub ? onprem.outputs.OnPremGatewayPublicIP : 'none'
-    OnPremAddressPrefixes: deployOnPrem && isVnetHub ? array(onprem.outputs.OnPremAddressSpace) : []
-    OnPremLocalGatewayName: deploySiteToSite && isVnetHub ? 'LocalGateway-OnPrem' : 'none'
+    HubRgName: deployVPNConnections ? hubVnet.outputs.hubRgName : 'none'
+    HubGatewayID: deployVPNConnections ? hubVnet.outputs.hubGatewayID : 'none'
+    HubGatewayPublicIP: deployVPNConnections ? hubVnet.outputs.hubGatewayPublicIP : 'none'
+    HubAddressPrefixes: deployVPNConnections ? AllAddressSpaces : []
+    HubLocalGatewayName: deployVPNConnections ? 'LocalGateway-Hub-${shortLocationCode}' : 'none'
+    OnPremRgName: deployVPNConnections ? onprem.outputs.OnPremRgName : 'none'
+    OnPremGatewayID: deployVPNConnections ? onprem.outputs.OnPremGatewayID : 'none'
+    OnPremGatewayPublicIP: deployVPNConnections ? onprem.outputs.OnPremGatewayPublicIP : 'none'
+    OnPremAddressPrefixes: deployVPNConnections ? array(onprem.outputs.OnPremAddressSpace) : []
+    OnPremLocalGatewayName: deployVPNConnections ? 'LocalGateway-OnPrem-${shortLocationCode}' : 'none'
     tagsByResource: tagsByResource
-    enableBgp: hubBgp && onpremBgp
+    enableBgp: hubBgp && onpremBgp && deployVPNConnections
     HubBgpAsn: hubBgpAsn
-    HubBgpPeeringAddress: deployGatewayInHub && hubBgp && isVnetHub ? hubVnet.outputs.HubGwBgpPeeringAddress : 'none'
+    HubBgpPeeringAddress: deployVPNConnections ? hubVnet.outputs.HubGwBgpPeeringAddress : 'none'
     OnPremBgpAsn: onpremBgpAsn
-    OnPremBgpPeeringAddress: deployGatewayinOnPrem && onpremBgp && isVnetHub
-      ? onprem.outputs.OnPremGwBgpPeeringAddress
-      : 'none'
-    sharedKey: deploySiteToSite ? sharedKey : 'none'
+    OnPremBgpPeeringAddress: deployVPNConnections ? onprem.outputs.OnPremGwBgpPeeringAddress : 'none'
+    sharedKey: deploySiteToSite && deployVPNConnections ? sharedKey : 'none'
     hubSubscriptionID: hubSubscriptionID
     onPremSubscriptionID: onPremSubscriptionID
   }
@@ -432,3 +433,18 @@ output HubRtFirewallName string = deployFirewallInHub && deployHUB && isVnetHub
   : 'none'
 output VNET_AzFwPrivateIp string = deployFirewallInHub && deployHUB && isVnetHub ? hubVnet.outputs.azFwIp : 'none'
 output HubVnetID string = deployHUB && isVnetHub ? hubVnet.outputs.hubVnetID : 'none'
+output VpnSettings object = deployVPNConnections
+  ? {
+      HubGatewayID: deployVPNConnections ? hubVnet.outputs.hubGatewayID : 'none'
+      HubGatewayPublicIP: deployVPNConnections ? hubVnet.outputs.hubGatewayPublicIP : 'none'
+      HubAddressPrefixes: deployVPNConnections ? AllAddressSpaces : []
+      HubBgpAsn: hubBgpAsn
+      HubBgpPeeringAddress: deployVPNConnections ? hubVnet.outputs.HubGwBgpPeeringAddress : 'none'
+      OnPremGatewayID: deployVPNConnections ? onprem.outputs.OnPremGatewayID : 'none'
+      OnPremGatewayPublicIP: deployVPNConnections ? onprem.outputs.OnPremGatewayPublicIP : 'none'
+      OnPremAddressPrefixes: deployVPNConnections ? array(onprem.outputs.OnPremAddressSpace) : []
+      OnPremBgpAsn: onpremBgpAsn
+      OnPremBgpPeeringAddress: deployVPNConnections ? onprem.outputs.OnPremGwBgpPeeringAddress : 'none'
+      enableBgp: hubBgp && onpremBgp && deployVPNConnections
+    }
+  : {}

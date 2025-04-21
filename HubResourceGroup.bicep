@@ -173,6 +173,7 @@ module rtFirewall 'modules/routetable.bicep' = if (deployFirewallInHub && deploy
 
 output hubVnetID string = vnet.outputs.vnetID
 output azFwIp string = deployFirewallInHub ? firewall.outputs.azFwIP : '1.2.3.4'
+output hubRgName string = hubrg.name
 output HubResourceGroupName string = hubrg.name
 output hubVnetName string = vnet.outputs.vnetName
 output hubVnetAddressSpace array = vnet.outputs.vnetAddressSpace

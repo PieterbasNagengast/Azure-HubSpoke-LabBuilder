@@ -64,7 +64,7 @@ param diagnosticWorkspaceId string = ''
 
 // Spoke VNET Parameters
 @description('Deploy Spoke VNETs. Default = true')
-param deploySpokes bool = false
+param deploySpokes bool = true
 
 @description('Spoke resource group prefix name. Default = rg-spoke')
 param spokeRgNamePrefix string = 'rg-spoke'
@@ -79,14 +79,14 @@ param deployVMsInSpokes bool = false
 param deployVnetPeeringMesh bool = false
 
 @description('Let Azure Virtual Network Manager manage UDRs in Spoke VNETs')
-param deployAvnmUDRs bool = true
+param deployAvnmUDRs bool = false
 
 @description('Enable Private Subnet in Default Subnet in Spoke VNETs')
-param defaultOutboundAccess bool = true
+param defaultOutboundAccess bool = false
 
 // Hub VNET Parameters
 @description('Deploy Hub')
-param deployHUB bool = false
+param deployHUB bool = true
 
 @description('Deploy Hub VNET or Azuere vWAN. Default = VNET')
 @allowed([
@@ -110,10 +110,10 @@ param deployBastionInHub bool = false
 param bastionInHubSKU string = 'Basic'
 
 @description('Deploy Virtual Network Gateway in Hub VNET')
-param deployGatewayInHub bool = false
+param deployGatewayInHub bool = true
 
 @description('Deploy Azure Firewall in Hub VNET. includes deployment of custom route tables in Spokes and Hub VNETs')
-param deployFirewallInHub bool = true
+param deployFirewallInHub bool = false
 
 @description('Azure Firewall Tier: Standard or Premium')
 @allowed([
@@ -132,17 +132,17 @@ param firewallDNSproxy bool = false
 param deployUDRs bool = true
 
 @description('Enable BGP on Hub Gateway')
-param hubBgp bool = false
+param hubBgp bool = true
 
 @description('Hub BGP ASN')
-param hubBgpAsn int = 65515
+param hubBgpAsn int = 65010
 
 // AVNM parameters
 @description('AVNM resource group name. Default = rg-avnm')
 param avnmRgName string = 'rg-avnm'
 
 @description('Let Azure Virtual Network Manager manage Peerings in Hub&Spoke')
-param deployVnetPeeringAVNM bool = true
+param deployVnetPeeringAVNM bool = false
 
 // Routing Intent Policy parameters for vWAN
 @description('Enable Azure vWAN routing Intent Policy for Internet Traffic')
@@ -172,17 +172,17 @@ param bastionInOnPremSKU string = 'Basic'
 param deployVMinOnPrem bool = false
 
 @description('Deploy Virtual Network Gateway in OnPrem VNET')
-param deployGatewayinOnPrem bool = false
+param deployGatewayinOnPrem bool = true
 
 @description('Deploy Site-to-Site VPN connection between OnPrem and Hub Gateways')
-param deploySiteToSite bool = false
+param deploySiteToSite bool = true
 
 @description('Site-to-Site ShareKey')
 @secure()
-param sharedKey string = ''
+param sharedKey string
 
 @description('Enable BGP on OnPrem Gateway')
-param onpremBgp bool = false
+param onpremBgp bool = true
 
 @description('OnPrem BGP ASN')
 param onpremBgpAsn int = 65020
@@ -325,7 +325,7 @@ module deployRegion 'mainRegion.bicep' = [
       privateTrafficRoutingPolicy: privateTrafficRoutingPolicy
       sharedKey: sharedKey
       hubBgpAsn: hubBgpAsn
-      onpremBgpAsn: onpremBgpAsn
+      onpremBgpAsn: onpremBgpAsn + i
       onpremBgp: onpremBgp
       deployFirewallrules: deployFirewallrules
       firewallDNSproxy: firewallDNSproxy

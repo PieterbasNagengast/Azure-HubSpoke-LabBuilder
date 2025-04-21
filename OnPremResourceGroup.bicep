@@ -128,6 +128,7 @@ module vpngw 'modules/vpngateway.bicep' = if (deployGatewayInOnPrem) {
   }
 }
 
+output OnPremRgName string = onpremrg.name
 output OnPremGatewayPublicIP string = deployGatewayInOnPrem ? vpngw.outputs.vpnGwPublicIP : 'none'
 output OnPremGatewayID string = deployGatewayInOnPrem ? vpngw.outputs.vpnGwID : 'none'
 output OnPremAddressSpace string = AddressSpace
