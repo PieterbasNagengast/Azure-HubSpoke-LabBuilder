@@ -133,6 +133,16 @@ param hubBgp bool
 @description('Hub BGP ASN')
 param hubBgpAsn int
 
+// AVNM parameters
+@description('AVNM Resource Group Name')
+param avnmRgName string
+
+@description('AVNM name')
+param avnmName string
+
+@description('User Assigned Identity ID for AVNM')
+param avnmUserAssignedIdentityId string
+
 @description('Let Azure Virtual Network Manager manage Peerings in Hub&Spoke')
 param deployVnetPeeringAVNM bool
 
@@ -276,7 +286,7 @@ module spokeVnets 'SpokeResourceGroup.bicep' = [
   }
 ]
 
-// VNET Peerings NEW
+// VNET Peerings
 module vnetPeerings 'VnetPeerings.bicep' = [
   for i in range(0, amountOfSpokes): if (deployHUB && deploySpokes && isVnetHub && !deployVnetPeeringAVNM) {
     name: '${hubRgName}-VnetPeering${i + 1}-${location}'
@@ -292,14 +302,12 @@ module vnetPeerings 'VnetPeerings.bicep' = [
 // VNET Peerings AVNM
 module vnetPeeringsAVNM 'Avnm.bicep' = if (deployHUB && deploySpokes && isVnetHub && deployVnetPeeringAVNM) {
   scope: subscription(hubSubscriptionID)
-  name: '${hubRgName}-${location}-AVNM'
+  name: 'AVNM-${shortLocationCode}'
   params: {
-    avnmSubscriptionScopes: deployHUB && deploySpokes && isVnetHub && deployVnetPeeringAVNM
-      ? concat(union(array('/subscriptions/${hubSubscriptionID}'), array('/subscriptions/${spokeSubscriptionID}')))
-      : []
-    HubResourceGroupName: deployHUB && deploySpokes && isVnetHub && deployVnetPeeringAVNM
-      ? hubVnet.outputs.HubResourceGroupName
-      : 'No Hub'
+    avnmName: avnmName
+    userAssignedIdentityId: avnmUserAssignedIdentityId
+    shortLocationCode: shortLocationCode
+    avnmRgName: deployHUB && deploySpokes && isVnetHub && deployVnetPeeringAVNM ? avnmRgName : 'No Hub'
     spokeVNETids: [
       for i in range(0, amountOfSpokes): deployHUB && deploySpokes && isVnetHub && deployVnetPeeringAVNM
         ? spokeVnets[i].outputs.spokeVnetID
@@ -308,8 +316,8 @@ module vnetPeeringsAVNM 'Avnm.bicep' = if (deployHUB && deploySpokes && isVnetHu
     hubVNETid: deployHUB && deploySpokes && isVnetHub && deployVnetPeeringAVNM ? hubVnet.outputs.hubVnetID : 'No Hub'
     useHubGateway: deployGatewayInHub
     deployVnetPeeringMesh: deployHUB && deploySpokes && isVnetHub && deployVnetPeeringAVNM && deployVnetPeeringMesh
-    deployAvnmUDRs: deployHUB && deploySpokes && isVnetHub && deployVnetPeeringAVNM && deployAvnmUDRs
-    AzFwPrivateIP: deployHUB && deploySpokes && isVnetHub && deployVnetPeeringAVNM && deployAvnmUDRs
+    deployAvnmUDRs: deployHUB && deploySpokes && isVnetHub && deployVnetPeeringAVNM && deployAvnmUDRs && deployFirewallInHub
+    AzFwPrivateIP: deployHUB && deploySpokes && isVnetHub && deployVnetPeeringAVNM && deployAvnmUDRs && deployFirewallInHub
       ? hubVnet.outputs.azFwIp
       : 'none'
     location: location

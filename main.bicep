@@ -79,7 +79,7 @@ param deployVMsInSpokes bool = false
 param deployVnetPeeringMesh bool = false
 
 @description('Let Azure Virtual Network Manager manage UDRs in Spoke VNETs')
-param deployAvnmUDRs bool = false
+param deployAvnmUDRs bool = true
 
 @description('Enable Private Subnet in Default Subnet in Spoke VNETs')
 param defaultOutboundAccess bool = true
@@ -93,7 +93,7 @@ param deployHUB bool = true
   'VNET'
   'VWAN'
 ])
-param hubType string = 'VWAN'
+param hubType string = 'VNET'
 
 @description('Hub resource group pre-fix name. Default = rg-hub')
 param hubRgName string = 'rg-hub'
@@ -113,7 +113,7 @@ param bastionInHubSKU string = 'Basic'
 param deployGatewayInHub bool = false
 
 @description('Deploy Azure Firewall in Hub VNET. includes deployment of custom route tables in Spokes and Hub VNETs')
-param deployFirewallInHub bool = false
+param deployFirewallInHub bool = true
 
 @description('Azure Firewall Tier: Standard or Premium')
 @allowed([
@@ -137,9 +137,14 @@ param hubBgp bool = false
 @description('Hub BGP ASN')
 param hubBgpAsn int = 65515
 
-@description('Let Azure Virtual Network Manager manage Peerings in Hub&Spoke')
-param deployVnetPeeringAVNM bool = false
+// AVNM parameters
+@description('AVNM resource group name. Default = rg-avnm')
+param avnmRgName string = 'rg-avnm'
 
+@description('Let Azure Virtual Network Manager manage Peerings in Hub&Spoke')
+param deployVnetPeeringAVNM bool = true
+
+// Routing Intent Policy parameters for vWAN
 @description('Enable Azure vWAN routing Intent Policy for Internet Traffic')
 param internetTrafficRoutingPolicy bool = false
 
@@ -222,7 +227,16 @@ var isMultiRegion = length(locations) > 1
 var isVnetHub = hubType == 'VNET'
 var isVwanHub = hubType == 'VWAN'
 
-// Create the resource group for the vWAN Hub
+var avnmSubscriptions = [
+  for (location, i) in locations: [
+    '/subscriptions/${location.hubSubscriptionID}'
+    '/subscriptions/${location.spokeSubscriptionID}'
+  ]
+]
+var avnmSubscriptionScopes = union(flatten(avnmSubscriptions), flatten(avnmSubscriptions))
+
+// VWAN
+// Create resource group for the vWAN
 resource vwanhubrg 'Microsoft.Resources/resourceGroups@2023-07-01' = if (deployHUB && isVwanHub) {
   name: hubRgName
   location: locations[0].region
@@ -240,6 +254,27 @@ module vwan 'modules/vwan.bicep' = if (deployHUB && isVwanHub) {
   }
 }
 
+// AVNM
+// Create resource group for AVNM
+resource avnmrg 'Microsoft.Resources/resourceGroups@2023-07-01' = if (deployHUB && deploySpokes && isVnetHub && deployVnetPeeringAVNM) {
+  name: avnmRgName
+  location: locations[0].region
+  tags: tagsByResource[?'Microsoft.Resources/subscriptions/resourceGroups'] ?? {}
+}
+
+// create AVNM instance in AVNM resource group
+module avnmmanager 'modules/avnmmanager.bicep' = if (deployHUB && deploySpokes && isVnetHub && deployVnetPeeringAVNM) {
+  scope: avnmrg
+  name: 'AVNM'
+  params: {
+    location: locations[0].region
+    tagsByResource: tagsByResource
+    avnmName: 'AVNM'
+    avnmSubscriptionScopes: avnmSubscriptionScopes
+  }
+}
+
+// REGIONS
 // Deploy region(s)
 module deployRegion 'mainRegion.bicep' = [
   for (location, i) in locations: {
@@ -277,6 +312,11 @@ module deployRegion 'mainRegion.bicep' = [
       deploySpokes: deploySpokes
       deployVMsInSpokes: deployVMsInSpokes
       deployVnetPeeringMesh: deployVnetPeeringMesh
+      avnmRgName: deployHUB && deploySpokes && isVnetHub && deployVnetPeeringAVNM ? avnmrg.name : 'noAVNM'
+      avnmName: deployHUB && deploySpokes && isVnetHub && deployVnetPeeringAVNM ? avnmmanager.outputs.name : 'noAVNM'
+      avnmUserAssignedIdentityId: deployHUB && deploySpokes && isVnetHub && deployVnetPeeringAVNM
+        ? avnmmanager.outputs.uaiId
+        : 'noAVNM'
       deployVnetPeeringAVNM: deployVnetPeeringAVNM
       deployUDRs: deployUDRs
       diagnosticWorkspaceId: diagnosticWorkspaceId
@@ -294,7 +334,7 @@ module deployRegion 'mainRegion.bicep' = [
       hubRgName: vwanhubrg.name
       onpremRgName: onpremRgName
       hubType: hubType
-      vWanID: vwan.outputs.ID
+      vWanID: deployHUB && isVwanHub ? vwan.outputs.ID : 'noVWAN'
     }
   }
 ]
@@ -303,8 +343,8 @@ module deployRegion 'mainRegion.bicep' = [
 module deployGlobalVnetPeerings 'VnetPeerings.bicep' = if (isMultiRegion && isVnetHub) {
   name: 'deployGlobalVnetPeerings'
   params: {
-    vnetIDA: deployRegion[0].outputs.HubVnetID
-    vnetIDB: deployRegion[1].outputs.HubVnetID
+    vnetIDA: isMultiRegion && isVnetHub ? deployRegion[0].outputs.HubVnetID : 'noMultiRegion'
+    vnetIDB: isMultiRegion && isVnetHub ? deployRegion[1].outputs.HubVnetID : 'noMultiRegion'
   }
 }
 
@@ -314,11 +354,13 @@ module route 'modules/route.bicep' = [
     scope: resourceGroup(location.hubSubscriptionID, '${hubRgName}-${regionShortCodes[location.region]}')
     name: 'DeployRegionRoute-${regionShortCodes[location.region]}'
     params: {
-      routeName: '${deployRegion[i].outputs.HubRtFirewallName}/toRegion${regionShortCodes[location.region]}'
+      routeName: isMultiRegion && deployFirewallInHub && deployUDRs
+        ? '${deployRegion[i].outputs.HubRtFirewallName}/toRegion${regionShortCodes[location.region]}'
+        : 'noRoute'
       routeNextHopType: 'VirtualAppliance'
-      routeNextHopIpAddress: i == 0
-        ? deployRegion[1].outputs.VNET_AzFwPrivateIp
-        : deployRegion[0].outputs.VNET_AzFwPrivateIp
+      routeNextHopIpAddress: isMultiRegion && deployFirewallInHub && deployUDRs
+        ? i == 0 ? deployRegion[1].outputs.VNET_AzFwPrivateIp : deployRegion[0].outputs.VNET_AzFwPrivateIp
+        : 'noRoute'
       routeAddressPrefix: i == 0 ? locations[1].regionAddressSpace : locations[0].regionAddressSpace
     }
   }

@@ -71,7 +71,7 @@ module vnet 'modules/vnet.bicep' = {
     deployGatewaySubnet: deployGatewayInHub
     tagsByResource: tagsByResource
     azFwIp: firewallIP
-    rtFwID: isMultiRegion ? rtFirewall.outputs.rtID : 'none'
+    rtFwID: isMultiRegion && deployFirewallInHub ? rtFirewall.outputs.rtID : 'none'
     firewallDNSproxy: firewallDNSproxy
   }
 }
@@ -180,4 +180,4 @@ output hubGatewayPublicIP string = deployGatewayInHub ? vpngw.outputs.vpnGwPubli
 output hubGatewayID string = deployGatewayInHub ? vpngw.outputs.vpnGwID : 'none'
 output HubGwBgpPeeringAddress string = deployGatewayInHub ? vpngw.outputs.vpnGwBgpPeeringAddress : 'none'
 output dcrvminsightsID string = !empty(diagnosticWorkspaceId) ? dcrvminsights.outputs.dcrID : ''
-output rtFirewallName string = rtFirewall.outputs.rtName
+output rtFirewallName string = deployFirewallInHub && deployUDRs && isMultiRegion ? rtFirewall.outputs.rtName : 'none'

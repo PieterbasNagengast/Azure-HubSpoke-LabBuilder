@@ -1,9 +1,10 @@
 param avnmName string
 param avnmNetworkGroupId string
 param AzFwPrivateIP string
+param avnmRoutingConfigName string
 
 resource avnmRoutingConfig 'Microsoft.Network/networkManagers/routingConfigurations@2024-05-01' = {
-  name: '${avnmName}/${avnmName}-RoutingConfig'
+  name: '${avnmName}/${avnmRoutingConfigName}'
   properties: {
     description: 'LabBuilder AVNM - Routing Configuration'
   }

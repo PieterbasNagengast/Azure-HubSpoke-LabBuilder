@@ -1,8 +1,8 @@
 targetScope = 'subscription'
 param location string
-param HubResourceGroupName string
-param avnmSubscriptionScopes array
-param avnmName string = 'LabBuilder-AVNM'
+param shortLocationCode string
+param avnmRgName string
+param avnmName string
 param spokeVNETids array
 param hubVNETid string
 param useHubGateway bool
@@ -10,39 +10,29 @@ param deployVnetPeeringMesh bool
 param deployAvnmUDRs bool = false
 param tagsByResource object = {}
 param AzFwPrivateIP string
+param userAssignedIdentityId string
 
-resource hubrg 'Microsoft.Resources/resourceGroups@2023-07-01' existing = {
-  name: HubResourceGroupName
-}
-
-module avnm 'modules/avnm.bicep' = {
-  scope: hubrg
-  name: 'AVNM'
-  params: {
-    avnmName: avnmName
-    avnmSubscriptionScopes: avnmSubscriptionScopes
-    location: location
-    tagsByResource: tagsByResource
-  }
+resource avnmrg 'Microsoft.Resources/resourceGroups@2023-07-01' existing = {
+  name: avnmRgName
 }
 
 module avnmGroup 'modules/avnmgroup.bicep' = {
-  scope: hubrg
-  name: 'AVNM-NetworkGroup'
+  scope: avnmrg
+  name: 'AVNM-NetworkGroup-${shortLocationCode}'
   params: {
-    avnmGroupName: '${avnm.outputs.name}-NetworkGroup01'
-    avnmName: avnm.outputs.name
+    avnmGroupName: '${avnmName}-NetworkGroup-${shortLocationCode}'
+    avnmName: avnmName
     spokeVNETids: spokeVNETids
   }
 }
 
 module avnmConnectivityConfig 'modules/avnmconfigconnectivity.bicep' = {
-  scope: hubrg
-  name: 'AVNM-ConnectivityConfig'
+  scope: avnmrg
+  name: 'AVNM-ConnectivityConfig-${shortLocationCode}'
   params: {
-    avnmName: avnm.outputs.name
+    avnmName: avnmName
     avnmNetworkGroupID: avnmGroup.outputs.id
-    avvmConnectivityConfigName: '${avnm.outputs.name}-ConnectivityConfig'
+    avvmConnectivityConfigName: '${avnmName}-ConnectivityConfig-${shortLocationCode}'
     hubVNETid: hubVNETid
     useHubGateway: useHubGateway
     groupConnectivity: deployVnetPeeringMesh ? 'DirectlyConnected' : 'None'
@@ -50,58 +40,40 @@ module avnmConnectivityConfig 'modules/avnmconfigconnectivity.bicep' = {
 }
 
 module avnmRoutingConfig 'modules/avnmconfigrouting.bicep' = if (deployAvnmUDRs) {
-  scope: hubrg
-  name: 'AVNM-RoutingConfig'
+  scope: avnmrg
+  name: 'AVNM-RoutingConfig-${shortLocationCode}'
   params: {
-    avnmName: avnm.outputs.name
+    avnmName: avnmName
     avnmNetworkGroupId: avnmGroup.outputs.id
+    avnmRoutingConfigName: '${avnmName}-RoutingConfig-${shortLocationCode}'
     AzFwPrivateIP: AzFwPrivateIP
   }
 }
 
-module userAssignedIdentity 'modules/uai.bicep' = {
-  scope: hubrg
-  name: 'UserAssignedIdentityForAVNM'
-  params: {
-    location: location
-    uaiName: avnm.outputs.name
-    tagsByResource: tagsByResource
-  }
-}
-
-module roleAssignment 'modules/avnmroleassignment.bicep' = {
-  scope: hubrg
-  name: 'RoleAssignmentForAVNMDeploymentScript'
-  params: {
-    principalID: userAssignedIdentity.outputs.principalID
-    avnmName: avnm.outputs.name
-  }
-}
-
 module avnmConnectivityConfigDeployment 'modules/avnmdeployment.bicep' = {
-  scope: hubrg
-  name: 'AVNM-ConnectivityConfig-Deployment'
+  scope: avnmrg
+  name: 'AVNM-ConnectivityConfig-Deployment-${shortLocationCode}'
   params: {
-    avnmName: avnm.outputs.name
+    avnmName: avnmName
     configType: 'Connectivity'
     configurationId: avnmConnectivityConfig.outputs.id
-    deploymentScriptName: '${avnm.outputs.name}-ConnectivityConfig-DeploymentScript'
+    deploymentScriptName: '${avnmName}-ConnectivityConfig-DeploymentScript-${shortLocationCode}'
     location: location
-    userAssignedIdentityId: userAssignedIdentity.outputs.id
+    userAssignedIdentityId: userAssignedIdentityId
     tagsByResource: tagsByResource
   }
 }
 
 module avnmRoutingConfigDeployment 'modules/avnmdeployment.bicep' = if (deployAvnmUDRs) {
-  scope: hubrg
-  name: 'AVNM-RoutingConfig-Deployment'
+  scope: avnmrg
+  name: 'AVNM-RoutingConfig-Deployment-${shortLocationCode}'
   params: {
-    avnmName: avnm.outputs.name
+    avnmName: avnmName
     configType: 'Routing'
     configurationId: deployAvnmUDRs ? avnmRoutingConfig.outputs.id : ''
-    deploymentScriptName: '${avnm.outputs.name}-RoutingConfig-DeploymentScript'
+    deploymentScriptName: '${avnmName}-RoutingConfig-DeploymentScript-${shortLocationCode}'
     location: location
-    userAssignedIdentityId: userAssignedIdentity.outputs.id
+    userAssignedIdentityId: userAssignedIdentityId
     tagsByResource: tagsByResource
   }
 }
