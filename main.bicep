@@ -64,7 +64,7 @@ param diagnosticWorkspaceId string = ''
 
 // Spoke VNET Parameters
 @description('Deploy Spoke VNETs. Default = true')
-param deploySpokes bool = true
+param deploySpokes bool = false
 
 @description('Spoke resource group prefix name. Default = rg-spoke')
 param spokeRgNamePrefix string = 'rg-spoke'
@@ -86,7 +86,7 @@ param defaultOutboundAccess bool = true
 
 // Hub VNET Parameters
 @description('Deploy Hub')
-param deployHUB bool = true
+param deployHUB bool = false
 
 @description('Deploy Hub VNET or Azuere vWAN. Default = VNET')
 @allowed([
@@ -153,7 +153,7 @@ param privateTrafficRoutingPolicy bool = false
 
 // OnPrem parameters\
 @description('Deploy Virtual Network Gateway in OnPrem')
-param deployOnPrem bool = false
+param deployOnPrem bool = true
 
 @description('OnPrem Resource Group Name')
 param onpremRgName string = 'rg-onprem'
@@ -340,25 +340,25 @@ module deployRegion 'mainRegion.bicep' = [
 ]
 
 //  If MultiRegion and VnetHub, deploy Global Vnet Peerings
-module deployGlobalVnetPeerings 'VnetPeerings.bicep' = if (isMultiRegion && isVnetHub) {
+module deployGlobalVnetPeerings 'VnetPeerings.bicep' = if (isMultiRegion && isVnetHub && deployHUB) {
   name: 'deployGlobalVnetPeerings'
   params: {
-    vnetIDA: isMultiRegion && isVnetHub ? deployRegion[0].outputs.HubVnetID : 'noMultiRegion'
-    vnetIDB: isMultiRegion && isVnetHub ? deployRegion[1].outputs.HubVnetID : 'noMultiRegion'
+    vnetIDA: isMultiRegion && isVnetHub && deployHUB ? deployRegion[0].outputs.HubVnetID : 'noMultiRegion'
+    vnetIDB: isMultiRegion && isVnetHub && deployHUB ? deployRegion[1].outputs.HubVnetID : 'noMultiRegion'
   }
 }
 
 // If MultiRegion and deployFirewallInHub and deployUDRs, deploy routes ion both Hubs
 module route 'modules/route.bicep' = [
-  for (location, i) in locations: if (isMultiRegion && deployFirewallInHub && deployUDRs && isVnetHub) {
+  for (location, i) in locations: if (isMultiRegion && deployFirewallInHub && deployUDRs && isVnetHub && deployHUB) {
     scope: resourceGroup(location.hubSubscriptionID, '${hubRgName}-${regionShortCodes[location.region]}')
     name: 'DeployRegionRoute-${regionShortCodes[location.region]}'
     params: {
-      routeName: isMultiRegion && deployFirewallInHub && deployUDRs && isVnetHub
+      routeName: isMultiRegion && deployFirewallInHub && deployUDRs && isVnetHub && deployHUB
         ? '${deployRegion[i].outputs.HubRtFirewallName}/toRegion${regionShortCodes[location.region]}'
         : 'noRoute'
       routeNextHopType: 'VirtualAppliance'
-      routeNextHopIpAddress: isMultiRegion && deployFirewallInHub && deployUDRs && isVnetHub
+      routeNextHopIpAddress: isMultiRegion && deployFirewallInHub && deployUDRs && isVnetHub && deployHUB
         ? i == 0 ? deployRegion[1].outputs.VNET_AzFwPrivateIp : deployRegion[0].outputs.VNET_AzFwPrivateIp
         : 'noRoute'
       routeAddressPrefix: i == 0 ? locations[1].regionAddressSpace : locations[0].regionAddressSpace

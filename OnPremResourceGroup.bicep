@@ -1,6 +1,7 @@
 targetScope = 'subscription'
 
 param location string
+param shortLocationCode string
 param AddressSpace string
 param deployBastionInOnPrem bool
 param bastionSku string
@@ -21,12 +22,13 @@ param diagnosticWorkspaceId string
 
 param dcrID string
 
-var vnetName = 'VNET-OnPrem'
-var vmName = 'VM-OnPrem'
-var nsgName = 'NSG-OnPrem'
-var bastionName = 'Bastion-OnPrem'
-var gatewayName = 'Gateway-OnPrem'
-var bastionNsgName = 'NSG-Bastion-OnPrm'
+var vnetName = 'VNET-OnPrem-${shortLocationCode}'
+var vmName = 'VM-OnPrem-${shortLocationCode}'
+var nsgName = 'NSG-OnPrem-${shortLocationCode}'
+var bastionName = 'Bastion-OnPrem-${shortLocationCode}'
+var gatewayName = 'Gateway-OnPrem-${shortLocationCode}'
+var bastionNsgName = 'NSG-Bastion-OnPrm-${shortLocationCode}'
+var varOnPremRgName = '${OnPremRgName}-${shortLocationCode}'
 
 var defaultSubnetPrefix = cidrSubnet(AddressSpace, 26, 0)
 var bastionSubnetPrefix = cidrSubnet(AddressSpace, 26, 1)
@@ -34,7 +36,7 @@ var gatewaySubnetPrefix = cidrSubnet(AddressSpace, 26, 2)
 
 // Create a resource group
 resource onpremrg 'Microsoft.Resources/resourceGroups@2023-07-01' = {
-  name: OnPremRgName
+  name: varOnPremRgName
   location: location
   tags: tagsByResource[?'Microsoft.Resources/subscriptions/resourceGroups'] ?? {}
 }

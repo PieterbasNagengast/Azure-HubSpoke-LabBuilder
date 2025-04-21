@@ -209,17 +209,17 @@ module hubVnet 'HubResourceGroup.bicep' = if (deployHUB && isVnetHub) {
   scope: subscription(hubSubscriptionID)
   name: '${hubRgName}-${location}-VNET'
   params: {
-    deployBastionInHub: deployBastionInHub && isVnetHub
+    deployBastionInHub: deployBastionInHub && isVnetHub && deployHUB
     location: location
     isMultiRegion: isMultiRegion
     shortLocationCode: shortLocationCode
     AddressSpace: AddressSpace
     hubAddressSpace: AllAddressSpaces[0]
-    deployFirewallInHub: deployFirewallInHub && isVnetHub
+    deployFirewallInHub: deployFirewallInHub && isVnetHub && deployHUB
     AzureFirewallTier: AzureFirewallTier
-    hubRgName: hubrg.name
-    deployFirewallrules: deployFirewallrules && isVnetHub
-    deployGatewayInHub: deployGatewayInHub && isVnetHub
+    hubRgName: deployHUB && isVnetHub ? hubrg.name : 'none'
+    deployFirewallrules: deployFirewallrules && isVnetHub && deployHUB
+    deployGatewayInHub: deployGatewayInHub && isVnetHub && deployHUB
     tagsByResource: tagsByResource
     AllSpokeAddressSpaces: skip(AllAddressSpaces, 1)
     vpnGwBgpAsn: hubBgp ? hubBgpAsn : 65515
@@ -350,6 +350,7 @@ module onprem 'OnPremResourceGroup.bicep' = if (deployOnPrem) {
   name: '${onpremRgName}-${location}'
   params: {
     location: location
+    shortLocationCode: shortLocationCode
     adminPassword: adminPassword
     adminUsername: adminUsername
     AddressSpace: cidrSubnet(AddressSpace, 24, 255)
@@ -364,7 +365,9 @@ module onprem 'OnPremResourceGroup.bicep' = if (deployOnPrem) {
     vpnGwEnebaleBgp: onpremBgp
     bastionSku: bastionInOnPremSKU
     diagnosticWorkspaceId: diagnosticWorkspaceId
-    dcrID: deployOnPrem && isVnetHub ? hubVnet.outputs.dcrvminsightsID : isVwanHub ? vwan.outputs.dcrvminsightsID : ''
+    dcrID: deployOnPrem && isVnetHub && deployHUB
+      ? hubVnet.outputs.dcrvminsightsID
+      : isVwanHub ? vwan.outputs.dcrvminsightsID : ''
   }
 }
 
