@@ -339,26 +339,32 @@ module deployRegion 'mainRegion.bicep' = [
   }
 ]
 
+// variable to validate if we need to deploy global vnet peering
+var deployGlobalVnetPeerings = isMultiRegion && isVnetHub && deployHUB
+
 //  If MultiRegion and VnetHub, deploy Global Vnet Peerings
-module deployGlobalVnetPeerings 'VnetPeerings.bicep' = if (isMultiRegion && isVnetHub && deployHUB) {
+module GlobalVnetPeerings 'VnetPeerings.bicep' = if (deployGlobalVnetPeerings) {
   name: 'deployGlobalVnetPeerings'
   params: {
-    vnetIDA: isMultiRegion && isVnetHub && deployHUB ? deployRegion[0].outputs.HubVnetID : 'noMultiRegion'
-    vnetIDB: isMultiRegion && isVnetHub && deployHUB ? deployRegion[1].outputs.HubVnetID : 'noMultiRegion'
+    vnetIDA: deployGlobalVnetPeerings ? deployRegion[0].outputs.HubVnetID : 'noMultiRegion'
+    vnetIDB: deployGlobalVnetPeerings ? deployRegion[1].outputs.HubVnetID : 'noMultiRegion'
   }
 }
 
+// variable to validate if we need to deploy these routes
+var deployRoutes = isMultiRegion && deployFirewallInHub && deployUDRs && isVnetHub && deployHUB
+
 // If MultiRegion and deployFirewallInHub and deployUDRs, deploy routes ion both Hubs
 module route 'modules/route.bicep' = [
-  for (location, i) in locations: if (isMultiRegion && deployFirewallInHub && deployUDRs && isVnetHub && deployHUB) {
+  for (location, i) in locations: if (deployRoutes) {
     scope: resourceGroup(location.hubSubscriptionID, '${hubRgName}-${regionShortCodes[location.region]}')
     name: 'DeployRegionRoute-${regionShortCodes[location.region]}'
     params: {
-      routeName: isMultiRegion && deployFirewallInHub && deployUDRs && isVnetHub && deployHUB
+      routeName: deployRoutes
         ? '${deployRegion[i].outputs.HubRtFirewallName}/toRegion${regionShortCodes[location.region]}'
         : 'noRoute'
       routeNextHopType: 'VirtualAppliance'
-      routeNextHopIpAddress: isMultiRegion && deployFirewallInHub && deployUDRs && isVnetHub && deployHUB
+      routeNextHopIpAddress: deployRoutes
         ? i == 0 ? deployRegion[1].outputs.VNET_AzFwPrivateIp : deployRegion[0].outputs.VNET_AzFwPrivateIp
         : 'noRoute'
       routeAddressPrefix: i == 0 ? locations[1].regionAddressSpace : locations[0].regionAddressSpace
