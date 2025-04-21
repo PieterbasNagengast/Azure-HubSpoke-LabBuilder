@@ -350,15 +350,15 @@ module deployGlobalVnetPeerings 'VnetPeerings.bicep' = if (isMultiRegion && isVn
 
 // If MultiRegion and deployFirewallInHub and deployUDRs, deploy routes ion both Hubs
 module route 'modules/route.bicep' = [
-  for (location, i) in locations: if (isMultiRegion && deployFirewallInHub && deployUDRs) {
+  for (location, i) in locations: if (isMultiRegion && deployFirewallInHub && deployUDRs && isVnetHub) {
     scope: resourceGroup(location.hubSubscriptionID, '${hubRgName}-${regionShortCodes[location.region]}')
     name: 'DeployRegionRoute-${regionShortCodes[location.region]}'
     params: {
-      routeName: isMultiRegion && deployFirewallInHub && deployUDRs
+      routeName: isMultiRegion && deployFirewallInHub && deployUDRs && isVnetHub
         ? '${deployRegion[i].outputs.HubRtFirewallName}/toRegion${regionShortCodes[location.region]}'
         : 'noRoute'
       routeNextHopType: 'VirtualAppliance'
-      routeNextHopIpAddress: isMultiRegion && deployFirewallInHub && deployUDRs
+      routeNextHopIpAddress: isMultiRegion && deployFirewallInHub && deployUDRs && isVnetHub
         ? i == 0 ? deployRegion[1].outputs.VNET_AzFwPrivateIp : deployRegion[0].outputs.VNET_AzFwPrivateIp
         : 'noRoute'
       routeAddressPrefix: i == 0 ? locations[1].regionAddressSpace : locations[0].regionAddressSpace
