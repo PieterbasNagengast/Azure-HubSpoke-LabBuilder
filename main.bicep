@@ -5,7 +5,7 @@ import { _Locations, _VPNSettings } from './types.bicep'
 // Define the locations for the Lab deployment. max 2 locations. min 1 location.
 param locations _Locations = [
   {
-    region: 'westeurope'
+    region: 'swedencentral'
     regionAddressSpace: '172.16.0.0/16'
     hubSubscriptionID: subscription().subscriptionId
     spokeSubscriptionID: subscription().subscriptionId
@@ -13,7 +13,7 @@ param locations _Locations = [
   }
 
   {
-    region: 'northeurope'
+    region: 'germanywestcentral'
     regionAddressSpace: '172.31.0.0/16'
     hubSubscriptionID: subscription().subscriptionId
     spokeSubscriptionID: subscription().subscriptionId
@@ -340,7 +340,7 @@ var deployGlobalVnetPeerings = isMultiRegion && isVnetHub && deployHUB
 
 //  If MultiRegion and VnetHub, deploy Global Vnet Peerings
 module GlobalVnetPeerings 'VnetPeerings.bicep' = if (deployGlobalVnetPeerings) {
-  name: 'deployGlobalVnetPeerings'
+  name: 'deployGlobalVnetPeerings-${regionShortCodes[locations[0].region]}-${regionShortCodes[locations[1].region]}'
   params: {
     vnetIDA: deployGlobalVnetPeerings ? deployRegion[0].outputs.HubVnetID : 'noMultiRegion'
     vnetIDB: deployGlobalVnetPeerings ? deployRegion[1].outputs.HubVnetID : 'noMultiRegion'
@@ -373,7 +373,7 @@ var deployCrossRegionVPNConnections = deployGatewayInHub && deployGatewayinOnPre
 
 module CrossRegionVPNConnections 'VpnCrossRegionConnections.bicep' = [
   for (location, i) in locations: if (deployCrossRegionVPNConnections) {
-    name: 'CrossRegionVPNConnections${i}'
+    name: 'CrossRegionVPNConnections${i+1}-${regionShortCodes[locations[0].region]}-${regionShortCodes[locations[1].region]}'
     params: {
       HubVPN: deployCrossRegionVPNConnections && i == 0
         ? deployRegion[0].outputs.VpnSettings.Hub

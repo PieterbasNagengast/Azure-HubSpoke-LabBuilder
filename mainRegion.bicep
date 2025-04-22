@@ -367,11 +367,13 @@ module onprem 'OnPremResourceGroup.bicep' = if (deployOnPrem) {
     vpnGwEnebaleBgp: onpremBgp
     bastionSku: bastionInOnPremSKU
     diagnosticWorkspaceId: diagnosticWorkspaceId
-    dcrID: deployOnPrem && isVnetHub && deployHUB
-      ? hubVnet.outputs.dcrvminsightsID
-      : isVwanHub ? vwan.outputs.dcrvminsightsID : ''
+    dcrID: ''
   }
 }
+
+// dcrID: deployOnPrem && isVnetHub && deployHUB
+//   ? hubVnet.outputs.dcrvminsightsID
+//   : isVwanHub ? vwan.outputs.dcrvminsightsID : ''
 
 // variable to validate if we need to deploy VPN connections
 var deployVPNConnections = deployGatewayInHub && deployGatewayinOnPrem && deploySiteToSite && isVnetHub && deployHUB
