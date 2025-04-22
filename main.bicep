@@ -1,5 +1,7 @@
 targetScope = 'subscription'
 
+import { _Locations, _VPNSettings } from './types.bicep'
+
 // Define the locations for the Lab deployment. max 2 locations. min 1 location.
 param locations _Locations = [
   {
@@ -18,15 +20,6 @@ param locations _Locations = [
     onPremSubscriptionID: subscription().subscriptionId
   }
 ]
-
-@maxLength(2)
-type _Locations = {
-  region: string
-  regionAddressSpace: string
-  hubSubscriptionID: string
-  spokeSubscriptionID: string
-  onPremSubscriptionID: string
-}[]
 
 // Virtual Machine parameters
 @description('Admin username for Virtual Machines')
@@ -73,7 +66,7 @@ param spokeRgNamePrefix string = 'rg-spoke'
 param amountOfSpokes int = 2
 
 @description('Deploy VM in every Spoke VNET')
-param deployVMsInSpokes bool = false
+param deployVMsInSpokes bool = true
 
 @description('Directly connect VNET Spokes (Fully Meshed Topology)')
 param deployVnetPeeringMesh bool = false
@@ -82,7 +75,7 @@ param deployVnetPeeringMesh bool = false
 param deployAvnmUDRs bool = false
 
 @description('Enable Private Subnet in Default Subnet in Spoke VNETs')
-param defaultOutboundAccess bool = false
+param defaultOutboundAccess bool = true
 
 // Hub VNET Parameters
 @description('Deploy Hub')
@@ -99,7 +92,7 @@ param hubType string = 'VNET'
 param hubRgName string = 'rg-hub'
 
 @description('Deploy Bastion Host in Hub VNET. Default = true')
-param deployBastionInHub bool = false
+param deployBastionInHub bool = true
 
 @description('Hub Bastion SKU')
 @allowed([
@@ -113,7 +106,7 @@ param bastionInHubSKU string = 'Basic'
 param deployGatewayInHub bool = true
 
 @description('Deploy Azure Firewall in Hub VNET. includes deployment of custom route tables in Spokes and Hub VNETs')
-param deployFirewallInHub bool = false
+param deployFirewallInHub bool = true
 
 @description('Azure Firewall Tier: Standard or Premium')
 @allowed([
@@ -126,7 +119,7 @@ param AzureFirewallTier string = 'Standard'
 param deployFirewallrules bool = true
 
 @description('Enable Azure Firewall DNS Proxy')
-param firewallDNSproxy bool = false
+param firewallDNSproxy bool = true
 
 @description('Dploy route tables (UDR\'s) to VM subnet(s) in Hub and Spokes')
 param deployUDRs bool = true
@@ -159,7 +152,7 @@ param deployOnPrem bool = true
 param onpremRgName string = 'rg-onprem'
 
 @description('Deploy Bastion Host in OnPrem VNET')
-param deployBastionInOnPrem bool = false
+param deployBastionInOnPrem bool = true
 
 @description('OnPrem Bastion SKU')
 @allowed([
@@ -169,13 +162,16 @@ param deployBastionInOnPrem bool = false
 param bastionInOnPremSKU string = 'Basic'
 
 @description('Deploy VM in OnPrem VNET')
-param deployVMinOnPrem bool = false
+param deployVMinOnPrem bool = true
 
 @description('Deploy Virtual Network Gateway in OnPrem VNET')
 param deployGatewayinOnPrem bool = true
 
 @description('Deploy Site-to-Site VPN connection between OnPrem and Hub Gateways')
 param deploySiteToSite bool = true
+
+@description('Deploy Cross Region Site-to-Site VPN connection between OnPrem and Hub Gateways. Only for MultiRegion deployments')
+param deployCrossRegionSiteToSite bool = true
 
 @description('Site-to-Site ShareKey')
 @secure()
@@ -368,6 +364,25 @@ module route 'modules/route.bicep' = [
         ? i == 0 ? deployRegion[1].outputs.VNET_AzFwPrivateIp : deployRegion[0].outputs.VNET_AzFwPrivateIp
         : 'noRoute'
       routeAddressPrefix: i == 0 ? locations[1].regionAddressSpace : locations[0].regionAddressSpace
+    }
+  }
+]
+
+// variable to validate if we need to deploy VPN connections
+var deployCrossRegionVPNConnections = deployGatewayInHub && deployGatewayinOnPrem && deploySiteToSite && isVnetHub && deployHUB && deployCrossRegionSiteToSite
+
+module CrossRegionVPNConnections 'VpnCrossRegionConnections.bicep' = [
+  for (location, i) in locations: if (deployCrossRegionVPNConnections) {
+    name: 'CrossRegionVPNConnections${i}'
+    params: {
+      HubVPN: deployCrossRegionVPNConnections && i == 0
+        ? deployRegion[0].outputs.VpnSettings.Hub
+        : deployRegion[1].outputs.VpnSettings.Hub
+      OnPrem: deployCrossRegionVPNConnections && i == 0
+        ? deployRegion[1].outputs.VpnSettings.OnPrem
+        : deployRegion[0].outputs.VpnSettings.OnPrem
+      sharedKey: sharedKey
+      tagsByResource: tagsByResource
     }
   }
 ]

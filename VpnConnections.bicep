@@ -1,6 +1,7 @@
 targetScope = 'subscription'
 
-param location string
+param OnPremLocation string
+param HubLocation string
 @secure()
 param sharedKey string
 param enableBgp bool
@@ -40,8 +41,8 @@ module onprem2hub 'modules/vpnconnection.bicep' = {
     LocalGatewayAddressPrefixes: HubAddressPrefixes
     LocalGatewayName: HubLocalGatewayName
     LocalGatewayPublicIP: HubGatewayPublicIP
-    location: location
-    connectionName: 'VPNtoHub'
+    location: OnPremLocation
+    connectionName: 'VPNtoHub-${HubLocation}'
     sharedKey: sharedKey
     VpnGatewayID: OnPremGatewayID
     tagsByResource: tagsByResource
@@ -63,8 +64,8 @@ module hub2onprem 'modules/vpnconnection.bicep' = {
     LocalGatewayAddressPrefixes: OnPremAddressPrefixes
     LocalGatewayName: OnPremLocalGatewayName
     LocalGatewayPublicIP: OnPremGatewayPublicIP
-    location: location
-    connectionName: 'VPNtoOnPrem'
+    location: HubLocation
+    connectionName: 'VPNtoOnPrem-${OnPremLocation}'
     sharedKey: sharedKey
     VpnGatewayID: HubGatewayID
     tagsByResource: tagsByResource
