@@ -290,6 +290,7 @@ module deployRegion 'mainRegion.bicep' = [
       osTypeSpoke: osTypeSpoke
       osTypeOnPrem: osTypeOnPrem
       AddressSpace: location.regionAddressSpace
+      SecondRegionAddressSpace: i == 0 ? locations[1].regionAddressSpace : locations[0].regionAddressSpace
       amountOfSpokes: amountOfSpokes
       spokeRgNamePrefix: spokeRgNamePrefix
       AzureFirewallTier: AzureFirewallTier

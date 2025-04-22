@@ -2,8 +2,10 @@ targetScope = 'subscription'
 
 param location string
 param shortLocationCode string
+param isMultiRegion bool
 param vWanID string
 param AddressSpace string
+param SecondRegionAddressSpace string
 param deployFirewallInHub bool
 param AzureFirewallTier string
 param hubRgName string
@@ -60,6 +62,8 @@ module firewallrules 'modules/firewallpolicyrules.bicep' = if (deployFirewallrul
   params: {
     azFwPolicyName: deployFirewallInHub && deployFirewallrules ? AzFirewall.outputs.azFwPolicyName : 'none'
     AddressSpace: AddressSpace
+    isMultiRegion: isMultiRegion
+    SecondRegionAddressSpace: isMultiRegion ? SecondRegionAddressSpace : 'none'
   }
 }
 

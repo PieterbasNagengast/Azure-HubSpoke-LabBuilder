@@ -43,6 +43,9 @@ param osTypeOnPrem string
 @description('IP Address space used for VNETs in deployment. Only enter a /16 subnet. Default = 172.16.0.0/16')
 param AddressSpace string
 
+@description('Second region Address space. used for AzFirewall rules')
+param SecondRegionAddressSpace string
+
 @description('Azure Region. Defualt = Deployment location')
 param location string
 
@@ -224,6 +227,7 @@ module hubVnet 'HubResourceGroup.bicep' = if (deployHUB && isVnetHub) {
     deployGatewayInHub: deployGatewayInHub && isVnetHub && deployHUB
     tagsByResource: tagsByResource
     AllSpokeAddressSpaces: skip(AllAddressSpaces, 1)
+    SecondRegionAddressSpace: isMultiRegion ? SecondRegionAddressSpace : ''
     vpnGwBgpAsn: hubBgp ? hubBgpAsn : 65515
     vpnGwEnebaleBgp: hubBgp
     deployUDRs: deployUDRs
@@ -240,9 +244,11 @@ module vwan 'vWanResourceGroup.bicep' = if (deployHUB && isVwanHub) {
   params: {
     location: location
     shortLocationCode: shortLocationCode
+    isMultiRegion: isMultiRegion
     vWanID: vWanID
     deployFirewallInHub: deployFirewallInHub && isVwanHub
     AddressSpace: AllAddressSpaces[0]
+    SecondRegionAddressSpace: isMultiRegion ? SecondRegionAddressSpace : ''
     AzureFirewallTier: AzureFirewallTier
     firewallDNSproxy: firewallDNSproxy && isVwanHub
     deployFirewallrules: deployFirewallrules && isVwanHub

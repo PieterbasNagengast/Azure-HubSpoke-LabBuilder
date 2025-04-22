@@ -15,6 +15,7 @@ param deployUDRs bool
 param deployGatewayInHub bool
 param tagsByResource object
 param AllSpokeAddressSpaces array
+param SecondRegionAddressSpace string
 param firewallDNSproxy bool
 
 param vpnGwEnebaleBgp bool
@@ -118,6 +119,8 @@ module firewallrules 'modules/firewallpolicyrules.bicep' = if (deployFirewallrul
   params: {
     azFwPolicyName: deployFirewallInHub && deployFirewallrules ? firewall.outputs.azFwPolicyName : ''
     AddressSpace: AddressSpace
+    SecondRegionAddressSpace: SecondRegionAddressSpace
+    isMultiRegion: isMultiRegion
   }
 }
 
