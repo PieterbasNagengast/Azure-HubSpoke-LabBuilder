@@ -7,7 +7,7 @@ param sharedKey string
 param enableBgp bool
 param tagsByResource object
 
-//OnPrem
+//OnPrem -> Hub
 param OnPremGatewayID string
 param OnPremRgName string
 param OnPremBgpAsn int
@@ -16,7 +16,7 @@ param HubGatewayPublicIP string
 param HubLocalGatewayName string
 param HubAddressPrefixes array
 
-//Hub
+//Hub - > OnPrem
 param HubGatewayID string
 param HubRgName string
 param HubBgpAsn int

@@ -10,12 +10,15 @@ type _Locations = {
 
 @export()
 type _VPNSettings = {
-  Hub: _VPNGatewaySettings
-  OnPrem: _VPNGatewaySettings
+  @discriminator('type')
+  Hub: _VPNGatewaySettingsVNET | _VPNGatewaySettingsVWAN
+  @discriminator('type')
+  OnPrem: _VPNGatewaySettingsVNET | _VPNGatewaySettingsVWAN
 }
 
 @export()
-type _VPNGatewaySettings = {
+type _VPNGatewaySettingsVNET = {
+  type: 'VNET'
   GatewayID: string
   GatewayPublicIP: string
   AddressPrefixes: array
@@ -24,4 +27,19 @@ type _VPNGatewaySettings = {
   Location: string
   shortLocationCode: string
   enableBgp: bool
+}
+
+@export()
+type _VPNGatewaySettingsVWAN = {
+  type: 'VWAN'
+  vWanID: string
+  vWanHubName: string
+  vWanGatewayName: string
+  vwanVpnGwInfo: array
+  AddressPrefixes: array
+  BgpAsn: int
+  Location: string
+  shortLocationCode: string
+  enableBgp: bool
+  propagateToNoneRouteTable: bool
 }

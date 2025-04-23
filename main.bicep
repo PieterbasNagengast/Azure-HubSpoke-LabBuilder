@@ -57,7 +57,7 @@ param diagnosticWorkspaceId string = ''
 
 // Spoke VNET Parameters
 @description('Deploy Spoke VNETs. Default = true')
-param deploySpokes bool = true
+param deploySpokes bool = false
 
 @description('Spoke resource group prefix name. Default = rg-spoke')
 param spokeRgNamePrefix string = 'rg-spoke'
@@ -66,7 +66,7 @@ param spokeRgNamePrefix string = 'rg-spoke'
 param amountOfSpokes int = 2
 
 @description('Deploy VM in every Spoke VNET')
-param deployVMsInSpokes bool = true
+param deployVMsInSpokes bool = false
 
 @description('Directly connect VNET Spokes (Fully Meshed Topology)')
 param deployVnetPeeringMesh bool = false
@@ -86,13 +86,13 @@ param deployHUB bool = true
   'VNET'
   'VWAN'
 ])
-param hubType string = 'VNET'
+param hubType string = 'VWAN'
 
 @description('Hub resource group pre-fix name. Default = rg-hub')
 param hubRgName string = 'rg-hub'
 
 @description('Deploy Bastion Host in Hub VNET. Default = true')
-param deployBastionInHub bool = true
+param deployBastionInHub bool = false
 
 @description('Hub Bastion SKU')
 @allowed([
@@ -106,7 +106,7 @@ param bastionInHubSKU string = 'Basic'
 param deployGatewayInHub bool = true
 
 @description('Deploy Azure Firewall in Hub VNET. includes deployment of custom route tables in Spokes and Hub VNETs')
-param deployFirewallInHub bool = true
+param deployFirewallInHub bool = false
 
 @description('Azure Firewall Tier: Standard or Premium')
 @allowed([
@@ -116,10 +116,10 @@ param deployFirewallInHub bool = true
 param AzureFirewallTier string = 'Standard'
 
 @description('Deploy Firewall policy Rule Collection group which allows spoke-to-spoke and internet traffic')
-param deployFirewallrules bool = true
+param deployFirewallrules bool = false
 
 @description('Enable Azure Firewall DNS Proxy')
-param firewallDNSproxy bool = true
+param firewallDNSproxy bool = false
 
 @description('Dploy route tables (UDR\'s) to VM subnet(s) in Hub and Spokes')
 param deployUDRs bool = true
@@ -128,7 +128,7 @@ param deployUDRs bool = true
 param hubBgp bool = true
 
 @description('Hub BGP ASN')
-param hubBgpAsn int = 65010
+param hubBgpAsn int = 65515
 
 // AVNM parameters
 @description('AVNM resource group name. Default = rg-avnm')
@@ -152,7 +152,7 @@ param deployOnPrem bool = true
 param onpremRgName string = 'rg-onprem'
 
 @description('Deploy Bastion Host in OnPrem VNET')
-param deployBastionInOnPrem bool = true
+param deployBastionInOnPrem bool = false
 
 @description('OnPrem Bastion SKU')
 @allowed([
@@ -162,7 +162,7 @@ param deployBastionInOnPrem bool = true
 param bastionInOnPremSKU string = 'Basic'
 
 @description('Deploy VM in OnPrem VNET')
-param deployVMinOnPrem bool = true
+param deployVMinOnPrem bool = false
 
 @description('Deploy Virtual Network Gateway in OnPrem VNET')
 param deployGatewayinOnPrem bool = true
@@ -370,7 +370,7 @@ module route 'modules/route.bicep' = [
 ]
 
 // variable to validate if we need to deploy VPN connections
-var deployCrossRegionVPNConnections = deployGatewayInHub && deployGatewayinOnPrem && deploySiteToSite && isVnetHub && deployHUB && deployCrossRegionSiteToSite
+var deployCrossRegionVPNConnections = deployGatewayInHub && deployGatewayinOnPrem && deploySiteToSite && deployHUB && deployCrossRegionSiteToSite && (isVnetHub || isVwanHub)
 
 module CrossRegionVPNConnections 'VpnCrossRegionConnections.bicep' = [
   for (location, i) in locations: if (deployCrossRegionVPNConnections) {
