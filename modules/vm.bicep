@@ -18,7 +18,7 @@ var AmaExtensionVersion = '1.0'
 
 var DaExtensionName = 'DependencyAgentWindows'
 var DaExtensionType = 'DependencyAgentWindows'
-var DaExtensionVersion = '9.5'
+var DaExtensionVersion = '9.10'
 
 var Windows = {
   publisher: 'MicrosoftWindowsServer'
@@ -91,6 +91,7 @@ resource amaextension 'Microsoft.Compute/virtualMachines/extensions@2023-09-01' 
     type: AmaExtensionType
     typeHandlerVersion: AmaExtensionVersion
     autoUpgradeMinorVersion: true
+    enableAutomaticUpgrade: true
   }
 }
 

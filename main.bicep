@@ -53,7 +53,10 @@ param osTypeOnPrem string = 'Windows'
 param tagsByResource object = {}
 
 @description('LogAnalytics Workspace resourceID')
-param diagnosticWorkspaceId string = ''
+param diagnosticWorkspaceId string
+
+@description('Resource group name for DCR')
+param dcrRgName string = 'rg-dcr'
 
 // Spoke VNET Parameters
 @description('Deploy Spoke VNETs. Default = true')
@@ -74,8 +77,8 @@ param deployVnetPeeringMesh bool = false
 @description('Let Azure Virtual Network Manager manage UDRs in Spoke VNETs')
 param deployAvnmUDRs bool = false
 
-@description('Enable Private Subnet in Default Subnet in Spoke VNETs')
-param defaultOutboundAccess bool = false
+@description('Enable or Disbale default outbound access on Subnets. Default = true')
+param defaultOutboundAccess bool = true
 
 // Hub VNET Parameters
 @description('Deploy Hub')
@@ -273,7 +276,7 @@ module avnmmanager 'modules/avnmmanager.bicep' = if (deployHUB && deploySpokes &
 // VMInsights DCR
 // Create resource group for AVNM
 resource dcrrg 'Microsoft.Resources/resourceGroups@2023-07-01' = if (!empty(diagnosticWorkspaceId)) {
-  name: avnmRgName
+  name: dcrRgName
   location: locations[0].region
   tags: tagsByResource[?'Microsoft.Resources/subscriptions/resourceGroups'] ?? {}
 }
