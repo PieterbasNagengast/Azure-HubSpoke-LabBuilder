@@ -19,8 +19,6 @@ param osType string
 param firewallDNSproxy bool
 param defaultOutboundAccess bool
 
-param diagnosticWorkspaceId string
-
 param dcrID string
 
 var vnetName = 'VNET-Spoke${counter}-${shortLocationCode}'
@@ -66,7 +64,6 @@ module vm 'modules/vm.bicep' = if (deployVMsInSpokes) {
     vmSize: vmSize
     tagsByResource: tagsByResource
     osType: osType
-    diagnosticWorkspaceId: diagnosticWorkspaceId
     dcrID: dcrID
   }
 }

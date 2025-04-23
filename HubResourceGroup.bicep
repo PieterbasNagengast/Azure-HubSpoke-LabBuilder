@@ -21,8 +21,6 @@ param firewallDNSproxy bool
 param vpnGwEnebaleBgp bool
 param vpnGwBgpAsn int
 
-param diagnosticWorkspaceId string
-
 var firewallSubnetPrefix = cidrSubnet(hubAddressSpace, 26, 0)
 var bastionSubnetPrefix = cidrSubnet(hubAddressSpace, 26, 1)
 var gatewaySubnetPrefix = cidrSubnet(hubAddressSpace, 26, 2)
@@ -74,16 +72,6 @@ module vnet 'modules/vnet.bicep' = {
     azFwIp: firewallIP
     rtFwID: isMultiRegion && deployFirewallInHub ? rtFirewall.outputs.rtID : 'none'
     firewallDNSproxy: firewallDNSproxy
-  }
-}
-
-module dcrvminsights 'modules/dcrvminsights.bicep' = if (!empty(diagnosticWorkspaceId)) {
-  scope: hubrg
-  name: 'dcr-vminsights'
-  params: {
-    diagnosticWorkspaceId: diagnosticWorkspaceId
-    location: location
-    tagsByResource: tagsByResource
   }
 }
 
@@ -183,5 +171,4 @@ output hubVnetAddressSpace array = vnet.outputs.vnetAddressSpace
 output hubGatewayPublicIP string = deployGatewayInHub ? vpngw.outputs.vpnGwPublicIP : 'none'
 output hubGatewayID string = deployGatewayInHub ? vpngw.outputs.vpnGwID : 'none'
 output HubGwBgpPeeringAddress string = deployGatewayInHub ? vpngw.outputs.vpnGwBgpPeeringAddress : 'none'
-output dcrvminsightsID string = !empty(diagnosticWorkspaceId) ? dcrvminsights.outputs.dcrID : ''
 output rtFirewallName string = deployFirewallInHub && deployUDRs && isMultiRegion ? rtFirewall.outputs.rtName : 'none'

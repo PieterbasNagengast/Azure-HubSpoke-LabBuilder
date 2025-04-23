@@ -66,7 +66,7 @@ param spokeRgNamePrefix string = 'rg-spoke'
 param amountOfSpokes int = 2
 
 @description('Deploy VM in every Spoke VNET')
-param deployVMsInSpokes bool = false
+param deployVMsInSpokes bool = true
 
 @description('Directly connect VNET Spokes (Fully Meshed Topology)')
 param deployVnetPeeringMesh bool = false
@@ -75,18 +75,18 @@ param deployVnetPeeringMesh bool = false
 param deployAvnmUDRs bool = false
 
 @description('Enable Private Subnet in Default Subnet in Spoke VNETs')
-param defaultOutboundAccess bool = true
+param defaultOutboundAccess bool = false
 
 // Hub VNET Parameters
 @description('Deploy Hub')
-param deployHUB bool = true
+param deployHUB bool = false
 
 @description('Deploy Hub VNET or Azuere vWAN. Default = VNET')
 @allowed([
   'VNET'
   'VWAN'
 ])
-param hubType string = 'VWAN'
+param hubType string = 'VNET'
 
 @description('Hub resource group pre-fix name. Default = rg-hub')
 param hubRgName string = 'rg-hub'
@@ -103,7 +103,7 @@ param deployBastionInHub bool = false
 param bastionInHubSKU string = 'Basic'
 
 @description('Deploy Virtual Network Gateway in Hub VNET')
-param deployGatewayInHub bool = true
+param deployGatewayInHub bool = false
 
 @description('Deploy Azure Firewall in Hub VNET. includes deployment of custom route tables in Spokes and Hub VNETs')
 param deployFirewallInHub bool = false
@@ -122,7 +122,7 @@ param deployFirewallrules bool = false
 param firewallDNSproxy bool = false
 
 @description('Dploy route tables (UDR\'s) to VM subnet(s) in Hub and Spokes')
-param deployUDRs bool = true
+param deployUDRs bool = false
 
 @description('Enable BGP on Hub Gateway')
 param hubBgp bool = true
@@ -146,7 +146,7 @@ param privateTrafficRoutingPolicy bool = false
 
 // OnPrem parameters\
 @description('Deploy Virtual Network Gateway in OnPrem')
-param deployOnPrem bool = true
+param deployOnPrem bool = false
 
 @description('OnPrem Resource Group Name')
 param onpremRgName string = 'rg-onprem'
@@ -165,13 +165,13 @@ param bastionInOnPremSKU string = 'Basic'
 param deployVMinOnPrem bool = false
 
 @description('Deploy Virtual Network Gateway in OnPrem VNET')
-param deployGatewayinOnPrem bool = true
+param deployGatewayinOnPrem bool = false
 
 @description('Deploy Site-to-Site VPN connection between OnPrem and Hub Gateways')
-param deploySiteToSite bool = true
+param deploySiteToSite bool = false
 
 @description('Deploy Cross Region Site-to-Site VPN connection between OnPrem and Hub Gateways. Only for MultiRegion deployments')
-param deployCrossRegionSiteToSite bool = true
+param deployCrossRegionSiteToSite bool = false
 
 @description('Site-to-Site ShareKey')
 @secure()
@@ -270,6 +270,25 @@ module avnmmanager 'modules/avnmmanager.bicep' = if (deployHUB && deploySpokes &
   }
 }
 
+// VMInsights DCR
+// Create resource group for AVNM
+resource dcrrg 'Microsoft.Resources/resourceGroups@2023-07-01' = if (!empty(diagnosticWorkspaceId)) {
+  name: avnmRgName
+  location: locations[0].region
+  tags: tagsByResource[?'Microsoft.Resources/subscriptions/resourceGroups'] ?? {}
+}
+
+// create DCR instance in DCR resource group
+module dcrvminsights 'modules/dcrvminsights.bicep' = if (!empty(diagnosticWorkspaceId)) {
+  scope: dcrrg
+  name: 'dcr-vminsights'
+  params: {
+    diagnosticWorkspaceId: diagnosticWorkspaceId
+    location: locations[0].region
+    tagsByResource: tagsByResource
+  }
+}
+
 // REGIONS
 // Deploy region(s)
 module deployRegion 'mainRegion.bicep' = [
@@ -316,7 +335,6 @@ module deployRegion 'mainRegion.bicep' = [
         : 'noAVNM'
       deployVnetPeeringAVNM: deployVnetPeeringAVNM
       deployUDRs: deployUDRs
-      diagnosticWorkspaceId: diagnosticWorkspaceId
       tagsByResource: tagsByResource
       internetTrafficRoutingPolicy: internetTrafficRoutingPolicy
       privateTrafficRoutingPolicy: privateTrafficRoutingPolicy
@@ -332,6 +350,7 @@ module deployRegion 'mainRegion.bicep' = [
       onpremRgName: onpremRgName
       hubType: hubType
       vWanID: deployHUB && isVwanHub ? vwan.outputs.ID : 'noVWAN'
+      dcrID: dcrvminsights.outputs.dcrID ?? ''
     }
   }
 ]

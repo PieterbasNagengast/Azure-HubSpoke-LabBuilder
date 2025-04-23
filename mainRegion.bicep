@@ -26,6 +26,9 @@ param vmSizeSpoke string
 @description('OnPrem Virtual Machine SKU. Default = Standard_B2s')
 param vmSizeOnPrem string
 
+@description('DCR ID for VM Insights.')
+param dcrID string
+
 @description('Spoke Virtual Machine(s) OS type. Windows or Linux. Default = Windows')
 @allowed([
   'Linux'
@@ -54,9 +57,6 @@ param shortLocationCode string
 
 @description('Tags by resource types. Default = empty')
 param tagsByResource object
-
-@description('LogAnalytics Workspace resourceID')
-param diagnosticWorkspaceId string
 
 // Spoke VNET Parameters
 @description('Deploy Spoke VNETs. Default = true')
@@ -232,7 +232,6 @@ module hubVnet 'HubResourceGroup.bicep' = if (deployHUB && isVnetHub) {
     vpnGwEnebaleBgp: hubBgp
     deployUDRs: deployUDRs
     bastionSku: bastionInHubSKU
-    diagnosticWorkspaceId: diagnosticWorkspaceId
     firewallDNSproxy: firewallDNSproxy && deployFirewallInHub && isVnetHub
   }
 }
@@ -255,7 +254,6 @@ module vwan 'vWanResourceGroup.bicep' = if (deployHUB && isVwanHub) {
     hubRgName: hubRgName
     deployGatewayInHub: deployGatewayInHub && isVwanHub
     tagsByResource: tagsByResource
-    diagnosticWorkspaceId: diagnosticWorkspaceId
     internetTrafficRoutingPolicy: internetTrafficRoutingPolicy
     privateTrafficRoutingPolicy: privateTrafficRoutingPolicy
   }
@@ -284,11 +282,8 @@ module spokeVnets 'SpokeResourceGroup.bicep' = [
       tagsByResource: tagsByResource
       osType: osTypeSpoke
       deployUDRs: deployAvnmUDRs ? false : deployUDRs
-      diagnosticWorkspaceId: diagnosticWorkspaceId
       firewallDNSproxy: firewallDNSproxy && deployFirewallInHub
-      dcrID: deployHUB && isVnetHub
-        ? hubVnet.outputs.dcrvminsightsID
-        : deployHUB && isVwanHub ? vwan.outputs.dcrvminsightsID : ''
+      dcrID: dcrID ?? ''
       defaultOutboundAccess: defaultOutboundAccess
     }
   }
@@ -372,14 +367,9 @@ module onprem 'OnPremResourceGroup.bicep' = if (deployOnPrem) {
     vpnGwBgpAsn: onpremBgp ? onpremBgpAsn : 65515
     vpnGwEnebaleBgp: onpremBgp
     bastionSku: bastionInOnPremSKU
-    diagnosticWorkspaceId: diagnosticWorkspaceId
-    dcrID: ''
+    dcrID: dcrID ?? ''
   }
 }
-
-// dcrID: deployOnPrem && isVnetHub && deployHUB
-//   ? hubVnet.outputs.dcrvminsightsID
-//   : isVwanHub ? vwan.outputs.dcrvminsightsID : ''
 
 // variable to validate if we need to deploy VPN connections
 var deployVPNConnectionsVNET = deployGatewayInHub && deployGatewayinOnPrem && deploySiteToSite && isVnetHub && deployHUB

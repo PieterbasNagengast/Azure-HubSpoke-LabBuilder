@@ -18,8 +18,6 @@ param osType string
 param vpnGwEnebaleBgp bool
 param vpnGwBgpAsn int
 
-param diagnosticWorkspaceId string
-
 param dcrID string
 
 var vnetName = 'VNET-OnPrem-${shortLocationCode}'
@@ -85,7 +83,6 @@ module vm 'modules/vm.bicep' = if (deployVMsInOnPrem) {
     vmSize: vmSize
     tagsByResource: tagsByResource
     osType: osType
-    diagnosticWorkspaceId: diagnosticWorkspaceId
     dcrID: dcrID
   }
 }

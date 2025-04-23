@@ -13,7 +13,6 @@ param deployFirewallrules bool
 param deployGatewayInHub bool
 param tagsByResource object = {}
 param firewallDNSproxy bool
-param diagnosticWorkspaceId string
 param internetTrafficRoutingPolicy bool
 param privateTrafficRoutingPolicy bool
 
@@ -90,19 +89,8 @@ module vpngateway 'modules/vwanvpngateway.bicep' = if (deployGatewayInHub) {
   }
 }
 
-module dcrvminsights 'modules/dcrvminsights.bicep' = if (!empty(diagnosticWorkspaceId)) {
-  scope: hubrg
-  name: 'dcr-vminsights-${shortLocationCode}'
-  params: {
-    diagnosticWorkspaceId: diagnosticWorkspaceId
-    location: location
-    tagsByResource: tagsByResource
-  }
-}
-
 output vWanHubName string = vwanHub.outputs.Name
 output HubResourceGroupName string = hubrg.name
 output vWanFwIP string = deployFirewallInHub ? AzFirewall.outputs.azFwIP : 'none'
 output vpnGwBgpIp array = deployGatewayInHub ? vpngateway.outputs.vpnGwBgpIp : []
 output vpnGwName string = deployGatewayInHub ? vpngateway.outputs.vpnGwName : 'none'
-output dcrvminsightsID string = !empty(diagnosticWorkspaceId) ? dcrvminsights.outputs.dcrID : 'none'
