@@ -57,7 +57,7 @@ param diagnosticWorkspaceId string = ''
 
 // Spoke VNET Parameters
 @description('Deploy Spoke VNETs. Default = true')
-param deploySpokes bool = false
+param deploySpokes bool = true
 
 @description('Spoke resource group prefix name. Default = rg-spoke')
 param spokeRgNamePrefix string = 'rg-spoke'

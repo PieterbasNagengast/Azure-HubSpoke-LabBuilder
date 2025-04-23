@@ -1,7 +1,10 @@
 targetScope = 'subscription'
 
 param OnPremLocation string
+param OnPremShortLocationCode string
 param HubLocation string
+param HubShortLocationCode string
+
 @secure()
 param sharedKey string
 param enableBgp bool
@@ -29,6 +32,10 @@ param deployFirewallInHub bool
 param hubSubscriptionID string
 param onPremSubscriptionID string
 
+param isCrossRegion bool = false
+
+var vWanCrossRegionPostfix = isCrossRegion ? '-CrossRegion' : ''
+
 // OnPrem VPN Local Gateway and Connection
 resource onpremrg 'Microsoft.Resources/resourceGroups@2023-07-01' existing = {
   scope: subscription(onPremSubscriptionID)
@@ -44,7 +51,7 @@ module vpnOnPrem 'modules/vpnconnection.bicep' = [
       LocalGatewayName: '${HubLocalGatewayName}${i + 1}'
       LocalGatewayPublicIP: vwan.tunnelIpAddresses[0]
       location: OnPremLocation
-      connectionName: 'VPNtoVWAN${i + 1}-${HubLocation}'
+      connectionName: 'VPNtoVWAN${i + 1}-${HubShortLocationCode}'
       sharedKey: sharedKey
       VpnGatewayID: OnPremGatewayID
       tagsByResource: tagsByResource
@@ -71,7 +78,7 @@ module vpnvWan 'modules/vwanvpnconnection.bicep' = {
     linkBgpPeeringAddress: OnPremBgpPeeringAddress
     linkPublicIP: OnPremGatewayPublicIP
     location: HubLocation
-    vpnSiteName: 'VPNtoOnPrem-${OnPremLocation}'
+    vpnSiteName: 'VPNtoOnPrem-${OnPremShortLocationCode}${vWanCrossRegionPostfix}'
     vwanGatewayName: vwanGatewayName
     vwanHubName: vwanHubName
     vwanID: vwanID

@@ -47,6 +47,7 @@ module vwans2s 'vWanVpnConnections.bicep' = if (isvWan) {
   name: 'VPN-s2s-CrossRegion-${HubVPN.shortLocationCode}-${OnPrem.shortLocationCode}'
   params: {
     HubLocation: HubVPN.Location
+    HubShortLocationCode: HubVPN.shortLocationCode
     HubRgName: split(HubVPN.vWanID, '/')[4]
     vwanVpnGwInfo: HubVPN.vwanVpnGwInfo
     vwanGatewayName: HubVPN.vWanGatewayName
@@ -56,6 +57,7 @@ module vwans2s 'vWanVpnConnections.bicep' = if (isvWan) {
     HubLocalGatewayName: 'LocalGateway-Hub-${HubVPN.shortLocationCode}'
 
     OnPremLocation: OnPrem.Location
+    OnPremShortLocationCode: OnPrem.shortLocationCode
     OnPremRgName: split(OnPrem.GatewayID, '/')[4]
     OnPremGatewayID: OnPrem.GatewayID
     OnPremGatewayPublicIP: OnPrem.GatewayPublicIP
@@ -69,5 +71,6 @@ module vwans2s 'vWanVpnConnections.bicep' = if (isvWan) {
     hubSubscriptionID: split(HubVPN.vWanID, '/')[2]
     onPremSubscriptionID: split(OnPrem.GatewayID, '/')[2]
     deployFirewallInHub: HubVPN.propagateToNoneRouteTable
+    isCrossRegion: true
   }
 }
