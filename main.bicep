@@ -109,7 +109,7 @@ param bastionInHubSKU string = 'Basic'
 param deployGatewayInHub bool = false
 
 @description('Deploy Azure Firewall in Hub VNET. includes deployment of custom route tables in Spokes and Hub VNETs')
-param deployFirewallInHub bool = true
+param deployFirewallInHub bool = false
 
 @description('Azure Firewall Tier: Standard or Premium')
 @allowed([
@@ -173,8 +173,9 @@ param deployGatewayinOnPrem bool = false
 @description('Deploy Site-to-Site VPN connection between OnPrem and Hub Gateways')
 param deploySiteToSite bool = false
 
-// @description('Deploy Cross Region Site-to-Site VPN connection between OnPrem and Hub Gateways. Only for MultiRegion deployments')
-// param deployCrossRegionSiteToSite bool = false
+@description('Deploy Cross Region Site-to-Site VPN connection between OnPrem and Hub Gateways. Only for MultiRegion deployments')
+param deployCrossRegionSiteToSite bool = false
+
 @description('Site-to-Site ShareKey')
 @secure()
 param sharedKey string = ''
@@ -375,42 +376,46 @@ module GlobalVnetPeerings 'VnetPeerings.bicep' = if (deployGlobalVnetPeerings) {
   }
 }
 
-// // variable to validate if we need to deploy these routes
-// var deployRoutes = isMultiRegion && deployFirewallInHub && deployUDRs && isVnetHub && deployHUB
+// variable to validate if we need to deploy these routes
+var deployRoutes = isMultiRegion && deployFirewallInHub && deployUDRs && isVnetHub && deployHUB
 
-// // If MultiRegion and deployFirewallInHub and deployUDRs, deploy routes ion both Hubs
-// module route 'modules/route.bicep' = [
-//   for (location, i) in locations: if (deployRoutes) {
-//     scope: resourceGroup(location.hubSubscriptionID, '${hubRgName}-${regionShortCodes[location.region]}')
-//     name: 'DeployRegionRoute-${regionShortCodes[location.region]}'
-//     params: {
-//       routeName: deployRoutes
-//         ? '${deployRegion[i].outputs.HubRtFirewallName}/toRegion${regionShortCodes[location.region]}'
-//         : 'noRoute'
-//       routeNextHopType: 'VirtualAppliance'
-//       routeNextHopIpAddress: deployRoutes
-//         ? i == 0 ? deployRegion[i + 1].outputs.VNET_AzFwPrivateIp ?? '' : deployRegion[0].outputs.VNET_AzFwPrivateIp
-//         : 'noRoute'
-//       routeAddressPrefix: i == 0 ? locations[i + 1].?regionAddressSpace ?? '' : locations[0].regionAddressSpace
-//     }
-//   }
-// ]
+// If MultiRegion and deployFirewallInHub and deployUDRs, deploy routes ion both Hubs
+module route 'modules/route.bicep' = [
+  for (location, i) in locations: if (deployRoutes) {
+    scope: resourceGroup(location.hubSubscriptionID, '${hubRgName}-${regionShortCodes[location.region]}')
+    name: 'DeployRegionRoute-${regionShortCodes[location.region]}'
+    params: {
+      routeName: deployRoutes
+        ? '${deployRegion[i].outputs.HubRtFirewallName}/toRegion${regionShortCodes[location.region]}'
+        : 'noRoute'
+      routeNextHopType: 'VirtualAppliance'
+      routeNextHopIpAddress: deployRoutes
+        ? deployRegion[length(locations) == 2 && i == 0 ? 1 : 0].outputs.VNET_AzFwPrivateIp
+        : 'noRoute'
+      routeAddressPrefix: deployRoutes
+        ? locations[length(locations) == 2 && i == 0 ? 1 : 0].regionAddressSpace
+        : 'noRoute'
+    }
+  }
+]
 
-// // variable to validate if we need to deploy VPN connections
-// var deployCrossRegionVPNConnections = deployGatewayInHub && deployGatewayinOnPrem && deploySiteToSite && deployHUB && deployCrossRegionSiteToSite && isMultiRegion && (isVnetHub || isVwanHub)
+// variable to validate if we need to deploy VPN connections
+var deployCrossRegionVPNConnections = deployGatewayInHub && deployGatewayinOnPrem && deploySiteToSite && deployHUB && deployCrossRegionSiteToSite && isMultiRegion && (isVnetHub || isVwanHub)
 
-// module CrossRegionVPNConnections 'VpnCrossRegionConnections.bicep' = [
-//   for (location, i) in locations: if (deployCrossRegionVPNConnections) {
-//     name: 'CrossRegionVPNConnections${i+1}-${regionShortCodes[locations[0].region]}-${regionShortCodes[locations[1].region ]}'
-//     params: {
-//       HubVPN: deployCrossRegionVPNConnections && i == 0
-//         ? deployRegion[0].outputs.VpnSettings.Hub
-//         : deployRegion[i].outputs.VpnSettings.Hub ?? ''
-//       OnPrem: deployCrossRegionVPNConnections && i == 0
-//         ? deployRegion[i].outputs.VpnSettings.OnPrem ?? ''
-//         : deployRegion[0].outputs.VpnSettings.OnPrem
-//       sharedKey: sharedKey
-//       tagsByResource: tagsByResource
-//     }
-//   }
-// ]
+module CrossRegionVPNConnections 'VpnCrossRegionConnections.bicep' = [
+  for (location, i) in locations: if (deployCrossRegionVPNConnections) {
+    name: 'CrossRegionVPNConnections${i+1}-${regionShortCodes[locations[0].region]}-${regionShortCodes[locations[1].region ]}'
+    params: {
+      HubVPN: deployCrossRegionVPNConnections
+        ? deployRegion[length(locations) == 2 && i == 0 ? 1 : 0].outputs.VpnSettings.Hub
+        : deployRegion[0].outputs.VpnSettings.Hub
+
+      OnPrem: deployCrossRegionVPNConnections
+        ? deployRegion[length(locations) == 2 && i == 0 ? 0 : 1].outputs.VpnSettings.OnPrem
+        : deployRegion[0].outputs.VpnSettings.OnPrem
+
+      sharedKey: sharedKey
+      tagsByResource: tagsByResource
+    }
+  }
+]
