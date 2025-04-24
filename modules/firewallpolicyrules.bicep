@@ -4,10 +4,7 @@ param AddressSpace string
 param SecondRegionAddressSpace string
 param isMultiRegion bool
 
-var addressSpaces = [
-  AddressSpace
-  isMultiRegion ? SecondRegionAddressSpace : ''
-]
+var addressSpaces = union(array(AddressSpace), isMultiRegion ? array(SecondRegionAddressSpace) : [])
 
 resource ruleCollectionGroup 'Microsoft.Network/firewallPolicies/ruleCollectionGroups@2023-06-01' = {
   name: '${azFwPolicyName}/${ruleCollectiongroupName}'

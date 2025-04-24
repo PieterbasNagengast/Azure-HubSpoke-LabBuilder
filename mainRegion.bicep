@@ -31,6 +31,7 @@ param SecondRegionAddressSpace string
 param location string
 param shortLocationCode string
 param tagsByResource object
+param isMultiRegion bool
 
 // Spoke VNET Parameters
 param deploySpokes bool
@@ -48,7 +49,6 @@ param deployHUB bool
   'VWAN'
 ])
 param hubType string
-param vWanID string
 param hubRgName string
 param deployBastionInHub bool
 @allowed([
@@ -67,17 +67,19 @@ param AzureFirewallTier string
 param deployFirewallrules bool
 param firewallDNSproxy bool
 param deployUDRs bool
-param isMultiRegion bool
 param hubBgp bool
 param hubBgpAsn int
+
+// Hub vWAN Parameters
+param vWanID string
+param internetTrafficRoutingPolicy bool
+param privateTrafficRoutingPolicy bool
 
 // AVNM parameters
 param avnmRgName string
 param avnmName string
 param avnmUserAssignedIdentityId string
 param deployVnetPeeringAVNM bool
-param internetTrafficRoutingPolicy bool
-param privateTrafficRoutingPolicy bool
 
 // OnPrem parameters
 param deployOnPrem bool
@@ -345,49 +347,47 @@ output HubRtFirewallName string = deployFirewallInHub && deployHUB && isVnetHub
   : 'none'
 output VNET_AzFwPrivateIp string = deployFirewallInHub && deployHUB && isVnetHub ? hubVnet.outputs.azFwIp : 'none'
 output HubVnetID string = deployHUB && isVnetHub ? hubVnet.outputs.hubVnetID : 'none'
-output VpnSettings _VPNSettings = deployVPNConnectionsVNET || deployVPNConnectionsVWAN
-  ? {
-      Hub: deployVPNConnectionsVNET
-        ? {
-            type: 'VNET'
-            GatewayID: deployVPNConnectionsVNET ? hubVnet.outputs.hubGatewayID : 'none'
-            GatewayPublicIP: deployVPNConnectionsVNET ? hubVnet.outputs.hubGatewayPublicIP : 'none'
-            AddressPrefixes: deployVPNConnectionsVNET ? AllAddressSpaces : []
-            BgpAsn: hubBgpAsn
-            BgpPeeringAddress: deployVPNConnectionsVNET ? hubVnet.outputs.HubGwBgpPeeringAddress : 'none'
-            Location: location
-            shortLocationCode: shortLocationCode
-            enableBgp: hubBgp
-          }
-        : {
-            type: 'VWAN'
-            vWanID: vWanID
-            vWanHubName: deployVPNConnectionsVWAN ? vwan.outputs.vWanHubName : 'none'
-            vWanGatewayName: deployVPNConnectionsVWAN ? vwan.outputs.vpnGwName : 'none'
-            vwanVpnGwInfo: deployVPNConnectionsVWAN ? vwan.outputs.vpnGwBgpIp : []
-            AddressPrefixes: deployVPNConnectionsVWAN ? AllAddressSpaces : []
-            BgpAsn: 65515
-            Location: location
-            shortLocationCode: shortLocationCode
-            enableBgp: hubBgp && onpremBgp && deployVPNConnectionsVWAN
-            propagateToNoneRouteTable: deployFirewallInHub && deployVPNConnectionsVWAN
-          }
-      OnPrem: {
+output VpnSettings _VPNSettings = {
+  Hub: deployVPNConnectionsVNET
+    ? {
         type: 'VNET'
-        GatewayID: deployVPNConnectionsVNET || deployVPNConnectionsVWAN ? onprem.outputs.OnPremGatewayID : 'none'
-        GatewayPublicIP: deployVPNConnectionsVNET || deployVPNConnectionsVWAN
-          ? onprem.outputs.OnPremGatewayPublicIP
-          : 'none'
-        AddressPrefixes: deployVPNConnectionsVNET || deployVPNConnectionsVWAN
-          ? array(onprem.outputs.OnPremAddressSpace)
-          : []
-        BgpAsn: onpremBgpAsn
-        BgpPeeringAddress: deployVPNConnectionsVNET || deployVPNConnectionsVWAN
-          ? onprem.outputs.OnPremGwBgpPeeringAddress
-          : 'none'
+        GatewayID: deployVPNConnectionsVNET ? hubVnet.outputs.hubGatewayID : 'none'
+        GatewayPublicIP: deployVPNConnectionsVNET ? hubVnet.outputs.hubGatewayPublicIP : 'none'
+        AddressPrefixes: deployVPNConnectionsVNET ? AllAddressSpaces : []
+        BgpAsn: hubBgpAsn
+        BgpPeeringAddress: deployVPNConnectionsVNET ? hubVnet.outputs.HubGwBgpPeeringAddress : 'none'
         Location: location
         shortLocationCode: shortLocationCode
-        enableBgp: onpremBgp
+        enableBgp: hubBgp
       }
-    }
-  : {}
+    : {
+        type: 'VWAN'
+        vWanID: deployVPNConnectionsVWAN ? vWanID : 'none'
+        vWanHubName: deployVPNConnectionsVWAN ? vwan.outputs.vWanHubName : 'none'
+        vWanGatewayName: deployVPNConnectionsVWAN ? vwan.outputs.vpnGwName : 'none'
+        vwanVpnGwInfo: deployVPNConnectionsVWAN ? vwan.outputs.vpnGwBgpIp : []
+        AddressPrefixes: deployVPNConnectionsVWAN ? AllAddressSpaces : []
+        BgpAsn: 65515
+        Location: location
+        shortLocationCode: shortLocationCode
+        enableBgp: hubBgp && onpremBgp && deployVPNConnectionsVWAN
+        propagateToNoneRouteTable: deployFirewallInHub && deployVPNConnectionsVWAN
+      }
+  OnPrem: {
+    type: 'VNET'
+    GatewayID: deployVPNConnectionsVNET || deployVPNConnectionsVWAN ? onprem.outputs.OnPremGatewayID : 'none'
+    GatewayPublicIP: deployVPNConnectionsVNET || deployVPNConnectionsVWAN
+      ? onprem.outputs.OnPremGatewayPublicIP
+      : 'none'
+    AddressPrefixes: deployVPNConnectionsVNET || deployVPNConnectionsVWAN
+      ? array(onprem.outputs.OnPremAddressSpace)
+      : []
+    BgpAsn: onpremBgpAsn
+    BgpPeeringAddress: deployVPNConnectionsVNET || deployVPNConnectionsVWAN
+      ? onprem.outputs.OnPremGwBgpPeeringAddress
+      : 'none'
+    Location: location
+    shortLocationCode: shortLocationCode
+    enableBgp: onpremBgp
+  }
+}

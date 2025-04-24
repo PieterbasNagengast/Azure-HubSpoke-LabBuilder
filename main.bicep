@@ -12,22 +12,22 @@ param locations _Locations = [
     onPremSubscriptionID: subscription().subscriptionId
   }
 
-  {
-    region: 'germanywestcentral'
-    regionAddressSpace: '172.31.0.0/16'
-    hubSubscriptionID: subscription().subscriptionId
-    spokeSubscriptionID: subscription().subscriptionId
-    onPremSubscriptionID: subscription().subscriptionId
-  }
+  // {
+  //   region: 'germanywestcentral'
+  //   regionAddressSpace: '172.31.0.0/16'
+  //   hubSubscriptionID: subscription().subscriptionId
+  //   spokeSubscriptionID: subscription().subscriptionId
+  //   onPremSubscriptionID: subscription().subscriptionId
+  // }
 ]
 
 // Virtual Machine parameters
 @description('Admin username for Virtual Machines')
-param adminUsername string
+param adminUsername string = ''
 
 @description('Admin Password for Virtual Machines')
 @secure()
-param adminPassword string
+param adminPassword string = ''
 
 @description('Spoke Virtual Machine SKU. Default = Standard_B2s')
 param vmSizeSpoke string = 'Standard_B2s'
@@ -53,14 +53,14 @@ param osTypeOnPrem string = 'Windows'
 param tagsByResource object = {}
 
 @description('LogAnalytics Workspace resourceID')
-param diagnosticWorkspaceId string
+param diagnosticWorkspaceId string = ''
 
 @description('Resource group name for DCR')
 param dcrRgName string = 'rg-dcr'
 
 // Spoke VNET Parameters
 @description('Deploy Spoke VNETs. Default = true')
-param deploySpokes bool = true
+param deploySpokes bool = false
 
 @description('Spoke resource group prefix name. Default = rg-spoke')
 param spokeRgNamePrefix string = 'rg-spoke'
@@ -69,7 +69,7 @@ param spokeRgNamePrefix string = 'rg-spoke'
 param amountOfSpokes int = 2
 
 @description('Deploy VM in every Spoke VNET')
-param deployVMsInSpokes bool = true
+param deployVMsInSpokes bool = false
 
 @description('Directly connect VNET Spokes (Fully Meshed Topology)')
 param deployVnetPeeringMesh bool = false
@@ -82,7 +82,7 @@ param defaultOutboundAccess bool = true
 
 // Hub VNET Parameters
 @description('Deploy Hub')
-param deployHUB bool = false
+param deployHUB bool = true
 
 @description('Deploy Hub VNET or Azuere vWAN. Default = VNET')
 @allowed([
@@ -109,7 +109,7 @@ param bastionInHubSKU string = 'Basic'
 param deployGatewayInHub bool = false
 
 @description('Deploy Azure Firewall in Hub VNET. includes deployment of custom route tables in Spokes and Hub VNETs')
-param deployFirewallInHub bool = false
+param deployFirewallInHub bool = true
 
 @description('Azure Firewall Tier: Standard or Premium')
 @allowed([
@@ -173,12 +173,11 @@ param deployGatewayinOnPrem bool = false
 @description('Deploy Site-to-Site VPN connection between OnPrem and Hub Gateways')
 param deploySiteToSite bool = false
 
-@description('Deploy Cross Region Site-to-Site VPN connection between OnPrem and Hub Gateways. Only for MultiRegion deployments')
-param deployCrossRegionSiteToSite bool = false
-
+// @description('Deploy Cross Region Site-to-Site VPN connection between OnPrem and Hub Gateways. Only for MultiRegion deployments')
+// param deployCrossRegionSiteToSite bool = false
 @description('Site-to-Site ShareKey')
 @secure()
-param sharedKey string
+param sharedKey string = ''
 
 @description('Enable BGP on OnPrem Gateway')
 param onpremBgp bool = true
@@ -292,7 +291,7 @@ module dcrvminsights 'modules/dcrvminsights.bicep' = if (!empty(diagnosticWorksp
   scope: dcrrg
   name: 'dcr-vminsights'
   params: {
-    diagnosticWorkspaceId: diagnosticWorkspaceId
+    diagnosticWorkspaceId: diagnosticWorkspaceId ?? ''
     location: locations[0].region
     tagsByResource: tagsByResource
   }
@@ -318,7 +317,9 @@ module deployRegion 'mainRegion.bicep' = [
       osTypeSpoke: osTypeSpoke
       osTypeOnPrem: osTypeOnPrem
       AddressSpace: location.regionAddressSpace
-      SecondRegionAddressSpace: i == 0 ? locations[1].regionAddressSpace : locations[0].regionAddressSpace
+      SecondRegionAddressSpace: i == 0
+        ? locations[?1].?regionAddressSpace ?? 'NoSecondRegion'
+        : locations[0].regionAddressSpace
       amountOfSpokes: amountOfSpokes
       spokeRgNamePrefix: spokeRgNamePrefix
       AzureFirewallTier: AzureFirewallTier
@@ -357,7 +358,7 @@ module deployRegion 'mainRegion.bicep' = [
       onpremRgName: onpremRgName
       hubType: hubType
       vWanID: deployVWAN ? vwan.outputs.ID : 'noVWAN'
-      dcrID: dcrvminsights.outputs.dcrID ?? ''
+      dcrID: !empty(diagnosticWorkspaceId) ? dcrvminsights.outputs.dcrID : ''
     }
   }
 ]
@@ -374,42 +375,42 @@ module GlobalVnetPeerings 'VnetPeerings.bicep' = if (deployGlobalVnetPeerings) {
   }
 }
 
-// variable to validate if we need to deploy these routes
-var deployRoutes = isMultiRegion && deployFirewallInHub && deployUDRs && isVnetHub && deployHUB
+// // variable to validate if we need to deploy these routes
+// var deployRoutes = isMultiRegion && deployFirewallInHub && deployUDRs && isVnetHub && deployHUB
 
-// If MultiRegion and deployFirewallInHub and deployUDRs, deploy routes ion both Hubs
-module route 'modules/route.bicep' = [
-  for (location, i) in locations: if (deployRoutes) {
-    scope: resourceGroup(location.hubSubscriptionID, '${hubRgName}-${regionShortCodes[location.region]}')
-    name: 'DeployRegionRoute-${regionShortCodes[location.region]}'
-    params: {
-      routeName: deployRoutes
-        ? '${deployRegion[i].outputs.HubRtFirewallName}/toRegion${regionShortCodes[location.region]}'
-        : 'noRoute'
-      routeNextHopType: 'VirtualAppliance'
-      routeNextHopIpAddress: deployRoutes
-        ? i == 0 ? deployRegion[1].outputs.VNET_AzFwPrivateIp : deployRegion[0].outputs.VNET_AzFwPrivateIp
-        : 'noRoute'
-      routeAddressPrefix: i == 0 ? locations[1].regionAddressSpace : locations[0].regionAddressSpace
-    }
-  }
-]
+// // If MultiRegion and deployFirewallInHub and deployUDRs, deploy routes ion both Hubs
+// module route 'modules/route.bicep' = [
+//   for (location, i) in locations: if (deployRoutes) {
+//     scope: resourceGroup(location.hubSubscriptionID, '${hubRgName}-${regionShortCodes[location.region]}')
+//     name: 'DeployRegionRoute-${regionShortCodes[location.region]}'
+//     params: {
+//       routeName: deployRoutes
+//         ? '${deployRegion[i].outputs.HubRtFirewallName}/toRegion${regionShortCodes[location.region]}'
+//         : 'noRoute'
+//       routeNextHopType: 'VirtualAppliance'
+//       routeNextHopIpAddress: deployRoutes
+//         ? i == 0 ? deployRegion[i + 1].outputs.VNET_AzFwPrivateIp ?? '' : deployRegion[0].outputs.VNET_AzFwPrivateIp
+//         : 'noRoute'
+//       routeAddressPrefix: i == 0 ? locations[i + 1].?regionAddressSpace ?? '' : locations[0].regionAddressSpace
+//     }
+//   }
+// ]
 
-// variable to validate if we need to deploy VPN connections
-var deployCrossRegionVPNConnections = deployGatewayInHub && deployGatewayinOnPrem && deploySiteToSite && deployHUB && deployCrossRegionSiteToSite && (isVnetHub || isVwanHub)
+// // variable to validate if we need to deploy VPN connections
+// var deployCrossRegionVPNConnections = deployGatewayInHub && deployGatewayinOnPrem && deploySiteToSite && deployHUB && deployCrossRegionSiteToSite && isMultiRegion && (isVnetHub || isVwanHub)
 
-module CrossRegionVPNConnections 'VpnCrossRegionConnections.bicep' = [
-  for (location, i) in locations: if (deployCrossRegionVPNConnections) {
-    name: 'CrossRegionVPNConnections${i+1}-${regionShortCodes[locations[0].region]}-${regionShortCodes[locations[1].region]}'
-    params: {
-      HubVPN: deployCrossRegionVPNConnections && i == 0
-        ? deployRegion[0].outputs.VpnSettings.Hub
-        : deployRegion[1].outputs.VpnSettings.Hub
-      OnPrem: deployCrossRegionVPNConnections && i == 0
-        ? deployRegion[1].outputs.VpnSettings.OnPrem
-        : deployRegion[0].outputs.VpnSettings.OnPrem
-      sharedKey: sharedKey
-      tagsByResource: tagsByResource
-    }
-  }
-]
+// module CrossRegionVPNConnections 'VpnCrossRegionConnections.bicep' = [
+//   for (location, i) in locations: if (deployCrossRegionVPNConnections) {
+//     name: 'CrossRegionVPNConnections${i+1}-${regionShortCodes[locations[0].region]}-${regionShortCodes[locations[1].region ]}'
+//     params: {
+//       HubVPN: deployCrossRegionVPNConnections && i == 0
+//         ? deployRegion[0].outputs.VpnSettings.Hub
+//         : deployRegion[i].outputs.VpnSettings.Hub ?? ''
+//       OnPrem: deployCrossRegionVPNConnections && i == 0
+//         ? deployRegion[i].outputs.VpnSettings.OnPrem ?? ''
+//         : deployRegion[0].outputs.VpnSettings.OnPrem
+//       sharedKey: sharedKey
+//       tagsByResource: tagsByResource
+//     }
+//   }
+// ]
