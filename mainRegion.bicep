@@ -3,39 +3,22 @@ targetScope = 'subscription'
 import { _VPNSettings } from './types.bicep'
 
 // Subscriptions
-@description('SubscriptionID for HUB deployemnt')
 param hubSubscriptionID string
-
-@description('SubscriptionID for Spoke deployemnt')
 param spokeSubscriptionID string
-
-@description('SubscriptionID for OnPrem deployemnt')
 param onPremSubscriptionID string
 
 // Virtual Machine parameters
-@description('Admin username for Virtual Machines')
 param adminUsername string
-
-@description('Admin Password for Virtual Machines')
 @secure()
 param adminPassword string
-
-@description('Spoke Virtual Machine SKU. Default = Standard_B2s')
 param vmSizeSpoke string
-
-@description('OnPrem Virtual Machine SKU. Default = Standard_B2s')
 param vmSizeOnPrem string
-
-@description('DCR ID for VM Insights.')
 param dcrID string
-
-@description('Spoke Virtual Machine(s) OS type. Windows or Linux. Default = Windows')
 @allowed([
   'Linux'
   'Windows'
 ])
 param osTypeSpoke string
-@description('OnPrem Virtual Machine OS type. Windows or Linux. Default = Windows')
 @allowed([
   'Linux'
   'Windows'
@@ -43,154 +26,74 @@ param osTypeSpoke string
 param osTypeOnPrem string
 
 // Shared parameters
-@description('IP Address space used for VNETs in deployment. Only enter a /16 subnet. Default = 172.16.0.0/16')
 param AddressSpace string
-
-@description('Second region Address space. used for AzFirewall rules')
 param SecondRegionAddressSpace string
-
-@description('Azure Region. Defualt = Deployment location')
 param location string
-
-@description('Short location code for deployment. Default = westeurope')
 param shortLocationCode string
-
-@description('Tags by resource types. Default = empty')
 param tagsByResource object
 
 // Spoke VNET Parameters
-@description('Deploy Spoke VNETs. Default = true')
 param deploySpokes bool
-
-@description('Spoke resource group prefix name. Default = rg-spoke')
 param spokeRgNamePrefix string
-
-@description('Amount of Spoke VNETs you want to deploy. Default = 2')
 param amountOfSpokes int
-
-@description('Deploy VM in every Spoke VNET')
 param deployVMsInSpokes bool
-
-@description('Directly connect VNET Spokes (Fully Meshed Topology)')
 param deployVnetPeeringMesh bool
-
-@description('Let Azure Virtual Network Manager manage UDRs in Spoke VNETs')
 param deployAvnmUDRs bool
-
-@description('Enable Private Subnet in Default Subnet in Spoke VNETs')
 param defaultOutboundAccess bool
 
 // Hub VNET Parameters
-@description('Deploy Hub')
 param deployHUB bool
-
-@description('Deploy Hub VNET or Azuere vWAN. Default = VNET')
 @allowed([
   'VNET'
   'VWAN'
 ])
 param hubType string
-
-@description('Virtual WAN ID')
 param vWanID string
-
-@description('Hub resource group pre-fix name. Default = rg-hub')
 param hubRgName string
-
-@description('Deploy Bastion Host in Hub VNET. Default = true')
 param deployBastionInHub bool
-
-@description('Hub Bastion SKU')
 @allowed([
   'Basic'
   'Standard'
   'Premium'
 ])
 param bastionInHubSKU string
-
-@description('Deploy Virtual Network Gateway in Hub VNET')
 param deployGatewayInHub bool
-
-@description('Deploy Azure Firewall in Hub VNET. includes deployment of custom route tables in Spokes and Hub VNETs')
 param deployFirewallInHub bool
-
-@description('Azure Firewall Tier: Standard or Premium')
 @allowed([
   'Standard'
   'Premium'
 ])
 param AzureFirewallTier string
-
-@description('Deploy Firewall policy Rule Collection group which allows spoke-to-spoke and internet traffic')
 param deployFirewallrules bool
-
-@description('Enable Azure Firewall DNS Proxy')
 param firewallDNSproxy bool
-
-@description('Dploy route tables (UDR\'s) to VM subnet(s) in Hub and Spokes')
 param deployUDRs bool
-
 param isMultiRegion bool
-
-@description('Enable BGP on Hub Gateway')
 param hubBgp bool
-
-@description('Hub BGP ASN')
 param hubBgpAsn int
 
 // AVNM parameters
-@description('AVNM Resource Group Name')
 param avnmRgName string
-
-@description('AVNM name')
 param avnmName string
-
-@description('User Assigned Identity ID for AVNM')
 param avnmUserAssignedIdentityId string
-
-@description('Let Azure Virtual Network Manager manage Peerings in Hub&Spoke')
 param deployVnetPeeringAVNM bool
-
-@description('Enable Azure vWAN routing Intent Policy for Internet Traffic')
 param internetTrafficRoutingPolicy bool
-
-@description('Enable Azure vWAN routing Intent Policy for Private Traffic')
 param privateTrafficRoutingPolicy bool
 
-// OnPrem parameters\
-@description('Deploy Virtual Network Gateway in OnPrem')
+// OnPrem parameters
 param deployOnPrem bool
-
-@description('OnPrem Resource Group Name')
 param onpremRgName string
-
-@description('Deploy Bastion Host in OnPrem VNET')
 param deployBastionInOnPrem bool
-
-@description('OnPrem Bastion SKU')
 @allowed([
   'Basic'
   'Standard'
 ])
 param bastionInOnPremSKU string
-
-@description('Deploy VM in OnPrem VNET')
 param deployVMinOnPrem bool
-
-@description('Deploy Virtual Network Gateway in OnPrem VNET')
 param deployGatewayinOnPrem bool
-
-@description('Deploy Site-to-Site VPN connection between OnPrem and Hub Gateways')
 param deploySiteToSite bool
-
-@description('Site-to-Site ShareKey')
 @secure()
 param sharedKey string
-
-@description('Enable BGP on OnPrem Gateway')
 param onpremBgp bool
-
-@description('OnPrem BGP ASN')
 param onpremBgpAsn int
 
 // Create array of all Address Spaces used for site-to-site connection from Hub to OnPrem

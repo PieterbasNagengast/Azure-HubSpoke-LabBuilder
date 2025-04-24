@@ -234,16 +234,19 @@ var avnmSubscriptions = [
 ]
 var avnmSubscriptionScopes = union(flatten(avnmSubscriptions), flatten(avnmSubscriptions))
 
+// validate if we need to deploy vWAN
+var deployVWAN = deployHUB && isVwanHub
+
 // VWAN
 // Create resource group for the vWAN
-resource vwanhubrg 'Microsoft.Resources/resourceGroups@2023-07-01' = if (deployHUB && isVwanHub) {
+resource vwanhubrg 'Microsoft.Resources/resourceGroups@2023-07-01' = if (deployVWAN) {
   name: hubRgName
   location: locations[0].region
   tags: tagsByResource[?'Microsoft.Resources/subscriptions/resourceGroups'] ?? {}
 }
 
 // Create vWAN instance in the vWAN Hub resource group
-module vwan 'modules/vwan.bicep' = if (deployHUB && isVwanHub) {
+module vwan 'modules/vwan.bicep' = if (deployVWAN) {
   scope: vwanhubrg
   name: 'vWAN'
   params: {
@@ -253,16 +256,19 @@ module vwan 'modules/vwan.bicep' = if (deployHUB && isVwanHub) {
   }
 }
 
+// validate if we need to deploy AVNM
+var deployAVNM = deployHUB && deploySpokes && isVnetHub && deployVnetPeeringAVNM
+
 // AVNM
 // Create resource group for AVNM
-resource avnmrg 'Microsoft.Resources/resourceGroups@2023-07-01' = if (deployHUB && deploySpokes && isVnetHub && deployVnetPeeringAVNM) {
+resource avnmrg 'Microsoft.Resources/resourceGroups@2023-07-01' = if (deployAVNM) {
   name: avnmRgName
   location: locations[0].region
   tags: tagsByResource[?'Microsoft.Resources/subscriptions/resourceGroups'] ?? {}
 }
 
 // create AVNM instance in AVNM resource group
-module avnmmanager 'modules/avnmmanager.bicep' = if (deployHUB && deploySpokes && isVnetHub && deployVnetPeeringAVNM) {
+module avnmmanager 'modules/avnmmanager.bicep' = if (deployAVNM) {
   scope: avnmrg
   name: 'AVNM'
   params: {
@@ -274,7 +280,7 @@ module avnmmanager 'modules/avnmmanager.bicep' = if (deployHUB && deploySpokes &
 }
 
 // VMInsights DCR
-// Create resource group for AVNM
+// Create resource group for DCR
 resource dcrrg 'Microsoft.Resources/resourceGroups@2023-07-01' = if (!empty(diagnosticWorkspaceId)) {
   name: dcrRgName
   location: locations[0].region
@@ -331,11 +337,9 @@ module deployRegion 'mainRegion.bicep' = [
       deploySpokes: deploySpokes
       deployVMsInSpokes: deployVMsInSpokes
       deployVnetPeeringMesh: deployVnetPeeringMesh
-      avnmRgName: deployHUB && deploySpokes && isVnetHub && deployVnetPeeringAVNM ? avnmrg.name : 'noAVNM'
-      avnmName: deployHUB && deploySpokes && isVnetHub && deployVnetPeeringAVNM ? avnmmanager.outputs.name : 'noAVNM'
-      avnmUserAssignedIdentityId: deployHUB && deploySpokes && isVnetHub && deployVnetPeeringAVNM
-        ? avnmmanager.outputs.uaiId
-        : 'noAVNM'
+      avnmRgName: deployAVNM ? avnmrg.name : 'noAVNM'
+      avnmName: deployAVNM ? avnmmanager.outputs.name : 'noAVNM'
+      avnmUserAssignedIdentityId: deployAVNM ? avnmmanager.outputs.uaiId : 'noAVNM'
       deployVnetPeeringAVNM: deployVnetPeeringAVNM
       deployUDRs: deployUDRs
       tagsByResource: tagsByResource
@@ -352,7 +356,7 @@ module deployRegion 'mainRegion.bicep' = [
       hubRgName: vwanhubrg.name
       onpremRgName: onpremRgName
       hubType: hubType
-      vWanID: deployHUB && isVwanHub ? vwan.outputs.ID : 'noVWAN'
+      vWanID: deployVWAN ? vwan.outputs.ID : 'noVWAN'
       dcrID: dcrvminsights.outputs.dcrID ?? ''
     }
   }
