@@ -227,10 +227,14 @@ var isVnetHub = hubType == 'VNET'
 var isVwanHub = hubType == 'VWAN'
 
 var avnmSubscriptions = [
-  for (location, i) in locations: [
-    '/subscriptions/${location.hubSubscriptionID}'
-    '/subscriptions/${location.spokeSubscriptionID}'
-  ]
+  for (location, i) in locations: deployAVNM
+    ? [
+        '/subscriptions/${location.?hubSubscriptionID}'
+        '/subscriptions/${location.?spokeSubscriptionID}'
+      ]
+    : [
+        'NoAVNM'
+      ]
 ]
 var avnmSubscriptionScopes = union(flatten(avnmSubscriptions), flatten(avnmSubscriptions))
 

@@ -14,7 +14,7 @@ type _VPNSettings = {
   Hub: _VPNGatewaySettingsVNET | _VPNGatewaySettingsVWAN
   @discriminator('type')
   OnPrem: _VPNGatewaySettingsVNET | _VPNGatewaySettingsVWAN
-} 
+}
 
 @export()
 type _VPNGatewaySettingsVNET = {
