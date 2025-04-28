@@ -10,9 +10,19 @@
 					"label": "Basics",
 					"elements": [
 						{
+							"name": "resourceScope",
+							"type": "Microsoft.Common.ResourceScope"
+						}
+					]
+				},
+				{
+					"name": "Regions",
+					"label": "Region(s)",
+					"elements": [
+						{
 							"name": "Intro",
 							"type": "Microsoft.Common.Section",
-							"label": "Azure Hub & Spoke Playground - LAB Builder",
+							"label": "Azure Hub & Spoke Playground - Basics",
 							"elements": [
 								{
 									"name": "IntroText",
@@ -28,11 +38,6 @@
 							]
 						},
 						{
-							"name": "Subscription",
-							"type": "Microsoft.Common.SubscriptionSelector",
-							"label": "Subscription"
-						},
-						{
 							"name": "First",
 							"type": "Microsoft.Common.Section",
 							"label": "First Region",
@@ -41,6 +46,9 @@
 									"name": "Region",
 									"type": "Microsoft.Common.LocationSelector",
 									"label": "Azure Region:",
+									"scope": {
+										"subscriptionId": "[steps('basics').resourceScope.subscription.subscriptionId]"
+									},
 									"toolTip": "Select a region for deployment, excluding the previously selected region."
 								},
 								{
@@ -60,8 +68,23 @@
 						},
 						{
 							"name": "DeployMultiRegion",
-							"type": "Microsoft.Common.CheckBox",
-							"label": "Deploy in Multi Region?"
+							"type": "Microsoft.Common.OptionsGroup",
+							"label": "Deploy in Multi Region?",
+							"defaultValue": "no",
+							"toolTip": "When Multi Region is selected, deploy global VNET Peering between Hub VNET's. only applicable for VNET deployments",
+							"constraints": {
+								"allowedValues": [
+									{
+										"label": "yes",
+										"value": true
+									},
+									{
+										"label": "no",
+										"value": false
+									}
+								]
+							},
+							"visible": true
 						},
 						{
 							"name": "Second",
@@ -72,6 +95,9 @@
 									"name": "Region",
 									"type": "Microsoft.Common.LocationSelector",
 									"label": "Azure Region:",
+									"scope": {
+										"subscriptionId": "[steps('basics').resourceScope.subscription.subscriptionId]"
+									},
 									"toolTip": "Select the second region for deployment. Default = First Region"
 								},
 								{
@@ -86,9 +112,27 @@
 										"validationMessage": "The value must match a /16 subnet. 10.[0-255].0.0/16 or 172.[16-31].0.0/16 or 192.168.0.0/16"
 									},
 									"visible": true
+								},
+								{
+									"name": "infoBox1",
+									"type": "Microsoft.Common.InfoBox",
+									"options": {
+										"style": "Error",
+										"text": "When deploying in multiple regions, the Regions cannot be the same. please select different regions"
+									},
+									"visible": "[equals(steps('Regions').First.Region.displayName,steps('Regions').Second.Region.displayName)]"
+								},
+								{
+									"name": "infoBox2",
+									"type": "Microsoft.Common.InfoBox",
+									"options": {
+										"style": "Error",
+										"text": "When deploying in multiple regions, the Address Spaces cannot be the same. please select different Address Spaces"
+									},
+									"visible": "[equals(steps('Regions').First.AddressSpace,steps('Regions').Second.AddressSpace)]"
 								}
 							],
-							"visible": "[equals(steps('basics').DeployMultiRegion,true)]"
+							"visible": "[equals(steps('Regions').DeployMultiRegion,true)]"
 						}
 					]
 				},
@@ -138,8 +182,15 @@
 						{
 							"name": "First",
 							"type": "Microsoft.Common.Section",
-							"label": "[concat('Select subscription for region: ',steps('basics').First.Region.displayName)]",
 							"elements": [
+								{
+									"name": "InfoText",
+									"type": "Microsoft.Common.TextBlock",
+									"visible": true,
+									"options": {
+										"text": "[concat('Select subscription for region: <b>',steps('Regions').First.Region.displayName,'</b>')]"
+									}
+								},
 								{
 									"type": "Microsoft.Common.SubscriptionSelector",
 									"name": "Subscription"
@@ -150,14 +201,21 @@
 						{
 							"name": "Second",
 							"type": "Microsoft.Common.Section",
-							"label": "[concat('Select subscription for region: ',steps('basics').Second.Region.displayName)]",
 							"elements": [
+								{
+									"name": "InfoText",
+									"type": "Microsoft.Common.TextBlock",
+									"visible": true,
+									"options": {
+										"text": "[concat('Select subscription for region: <b>',steps('Regions').Second.Region.displayName,'</b>')]"
+									}
+								},
 								{
 									"type": "Microsoft.Common.SubscriptionSelector",
 									"name": "Subscription"
 								}
 							],
-							"visible": "[and(equals(steps('Hub').Deploy,true),equals(steps('basics').DeployMultiRegion,true))]"
+							"visible": "[and(equals(steps('Hub').Deploy,true),equals(steps('Regions').DeployMultiRegion,true))]"
 						},
 						{
 							"name": "VNETorVWAN",
@@ -513,8 +571,15 @@
 						{
 							"name": "First",
 							"type": "Microsoft.Common.Section",
-							"label": "[concat('Select subscription for region: ',steps('basics').First.Region.displayName)]",
 							"elements": [
+								{
+									"name": "InfoText",
+									"type": "Microsoft.Common.TextBlock",
+									"visible": true,
+									"options": {
+										"text": "[concat('Select subscription for region: <b>',steps('Regions').First.Region.displayName,'</b>')]"
+									}
+								},
 								{
 									"type": "Microsoft.Common.SubscriptionSelector",
 									"name": "Subscription"
@@ -525,14 +590,21 @@
 						{
 							"name": "Second",
 							"type": "Microsoft.Common.Section",
-							"label": "[concat('Select subscription for region: ',steps('basics').Second.Region.displayName)]",
 							"elements": [
+								{
+									"name": "InfoText",
+									"type": "Microsoft.Common.TextBlock",
+									"visible": true,
+									"options": {
+										"text": "[concat('Select subscription for region: <b>',steps('Regions').Second.Region.displayName,'</b>')]"
+									}
+								},
 								{
 									"type": "Microsoft.Common.SubscriptionSelector",
 									"name": "Subscription"
 								}
 							],
-							"visible": "[and(equals(steps('Spoke').Deploy,true),equals(steps('basics').DeployMultiRegion,true))]"
+							"visible": "[and(equals(steps('Spoke').Deploy,true),equals(steps('Regions').DeployMultiRegion,true))]"
 						},
 						{
 							"name": "spokeRgNamePrefix",
@@ -688,8 +760,15 @@
 						{
 							"name": "First",
 							"type": "Microsoft.Common.Section",
-							"label": "[concat('Select subscription for region: ',steps('basics').First.Region.displayName)]",
 							"elements": [
+								{
+									"name": "InfoText",
+									"type": "Microsoft.Common.TextBlock",
+									"visible": true,
+									"options": {
+										"text": "[concat('Select subscription for region: <b>',steps('Regions').First.Region.displayName,'</b>')]"
+									}
+								},
 								{
 									"type": "Microsoft.Common.SubscriptionSelector",
 									"name": "Subscription"
@@ -700,14 +779,21 @@
 						{
 							"name": "Second",
 							"type": "Microsoft.Common.Section",
-							"label": "[concat('Select subscription for region: ',steps('basics').Second.Region.displayName)]",
 							"elements": [
+								{
+									"name": "InfoText",
+									"type": "Microsoft.Common.TextBlock",
+									"visible": true,
+									"options": {
+										"text": "[concat('Select subscription for region: <b>',steps('Regions').Second.Region.displayName,'</b>')]"
+									}
+								},
 								{
 									"type": "Microsoft.Common.SubscriptionSelector",
 									"name": "Subscription"
 								}
 							],
-							"visible": "[and(esteps('OnPrem').Deploy,true),equals(steps('basics').DeployMultiRegion,true))]"
+							"visible": "[and(equals(steps('OnPrem').Deploy,true),equals(steps('Regions').DeployMultiRegion,true))]"
 						},
 						{
 							"name": "OnPremRgName",
@@ -854,7 +940,7 @@
 								],
 								"required": true
 							},
-							"visible": "[and(equals(steps('OnPrem').deployGatewayInOnPrem,true),equals(steps('OnPrem').Deploy,true))]"
+							"visible": "[and(equals(steps('OnPrem').deployGatewayInOnPrem,true),equals(steps('Hub').deployGatewayInHub,true),equals(steps('OnPrem').Deploy,true))]"
 						},
 						{
 							"name": "sharedKey",
@@ -931,10 +1017,10 @@
 							"name": "noVirtualMachines",
 							"type": "Microsoft.Common.InfoBox",
 							"options": {
-								"text": "Virtual machine deployments requires at least that deployment for Hub, Spokes or OnPrem is selected!",
+								"text": "Virtual machine deployments requires at least that deployment for Spokes and/or OnPrem is selected!",
 								"style": "Info"
 							},
-							"visible": "[and(equals(steps('Hub').Deploy,false),equals(steps('Spoke').Deploy,false),equals(steps('OnPrem').Deploy,false))]"
+							"visible": "[and(equals(steps('Spoke').Deploy,false),equals(steps('OnPrem').Deploy,false))]"
 						},
 						{
 							"name": "VMosTypeInfo",
@@ -1151,8 +1237,7 @@
 		},
 		"outputs": {
 			"parameters": {
-				"Locations": "[if(equals(steps('basics').DeployMultiRegion, true), parse(concat('[{\"region\":\"', steps('basics').First.Region.name, '\", \"addressspace\":\"', steps('basics').First.AddressSpace, '\", \"hubSubscriptionID\":\"', steps('Hub').First.Subscription.subscriptionId, '\", \"spokeSubscriptionID\":\"', steps('Spoke').First.Subscription.subscriptionId, '\", \"onPremSubscriptionID\":\"', steps('OnPrem').First.Subscription.subscriptionId, '\"}, {\"region\":\"', steps('basics').Second.Region.name, '\", \"addressspace\":\"', steps('basics').Second.AddressSpace, '\", \"hubSubscriptionID\":\"', steps('Hub').Second.Subscription.subscriptionId, '\", \"spokeSubscriptionID\":\"', steps('Spoke').Second.Subscription.subscriptionId, '\", \"onPremSubscriptionID\":\"', steps('OnPrem').First.Subscription.subscriptionId, '\"}]')), parse(concat('[{\"region\":\"', steps('basics').First.Region.name, '\", \"addressspace\":\"', steps('basics').First.AddressSpace, '\", \"hubSubscriptionID\":\"', steps('Hub').First.Subscription.subscriptionId, '\", \"spokeSubscriptionID\":\"', steps('Spoke').Second.Subscription.subscriptionId, '\", \"onPremSubscriptionID\":\"', steps('OnPrem').Second.Subscription.subscriptionId, '\"}]')))]",
-				"AddressSpace": "[steps('basics').First.AddressSpace]",
+				"locations": "[if(equals(steps('Regions').DeployMultiRegion, true), parse(concat('[{\"region\":\"', steps('Regions').First.Region.name, '\", \"addressSpace\":\"', steps('Regions').First.AddressSpace, '\", \"hubSubscriptionID\":\"', steps('Hub').First.Subscription.subscriptionId, '\", \"spokeSubscriptionID\":\"', steps('Spoke').First.Subscription.subscriptionId, '\", \"onPremSubscriptionID\":\"', steps('OnPrem').First.Subscription.subscriptionId, '\"}, {\"region\":\"', steps('Regions').Second.Region.name, '\", \"addressSpace\":\"', steps('Regions').Second.AddressSpace, '\", \"hubSubscriptionID\":\"', steps('Hub').Second.Subscription.subscriptionId, '\", \"spokeSubscriptionID\":\"', steps('Spoke').Second.Subscription.subscriptionId, '\", \"onPremSubscriptionID\":\"', steps('OnPrem').Second.Subscription.subscriptionId, '\"}]')), parse(concat('[{\"region\":\"', steps('Regions').First.Region.name, '\", \"addressSpace\":\"', steps('Regions').First.AddressSpace, '\", \"hubSubscriptionID\":\"', steps('Hub').First.Subscription.subscriptionId, '\", \"spokeSubscriptionID\":\"', steps('Spoke').First.Subscription.subscriptionId, '\", \"onPremSubscriptionID\":\"', steps('OnPrem').First.Subscription.subscriptionId, '\"}]')))]",
 				"tagsByResource": "[steps('tags').tagsByResource]",
 				"adminUsername": "[coalesce(steps('VirtualMachines').adminUsername,'')]",
 				"adminPassword": "[coalesce(steps('VirtualMachines').adminPassword.password,'')]",
@@ -1196,8 +1281,8 @@
 				"privateTrafficRoutingPolicy": "[or(equals(steps('Hub').enableRoutingIntent,'private'),equals(steps('Hub').enableRoutingIntent,'privateAndInternet'))]"
 			},
 			"kind": "Subscription",
-			"subscriptionId": "[steps('basics').Subscription.SubscriptionId]",
-			"location": "[steps('basics').First.Region]"
+			"subscriptionId": "[steps('basics').resourceScope.subscription.id]",
+			"location": "[steps('basics').resourceScope.location.name]"
 		}
 	}
 }

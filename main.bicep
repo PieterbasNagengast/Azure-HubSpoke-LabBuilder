@@ -6,7 +6,7 @@ import { _Locations, _VPNSettings } from './types.bicep'
 param locations _Locations = [
   {
     region: 'swedencentral'
-    regionAddressSpace: '172.16.0.0/16'
+    addressSpace: '172.16.0.0/16'
     hubSubscriptionID: subscription().subscriptionId
     spokeSubscriptionID: subscription().subscriptionId
     onPremSubscriptionID: subscription().subscriptionId
@@ -14,7 +14,7 @@ param locations _Locations = [
 
   // {
   //   region: 'germanywestcentral'
-  //   regionAddressSpace: '172.31.0.0/16'
+  //   addressSpace: '172.31.0.0/16'
   //   hubSubscriptionID: subscription().subscriptionId
   //   spokeSubscriptionID: subscription().subscriptionId
   //   onPremSubscriptionID: subscription().subscriptionId
@@ -173,9 +173,6 @@ param deployGatewayinOnPrem bool = false
 @description('Deploy Site-to-Site VPN connection between OnPrem and Hub Gateways')
 param deploySiteToSite bool = false
 
-@description('Deploy Cross Region Site-to-Site VPN connection between OnPrem and Hub Gateways. Only for MultiRegion deployments')
-param deployCrossRegionSiteToSite bool = false
-
 @description('Site-to-Site ShareKey')
 @secure()
 param sharedKey string = ''
@@ -321,10 +318,8 @@ module deployRegion 'mainRegion.bicep' = [
       vmSizeOnPrem: vmSizeOnPrem
       osTypeSpoke: osTypeSpoke
       osTypeOnPrem: osTypeOnPrem
-      AddressSpace: location.regionAddressSpace
-      SecondRegionAddressSpace: i == 0
-        ? locations[?1].?regionAddressSpace ?? 'NoSecondRegion'
-        : locations[0].regionAddressSpace
+      AddressSpace: location.addressSpace
+      SecondRegionAddressSpace: i == 0 ? locations[?1].?addressSpace ?? 'NoSecondRegion' : locations[0].addressSpace
       amountOfSpokes: amountOfSpokes
       spokeRgNamePrefix: spokeRgNamePrefix
       AzureFirewallTier: AzureFirewallTier
@@ -396,15 +391,13 @@ module route 'modules/route.bicep' = [
       routeNextHopIpAddress: deployRoutes
         ? deployRegion[length(locations) == 2 && i == 0 ? 1 : 0].outputs.VNET_AzFwPrivateIp
         : 'noRoute'
-      routeAddressPrefix: deployRoutes
-        ? locations[length(locations) == 2 && i == 0 ? 1 : 0].regionAddressSpace
-        : 'noRoute'
+      routeAddressPrefix: deployRoutes ? locations[length(locations) == 2 && i == 0 ? 1 : 0].addressSpace : 'noRoute'
     }
   }
 ]
 
 // variable to validate if we need to deploy VPN connections
-var deployCrossRegionVPNConnections = deployGatewayInHub && deployGatewayinOnPrem && deploySiteToSite && deployHUB && deployCrossRegionSiteToSite && isMultiRegion && (isVnetHub || isVwanHub)
+var deployCrossRegionVPNConnections = deployGatewayInHub && deployGatewayinOnPrem && deploySiteToSite && deployHUB && isMultiRegion && (isVnetHub || isVwanHub)
 
 module CrossRegionVPNConnections 'VpnCrossRegionConnections.bicep' = [
   for (location, i) in locations: if (deployCrossRegionVPNConnections) {

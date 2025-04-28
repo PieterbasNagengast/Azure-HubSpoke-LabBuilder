@@ -2,7 +2,7 @@
 @maxLength(2)
 type _Locations = {
   region: string
-  regionAddressSpace: string
+  addressSpace: string
   hubSubscriptionID: string
   spokeSubscriptionID: string
   onPremSubscriptionID: string
