@@ -262,9 +262,9 @@
 						{
 							"name": "hubRgName",
 							"type": "Microsoft.Common.TextBox",
-							"label": "Hub Resource Group Name",
+							"label": "Hub Resource Group prefix Name",
 							"defaultValue": "rg-hub",
-							"toolTip": "Use only allowed characters",
+							"toolTip": "Use only allowed characters. A prefix will be added to the resource group name. Example: rg-hub-<region>",
 							"placeholder": "",
 							"multiLine": false,
 							"constraints": {
@@ -611,7 +611,7 @@
 							"type": "Microsoft.Common.TextBox",
 							"label": "Spoke Resource Group prefix Name",
 							"defaultValue": "rg-spoke",
-							"toolTip": "Use only allowed characters",
+							"toolTip": "Use only allowed characters. A prefix will be added to the resource group name. Example: rg-hub-<region>",
 							"placeholder": "",
 							"multiLine": false,
 							"constraints": {
@@ -798,9 +798,9 @@
 						{
 							"name": "OnPremRgName",
 							"type": "Microsoft.Common.TextBox",
-							"label": "OnPrem Resource Group Name",
+							"label": "OnPrem Resource Group prefix Name",
 							"defaultValue": "rg-onprem",
-							"toolTip": "Use only allowed characters",
+							"toolTip": "Use only allowed characters. A prefix will be added to the resource group name. Example: rg-hub-<region>",
 							"placeholder": "",
 							"multiLine": false,
 							"constraints": {
@@ -953,15 +953,6 @@
 							"constraints": {
 								"required": true,
 								"validations": []
-							},
-							"visible": "[equals(steps('OnPrem').deploySite2Site,true)]"
-						},
-						{
-							"name": "deploySite2SiteInfo",
-							"type": "Microsoft.Common.InfoBox",
-							"options": {
-								"text": "This will also enable the deployment of a Virtual Network Gateway in the Hub",
-								"style": "Warning"
 							},
 							"visible": "[equals(steps('OnPrem').deploySite2Site,true)]"
 						}
@@ -1268,7 +1259,7 @@
 				"deployGatewayinOnPrem": "[coalesce(steps('OnPrem').deployGatewayInOnPrem,false)]",
 				"onpremBgp": "[coalesce(steps('OnPrem').onpremBgp,false)]",
 				"onpremBgpAsn": "[steps('OnPrem').onpremBgpAsn]",
-				"deploySiteToSite": "[coalesce(steps('OnPrem').deploySite2Site,false)]",
+				"deploySiteToSite": "[and(equals(steps('OnPrem').deploySite2Site,true),equals(steps('OnPrem').deployGatewayInOnPrem,true),equals(steps('Hub').deployGatewayInHub,true))]",
 				"sharedKey": "[steps('OnPrem').sharedKey]",
 				"bastionInHubSKU": "[steps('Hub').bastionInHubSKU]",
 				"bastionInOnPremSKU": "[steps('OnPrem').bastionInOnPremSKU]",
