@@ -157,11 +157,11 @@ jobs:
             "sharedKey": "${{ secrets.SHAREDKEY }}",
             "locations": [
                 {
-                  addressSpace: "${{ inputs.LabBuilderAddressSpace1 }}",
-                  hubSubscriptionID: "${{ secrets.HUB_SUBSCRIPTION_ID }}",
-                  onPremSubscriptionID: "${{ secrets.ONPREM_SUBSCRIPTION_ID }}",
-                  region: "${{ inputs.LabBuilderLocation1}}",
-                  spokeSubscriptionID: "${{ secrets.SPOKE_SUBSCRIPTION_ID }}"
+                  "addressSpace": "${{ inputs.LabBuilderAddressSpace1 }}",
+                  "hubSubscriptionID": "${{ secrets.HUB_SUBSCRIPTION_ID }}",
+                  "onPremSubscriptionID": "${{ secrets.ONPREM_SUBSCRIPTION_ID }}",
+                  "region": "${{ inputs.LabBuilderLocation1}}",
+                  "spokeSubscriptionID": "${{ secrets.SPOKE_SUBSCRIPTION_ID }}"
                 }
             ],
             "spokeRgNamePrefix": "LabBuilderValidation-${{ inputs.LabBuilderType }}-spoke",
@@ -187,11 +187,11 @@ jobs:
             "sharedKey": "${{ secrets.SHAREDKEY }}",
             "locations": [
                 {
-                  addressSpace: "${{ inputs.LabBuilderAddressSpace1 }}",
-                  hubSubscriptionID: "${{ secrets.HUB_SUBSCRIPTION_ID }}",
-                  onPremSubscriptionID: "${{ secrets.ONPREM_SUBSCRIPTION_ID }}",
-                  region: "${{ inputs.LabBuilderLocation1}}",
-                  spokeSubscriptionID: "${{ secrets.SPOKE_SUBSCRIPTION_ID }}"
+                  "addressSpace": "${{ inputs.LabBuilderAddressSpace1 }}",
+                  "hubSubscriptionID": "${{ secrets.HUB_SUBSCRIPTION_ID }}",
+                  "onPremSubscriptionID": "${{ secrets.ONPREM_SUBSCRIPTION_ID }}",
+                  "region": "${{ inputs.LabBuilderLocation1}}",
+                  "spokeSubscriptionID": "${{ secrets.SPOKE_SUBSCRIPTION_ID }}"
                 }
             ],
             "spokeRgNamePrefix": "LabBuilderValidation-${{ inputs.LabBuilderType }}-spoke",
@@ -217,18 +217,18 @@ jobs:
             "sharedKey": "${{ secrets.SHAREDKEY }}",
             "locations": [
                 {
-                  addressSpace: "${{ inputs.LabBuilderAddressSpace1 }}",
-                  hubSubscriptionID: "${{ secrets.HUB_SUBSCRIPTION_ID }}",
-                  onPremSubscriptionID: "${{ secrets.ONPREM_SUBSCRIPTION_ID }}",
-                  region: "${{ inputs.LabBuilderLocation1}}",
-                  spokeSubscriptionID: "${{ secrets.SPOKE_SUBSCRIPTION_ID }}"
+                  "addressSpace": "${{ inputs.LabBuilderAddressSpace1 }}",
+                  "hubSubscriptionID": "${{ secrets.HUB_SUBSCRIPTION_ID }}",
+                  "onPremSubscriptionID": "${{ secrets.ONPREM_SUBSCRIPTION_ID }}",
+                  "region": "${{ inputs.LabBuilderLocation1}}",
+                  "spokeSubscriptionID": "${{ secrets.SPOKE_SUBSCRIPTION_ID }}"
                 },
                 {
-                  addressSpace: "${{ inputs.LabBuilderAddressSpace2 }}",
-                  hubSubscriptionID: "${{ secrets.HUB_SUBSCRIPTION_ID }}",
-                  onPremSubscriptionID: "${{ secrets.ONPREM_SUBSCRIPTION_ID }}",
-                  region: "${{ inputs.LabBuilderLocation2}}",
-                  spokeSubscriptionID: "${{ secrets.SPOKE_SUBSCRIPTION_ID }}"
+                  "addressSpace": "${{ inputs.LabBuilderAddressSpace2 }}",
+                  "hubSubscriptionID": "${{ secrets.HUB_SUBSCRIPTION_ID }}",
+                  "onPremSubscriptionID": "${{ secrets.ONPREM_SUBSCRIPTION_ID }}",
+                  "region": "${{ inputs.LabBuilderLocation2}}",
+                  "spokeSubscriptionID": "${{ secrets.SPOKE_SUBSCRIPTION_ID }}"
                 }
             ],
             "spokeRgNamePrefix": "LabBuilderValidation-${{ inputs.LabBuilderType }}-spoke",
@@ -236,7 +236,7 @@ jobs:
             "onpremRgName": "LabBuilderValidation-${{ inputs.LabBuilderType }}-onprem"
             }
       - name: "MR-Deploy ${{ inputs.LabBuilderType }} scenario ${{ strategy.job-index }}"
-        if: ${{ ! inputs.OnlyValidate }} && inputs.LabBuilderDeployMultiRegion
+        if: ${{ ! inputs.OnlyValidate && inputs.LabBuilderDeployMultiRegion }}
         uses: azure/bicep-deploy@v2
         with:
           type: "deployment"
@@ -254,11 +254,18 @@ jobs:
             "sharedKey": "${{ secrets.SHAREDKEY }}",
             "locations": [
                 {
-                  addressSpace: "${{ inputs.LabBuilderAddressSpace1 }}",
-                  hubSubscriptionID: "${{ secrets.HUB_SUBSCRIPTION_ID }}",
-                  onPremSubscriptionID: "${{ secrets.ONPREM_SUBSCRIPTION_ID }}",
-                  region: "${{ inputs.LabBuilderLocation1}}",
-                  spokeSubscriptionID: "${{ secrets.SPOKE_SUBSCRIPTION_ID }}"
+                  "addressSpace": "${{ inputs.LabBuilderAddressSpace1 }}",
+                  "hubSubscriptionID": "${{ secrets.HUB_SUBSCRIPTION_ID }}",
+                  "onPremSubscriptionID": "${{ secrets.ONPREM_SUBSCRIPTION_ID }}",
+                  "region": "${{ inputs.LabBuilderLocation1}}",
+                  "spokeSubscriptionID": "${{ secrets.SPOKE_SUBSCRIPTION_ID }}"
+                },
+                {
+                  "addressSpace": "${{ inputs.LabBuilderAddressSpace2 }}",
+                  "hubSubscriptionID": "${{ secrets.HUB_SUBSCRIPTION_ID }}",
+                  "onPremSubscriptionID": "${{ secrets.ONPREM_SUBSCRIPTION_ID }}",
+                  "region": "${{ inputs.LabBuilderLocation2}}",
+                  "spokeSubscriptionID": "${{ secrets.SPOKE_SUBSCRIPTION_ID }}"
                 }
             ],
             "spokeRgNamePrefix": "LabBuilderValidation-${{ inputs.LabBuilderType }}-spoke",
