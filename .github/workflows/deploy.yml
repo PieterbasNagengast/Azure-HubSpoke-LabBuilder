@@ -169,7 +169,7 @@ jobs:
             "onpremRgName": "LabBuilderValidation-${{ inputs.LabBuilderType }}-onprem"
             }
       - name: "Deploy ${{ inputs.LabBuilderType }} scenario ${{ strategy.job-index }}"
-        if: ${{ ! inputs.OnlyValidate || ! inputs.LabBuilderDeployMultiRegion }}
+        if: ${{ ! inputs.OnlyValidate && ! inputs.LabBuilderDeployMultiRegion }}
         uses: azure/bicep-deploy@v2
         with:
           type: "deployment"
