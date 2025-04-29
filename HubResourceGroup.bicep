@@ -70,7 +70,7 @@ module vnet 'modules/vnet.bicep' = {
     deployGatewaySubnet: deployGatewayInHub
     tagsByResource: tagsByResource
     azFwIp: firewallIP
-    rtFwID: isMultiRegion && deployFirewallInHub ? rtFirewall.outputs.rtID : 'none'
+    rtFwID: isMultiRegion && deployFirewallInHub && deployUDRs ? rtFirewall.outputs.rtID : 'none'
     firewallDNSproxy: firewallDNSproxy
   }
 }

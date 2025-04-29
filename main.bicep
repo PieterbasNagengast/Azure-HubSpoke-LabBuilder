@@ -125,7 +125,7 @@ param deployFirewallrules bool = false
 param firewallDNSproxy bool = false
 
 @description('Dploy route tables (UDR\'s) to VM subnet(s) in Hub and Spokes')
-param deployUDRs bool = false
+param deployUDRs bool = true
 
 @description('Enable BGP on Hub Gateway')
 param hubBgp bool = true
