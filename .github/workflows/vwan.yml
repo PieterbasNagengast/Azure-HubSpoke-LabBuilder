@@ -1,23 +1,27 @@
 name: "LabBuilder - Deploy VWAN Scenarios"
 
 on:
-  push:
-    branches: none
-  pull_request:
-    branches: none
   workflow_dispatch:
     inputs:
       LabBuilderLocation:
+        description: "Location of the LabBuilder deployment"
         type: choice
         options:
           - swedencentral
         required: true
         default: swedencentral
+      LabBuilderAddressSpace:
+          description: "Address space for the LabBuilder deployment"
+          type: string
+          required: true
+          default: "172.16.0.0/16"
       LabBuilderCleanup:
+        description: "Cleanup the LabBuilder deployment"
         type: boolean
         required: true
         default: true
       OnlyValidate:
+        description: "Only validate the LabBuilder deployment"
         type: boolean
         required: true
         default: false      
@@ -27,6 +31,7 @@ jobs:
         uses: ./.github/workflows/deploy.yml
         with:
             LabBuilderType: vwan
+            LabBuilderAddressSpace: ${{ inputs.LabBuilderAddressSpace }}            
             LabBuilderCleanup: ${{ inputs.LabBuilderCleanup }}
             LabBuilderLocation: ${{ inputs.LabBuilderLocation }}
             OnlyValidate: ${{ inputs.OnlyValidate }}

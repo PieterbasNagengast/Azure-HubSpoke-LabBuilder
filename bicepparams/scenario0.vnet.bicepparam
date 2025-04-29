@@ -1,7 +1,6 @@
 using '../main.bicep'
 param adminUsername = ''
 param adminPassword = ''
-param AddressSpace = '172.16.0.0/16'
 param tagsByResource = {
   'Microsoft.Resources/subscriptions/resourceGroups': {
     LabBuilder: 'validation'

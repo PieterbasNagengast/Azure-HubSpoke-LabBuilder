@@ -1,30 +1,35 @@
 name: "LabBuilder - Deploy Scenarios"
 
 on:
-  push:
-    branches: none
-  pull_request:
-    branches: none
   workflow_dispatch:
     inputs:
       LabBuilderLocation:
+        description: "Location for the LabBuilder deployment"
         type: choice
         options:
           - swedencentral
         required: true
         default: swedencentral
       LabBuilderType:
+        description: "LabBuilder type to deploy"
         type: choice
         options:
           - vnet
           - vwan
         required: true
         default: vwan
+      LabBuilderAddressSpace:
+        description: "Address space for the LabBuilder deployment"
+        type: string
+        required: true
+        default: "172.16.0.0/16"
       LabBuilderCleanup:
+        description: "Cleanup the LabBuilder deployment after validation"
         type: boolean
         required: true
         default: true
       OnlyValidate:
+        description: "Only validate the LabBuilder deployment without deploying it"
         type: boolean
         required: true
         default: false
@@ -116,9 +121,15 @@ jobs:
             "adminUsername": "${{ secrets.ADMINUSERNAME }}",
             "adminPassword": "${{ secrets.ADMINPASSWORD }}",
             "sharedKey": "${{ secrets.SHAREDKEY }}",
-            "hubSubscriptionID": "${{ secrets.HUB_SUBSCRIPTION_ID }}",
-            "spokeSubscriptionID": "${{ secrets.SPOKE_SUBSCRIPTION_ID }}",
-            "onPremSubscriptionID": "${{ secrets.ONPREM_SUBSCRIPTION_ID }}",
+            "locations": [
+                {
+                  addressSpace: "${{ inputs.LabBuilderAddressSpace }}",
+                  hubSubscriptionID: "${{ secrets.HUB_SUBSCRIPTION_ID }}",
+                  onPremSubscriptionID: "${{ secrets.ONPREM_SUBSCRIPTION_ID }}",
+                  region: "${{ inputs.LabBuilderLocation}}",
+                  spokeSubscriptionID: "${{ secrets.SPOKE_SUBSCRIPTION_ID }}"
+                }
+            ],
             "spokeRgNamePrefix": "LabBuilderValidation-${{ inputs.LabBuilderType }}-spoke",
             "hubRgName": "LabBuilderValidation-${{ inputs.LabBuilderType }}-hub",
             "onpremRgName": "LabBuilderValidation-${{ inputs.LabBuilderType }}-onprem"

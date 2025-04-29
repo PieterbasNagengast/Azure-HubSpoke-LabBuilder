@@ -4,6 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       LabBuilderType:
+        description: "Type of LabBuilder deployment"
         type: choice
         options:
           - vnet
