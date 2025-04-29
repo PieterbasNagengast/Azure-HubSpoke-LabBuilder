@@ -139,7 +139,7 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       - name: "Validating ${{ inputs.LabBuilderType }} scenario ${{ strategy.job-index }}"
-        if: inputs.LabBuilderDeployMultiRegion == 'false'
+        if: ${{ ! inputs.LabBuilderDeployMultiRegion }}
         uses: azure/bicep-deploy@v2
         with:
           type: "deployment"
@@ -169,7 +169,7 @@ jobs:
             "onpremRgName": "LabBuilderValidation-${{ inputs.LabBuilderType }}-onprem"
             }
       - name: "Deploy ${{ inputs.LabBuilderType }} scenario ${{ strategy.job-index }}"
-        if: inputs.OnlyValidate == 'false' && inputs.LabBuilderDeployMultiRegion == 'false'
+        if: ${{ ! inputs.OnlyValidate }} || ${{ ! inputs.LabBuilderDeployMultiRegion }}
         uses: azure/bicep-deploy@v2
         with:
           type: "deployment"
@@ -199,7 +199,7 @@ jobs:
             "onpremRgName": "LabBuilderValidation-${{ inputs.LabBuilderType }}-onprem"
             }
       - name: "MR-Validating ${{ inputs.LabBuilderType }} scenario ${{ strategy.job-index }}"
-        if: inputs.LabBuilderDeployMultiRegion == 'true'
+        if: inputs.LabBuilderDeployMultiRegion
         uses: azure/bicep-deploy@v2
         with:
           type: "deployment"
@@ -236,7 +236,7 @@ jobs:
             "onpremRgName": "LabBuilderValidation-${{ inputs.LabBuilderType }}-onprem"
             }
       - name: "MR-Deploy ${{ inputs.LabBuilderType }} scenario ${{ strategy.job-index }}"
-        if: inputs.OnlyValidate == 'true' && inputs.LabBuilderDeployMultiRegion == 'true'
+        if: ${{ ! inputs.OnlyValidate }} && inputs.LabBuilderDeployMultiRegion
         uses: azure/bicep-deploy@v2
         with:
           type: "deployment"
