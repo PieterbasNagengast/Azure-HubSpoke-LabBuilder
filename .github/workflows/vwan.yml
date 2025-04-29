@@ -25,7 +25,7 @@ on:
         type: boolean
         required: true
         default: false      
-
+        
 jobs:
     Deploy:
         uses: ./.github/workflows/deploy.yml
