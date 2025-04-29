@@ -3,18 +3,32 @@ name: "LabBuilder - Deploy VWAN Scenarios"
 on:
   workflow_dispatch:
     inputs:
-      LabBuilderLocation:
+      LabBuilderLocation1:
         description: "Location of the LabBuilder deployment"
         type: choice
         options:
           - swedencentral
+          - germanywestcentral
         required: true
         default: swedencentral
-      LabBuilderAddressSpace:
+      LabBuilderAddressSpace1:
+        description: "Address space for the LabBuilder deployment"
+        type: string
+        required: true
+        default: "172.16.0.0/16"
+      LabBuilderLocation2:
+          description: "Location of the LabBuilder deployment"
+          type: choice
+          options:
+            - swedencentral
+            - germanywestcentral
+          required: true
+          default: germanywestcentral
+      LabBuilderAddressSpace2:
           description: "Address space for the LabBuilder deployment"
           type: string
           required: true
-          default: "172.16.0.0/16"
+          default: "172.31.0.0/16"
       LabBuilderCleanup:
         description: "Cleanup the LabBuilder deployment"
         type: boolean
@@ -24,16 +38,24 @@ on:
         description: "Only validate the LabBuilder deployment"
         type: boolean
         required: true
-        default: false      
+        default: false
+      LabBuilderDeployMultiRegion:
+        description: "Deploy the LabBuilder deployment in multiple regions"
+        type: boolean
+        required: true
+        default: false    
         
 jobs:
     Deploy:
         uses: ./.github/workflows/deploy.yml
         with:
             LabBuilderType: vwan
-            LabBuilderAddressSpace: ${{ inputs.LabBuilderAddressSpace }}            
             LabBuilderCleanup: ${{ inputs.LabBuilderCleanup }}
-            LabBuilderLocation: ${{ inputs.LabBuilderLocation }}
+            LabBuilderLocation1: ${{ inputs.LabBuilderLocation1 }}
+            LabBuilderAddressSpace1: ${{ inputs.LabBuilderAddressSpace1 }}
+            LabBuilderLocation2: ${{ inputs.LabBuilderLocation2 }}
+            LabBuilderAddressSpace2: ${{ inputs.LabBuilderAddressSpace2 }}
+            LabBuilderDeployMultiRegion: ${{ inputs.LabBuilderDeployMultiRegion }}
             OnlyValidate: ${{ inputs.OnlyValidate }}
         secrets:
             inherit
