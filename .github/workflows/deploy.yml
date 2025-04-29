@@ -47,6 +47,9 @@ on:
       OnlyValidate:
         type: boolean
         required: true
+      LabBuilderAddressSpace:
+        type: string
+        required: true
 
 permissions:
   id-token: write
