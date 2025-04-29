@@ -151,9 +151,15 @@ jobs:
             "adminUsername": "${{ secrets.ADMINUSERNAME }}",
             "adminPassword": "${{ secrets.ADMINPASSWORD }}",
             "sharedKey": "${{ secrets.SHAREDKEY }}",
-            "hubSubscriptionID": "${{ secrets.HUB_SUBSCRIPTION_ID }}",
-            "spokeSubscriptionID": "${{ secrets.SPOKE_SUBSCRIPTION_ID }}",
-            "onPremSubscriptionID": "${{ secrets.ONPREM_SUBSCRIPTION_ID }}",
+            "locations": [
+                {
+                  addressSpace: "${{ inputs.LabBuilderAddressSpace }}",
+                  hubSubscriptionID: "${{ secrets.HUB_SUBSCRIPTION_ID }}",
+                  onPremSubscriptionID: "${{ secrets.ONPREM_SUBSCRIPTION_ID }}",
+                  region: "${{ inputs.LabBuilderLocation}}",
+                  spokeSubscriptionID: "${{ secrets.SPOKE_SUBSCRIPTION_ID }}"
+                }
+            ],
             "spokeRgNamePrefix": "LabBuilderValidation-${{ inputs.LabBuilderType }}-spoke",
             "hubRgName": "LabBuilderValidation-${{ inputs.LabBuilderType }}-hub",
             "onpremRgName": "LabBuilderValidation-${{ inputs.LabBuilderType }}-onprem"
