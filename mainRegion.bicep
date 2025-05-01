@@ -144,7 +144,7 @@ module hubVnet 'HubResourceGroup.bicep' = if (deployHUB && isVnetHub) {
 //  Deploy Azure vWAN with vWAN Hub and Azure Firewall
 module vwan 'vWanResourceGroup.bicep' = if (deployHUB && isVwanHub) {
   scope: subscription(hubSubscriptionID)
-  name: 'VWAN-${shortLocationCode}-Hub'
+  name: '${hubRgName}-${shortLocationCode}-VWAN'
   params: {
     location: location
     shortLocationCode: shortLocationCode
