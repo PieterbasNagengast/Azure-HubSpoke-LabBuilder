@@ -25,6 +25,7 @@
 - [Private Subnets (Disable Default Outbound Access)](#private-subnets-disable-default-outbound-access)
 - [Parameters overview](#parameters-overview)
 - [Updates](#updates)
+  - [April 2025 updates](#april-2025-updates)
   - [March 2025 updates](#march-2025-updates)
   - [July 2024 updates](#july-2024-updates)
   - [Februari 2024 updates](#februari-2024-updates)
@@ -242,6 +243,11 @@ When deploying Private Subnets in the Spoke VNET's you can disable the default o
 | `defaultOutboundAccess`        | bool         | Disbale Default outbound access on Spoke VNET subnets. Only available if Firewall is deployed in Hub.                                        | False                           |                         |
 
 ## Updates
+
+### April 2025 updates
+- Added support for Multi-Region deployments
+- Added Global VNET Peering when deploying in Multi-Region
+- Added Cross Region VPN tunnels when deploying in Multi-Region incuding OnPrem VNET
 
 ### March 2025 updates
 - Updated Resources API's to latest version

@@ -30,10 +30,10 @@ param adminUsername string = ''
 param adminPassword string = ''
 
 @description('Spoke Virtual Machine SKU. Default = Standard_B2s')
-param vmSizeSpoke string = 'Standard_B2s'
+param vmSizeSpoke string = 'Standard_B2ls_v2'
 
 @description('OnPrem Virtual Machine SKU. Default = Standard_B2s')
-param vmSizeOnPrem string = 'Standard_B2s'
+param vmSizeOnPrem string = 'Standard_B2ls_v2'
 
 @description('Spoke Virtual Machine(s) OS type. Windows or Linux. Default = Windows')
 @allowed([
