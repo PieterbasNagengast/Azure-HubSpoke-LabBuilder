@@ -117,7 +117,7 @@ resource hubrg 'Microsoft.Resources/resourceGroups@2023-07-01' = if (deployHUB &
 // Deploy Hub VNET including Bastion Host, Route Table, Network Security group and Azure Firewall
 module hubVnet 'HubResourceGroup.bicep' = if (deployHUB && isVnetHub) {
   scope: subscription(hubSubscriptionID)
-  name: '${hubRgName}-${location}-VNET'
+  name: '${hubRgName}-${shortLocationCode}-VNET'
   params: {
     deployBastionInHub: deployBastionInHub && isVnetHub && deployHUB
     location: location
@@ -144,7 +144,7 @@ module hubVnet 'HubResourceGroup.bicep' = if (deployHUB && isVnetHub) {
 //  Deploy Azure vWAN with vWAN Hub and Azure Firewall
 module vwan 'vWanResourceGroup.bicep' = if (deployHUB && isVwanHub) {
   scope: subscription(hubSubscriptionID)
-  name: 'VWAN-${location}-Hub'
+  name: 'VWAN-${shortLocationCode}-Hub'
   params: {
     location: location
     shortLocationCode: shortLocationCode
@@ -168,7 +168,7 @@ module vwan 'vWanResourceGroup.bicep' = if (deployHUB && isVwanHub) {
 module spokeVnets 'SpokeResourceGroup.bicep' = [
   for i in range(1, amountOfSpokes): if (deploySpokes) {
     scope: subscription(spokeSubscriptionID)
-    name: '${spokeRgNamePrefix}${i}-${location}'
+    name: '${spokeRgNamePrefix}${i}-${shortLocationCode}'
     params: {
       location: location
       shortLocationCode: shortLocationCode
@@ -197,7 +197,7 @@ module spokeVnets 'SpokeResourceGroup.bicep' = [
 // VNET Peerings
 module vnetPeerings 'VnetPeerings.bicep' = [
   for i in range(0, amountOfSpokes): if (deployHUB && deploySpokes && isVnetHub && !deployVnetPeeringAVNM) {
-    name: '${hubRgName}-VnetPeering${i + 1}-${location}'
+    name: '${hubRgName}-VnetPeering${i + 1}-${shortLocationCode}'
     params: {
       vnetIDA: deployHUB && deploySpokes && isVnetHub ? spokeVnets[i].outputs.spokeVnetID : 'No VNET peering'
       vnetIDB: deployHUB && deploySpokes && isVnetHub ? hubVnet.outputs.hubVnetID : 'No VNET peering'
@@ -255,7 +255,7 @@ module vnetConnections 'vWanVnetConnections.bicep' = [
 // Deploy OnPrem VNET including VM, Bastion, Network Security Group and Virtual Network Gateway
 module onprem 'OnPremResourceGroup.bicep' = if (deployOnPrem) {
   scope: subscription(onPremSubscriptionID)
-  name: '${onpremRgName}-${location}'
+  name: '${onpremRgName}-${shortLocationCode}'
   params: {
     location: location
     shortLocationCode: shortLocationCode
@@ -281,7 +281,7 @@ var deployVPNConnectionsVNET = deployGatewayInHub && deployGatewayinOnPrem && de
 
 // Deploy S2s VPN from OnPrem Gateway to Hub Gateway
 module s2s 'VpnConnections.bicep' = if (deployVPNConnectionsVNET) {
-  name: 'VPN-s2s-Hub-to-OnPrem-${location}'
+  name: 'VPN-s2s-Hub-to-OnPrem-${shortLocationCode}'
   params: {
     HubLocation: location
     HubRgName: deployVPNConnectionsVNET ? hubVnet.outputs.hubRgName : 'none'
@@ -312,7 +312,7 @@ var deployVPNConnectionsVWAN = deployGatewayInHub && deployGatewayinOnPrem && de
 
 // Deploy s2s VPN from OnPrem Gateway to vWan Hub Gateway
 module vwans2s 'vWanVpnConnections.bicep' = if (deployVPNConnectionsVWAN) {
-  name: '${hubRgName}-s2s-Hub-vWan-OnPrem-${location}'
+  name: '${hubRgName}-s2s-Hub-vWan-OnPrem-${shortLocationCode}'
   params: {
     HubLocation: location
     HubShortLocationCode: shortLocationCode

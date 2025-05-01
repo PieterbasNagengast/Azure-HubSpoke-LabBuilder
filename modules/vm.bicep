@@ -36,7 +36,7 @@ var Linux = {
 
 var imagereference = osType == 'Windows' ? Windows : osType == 'Linux' ? Linux : {}
 
-resource vm 'Microsoft.Compute/virtualMachines@2023-09-01' = {
+resource vm 'Microsoft.Compute/virtualMachines@2024-11-01' = {
   name: vmName
   location: location
   identity: {
