@@ -49,7 +49,7 @@ jobs:
     Deploy:
         uses: ./.github/workflows/deploy.yml
         with:
-            LabBuilderType: vwan
+            LabBuilderType: "vwan"
             LabBuilderCleanup: ${{ inputs.LabBuilderCleanup }}
             LabBuilderLocation1: ${{ inputs.LabBuilderLocation1 }}
             LabBuilderAddressSpace1: ${{ inputs.LabBuilderAddressSpace1 }}
