@@ -21,7 +21,7 @@ resource rgA 'Microsoft.Resources/resourceGroups@2023-07-01' existing = {
   name: rgNameA
 }
 
-module peeringToSpoke 'modules/vnetpeeering.bicep' = {
+module peeringAtoB 'modules/vnetpeeering.bicep' = {
   scope: rgA
   name: 'peeringTo${vnetNameB}'
   params: {
@@ -37,7 +37,7 @@ resource rgB 'Microsoft.Resources/resourceGroups@2023-07-01' existing = {
   name: rgNameB
 }
 
-module peeringToHub 'modules/vnetpeeering.bicep' = {
+module peeringBtoA 'modules/vnetpeeering.bicep' = {
   scope: rgB
   name: 'peeringTo${vnetNameA}'
   params: {
@@ -46,4 +46,7 @@ module peeringToHub 'modules/vnetpeeering.bicep' = {
     useRemoteGateways: useRemoteGatewaysVnetB
     allowGatewayTransit: allowGatewayTransitVnetB
   }
+  dependsOn: [
+    peeringAtoB
+  ]
 }
