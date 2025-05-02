@@ -30,6 +30,9 @@ module peeringAtoB 'modules/vnetpeeering.bicep' = {
     useRemoteGateways: useRemoteGatewaysVnetA
     allowGatewayTransit: allowGatewayTransitVnetA
   }
+  dependsOn: [
+    peeringBtoA
+  ]
 }
 
 resource rgB 'Microsoft.Resources/resourceGroups@2023-07-01' existing = {
@@ -46,7 +49,4 @@ module peeringBtoA 'modules/vnetpeeering.bicep' = {
     useRemoteGateways: useRemoteGatewaysVnetB
     allowGatewayTransit: allowGatewayTransitVnetB
   }
-  dependsOn: [
-    peeringAtoB
-  ]
 }
