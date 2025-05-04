@@ -236,6 +236,7 @@ jobs:
             "onpremRgName": "LabBuilderValidation-${{ inputs.LabBuilderType }}-onprem"
             }
       - name: "MR-Deploy ${{ inputs.LabBuilderType }} scenario ${{ strategy.job-index }}"
+        id: deploy
         if: ${{ !inputs.OnlyValidate && inputs.LabBuilderDeployMultiRegion }}
         uses: azure/bicep-deploy@v2
         with:
@@ -272,34 +273,42 @@ jobs:
             "hubRgName": "LabBuilderValidation-${{ inputs.LabBuilderType }}-hub",
             "onpremRgName": "LabBuilderValidation-${{ inputs.LabBuilderType }}-onprem"
             }
-                
-      - name: "Waiting for vWAN routing to finish deploying"
-        if: ${{ inputs.LabBuilderType == 'vwan' && !inputs.OnlyValidate }}
+
+      - name: "Get LabBuilder deployment outputs"
+        id: get_outputs
         run: |
-          az config set extension.use_dynamic_install=yes_without_prompt
-          while true
-          do
-            sleep 10
-            status=$(az network vhub show -g LabBuilderValidation-${{ inputs.LabBuilderType }}-hub -n HUB-${{ inputs.LabBuilderLocation1 }} --query routingState -o tsv)
-            echo "vWAN Hub Routing status: $status"
-            if [ "$status" != "Provisioning" ]; then
-              echo "vWAN Hub Routing status: $status"
-              break
-            fi
-          done
-      - name: "Waiting for vWAN to finish deploying"
-        if: ${{ inputs.LabBuilderType == 'vwan' && !inputs.OnlyValidate }}
-        run: |
-          while true
-          do
-            sleep 10
-            status=$(az network vhub show -g LabBuilderValidation-${{ inputs.LabBuilderType }}-hub -n HUB-${{ inputs.LabBuilderLocation1 }} --query provisioningState -o tsv)
-            echo "vWAN status: $status"
-            if [ "$status" != "Updating" ]; then
-              echo "vWAN status: $status"
-              break
-            fi
-          done
+          echo "LabBuilder deployment outputs:"
+          echo "----"
+          echo "${{ steps.deploy.outputs.vWanHubIDs }}" 
+          echo "----"
+
+      # - name: "Waiting for vWAN routing to finish deploying"
+      #   if: ${{ inputs.LabBuilderType == 'vwan' && !inputs.OnlyValidate }}
+      #   run: |
+      #     az config set extension.use_dynamic_install=yes_without_prompt
+      #     while true
+      #     do
+      #       sleep 10
+      #       status=$(az network vhub show -g LabBuilderValidation-${{ inputs.LabBuilderType }}-hub -n HUB-${{ inputs.LabBuilderLocation1 }} --query routingState -o tsv)
+      #       echo "vWAN Hub Routing status: $status"
+      #       if [ "$status" != "Provisioning" ]; then
+      #         echo "vWAN Hub Routing status: $status"
+      #         break
+      #       fi
+      #     done
+      # - name: "Waiting for vWAN to finish deploying"
+      #   if: ${{ inputs.LabBuilderType == 'vwan' && !inputs.OnlyValidate }}
+      #   run: |
+      #     while true
+      #     do
+      #       sleep 10
+      #       status=$(az network vhub show -g LabBuilderValidation-${{ inputs.LabBuilderType }}-hub -n HUB-${{ inputs.LabBuilderLocation1 }} --query provisioningState -o tsv)
+      #       echo "vWAN status: $status"
+      #       if [ "$status" != "Updating" ]; then
+      #         echo "vWAN status: $status"
+      #         break
+      #       fi
+      #     done
           
   Cleanup:
     if: inputs.LabBuilderCleanup

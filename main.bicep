@@ -416,3 +416,5 @@ module CrossRegionVPNConnections 'VpnCrossRegionConnections.bicep' = [
     }
   }
 ]
+
+output vWanHubIDs array = [for (location, i) in locations: deployVWAN ? vwan.outputs.ID : ['noVWAN']]

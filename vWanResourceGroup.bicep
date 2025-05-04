@@ -94,3 +94,4 @@ output HubResourceGroupName string = hubrg.name
 output vWanFwIP string = deployFirewallInHub ? AzFirewall.outputs.azFwIP : 'none'
 output vpnGwBgpIp array = deployGatewayInHub ? vpngateway.outputs.vpnGwBgpIp : []
 output vpnGwName string = deployGatewayInHub ? vpngateway.outputs.vpnGwName : 'none'
+output vWanHubID string = vwanHub.outputs.ID

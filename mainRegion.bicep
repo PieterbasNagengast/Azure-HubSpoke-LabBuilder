@@ -346,6 +346,7 @@ output HubRtFirewallName string = deployFirewallInHub && deployHUB && isVnetHub
   ? hubVnet.outputs.rtFirewallName
   : 'none'
 output VNET_AzFwPrivateIp string = deployFirewallInHub && deployHUB && isVnetHub ? hubVnet.outputs.azFwIp : 'none'
+output vWanHubID string = deployHUB && isVwanHub ? vwan.outputs.vWanHubID : 'none'
 output HubVnetID string = deployHUB && isVnetHub ? hubVnet.outputs.hubVnetID : 'none'
 output VpnSettings _VPNSettings = {
   Hub: deployVPNConnectionsVNET
