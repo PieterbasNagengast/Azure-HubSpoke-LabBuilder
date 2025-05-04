@@ -276,6 +276,7 @@ jobs:
 
       - name: "Get LabBuilder deployment outputs"
         id: get_outputs
+        if: ${{ inputs.LabBuilderType == 'vwan' && !inputs.OnlyValidate }}
         run: |
           echo "LabBuilder deployment outputs:"
           echo "----"
