@@ -290,15 +290,18 @@ jobs:
             for hubId in $(echo '${{ steps.deploy.outputs.vWanHubIDs }}' | jq -r '.[]')
           do
           echo "Checking routing status for vWAN Hub: $hubId"
-          while true
+            while true
             do
-              sleep 10
-              status=$(az network vhub show --ids $hubId --query routingState -o tsv)
-              echo "vWAN Hub Routing status for $hubId: $status"
-              if [ "$status" != "Provisioning" ]; then
-                echo "vWAN Hub Routing status for $hubId: $status"
+              routing_status=$(az network vhub show --ids $hubId --query routingState -o tsv)
+              provisioning_status=$(az network vhub show --ids $hubId --query provisioningState -o tsv)
+              echo "vWAN Hub Routing status for $hubId: $routing_status"
+              echo "vWAN Hub Provisioning status for $hubId: $provisioning_status"
+              if [ "$routing_status" != "Provisioning" ] && [ "$provisioning_status" != "Updating" ]; then
+                echo "vWAN Hub Routing status for $hubId: $routing_status"
+                echo "vWAN Hub Provisioning status for $hubId: $provisioning_status"
                 break
               fi
+              sleep 10
             done
           done
       # - name: "Waiting for vWAN to finish deploying"
