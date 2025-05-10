@@ -72,7 +72,7 @@ jobs:
       - name: Review values
         run: |
           echo "Subscription IDs to be cleaned up:"
-          matrixOutput=fromJson(${{ needs.prepare-matrix.outputs.matrix }})"
+          matrixOutput="${{ fromJson(needs.prepare-matrix.outputs.matrix).sub_id }}"
           echo $matrixOutput.sub_id[0]
           echo "LabBuilder Type:"
           echo "${{ inputs.Type }}"  
