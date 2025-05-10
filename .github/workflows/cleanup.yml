@@ -46,14 +46,16 @@ jobs:
           json_input='${{ secrets.LOCATIONS }}'
           if [ -z "$json_input" ]; then
             echo "Error: LOCATIONS secret is empty or not set."
-            exit 1
+            echo "matrix={\"include\":[]}" >> "$GITHUB_OUTPUT"
+            exit 0
           fi
-          unique=$(echo "$json_input" | jq -c '[.[].hubSubscriptionID, .[].spokeSubscriptionID, .[].onPremSubscriptionID] | unique')
-          if [ -z "$unique" ]; then
-            echo "Error: Failed to generate unique subscription IDs."
-            exit 1
+          unique=$(echo "$json_input" | jq -c '[.[].hubSubscriptionID, .[].spokeSubscriptionID, .[].onPremSubscriptionID] | unique | map({sub_id:.})')
+          if [ -z "$unique" ] || [ "$unique" = "[]" ]; then
+            echo "Warning: No subscription IDs found."
+            echo "matrix={\"include\":[]}" >> "$GITHUB_OUTPUT"
+            exit 0
           fi
-          echo "matrix=$(echo "{\"sub_id\":$unique}" | jq -c)" >> "$GITHUB_OUTPUT"
+          echo "matrix=$(echo "{\"include\":$unique}" | jq -c)" >> "$GITHUB_OUTPUT"
         
       - name: display-output
         run: |
