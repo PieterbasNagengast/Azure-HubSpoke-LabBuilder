@@ -57,7 +57,7 @@ jobs:
       - name: Review values
         run: |
           echo "Subscription IDs to be cleaned up:"
-          echo "${{ fromJson(needs.prepare-matrix.outputs.matrix).sub_id }}"
+          echo "${{ fromJson(needs.prepare-matrix.outputs.matrix) }}"
           echo "LabBuilder Type:"
           echo "${{ inputs.Type }}"  
 
@@ -67,7 +67,7 @@ jobs:
   #   runs-on: ubuntu-latest
   #   strategy:
   #     matrix:
-  #      sub_id: ${{ fromJson(needs.prepare-matrix.outputs.matrix).sub_id }}
+  #      sub_id: ${{ fromJson(needs.prepare-matrix.outputs.matrix) }}
   #   steps:
   #     - name: Checkout
   #       uses: actions/checkout@v4
