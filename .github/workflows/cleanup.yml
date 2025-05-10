@@ -53,7 +53,7 @@ jobs:
             exit 1
           fi
           # echo "matrix=$(echo "{\"sub_id\":$unique}" | jq -c)" >> "$GITHUB_OUTPUT"
-          echo '::set-output matrix=json::{"sub_id":$unique}' >> "$GITHUB_OUTPUT"
+          echo '::set-output matrix=json::{"sub_id":"test"}' >> "$GITHUB_OUTPUT"
 
         
       - name: display-output
