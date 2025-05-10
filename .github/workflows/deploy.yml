@@ -203,6 +203,7 @@ jobs:
     uses: ./.github/workflows/cleanup.yml
     with:
         Type: ${{ inputs.Type }}
+        MultiOrSingleRegion: ${{ inputs.MultiOrSingleRegion }}
     secrets:
         inherit
 

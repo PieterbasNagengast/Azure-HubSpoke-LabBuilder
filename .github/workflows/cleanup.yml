@@ -3,6 +3,14 @@ name: "LabBuilder - CleanUp"
 on:
   workflow_dispatch:
     inputs:
+      MultiOrSingleRegion:
+        description: "Deploy Multi or Single Region?"
+        type: choice
+        options:
+          - MultiRegion
+          - SingleRegion        
+        default: SingleRegion
+        required: true
       Type:
         description: "Type of LabBuilder deployment"
         type: choice
@@ -14,6 +22,9 @@ on:
         default: vnet
   workflow_call:
     inputs:
+      MultiOrSingleRegion:
+        type: string
+        required: true
       Type:
         type: string
         required: true
@@ -35,6 +46,8 @@ jobs:
 
   VNETremoval:
     name: "Remove deployments"
+    environment:
+      name: ${{ inputs.MultiOrSingleRegion }}
     needs: prepare-matrix
     runs-on: ubuntu-latest
     strategy:
