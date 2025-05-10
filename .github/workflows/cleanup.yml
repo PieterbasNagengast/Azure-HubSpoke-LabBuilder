@@ -43,9 +43,16 @@ jobs:
       - id: buildMatrix
         run: |
           json_input='${{ secrets.LOCATIONS }}'
-          # create a compact one-line JSON array and embed it in the matrix object
+          if [ -z "$json_input" ]; then
+            echo "Error: LOCATIONS secret is empty or not set."
+            exit 1
+          fi
           unique=$(echo "$json_input" | jq -c '[.[].hubSubscriptionID, .[].spokeSubscriptionID, .[].onPremSubscriptionID] | unique')
-          echo "matrix={"sub_id":$unique}" >> "$GITHUB_OUTPUT"
+          if [ -z "$unique" ]; then
+            echo "Error: Failed to generate unique subscription IDs."
+            exit 1
+          fi
+          echo "matrix=$(echo "{\"sub_id\":$unique}" | jq -c)" >> "$GITHUB_OUTPUT"
         
       - name: display-output
         run: |
