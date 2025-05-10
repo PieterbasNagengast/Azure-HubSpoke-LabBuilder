@@ -69,7 +69,7 @@ jobs:
       - name: Review values
         run: |
           echo "Subscription IDs to be cleaned up:"
-          echo "${{ needs.prepare-matrix.outputs.matrix }}"
+          echo "${{ fromJson(needs.prepare-matrix.outputs.matrix) }}"
           echo "LabBuilder Type:"
           echo "${{ inputs.Type }}"  
 
