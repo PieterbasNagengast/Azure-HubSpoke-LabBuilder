@@ -49,7 +49,7 @@ jobs:
             echo "matrix={\"include\":[]}" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          unique=$(echo "$json_input" | jq -c '[.[].hubSubscriptionID, .[].spokeSubscriptionID, .[].onPremSubscriptionID] | unique )')
+          unique=$(echo "$json_input" | jq -c '[.[].hubSubscriptionID, .[].spokeSubscriptionID, .[].onPremSubscriptionID] | unique ')
           if [ -z "$unique" ] || [ "$unique" = "[]" ]; then
             echo "Warning: No subscription IDs found."
             echo "matrix={\"include\":[]}" >> "$GITHUB_OUTPUT"
