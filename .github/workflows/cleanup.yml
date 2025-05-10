@@ -49,7 +49,7 @@ jobs:
             echo "matrix={\"include\":[]}" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          unique=$(echo "$json_input" | jq -c '[.[].hubSubscriptionID, .[].spokeSubscriptionID, .[].onPremSubscriptionID] | unique | map({sub_id:.})')
+          unique=$(echo "$json_input" | jq -c '[.[].hubSubscriptionID, .[].spokeSubscriptionID, .[].onPremSubscriptionID] | unique | map(select(.!=null)) | map({sub_id:.})')
           if [ -z "$unique" ] || [ "$unique" = "[]" ]; then
             echo "Warning: No subscription IDs found."
             echo "matrix={\"include\":[]}" >> "$GITHUB_OUTPUT"
@@ -68,6 +68,7 @@ jobs:
     name: "Review values"
     runs-on: ubuntu-latest
     needs: prepare-matrix
+    if: ${{ needs.prepare-matrix.outputs.matrix != '{"include":[]}' }}
     strategy:
       matrix: ${{ fromJson(needs.prepare-matrix.outputs.matrix) }}
     steps:
