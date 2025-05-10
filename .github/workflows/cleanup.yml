@@ -43,8 +43,9 @@ jobs:
       - id: buildMatrix
         run: |
           json_input='${{ secrets.LOCATIONS }}'
-          unique=$(echo "$json_input" | jq -r '[.[].hubSubscriptionID, .[].spokeSubscriptionID, .[].onPremSubscriptionID] | unique')
-          echo "matrix={\"sub_id\":$unique}" >> $GITHUB_OUTPUT
+          # create a compact one-line JSON array and embed it in the matrix object
+          unique=$(echo "$json_input" | jq -c '[.[].hubSubscriptionID, .[].spokeSubscriptionID, .[].onPremSubscriptionID] | unique')
+          echo "matrix={\"sub_id\":$unique}" >> "$GITHUB_OUTPUT"
 
   VNETremoval:
     name: "Remove deployments"
