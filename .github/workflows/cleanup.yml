@@ -48,15 +48,13 @@ jobs:
             echo "Error: LOCATIONS secret is empty or not set."
             exit 1
           fi
-          unique=$(echo "$json_input" | jq -c '[.[].hubSubscriptionID, .[].spokeSubscriptionID, .[].onPremSubscriptionID] | unique')
+          unique=$(echo "$json_input" | jq -c '[.[].hubSubscriptionID, .[].spokeSubscriptionID, .[].onPremSubscriptionID] | unique | map({sub_id: .})]')
           if [ -z "$unique" ]; then
             echo "Error: Failed to generate unique subscription IDs."
             exit 1
           fi
-          # echo "matrix=$(echo "{\"sub_id\":$unique}" | jq -c)" >> "$GITHUB_OUTPUT"
-          echo '::set-output matrix=json::{"sub_id":"test"}' >> "$GITHUB_OUTPUT"
+          echo "matrix=$(echo "{\"include\":$unique}" | jq -c)" >> "$GITHUB_OUTPUT"
 
-        
       - name: display-output
         run: |
           echo "Matrix output:"
@@ -68,38 +66,14 @@ jobs:
     name: "Review values"
     runs-on: ubuntu-latest
     needs: prepare-matrix
+    strategy:
+      matrix: ${{ fromJson(needs.prepare-matrix.outputs.matrix) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Review values
         run: |
-          echo "Subscription IDs to be cleaned up:"
-          matrixOutput="${{ fromJson(needs.prepare-matrix.outputs.matrix) }}"
-          echo $matrixOutput.sub_id[0]
+          echo "Subscription ID to be cleaned up:"
+          echo "${{ matrix.sub_id }}"
           echo "LabBuilder Type:"
-          echo "${{ inputs.Type }}"  
-
-  # VNETremoval:
-  #   name: "Remove deployments"
-  #   needs: prepare-matrix
-  #   runs-on: ubuntu-latest
-  #   strategy:
-  #     matrix:
-  #      sub_id: ${{ fromJson(needs.prepare-matrix.outputs.matrix) }}
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v4
-  #     - name: Azure Login
-  #       uses: azure/login@v2
-  #       with:
-  #         client-id: ${{ secrets.AZURE_CLIENT_ID }}
-  #         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-  #         subscription-id: ${{ matrix.sub_id }}
-  #     - name: Cleanup ${{ matrix.sub_id }}
-  #       run: |
-  #         echo "Switching to subscription ${{ matrix.sub_id }} ..."
-  #         az account set --subscription ${{ matrix.sub_id }}
-  #         echo 'List of Resource groups to be deleted....'
-  #         az group list --tag LabBuilder=Validation --tag LabBuilderType=${{ inputs.Type }} --output table
-  #         echo 'Removing Resource groups...'
-  #         az group list --tag LabBuilder=Validation --tag LabBuilderType=${{ inputs.Type }} --query "[].[name]" --output tsv | xargs -r -l az group delete --yes --no-wait --name
+          echo "${{ inputs.Type }}"
