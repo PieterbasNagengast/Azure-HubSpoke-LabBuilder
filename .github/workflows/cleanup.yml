@@ -58,6 +58,8 @@ jobs:
         run: |
           echo "Matrix output:"
           echo "${{ steps.buildMatrix.outputs.matrix }}"
+          echo "Matrix output fromJson:"
+          echo "${{ fromJson(steps.buildMatrix.outputs.matrix) }}"
 
   reviewValues:
     name: "Review values"
