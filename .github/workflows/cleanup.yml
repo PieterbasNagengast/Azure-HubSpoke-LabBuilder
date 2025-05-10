@@ -61,7 +61,7 @@ jobs:
           echo "Matrix output:"
           echo "${{ steps.buildMatrix.outputs.matrix }}"
           echo "Matrix output fromJson:"
-          echo "${{ fromJson(steps.buildMatrix.outputs.matrix).sub_id[0] }}"
+          echo "${{ fromJson(steps.buildMatrix.outputs.matrix) }}"
 
   reviewValues:
     name: "Review values"
@@ -73,7 +73,7 @@ jobs:
       - name: Review values
         run: |
           echo "Subscription IDs to be cleaned up:"
-          matrixOutput="${{ fromJson(needs.prepare-matrix.outputs.matrix).sub_id }}"
+          matrixOutput="${{ fromJson(needs.prepare-matrix.outputs.matrix) }}"
           echo $matrixOutput.sub_id[0]
           echo "LabBuilder Type:"
           echo "${{ inputs.Type }}"  
