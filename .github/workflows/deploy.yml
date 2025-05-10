@@ -197,11 +197,12 @@ jobs:
           done
           
   Cleanup:
+    name: "Cleanup deployments"
     if: ${{ inputs.Cleanup && !inputs.OnlyValidate }}
     needs: DeployScenarios
     uses: ./.github/workflows/cleanup.yml
     with:
-        LabBuilderType: ${{ inputs.Type }}
+        Type: ${{ inputs.Type }}
     secrets:
         inherit
 

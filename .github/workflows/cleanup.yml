@@ -3,7 +3,7 @@ name: "LabBuilder - CleanUp"
 on:
   workflow_dispatch:
     inputs:
-      LabBuilderType:
+      Type:
         description: "Type of LabBuilder deployment"
         type: choice
         options:
@@ -14,7 +14,7 @@ on:
         default: vnet
   workflow_call:
     inputs:
-      LabBuilderType:
+      Type:
         type: string
         required: true
 
@@ -22,21 +22,23 @@ permissions:
   id-token: write
   
 jobs:
+  prepare-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.buildMatrix.outputs.matrix }}
+    steps:
+      - id: buildMatrix
+        run: |
+          json_input='${{ secrets.LOCATIONS }}'
+          unique=$(echo "$json_input" | jq -r '[.[].hubSubscriptionID, .[].spokeSubscriptionID, .[].onPremSubscriptionID] | unique')
+          echo "matrix={\"sub_id\":$unique}" >> $GITHUB_OUTPUT
+
   VNETremoval:
     name: "Remove deployments"
+    needs: prepare-matrix
     runs-on: ubuntu-latest
-    # environment: LabBuilderCleanup
     strategy:
-      matrix:
-        subscription: [hub,spoke,onprem]
-        include:
-          - subscription: hub
-            subscription_id: HUB_SUBSCRIPTION_ID
-          - subscription: spoke
-            subscription_id: SPOKE_SUBSCRIPTION_ID
-          - subscription: onprem
-            subscription_id: ONPREM_SUBSCRIPTION_ID
-
+      matrix: ${{ fromJson(needs.prepare-matrix.outputs.matrix) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -45,12 +47,12 @@ jobs:
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      - name: Cleanup ${{ matrix.subscription }} Subsription
+          subscription-id: ${{ matrix.sub_id }}
+      - name: Cleanup ${{ matrix.sub_id }}
         run: |
-          echo 'Switching to ${{ matrix.subscription }} Subscription...'
-          az account set --subscription ${{ secrets[matrix.subscription_id] }}
+          echo "Switching to subscription ${{ matrix.sub_id }} ..."
+          az account set --subscription ${{ matrix.sub_id }}
           echo 'List of Resource groups to be deleted....'
-          az group list --tag LabBuilder=Validation --tag LabBuilderType=${{ inputs.LabBuilderType }} --output table
+          az group list --tag LabBuilder=Validation --tag LabBuilderType=${{ inputs.Type }} --output table
           echo 'Removing Resource groups...'
-          az group list --tag LabBuilder=Validation --tag LabBuilderType=${{ inputs.LabBuilderType }} --query "[].[name]" --output tsv | xargs -r -l az group delete --yes --no-wait --name
+          az group list --tag LabBuilder=Validation --tag LabBuilderType=${{ inputs.Type }} --query "[].[name]" --output tsv | xargs -r -l az group delete --yes --no-wait --name
