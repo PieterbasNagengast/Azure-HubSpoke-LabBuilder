@@ -47,18 +47,27 @@ jobs:
           unique=$(echo "$json_input" | jq -c '[.[].hubSubscriptionID, .[].spokeSubscriptionID, .[].onPremSubscriptionID] | unique')
           echo "matrix={\"sub_id\":$unique}" >> "$GITHUB_OUTPUT"
 
-      - run: |
-          echo "Matrix: ${{ steps.buildMatrix.outputs.matrix }}"
-          echo "fromJsonMatrixL ${{ fromJson(steps.buildMatrix.outputs.matrix) }}"
-          echo "MultiOrSingleRegion: ${{ inputs.MultiOrSingleRegion }}"
-          echo "Type: ${{ inputs.Type }}"
-          
+  reviewValues:
+    name: "Review values"
+    runs-on: ubuntu-latest
+    needs: prepare-matrix
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Review values
+        run: |
+          echo "Subscription IDs to be cleaned up:"
+          echo "${{ fromJson(needs.prepare-matrix.outputs.matrix).sub_id }}"
+          echo "LabBuilder Type:"
+          echo "${{ inputs.Type }}"  
+
   VNETremoval:
     name: "Remove deployments"
     needs: prepare-matrix
     runs-on: ubuntu-latest
     strategy:
-      matrix: ${{ fromJson(needs.prepare-matrix.outputs.matrix) }}
+      matrix:
+       sub_id: ${{ fromJson(needs.prepare-matrix.outputs.matrix).sub_id }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
