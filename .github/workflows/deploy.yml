@@ -197,7 +197,7 @@ jobs:
           done
           
   Cleanup:
-    if: inputs.Cleanup
+    if: ${{ inputs.Cleanup && !inputs.OnlyValidate }}
     needs: DeployScenarios
     uses: ./.github/workflows/cleanup.yml
     with:
