@@ -70,12 +70,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Review values
+        env:
+          A: ${{ fromJson(needs.prepare-matrix.outputs.matrix) }}
         run: |
           echo "Subscription IDs to be cleaned up:"
-          matrixOutput="${{ fromJson(needs.prepare-matrix.outputs.matrix).sub_id }}"
-          echo $matrixOutput.sub_id[0]
-          echo "LabBuilder Type:"
-          echo "${{ inputs.Type }}"  
+          echo A$
 
   # VNETremoval:
   #   name: "Remove deployments"
