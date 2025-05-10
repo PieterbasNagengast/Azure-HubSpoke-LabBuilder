@@ -74,7 +74,7 @@ jobs:
           A: ${{ needs.prepare-matrix.outputs.matrix && fromJson(needs.prepare-matrix.outputs.matrix) }}
         run: |
           echo "Subscription IDs to be cleaned up:"
-          echo A$
+          echo $A
 
   # VNETremoval:
   #   name: "Remove deployments"
