@@ -45,7 +45,7 @@ jobs:
           json_input='${{ secrets.LOCATIONS }}'
           # create a compact one-line JSON array and embed it in the matrix object
           unique=$(echo "$json_input" | jq -c '[.[].hubSubscriptionID, .[].spokeSubscriptionID, .[].onPremSubscriptionID] | unique')
-          echo "matrix={\"sub_id\":$unique}" >> "$GITHUB_OUTPUT"
+          echo "matrix=$(jq -n --argjson unique "$unique" '{"sub_id":$unique}')" >> "$GITHUB_OUTPUT"
 
   reviewValues:
     name: "Review values"
