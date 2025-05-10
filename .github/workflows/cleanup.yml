@@ -41,18 +41,32 @@ jobs:
       matrix: ${{ steps.buildMatrix.outputs.matrix }}
     steps:
       - id: buildMatrix
+        shell: bash
         run: |
+          set -euo pipefail
           json_input='${{ secrets.LOCATIONS }}'
-          if [ -z "$json_input" ]; then
+
+          if [[ -z "$json_input" ]]; then
             echo "Error: LOCATIONS secret is empty or not set."
             exit 1
           fi
+
+          # Collect unique subscription IDs
           unique=$(echo "$json_input" | jq -c '[.[].hubSubscriptionID, .[].spokeSubscriptionID, .[].onPremSubscriptionID] | unique')
-          if [ -z "$unique" ]; then
+
+          if [[ -z "$unique" ]]; then
             echo "Error: Failed to generate unique subscription IDs."
             exit 1
           fi
-          echo "matrix=$(echo "{\"sub_id\":$unique}" | jq -c)" >> $GITHUB_OUTPUT
+
+          # Build the matrix JSON → { "sub_id": [...] }
+          matrix_json=$(jq -c --argjson ids "$unique" '{sub_id: $ids}')
+
+          # Set the step output
+          echo "matrix=$matrix_json" >> "$GITHUB_OUTPUT"
+
+          # Debug
+          echo "Generated matrix: $matrix_json"
         
       - name: display-output
         run: |
