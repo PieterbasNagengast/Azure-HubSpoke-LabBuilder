@@ -45,7 +45,7 @@ jobs:
           json_input='${{ secrets.LOCATIONS }}'
           # create a compact one-line JSON array and embed it in the matrix object
           unique=$(echo "$json_input" | jq -c '[.[].hubSubscriptionID, .[].spokeSubscriptionID, .[].onPremSubscriptionID] | unique')
-          echo "matrix=$(jq -n --argjson unique "$unique" '{"sub_id":$unique}')" >> "$GITHUB_OUTPUT"
+          echo "matrix={\"sub_id\":$unique}" >> "$GITHUB_OUTPUT"
 
   reviewValues:
     name: "Review values"
@@ -61,27 +61,27 @@ jobs:
           echo "LabBuilder Type:"
           echo "${{ inputs.Type }}"  
 
-  VNETremoval:
-    name: "Remove deployments"
-    needs: prepare-matrix
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-       sub_id: ${{ fromJson(needs.prepare-matrix.outputs.matrix).sub_id }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Azure Login
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ matrix.sub_id }}
-      - name: Cleanup ${{ matrix.sub_id }}
-        run: |
-          echo "Switching to subscription ${{ matrix.sub_id }} ..."
-          az account set --subscription ${{ matrix.sub_id }}
-          echo 'List of Resource groups to be deleted....'
-          az group list --tag LabBuilder=Validation --tag LabBuilderType=${{ inputs.Type }} --output table
-          echo 'Removing Resource groups...'
-          az group list --tag LabBuilder=Validation --tag LabBuilderType=${{ inputs.Type }} --query "[].[name]" --output tsv | xargs -r -l az group delete --yes --no-wait --name
+  # VNETremoval:
+  #   name: "Remove deployments"
+  #   needs: prepare-matrix
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     matrix:
+  #      sub_id: ${{ fromJson(needs.prepare-matrix.outputs.matrix).sub_id }}
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
+  #     - name: Azure Login
+  #       uses: azure/login@v2
+  #       with:
+  #         client-id: ${{ secrets.AZURE_CLIENT_ID }}
+  #         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+  #         subscription-id: ${{ matrix.sub_id }}
+  #     - name: Cleanup ${{ matrix.sub_id }}
+  #       run: |
+  #         echo "Switching to subscription ${{ matrix.sub_id }} ..."
+  #         az account set --subscription ${{ matrix.sub_id }}
+  #         echo 'List of Resource groups to be deleted....'
+  #         az group list --tag LabBuilder=Validation --tag LabBuilderType=${{ inputs.Type }} --output table
+  #         echo 'Removing Resource groups...'
+  #         az group list --tag LabBuilder=Validation --tag LabBuilderType=${{ inputs.Type }} --query "[].[name]" --output tsv | xargs -r -l az group delete --yes --no-wait --name
