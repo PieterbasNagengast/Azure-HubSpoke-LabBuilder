@@ -42,8 +42,10 @@ jobs:
     steps:
       - name: "prep metrix json"
         id: buildMatrix
+        env:
+          A: ${{ secrets.LOCATIONS }}
         run: |
-          json_input='${{ secrets.LOCATIONS }}'
+          json_input=$A
           if [ -z "$json_input" ]; then
             echo "Error: LOCATIONS secret is empty or not set."
             echo "matrix={\"include\":[]}" >> "$GITHUB_OUTPUT"
