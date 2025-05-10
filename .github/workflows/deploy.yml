@@ -3,6 +3,14 @@ name: "LabBuilder - Deploy Scenarios"
 on:
   workflow_dispatch:
     inputs:
+      MultiOrSingleRegion:
+        description: "Deploy Multi or Single Region?"
+        type: choice
+        options:
+          - MultiRegion
+          - SingleRegion        
+        default: SingleRegion
+        required: true
       DeploymentLocation:
         description: "Location of the deployment"
         type: choice
@@ -34,6 +42,9 @@ on:
       
   workflow_call:
     inputs:
+      MultiOrSingleRegion:
+        type: string
+        required: true
       DeploymentLocation:
         type: string
         required: true
@@ -52,6 +63,10 @@ permissions:
   id-token: write
 
 jobs:  
+  environment:
+    name: ${{ inputs.MultiOrSingleRegion }}
+    runs-on: ubuntu-latest
+    
   BicepBuildandLint:
     name: "Bicep Build and Lint"
     runs-on: ubuntu-latest

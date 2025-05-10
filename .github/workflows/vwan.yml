@@ -36,7 +36,7 @@ jobs:
     Deploy:
         uses: ./.github/workflows/deploy.yml
         with:
-            Environment: ${{ inputs.MultiOrSingleRegion}}
+            MultiOrSingleRegion: ${{ inputs.MultiOrSingleRegion }}
             DeploymentLocation: ${{ inputs.DeploymentLocation }}
             Type: 'vwan'
             Cleanup: ${{ inputs.Cleanup }}            
