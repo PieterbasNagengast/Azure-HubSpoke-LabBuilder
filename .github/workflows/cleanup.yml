@@ -34,6 +34,8 @@ permissions:
   
 jobs:
   prepare-matrix:
+    environment:
+      name: ${{ inputs.MultiOrSingleRegion }}
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.buildMatrix.outputs.matrix }}
@@ -46,8 +48,6 @@ jobs:
 
   VNETremoval:
     name: "Remove deployments"
-    environment:
-      name: ${{ inputs.MultiOrSingleRegion }}
     needs: prepare-matrix
     runs-on: ubuntu-latest
     strategy:
