@@ -157,7 +157,7 @@ jobs:
             "adminUsername": "${{ secrets.ADMINUSERNAME }}",
             "adminPassword": "${{ secrets.ADMINPASSWORD }}",
             "sharedKey": "${{ secrets.SHAREDKEY }}",
-            "locations": "${{ secrets.LOCATIONS }}",
+            "locations": ${{ secrets.LOCATIONS }},
             "spokeRgNamePrefix": "LabBuilderValidation-${{ inputs.Type }}-spoke",
             "hubRgName": "LabBuilderValidation-${{ inputs.Type }}-hub",
             "onpremRgName": "LabBuilderValidation-${{ inputs.Type }}-onprem"
