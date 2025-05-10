@@ -52,7 +52,7 @@ jobs:
             echo "Error: Failed to generate unique subscription IDs."
             exit 1
           fi
-          echo "matrix=$(echo "{\"sub_id\":$unique}" | jq -c)" | tee -a "$GITHUB_OUTPUT"
+          echo "matrix=$(echo "{\"sub_id\":$unique}" | jq -c)" >> "$GITHUB_OUTPUT"
         
       - name: display-output
         run: |
