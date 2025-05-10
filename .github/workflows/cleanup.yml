@@ -49,28 +49,22 @@ jobs:
             echo "matrix={\"include\":[]}" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          unique=$(echo "$json_input" | jq -c '[.[].hubSubscriptionID, .[].spokeSubscriptionID, .[].onPremSubscriptionID] | unique | map(select(.!=null)) | map({sub_id:.})')
+          unique=$(echo "$json_input" | jq -c '[.[].hubSubscriptionID, .[].spokeSubscriptionID, .[].onPremSubscriptionID] | unique )')
           if [ -z "$unique" ] || [ "$unique" = "[]" ]; then
             echo "Warning: No subscription IDs found."
             echo "matrix={\"include\":[]}" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          echo "matrix=$(echo "{\"include\":$unique}" | jq -c)" >> "$GITHUB_OUTPUT"
-        
-      - name: display-output
-        run: |
-          echo "Matrix output:"
-          echo "${{ steps.buildMatrix.outputs.matrix }}"
-          echo "Matrix output fromJson:"
-          echo "${{ fromJson(steps.buildMatrix.outputs.matrix) }}"
+          echo $unique | jq .
+          echo "matrix=$unique}" >> "$GITHUB_OUTPUT"
 
   reviewValues:
     name: "Review values"
     runs-on: ubuntu-latest
     needs: prepare-matrix
-    if: ${{ needs.prepare-matrix.outputs.matrix != '{"include":[]}' }}
     strategy:
-      matrix: ${{ fromJson(needs.prepare-matrix.outputs.matrix) }}
+      matrix: 
+        sub_id: ${{ fromJson(needs.prepare-matrix.outputs.matrix) }}
     steps:
       - name: Review values
         run: |
