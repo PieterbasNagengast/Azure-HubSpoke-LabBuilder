@@ -34,14 +34,14 @@ permissions:
   
 jobs:
   prepare-matrix:
-    name: "Prepare matrix"
     environment:
       name: ${{ inputs.MultiOrSingleRegion }}
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.buildMatrix.outputs.matrix }}
     steps:
-      - id: buildMatrix
+      - name: "prep metrix json"
+        id: buildMatrix
         run: |
           json_input='${{ secrets.LOCATIONS }}'
           if [ -z "$json_input" ]; then
