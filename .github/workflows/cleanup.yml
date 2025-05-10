@@ -52,7 +52,8 @@ jobs:
             echo "Error: Failed to generate unique subscription IDs."
             exit 1
           fi
-          echo "matrix=$(echo "{\"sub_id\":$unique}" | jq -c)" >> "$GITHUB_OUTPUT"
+          # echo "matrix=$(echo "{\"sub_id\":$unique}" | jq -c)" >> "$GITHUB_OUTPUT"
+          echo '::set-output matrix=json::{"sub_id":$unique}' >> "$GITHUB_OUTPUT"
 
         
       - name: display-output
@@ -70,11 +71,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Review values
-        env:
-          A: ${{ needs.prepare-matrix.outputs.matrix && fromJson(needs.prepare-matrix.outputs.matrix) }}
         run: |
           echo "Subscription IDs to be cleaned up:"
-          echo $A
+          matrixOutput="${{ fromJson(needs.prepare-matrix.outputs.matrix).sub_id }}"
+          echo $matrixOutput.sub_id[0]
+          echo "LabBuilder Type:"
+          echo "${{ inputs.Type }}"  
 
   # VNETremoval:
   #   name: "Remove deployments"
