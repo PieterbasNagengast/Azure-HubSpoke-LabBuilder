@@ -71,7 +71,7 @@ jobs:
         uses: actions/checkout@v4
       - name: Review values
         env:
-          A: ${{ fromJson(needs.prepare-matrix.outputs.matrix) }}
+          A: ${{ needs.prepare-matrix.outputs.matrix && fromJson(needs.prepare-matrix.outputs.matrix) }}
         run: |
           echo "Subscription IDs to be cleaned up:"
           echo A$
