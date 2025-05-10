@@ -55,8 +55,9 @@ jobs:
             echo "matrix={\"include\":[]}" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          echo $unique | jq .
-          echo "matrix=$unique}" >> "$GITHUB_OUTPUT"
+          json_array=$(echo "$unique" | jq -R . | jq -s . | jq -c .)
+          echo $json_array | jq .
+          echo "matrix=$json_array}" >> "$GITHUB_OUTPUT"
 
   reviewValues:
     name: "Review values"
