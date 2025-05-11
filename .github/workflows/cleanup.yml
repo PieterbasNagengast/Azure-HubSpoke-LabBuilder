@@ -44,7 +44,7 @@ jobs:
         id: buildMatrix
         run: |
           # dummy json to start with
-          json_input='[{"region":"swedencentral","addressSpace":"172.16.0.0/16","hubSubscriptionID":"dd952644-a19e-4309-9e2f-ffe3cf828bbe","spokeSubscriptionID":"dd952644-a19e-4309-9e2f-ffe3cf828bbe","onPremSubscriptionID":"dd952644-a19e-4309-9e2f-ffe3cf828bbe"},{"region":"germanywestcentral","addressSpace":"172.31.0.0/16","hubSubscriptionID":"dd952644-a19e-4309-9e2f-ffe3cf828bbe","spokeSubscriptionID":"dd952644-a19e-4309-9e2f-ffe3cf828bbe","onPremSubscriptionID":"dd952644-a19e-4309-9e2f-ffe3cf828bbe"}]'
+          json_input='[{"region":"swedencentral","addressSpace":"172.16.0.0/16","hubSubscriptionID":"a952644-a19e-4309-9e2f-ffe3cf828bbe","spokeSubscriptionID":"bd952644-a19e-4309-9e2f-ffe3cf828bbe","onPremSubscriptionID":"cd952644-a19e-4309-9e2f-ffe3cf828bbe"},{"region":"germanywestcentral","addressSpace":"172.31.0.0/16","hubSubscriptionID":"dd952644-a19e-4309-9e2f-ffe3cf828bbe","spokeSubscriptionID":"ed952644-a19e-4309-9e2f-ffe3cf828bbe","onPremSubscriptionID":"fd952644-a19e-4309-9e2f-ffe3cf828bbe"}]'
           unique=$(echo "$json_input" | jq -c '[.[].hubSubscriptionID, .[].spokeSubscriptionID, .[].onPremSubscriptionID] | unique ')
 
           json_array=$(echo "$unique" | jq -R . | jq -s . | jq -c .)
