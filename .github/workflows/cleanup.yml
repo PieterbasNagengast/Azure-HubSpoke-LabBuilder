@@ -7,18 +7,18 @@ on:
         description: "Subscription IDs to be cleaned up"
         type: string
         required: true
-      MultiOrSingleRegion:
-        description: "Deploy Multi or Single Region?"
+      Type:
+        description: "Type to deploy"
         type: choice
         options:
-          - MultiRegion
-          - SingleRegion        
-        default: SingleRegion
+          - vnet
+          - vwan
+          - avnm
         required: true
+        default: vwan
   workflow_call:
     inputs:
       subscriptionIDs:
-        description: "Subscription IDs to be cleaned up"
         type: string
         required: true
       Type:
@@ -29,7 +29,7 @@ permissions:
   id-token: write
   
 jobs:
-  reviewValues:
+  removeResources:
     name: "Remove ${{ inputs.Type }} resources, Sub${{ strategy.job-index }}"
     runs-on: ubuntu-latest
     strategy:
