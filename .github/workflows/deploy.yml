@@ -205,7 +205,6 @@ jobs:
     uses: ./.github/workflows/cleanup.yml
     with:
         subscriptionID: ${{ needs.DeployScenarios.outputs.subscriptionId }}
-        MultiOrSingleRegion: ${{ inputs.MultiOrSingleRegion }}
         Type: ${{ inputs.Type }}
     secrets:
         inherit
