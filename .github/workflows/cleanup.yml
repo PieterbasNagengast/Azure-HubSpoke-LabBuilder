@@ -3,6 +3,10 @@ name: "LabBuilder - CleanUp"
 on:
   workflow_dispatch:
     inputs:
+      subscriptionIDs:
+        description: "Subscription IDs to be cleaned up"
+        type: string
+        required: true
       MultiOrSingleRegion:
         description: "Deploy Multi or Single Region?"
         type: choice
@@ -11,18 +15,10 @@ on:
           - SingleRegion        
         default: SingleRegion
         required: true
-      Type:
-        description: "Type of LabBuilder deployment"
-        type: choice
-        options:
-          - vnet
-          - vwan
-          - avnm
-        required: true
-        default: vnet
   workflow_call:
     inputs:
-      MultiOrSingleRegion:
+      subscriptionIDs:
+        description: "Subscription IDs to be cleaned up"
         type: string
         required: true
       Type:
@@ -33,31 +29,12 @@ permissions:
   id-token: write
   
 jobs:
-  prepare-matrix:
-    environment:
-      name: ${{ inputs.MultiOrSingleRegion }}
-    runs-on: ubuntu-latest
-    outputs:
-      matrix: ${{ steps.buildMatrix.outputs.matrix }}
-    steps:
-      - name: "prep metrix json"
-        id: buildMatrix
-        run: |
-          # dummy json to start with
-          json_input='[{"region":"swedencentral","addressSpace":"172.16.0.0/16","hubSubscriptionID":"a952644-a19e-4309-9e2f-ffe3cf828bbe","spokeSubscriptionID":"bd952644-a19e-4309-9e2f-ffe3cf828bbe","onPremSubscriptionID":"cd952644-a19e-4309-9e2f-ffe3cf828bbe"},{"region":"germanywestcentral","addressSpace":"172.31.0.0/16","hubSubscriptionID":"dd952644-a19e-4309-9e2f-ffe3cf828bbe","spokeSubscriptionID":"ed952644-a19e-4309-9e2f-ffe3cf828bbe","onPremSubscriptionID":"fd952644-a19e-4309-9e2f-ffe3cf828bbe"}]'
-          unique=$(echo "$json_input" | jq -c '[.[].hubSubscriptionID, .[].spokeSubscriptionID, .[].onPremSubscriptionID] | unique ')
-
-          json_array=$(echo "$unique" | jq -R . | jq -s . | jq -c .)
-          echo $json_array | jq .
-          echo "matrix=$json_array}" >> "$GITHUB_OUTPUT"
-
   reviewValues:
-    name: "Review values"
+    name: "Remove ${{ inputs.Type }} resources, Sub${{ strategy.job-index }}"
     runs-on: ubuntu-latest
-    needs: prepare-matrix
     strategy:
-      matrix: 
-        sub_id: ${{ fromJson(needs.prepare-matrix.outputs.matrix) }}
+      matrix:
+        sub_id: ${{ fromJson(inputs.subscriptionIDs) }}
     steps:
       - name: Review values
         run: |

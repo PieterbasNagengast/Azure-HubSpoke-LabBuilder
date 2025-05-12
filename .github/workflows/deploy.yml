@@ -100,6 +100,8 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: ${{ inputs.MultiOrSingleRegion }}
+    outputs:
+      subscriptionId: ${{ steps.deploy.outputs.subscriptionId }}
     needs: 
       - BicepBuildandLint
       - GenerateListOfParameterFiles
@@ -202,8 +204,9 @@ jobs:
     needs: DeployScenarios
     uses: ./.github/workflows/cleanup.yml
     with:
-        Type: ${{ inputs.Type }}
+        subscriptionID: ${{ needs.DeployScenarios.outputs.subscriptionId }}
         MultiOrSingleRegion: ${{ inputs.MultiOrSingleRegion }}
+        Type: ${{ inputs.Type }}
     secrets:
         inherit
 

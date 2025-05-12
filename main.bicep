@@ -417,4 +417,9 @@ module CrossRegionVPNConnections 'VpnCrossRegionConnections.bicep' = [
   }
 ]
 
-output vWanHubIDs array = [for (location, i) in locations: deployVWAN ? deployRegion[i].outputs.vWanHubID : ['noVWAN']]
+output vWanHubIDs array = [for (location, i) in locations: deployVWAN ? deployRegion[i].outputs.vWanHubID : 'noVWAN']
+output subscriptionIDs array = union(
+  deployHUB ? map(locations, loc => loc.hubSubscriptionID) : [],
+  deploySpokes ? map(locations, loc => loc.spokeSubscriptionID) : [],
+  deployOnPrem ? map(locations, loc => loc.onPremSubscriptionID) : []
+)
