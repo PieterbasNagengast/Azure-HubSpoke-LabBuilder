@@ -29,6 +29,17 @@ permissions:
   id-token: write
   
 jobs:
+  checkInput:
+    name: "Check Input"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Review values
+        run: |
+          echo "--------------------------------"
+          echo "Subscription IDs to be cleaned up: ${{ inputs.subscriptionIDs }}"
+          echo "Type to be cleaned up: ${{ inputs.Type }}"
+          echo "--------------------------------"
+
   removeResources:
     name: "Remove ${{ inputs.Type }} resources, Sub${{ strategy.job-index }}"
     runs-on: ubuntu-latest
@@ -38,8 +49,7 @@ jobs:
     steps:
       - name: Review values
         run: |
-          echo "Subscription IDs to be cleaned up:"
-          echo "${{ matrix.sub_id }}"
+          echo "Subscription ID to be cleaned up: ${{ matrix.sub_id }}"
 
       - name: Azure Login
         uses: azure/login@v2
