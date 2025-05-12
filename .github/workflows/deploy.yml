@@ -204,7 +204,7 @@ jobs:
     needs: DeployScenarios
     uses: ./.github/workflows/cleanup.yml
     with:
-        subscriptionID: ${{ needs.DeployScenarios.outputs.subscriptionId }}
+        subscriptionIDs: ${{ needs.DeployScenarios.outputs.subscriptionId }}
         Type: ${{ inputs.Type }}
     secrets:
         inherit
