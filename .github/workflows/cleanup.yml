@@ -36,12 +36,13 @@ jobs:
       - name: Review values
         run: |
           echo "--------------------------------"
-          echo "Subscription IDs to be cleaned up: ${{ inputs.subscriptionIDs }}"
+          echo "Subscription IDs to be cleaned up: ${{ toJson(fromJson(inputs.subscriptionIDs)) }}"
           echo "Type to be cleaned up: ${{ inputs.Type }}"
           echo "--------------------------------"
 
   removeResources:
     name: "Remove ${{ inputs.Type }} resources, Sub${{ strategy.job-index }}"
+    needs: checkInput
     runs-on: ubuntu-latest
     strategy:
       matrix:
