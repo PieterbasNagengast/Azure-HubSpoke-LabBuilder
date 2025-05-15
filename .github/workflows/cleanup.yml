@@ -26,6 +26,8 @@ jobs:
     name: "Gather Subscription IDs"
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
       - name: Get Subscription IDs
         shell: pwsh
         run: |
