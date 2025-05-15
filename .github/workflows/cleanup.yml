@@ -37,7 +37,7 @@ jobs:
               $resourceGroups | Format-Table -Property ResourceGroupName, Location, Tags
               Write-Host "Removing Resource groups..."
               foreach ($rg in $resourceGroups) {
-                Remove-AzResourceGroup -Name $rg.ResourceGroupName -Force -NoWait
+                Remove-AzResourceGroup -Name $rg.ResourceGroupName -Force
                 Write-Host "Deleted resource group: $($rg.ResourceGroupName)"
               }
             }
