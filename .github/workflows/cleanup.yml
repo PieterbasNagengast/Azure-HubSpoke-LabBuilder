@@ -40,7 +40,7 @@ jobs:
           azPSVersion: 'latest'
           inlineScript: |
             Write-Host "List of Resource groups to be deleted...."
-            $resourceGroups = Get-AzResourceGroup -Tag @{ LabBuilder = "Validation" }
+            $resourceGroups = Get-AzResourceGroup -Tag @{ LabBuilder = "validation" }
 
             if ($resourceGroups.Count -eq 0) {
               Write-Host "No resource groups found to delete." -ForegroundColor Yellow
