@@ -40,7 +40,7 @@ jobs:
           azPSVersion: 'latest'
           inlineScript: |
             Write-Host "List of Resource groups to be deleted...."
-            $resourceGroups = Get-AzResourceGroup -Tag @{ LabBuilder = "Validation"; LabBuilderType = "${{ inputs.Type }}" }
+            $resourceGroups = Get-AzResourceGroup -Tag @{ LabBuilder = "Validation" }
             $resourceGroups | Format-Table ResourceGroupName, Location
 
             if ($resourceGroups.Count -eq 0) {
