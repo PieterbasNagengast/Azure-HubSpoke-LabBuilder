@@ -3,10 +3,6 @@ name: "LabBuilder - CleanUp"
 on:
   workflow_dispatch:
     inputs:
-      subscriptionIDs:
-        description: "Subscription IDs to be cleaned up"
-        type: string
-        required: true
       Type:
         description: "Type to deploy"
         type: choice
@@ -18,9 +14,6 @@ on:
         default: vwan
   workflow_call:
     inputs:
-      subscriptionIDs:
-        type: string
-        required: true
       Type:
         type: string
         required: true
@@ -29,40 +22,42 @@ permissions:
   id-token: write
   
 jobs:
-  checkInput:
-    name: "Check Input"
+  GetSubscriptionIDs:
+    name: "Gather Subscription IDs"
     runs-on: ubuntu-latest
     steps:
-      - name: Review values
+      - name: Get Subscription IDs
+        env:
+          subscriptionIDs: ${{ secrets.SUBSCRIPTION_IDS }}
         run: |
           echo "--------------------------------"
-          echo "Subscription IDs to be cleaned up: ${{ toJson(fromJson(inputs.subscriptionIDs)) }}"
+          echo "Subscription IDs to be cleaned up: ${{ toJson(fromJson(env.subscriptionIDs)) }}"
           echo "Type to be cleaned up: ${{ inputs.Type }}"
           echo "--------------------------------"
 
-  removeResources:
-    name: "Remove ${{ inputs.Type }} resources, Sub${{ strategy.job-index }}"
-    needs: checkInput
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        sub_id: ${{ fromJson(inputs.subscriptionIDs) }}
-    steps:
-      - name: Review values
-        run: |
-          echo "Subscription ID to be cleaned up: ${{ matrix.sub_id }}"
+  # removeResources:
+  #   name: "Remove ${{ inputs.Type }} resources, Sub${{ strategy.job-index }}"
+  #   needs: GetSubscriptionIDs
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     matrix:
+  #       sub_id: ${{ fromJson(inputs.subscriptionIDs) }}
+  #   steps:
+  #     - name: Review values
+  #       run: |
+  #         echo "Subscription ID to be cleaned up: ${{ matrix.sub_id }}"
 
-      - name: Azure Login
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ matrix.sub_id }}
-      - name: Cleanup ${{ matrix.sub_id }}
-        run: |
-          echo "Switching to subscription ${{ matrix.sub_id }} ..."
-          az account set --subscription ${{ matrix.sub_id }}
-          echo 'List of Resource groups to be deleted....'
-          az group list --tag LabBuilder=Validation --tag LabBuilderType=${{ inputs.Type }} --output table
-          echo 'Removing Resource groups...'
-          az group list --tag LabBuilder=Validation --tag LabBuilderType=${{ inputs.Type }} --query "[].[name]" --output tsv | xargs -r -l az group delete --yes --no-wait --name
+  #     - name: Azure Login
+  #       uses: azure/login@v2
+  #       with:
+  #         client-id: ${{ secrets.AZURE_CLIENT_ID }}
+  #         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+  #         subscription-id: ${{ matrix.sub_id }}
+  #     - name: Cleanup ${{ matrix.sub_id }}
+  #       run: |
+  #         echo "Switching to subscription ${{ matrix.sub_id }} ..."
+  #         az account set --subscription ${{ matrix.sub_id }}
+  #         echo 'List of Resource groups to be deleted....'
+  #         az group list --tag LabBuilder=Validation --tag LabBuilderType=${{ inputs.Type }} --output table
+  #         echo 'Removing Resource groups...'
+  #         az group list --tag LabBuilder=Validation --tag LabBuilderType=${{ inputs.Type }} --query "[].[name]" --output tsv | xargs -r -l az group delete --yes --no-wait --name

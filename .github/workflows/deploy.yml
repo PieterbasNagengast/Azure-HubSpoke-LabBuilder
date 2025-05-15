@@ -197,14 +197,13 @@ jobs:
               sleep 10
             done
           done
-          
+  
   Cleanup:
     name: "Cleanup deployments"
     if: ${{ inputs.Cleanup && !inputs.OnlyValidate }}
     needs: DeployScenarios
     uses: ./.github/workflows/cleanup.yml
     with:
-        subscriptionIDs: ${{ needs.DeployScenarios.outputs.subscriptionId }}
         Type: ${{ inputs.Type }}
     secrets:
         inherit
