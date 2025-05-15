@@ -25,21 +25,33 @@ jobs:
         with:
           azPSVersion: 'latest'
           inlineScript: |
-            Write-Host "List of Resource groups to be deleted...."
+            Write-Host "Searching for resource groups tagged with LabBuilder=validation..."
             $resourceGroups = Get-AzResourceGroup -Tag @{ LabBuilder = "validation" }
 
-            if ($resourceGroups.Count -eq 0) {
-              Write-Host "No resource groups found to delete."
-              Write-Host "Exiting without deleting anything."
+            if (-not $resourceGroups) {
+              Write-Host "No resource groups found to delete. Exiting."
               exit 0
-            } else {
-              Write-Host "Found $($resourceGroups.Count) resource groups to deleted:"
-              $resourceGroups | Format-Table -Property ResourceGroupName, Location, Tags
-              Write-Host "Removing Resource groups..."
-              foreach ($rg in $resourceGroups) {
-                Remove-AzResourceGroup -Name $rg.ResourceGroupName -Force
-                Write-Host "Deleted resource group: $($rg.ResourceGroupName)"
-              }
             }
+
+            Write-Host "Found $($resourceGroups.Count) resource group(s) to delete:"
+            $resourceGroups | Select-Object ResourceGroupName, Location, Tags | Format-Table -AutoSize
+
+            $jobs = @()
+            foreach ($rg in $resourceGroups) {
+              Write-Host "Starting deletion job for resource group: $($rg.ResourceGroupName)..."
+              $jobs += Start-Job -ScriptBlock {
+                param($rgName)
+                Import-Module Az.Resources
+                Write-Host "Deleting resource group: $rgName..."
+                Remove-AzResourceGroup -Name $rgName -Force -ErrorAction Stop
+                Write-Host "Deleted: $rgName"
+              } -ArgumentList $rg.ResourceGroupName
+            }
+
+            Write-Host "Waiting for all deletion jobs to complete..."
+            $jobs | ForEach-Object { 
+              Receive-Job -Job $_ -Wait -AutoRemoveJob 
+            }
+            Write-Host "All resource groups deleted."
 
           
