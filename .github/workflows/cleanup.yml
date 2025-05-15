@@ -31,7 +31,8 @@ jobs:
           subscriptionIDs: ${{ secrets.LOCATIONS }}
         run: |
           echo "--------------------------------"
-          echo "Subscription IDs to be cleaned up: ${{ toJson(fromJson(env.subscriptionIDs)) }}"
+          subIDs=${{ secrets.LOCATIONS }}
+          echo "Subscription IDs to be cleaned up: $subIDs"
           echo "Type to be cleaned up: ${{ inputs.Type }}"
           echo "--------------------------------"
 
