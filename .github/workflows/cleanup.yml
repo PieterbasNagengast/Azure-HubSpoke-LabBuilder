@@ -41,7 +41,6 @@ jobs:
           inlineScript: |
             Write-Host "List of Resource groups to be deleted...."
             $resourceGroups = Get-AzResourceGroup -Tag @{ LabBuilder = "Validation" }
-            $resourceGroups | Format-Table ResourceGroupName, Location
 
             if ($resourceGroups.Count -eq 0) {
               Write-Host "No resource groups found to delete." -ForegroundColor Yellow
