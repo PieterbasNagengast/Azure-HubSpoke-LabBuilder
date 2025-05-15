@@ -20,7 +20,7 @@ on:
 
 permissions:
   id-token: write
-  
+    
 jobs:
   GetSubscriptionIDs:
     name: "Gather Subscription IDs"
@@ -28,7 +28,7 @@ jobs:
     steps:
       - name: Get Subscription IDs
         env:
-          subscriptionIDs: ${{ secrets.SUBSCRIPTION_IDS }}
+          subscriptionIDs: ${{ secrets.LOCATIONS }}
         run: |
           echo "--------------------------------"
           echo "Subscription IDs to be cleaned up: ${{ toJson(fromJson(env.subscriptionIDs)) }}"
