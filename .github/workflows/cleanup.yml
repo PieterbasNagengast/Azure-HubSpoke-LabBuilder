@@ -27,14 +27,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Get Subscription IDs
-        env:
-          subscriptionIDs: ${{ secrets.LOCATIONS }}
+        shell: pwsh
         run: |
-          echo "--------------------------------"
-          subIDs=${{ secrets.LOCATIONS }}
-          echo "Subscription IDs to be cleaned up: $subIDs"
-          echo "Type to be cleaned up: ${{ inputs.Type }}"
-          echo "--------------------------------"
+          Write-Host "--------------------------------"
+          $subIDs = "${{ secrets.LOCATIONS }}"
+          Write-Host "Subscription IDs to be cleaned up: $subIDs"
+          Write-Host "Type to be cleaned up: ${{ inputs.Type }}"
+          Write-Host "--------------------------------"
 
   # removeResources:
   #   name: "Remove ${{ inputs.Type }} resources, Sub${{ strategy.job-index }}"
