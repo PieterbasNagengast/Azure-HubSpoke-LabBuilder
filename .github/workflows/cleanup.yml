@@ -44,7 +44,8 @@ jobs:
             $resourceGroups | Format-Table ResourceGroupName, Location
 
             if ($resourceGroups.Count -eq 0) {
-              Write-Host "No resource groups found to delete."
+              Write-Host "No resource groups found to delete." -ForegroundColor Yellow
+              Write-Host "Exiting without deleting anything." -ForegroundColor Yellow
               exit 0
             } else {
               Write-Host "Found $($resourceGroups.Count) resource groups to delete."
