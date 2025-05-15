@@ -203,8 +203,6 @@ jobs:
     if: ${{ inputs.Cleanup && !inputs.OnlyValidate }}
     needs: DeployScenarios
     uses: ./.github/workflows/cleanup.yml
-    with:
-        Type: ${{ inputs.Type }}
     secrets:
         inherit
 
