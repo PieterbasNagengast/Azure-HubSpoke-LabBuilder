@@ -41,10 +41,11 @@ jobs:
     steps:
       - name: Get Subscription IDs
         shell: pwsh
+        env:
+          subscriptionIDs: ${{ secrets.LOCATIONS }}
         run: |
           Write-Host "--------------------------------"
-          $subIDs = "${{ secrets.LOCATIONS }}"
-          Write-Host "Subscription IDs to be cleaned up: $subIDs"
+          Write-Host "Subscription IDs to be cleaned up:${{ env.subscriptionIDs}}"
           Write-Host "Type to be cleaned up: ${{ inputs.Type }}"
           Write-Host "--------------------------------"
 
