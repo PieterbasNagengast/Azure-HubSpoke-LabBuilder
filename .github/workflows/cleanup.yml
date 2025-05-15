@@ -49,9 +49,7 @@ jobs:
             }
 
             Write-Host "Waiting for all deletion jobs to complete..."
-            $jobs | ForEach-Object { 
-              Receive-Job -Job $_ -Wait -AutoRemoveJob 
-            }
+            Receive-Job -Job $jobs -Wait -AutoRemoveJob 
             Write-Host "All resource groups deleted."
 
           
