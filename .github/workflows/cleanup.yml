@@ -29,15 +29,16 @@ jobs:
             $resourceGroups = Get-AzResourceGroup -Tag @{ LabBuilder = "validation" }
 
             if ($resourceGroups.Count -eq 0) {
-              Write-Host "No resource groups found to delete." -ForegroundColor Yellow
-              Write-Host "Exiting without deleting anything." -ForegroundColor Yellow
+              Write-Host "No resource groups found to delete."
+              Write-Host "Exiting without deleting anything."
               exit 0
             } else {
               Write-Host "Found $($resourceGroups.Count) resource groups to deleted:"
               $resourceGroups | Format-Table -Property ResourceGroupName, Location, Tags
               Write-Host "Removing Resource groups..."
               foreach ($rg in $resourceGroups) {
-                Remove-AzResourceGroup -Name $rg.ResourceGroupName -Force -AsJob
+                Remove-AzResourceGroup -Name $rg.ResourceGroupName -Force -NoWait
+                Write-Host "Deleted resource group: $($rg.ResourceGroupName)"
               }
             }
 
