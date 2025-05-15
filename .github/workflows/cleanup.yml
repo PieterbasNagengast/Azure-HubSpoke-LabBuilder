@@ -27,6 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Azure Login
+        id: login
         uses: azure/login@v2
         with:
           enable-AzPSSession: true
@@ -34,21 +35,23 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       - name: Cleanup
-        shell: pwsh
-        run: |
-          Write-Host "List of Resource groups to be deleted...."
-          $resourceGroups = Get-AzResourceGroup -Tag @{ LabBuilder = "Validation"; LabBuilderType = "${{ inputs.Type }}" }
-          $resourceGroups | Format-Table ResourceGroupName, Location
+        uses: azure/powershell@v2
+        with:
+          azPSVersion: 'latest'
+          inlineScript: |
+            Write-Host "List of Resource groups to be deleted...."
+            $resourceGroups = Get-AzResourceGroup -Tag @{ LabBuilder = "Validation"; LabBuilderType = "${{ inputs.Type }}" }
+            $resourceGroups | Format-Table ResourceGroupName, Location
 
-          if ($resourceGroups.Count -eq 0) {
-            Write-Host "No resource groups found to delete."
-            exit 0
-          } else {
-            Write-Host "Found $($resourceGroups.Count) resource groups to delete."
-            Write-Host "Removing Resource groups..."
-            foreach ($rg in $resourceGroups) {
-              Remove-AzResourceGroup -Name $rg.ResourceGroupName -Force -AsJob
+            if ($resourceGroups.Count -eq 0) {
+              Write-Host "No resource groups found to delete."
+              exit 0
+            } else {
+              Write-Host "Found $($resourceGroups.Count) resource groups to delete."
+              Write-Host "Removing Resource groups..."
+              foreach ($rg in $resourceGroups) {
+                Remove-AzResourceGroup -Name $rg.ResourceGroupName -Force -AsJob
+              }
             }
-          }
 
           
