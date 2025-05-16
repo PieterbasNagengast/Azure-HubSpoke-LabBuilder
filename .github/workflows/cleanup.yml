@@ -16,40 +16,32 @@ jobs:
         id: login
         uses: azure/login@v2
         with:
-          enable-AzPSSession: true
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       - name: Cleanup
-        uses: azure/powershell@v2
+        uses: azure/CLI@v1
         with:
-          azPSVersion: 'latest'
           inlineScript: |
-            Write-Host "Searching for resource groups tagged with LabBuilder=validation..."
-            $resourceGroups = Get-AzResourceGroup -Tag @{ LabBuilder = "validation" }
+            echo "Searching for resource groups tagged with LabBuilder=validation..."
+            resourceGroups=$(az group list --tag LabBuilder=validation --query "[].name" -o tsv)
 
-            if (-not $resourceGroups) {
-              Write-Host "No resource groups found to delete. Exiting."
+            if [ -z "$resourceGroups" ]; then
+              echo "No resource groups found to delete. Exiting."
               exit 0
-            }
+            fi
 
-            Write-Host "Found $($resourceGroups.Count) resource group(s) to delete:"
-            $resourceGroups | Select-Object ResourceGroupName, Location, Tags | Format-Table -AutoSize
+            echo "Found resource groups to delete:"
+            echo "$resourceGroups"
 
-            $jobs = @()
-            foreach ($rg in $resourceGroups) {
-              Write-Host "Starting deletion job for resource group: $($rg.ResourceGroupName)..."
-              $jobs += Start-Job -ScriptBlock {
-                param($rgName)
-                Import-Module Az.Resources
-                Write-Host "Deleting resource group: $rgName..."
-                Remove-AzResourceGroup -Name $rgName -Force -ErrorAction Stop
-                Write-Host "Deleted: $rgName"
-              } -ArgumentList $rg.ResourceGroupName
-            }
+            # Issue all deletes in parallel with --no-wait
+            for rg in $resourceGroups; do
+              echo "Deleting resource group: $rg..."
+              az group delete --name "$rg" --yes --no-wait &
+            done
 
-            Write-Host "Waiting for all deletion jobs to complete..."
-            Receive-Job -Job $jobs -Wait -AutoRemoveJob 
-            Write-Host "All resource groups deleted."
+            wait
+
+            echo "All delete commands issued with --no-wait. Cleanup step complete."
 
           
