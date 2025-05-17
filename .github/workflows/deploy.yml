@@ -177,16 +177,16 @@ jobs:
       - name: "Waiting for vWAN routing to finish deploying"
         if: ${{ inputs.Type == 'vwan' && !inputs.OnlyValidate }}
         run: |
-          echo "Got vWAN Hub IDs: echo '${{ steps.deploy.outputs.vWanHubIDs }}' | jq -r '.[]'"
+          echo "Got vWAN Hub IDs: ${{ steps.deploy.outputs.vWanHubIDs }}""
           az config set extension.use_dynamic_install=yes_without_prompt
             for hubId in $(echo '${{ steps.deploy.outputs.vWanHubIDs }}' | jq -r '.[]')
           do
             hubName=$(echo "$hubId" | awk -F'/' '{print $NF}')
-            echo "Checking status for vWAN Hub:: $hubName"
+            echo "Checking status for vWAN Hub: $hubName"
             while true
             do
-              routing_status=$(az network vhub show --ids $hubID --query routingState -o tsv)
-              provisioning_status=$(az network vhub show --ids $hubID --query provisioningState -o tsv)
+              routing_status=$(az network vhub show --ids $hubId --query routingState -o tsv)
+              provisioning_status=$(az network vhub show --ids $hubId --query provisioningState -o tsv)
               echo "Current vWAN Hub Routing status for $hubName: $routing_status"
               echo "Current vWAN Hub Provisioning status for $hubName: $provisioning_status"
               if [ "$routing_status" != "Provisioning" ] && [ "$provisioning_status" != "Updating" ]; then
