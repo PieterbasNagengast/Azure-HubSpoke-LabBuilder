@@ -174,32 +174,29 @@ jobs:
           echo "${{ steps.deploy.outputs.vWanHubIDs }}" 
           echo "----"
 
-      - name: "Waiting for vWAN routing to finish deploying"
-        uses: ./.github/workflows/wait_for_vwan.yml
-
-        # if: ${{ inputs.Type == 'vwan' && !inputs.OnlyValidate }}
-        # id: wait_for_vwan
-        # run: |
-        #   echo "Got vWAN Hub IDs: ${{ steps.deploy.outputs.vWanHubIDs }}"
-        #   az config set extension.use_dynamic_install=yes_without_prompt
-        #     for hubId in $(echo '${{ steps.deploy.outputs.vWanHubIDs }}' | jq -r '.[]')
-        #   do
-        #     hubName=$(echo "$hubId" | awk -F'/' '{print $NF}')
-        #     echo "Checking status for vWAN Hub: $hubName"
-        #     while true
-        #     do
-        #       routing_status=$(az network vhub show --ids $hubId --query routingState -o tsv)
-        #       provisioning_status=$(az network vhub show --ids $hubId --query provisioningState -o tsv)
-        #       echo "Current vWAN Hub Routing status for $hubName: $routing_status"
-        #       echo "Current vWAN Hub Provisioning status for $hubName: $provisioning_status"
-        #       if [ "$routing_status" != "Provisioning" ] && [ "$provisioning_status" != "Updating" ]; then
-        #       echo "vWAN Hub Routing status for $hubName: $routing_status"
-        #       echo "vWAN Hub Provisioning status for $hubName: $provisioning_status"
-        #       break
-        #       fi
-        #       sleep 10
-        #     done
-        #   done
+      - name: "Waiting for vWAN to finish deploying"
+        if: ${{ inputs.Type == 'vwan' && !inputs.OnlyValidate }}
+        id: wait_for_vwan
+        run: |
+          echo "Got vWAN Hub IDs: ${{ steps.deploy.outputs.vWanHubIDs }}"
+          az config set extension.use_dynamic_install=yes_without_prompt
+          hubIds=$(echo '${{ steps.deploy.outputs.vWanHubIDs }}' | jq -r '.[]')
+          for hubId in $hubIds; do
+            hubName=${hubId##*/}
+            echo "Checking status for vWAN Hub: $hubName"
+            while :; do
+              hub_status=$(az network vhub show --ids "$hubId" --query '{routingState:routingState, provisioningState:provisioningState}' -o json)
+              routing_status=$(echo "$hub_status" | jq -r '.routingState')
+              provisioning_status=$(echo "$hub_status" | jq -r '.provisioningState')
+              echo "Current Routing status for $hubName: $routing_status"
+              echo "Current Provisioning status for $hubName: $provisioning_status"
+              if [[ "$routing_status" != "Provisioning" && "$provisioning_status" != "Updating" ]]; then
+                echo "vWAN Hub $hubName deployment completed."
+                break
+              fi
+              sleep 10
+            done
+          done
   
   Cleanup:
     name: "Cleanup deployments"
