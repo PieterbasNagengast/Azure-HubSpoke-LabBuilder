@@ -1,4 +1,4 @@
-name: "LabBuilder - Deploy Scenarios"
+name: LabBuilder - Deploy Scenarios
 
 on:
   workflow_dispatch:
@@ -165,7 +165,7 @@ jobs:
             "onpremRgName": "LabBuilderValidation-${{ inputs.Type }}-onprem"
             }
       
-      - name: "Get LabBuilder deployment outputs"
+      - name: "Get vWAN Hub IDs from deployment"
         id: get_outputs
         if: ${{ inputs.Type == 'vwan' && !inputs.OnlyValidate }}
         run: |
@@ -177,7 +177,7 @@ jobs:
       - name: "Waiting for vWAN routing to finish deploying"
         if: ${{ inputs.Type == 'vwan' && !inputs.OnlyValidate }}
         run: |
-          echo "Got vWAN Hub IDs: ${{ steps.deploy.outputs.vWanHubIDs }}""
+          echo "Got vWAN Hub IDs: ${{ steps.deploy.outputs.vWanHubIDs }}"
           az config set extension.use_dynamic_install=yes_without_prompt
             for hubId in $(echo '${{ steps.deploy.outputs.vWanHubIDs }}' | jq -r '.[]')
           do
