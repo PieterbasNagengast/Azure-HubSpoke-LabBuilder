@@ -8,12 +8,10 @@ param tagsByResource = {
   }
 }
 param deploySpokes = true
-param spokeRgNamePrefix = 'LabBuilderValidation-spoke'
 param amountOfSpokes = 2
 param deployVMsInSpokes = false
 param deployHUB = true
 param hubType = 'VNET'
-param hubRgName = 'LabBuilderValidation-hub'
 param deployBastionInHub = false
 param deployGatewayInHub = false
 param deployFirewallInHub = false
@@ -22,7 +20,6 @@ param deployFirewallrules = false
 param hubBgp = false
 param hubBgpAsn = 65010
 param deployOnPrem = true
-param onpremRgName = 'LabBuilderValidation-onprem'
 param deployBastionInOnPrem = false
 param deployVMinOnPrem = false
 param deployGatewayinOnPrem = false
