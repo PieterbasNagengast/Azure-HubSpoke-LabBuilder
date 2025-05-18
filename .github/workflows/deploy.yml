@@ -139,7 +139,8 @@ jobs:
             "locations": ${{ secrets.LOCATIONS }},
             "spokeRgNamePrefix": "LabBuilderValidation-${{ inputs.Type }}-spoke",
             "hubRgName": "LabBuilderValidation-${{ inputs.Type }}-hub",
-            "onpremRgName": "LabBuilderValidation-${{ inputs.Type }}-onprem"
+            "onpremRgName": "LabBuilderValidation-${{ inputs.Type }}-onprem",
+            "avnmRgName": "LabBuilderValidation-${{ inputs.Type }}"
             }
       - name: "Deploy ${{ inputs.Type }} scenario ${{ strategy.job-index }}"
         id: deploy
@@ -162,7 +163,8 @@ jobs:
             "locations": ${{ secrets.LOCATIONS }},
             "spokeRgNamePrefix": "LabBuilderValidation-${{ inputs.Type }}-spoke",
             "hubRgName": "LabBuilderValidation-${{ inputs.Type }}-hub",
-            "onpremRgName": "LabBuilderValidation-${{ inputs.Type }}-onprem"
+            "onpremRgName": "LabBuilderValidation-${{ inputs.Type }}-onprem",
+            "avnmRgName": "LabBuilderValidation-${{ inputs.Type }}"
             }
       
       - name: "Get vWAN Hub IDs from deployment"
