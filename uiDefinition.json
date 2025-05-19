@@ -10,6 +10,33 @@
 					"label": "Basics",
 					"elements": [
 						{
+							"name": "Intro",
+							"type": "Microsoft.Common.Section",
+							"label": "Azure Hub & Spoke Playground - Basics",
+							"elements": [
+								{
+									"name": "IntroText",
+									"type": "Microsoft.Common.TextBlock",
+									"options": {
+										"text": "The Hub & Spoke Lab Builder playground allows you to deploy a Hub & Spoke or Virtual WAN (vWAN) network topology in Azure, supporting both single and multi-region setups. You can selectively deploy components such as Hubs, Spokes, and simulated On-Premises environments. Within each section, you can choose to include resources like VNETs, vWAN, Bastion, VPN Gateway,Virtual Machines and Azure Firewall.",
+										"link": {
+											"label": "Learn more",
+											"uri": "https://github.com/PieterbasNagengast/Azure-HubSpoke-LabBuilder"
+										}
+									}
+								},
+								{
+									"name": "infoBox",
+									"type": "Microsoft.Common.InfoBox",
+									"options": {
+										"style": "Info",
+										"text": "Select below a Subscription and Region for the deployment. The selected subscription and region will be used for the inital deployment. You can select Subscriptions and Regions for resources on specific tabs for Hub, Spoke and OnPrem."
+									},
+									"visible": true
+								}
+							]
+						},
+						{
 							"name": "resourceScope",
 							"type": "Microsoft.Common.ResourceScope"
 						}
@@ -22,13 +49,13 @@
 						{
 							"name": "Intro",
 							"type": "Microsoft.Common.Section",
-							"label": "Azure Hub & Spoke Playground - Basics",
+							"label": "Azure Hub & Spoke Playground - Regions(s)",
 							"elements": [
 								{
 									"name": "IntroText",
 									"type": "Microsoft.Common.TextBlock",
 									"options": {
-										"text": "This template will deploy a Hub & Spoke topology in Azure. The topology can be used to test and learn about Azure networking. The template will deploy a Hub VNET, Spoke VNET's and optionally an OnPrem VNET. The template will also deploy VM's in the VNET's.",
+										"text": "Specify if you want to deploy in single or multi region. If you choose to deploy in multiple regions, the regions cannot be the same. The address spaces for the VNET's in the different regions also cannot be the same. The address space must be a /16 subnet (per region).",
 										"link": {
 											"label": "Learn more",
 											"uri": "https://github.com/PieterbasNagengast/Azure-HubSpoke-LabBuilder"
@@ -138,7 +165,7 @@
 				},
 				{
 					"name": "Hub",
-					"label": "Hub",
+					"label": "Hub(s)",
 					"elements": [
 						{
 							"name": "Intro",
@@ -161,7 +188,7 @@
 						{
 							"name": "Deploy",
 							"type": "Microsoft.Common.OptionsGroup",
-							"label": "Deploy Hub",
+							"label": "Deploy Hub(s)",
 							"defaultValue": "yes",
 							"toolTip": "Deploy Hub VNET",
 							"constraints": {

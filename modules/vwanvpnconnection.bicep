@@ -12,6 +12,7 @@ param sharedKey string
 param tagsByResource object = {}
 param propagateToNoneRouteTable bool
 param addressPrefixes array
+param routingIntent bool
 
 resource vpnsiteNoBgp 'Microsoft.Network/vpnSites@2024-05-01' = if (!enableBgp) {
   name: vpnSiteName
@@ -85,28 +86,30 @@ resource vpnconnection 'Microsoft.Network/vpnGateways/vpnConnections@2024-05-01'
     remoteVpnSite: {
       id: enableBgp ? vpnsiteBgp.id : vpnsiteNoBgp.id
     }
-    routingConfiguration: {
-      associatedRouteTable: {
-        id: resourceId('Microsoft.Network/virtualHubs/hubRouteTables', vwanHubName, 'defaultRouteTable')
-      }
-      propagatedRouteTables: {
-        ids: [
-          {
-            id: resourceId(
-              'Microsoft.Network/virtualHubs/hubRouteTables',
-              vwanHubName,
-              propagateToNoneRouteTable ? 'noneRouteTable' : 'defaultRouteTable'
-            )
+    routingConfiguration: routingIntent
+      ? {}
+      : {
+          associatedRouteTable: {
+            id: resourceId('Microsoft.Network/virtualHubs/hubRouteTables', vwanHubName, 'defaultRouteTable')
           }
-        ]
-        labels: [
-          propagateToNoneRouteTable ? '' : 'default'
-        ]
-      }
-      vnetRoutes: {
-        staticRoutes: []
-      }
-    }
+          propagatedRouteTables: {
+            ids: [
+              {
+                id: resourceId(
+                  'Microsoft.Network/virtualHubs/hubRouteTables',
+                  vwanHubName,
+                  propagateToNoneRouteTable ? 'noneRouteTable' : 'defaultRouteTable'
+                )
+              }
+            ]
+            labels: [
+              propagateToNoneRouteTable ? '' : 'default'
+            ]
+          }
+          vnetRoutes: {
+            staticRoutes: []
+          }
+        }
     vpnLinkConnections: [
       {
         name: '${vpnSiteName}-Link'

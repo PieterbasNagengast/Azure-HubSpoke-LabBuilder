@@ -338,6 +338,7 @@ module vwans2s 'vWanVpnConnections.bicep' = if (deployVPNConnectionsVWAN) {
     onPremSubscriptionID: onPremSubscriptionID
     deployFirewallInHub: deployFirewallInHub && deployVPNConnectionsVWAN
     isCrossRegion: false
+    routingIntent: internetTrafficRoutingPolicy || privateTrafficRoutingPolicy
   }
 }
 

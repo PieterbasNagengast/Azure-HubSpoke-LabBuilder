@@ -32,6 +32,8 @@ param deployFirewallInHub bool
 param hubSubscriptionID string
 param onPremSubscriptionID string
 
+param routingIntent bool = false
+
 param isCrossRegion bool = false
 
 var vWanCrossRegionPostfix = isCrossRegion ? '-CrossRegion' : ''
@@ -85,5 +87,6 @@ module vpnvWan 'modules/vwanvpnconnection.bicep' = {
     sharedKey: sharedKey
     tagsByResource: tagsByResource
     propagateToNoneRouteTable: deployFirewallInHub
+    routingIntent: routingIntent
   }
 }
