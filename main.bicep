@@ -413,6 +413,7 @@ module CrossRegionVPNConnections 'VpnCrossRegionConnections.bicep' = [
 
       sharedKey: sharedKey
       tagsByResource: tagsByResource
+      routingIntent: internetTrafficRoutingPolicy || privateTrafficRoutingPolicy
     }
   }
 ]

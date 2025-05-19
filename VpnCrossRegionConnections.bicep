@@ -9,6 +9,8 @@ param OnPrem _VPNSettings.OnPrem
 param sharedKey string
 param tagsByResource object
 
+param routingIntent bool
+
 var isvWan = HubVPN.type == 'VWAN'
 var isvNet = HubVPN.type == 'VNET'
 
@@ -72,5 +74,6 @@ module vwans2s 'vWanVpnConnections.bicep' = if (isvWan) {
     onPremSubscriptionID: split(OnPrem.GatewayID, '/')[2]
     deployFirewallInHub: HubVPN.propagateToNoneRouteTable
     isCrossRegion: true
+    routingIntent: routingIntent
   }
 }
