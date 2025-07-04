@@ -1,6 +1,6 @@
 targetScope = 'subscription'
 
-import { _Locations, _VPNSettings } from './types.bicep'
+import { _Locations } from './types.bicep'
 
 // Define the locations for the Lab deployment. max 2 locations. min 1 location.
 param locations _Locations = [
