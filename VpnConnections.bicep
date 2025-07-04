@@ -29,7 +29,7 @@ param OnPremAddressPrefixes array
 param hubSubscriptionID string
 param onPremSubscriptionID string
 
-resource onpremrg 'Microsoft.Resources/resourceGroups@2023-07-01' existing = {
+resource onpremrg 'Microsoft.Resources/resourceGroups@2025-04-01' existing = {
   scope: subscription(onPremSubscriptionID)
   name: OnPremRgName
 }
@@ -52,7 +52,7 @@ module onprem2hub 'modules/vpnconnection.bicep' = {
   }
 }
 
-resource hubrg 'Microsoft.Resources/resourceGroups@2023-07-01' existing = {
+resource hubrg 'Microsoft.Resources/resourceGroups@2025-04-01' existing = {
   scope: subscription(hubSubscriptionID)
   name: HubRgName
 }

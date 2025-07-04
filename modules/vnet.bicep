@@ -69,7 +69,7 @@ var gatewaySubnet = deployGatewaySubnet
     ]
   : []
 
-resource vnet 'Microsoft.Network/virtualNetworks@2023-06-01' = {
+resource vnet 'Microsoft.Network/virtualNetworks@2024-07-01' = {
   name: vnetname
   location: location
   properties: {

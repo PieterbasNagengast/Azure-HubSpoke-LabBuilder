@@ -39,7 +39,7 @@ param isCrossRegion bool = false
 var vWanCrossRegionPostfix = isCrossRegion ? '-CrossRegion' : ''
 
 // OnPrem VPN Local Gateway and Connection
-resource onpremrg 'Microsoft.Resources/resourceGroups@2023-07-01' existing = {
+resource onpremrg 'Microsoft.Resources/resourceGroups@2025-04-01' existing = {
   scope: subscription(onPremSubscriptionID)
   name: OnPremRgName
 }
@@ -65,7 +65,7 @@ module vpnOnPrem 'modules/vpnconnection.bicep' = [
 ]
 
 // vWAN VPN Site and VPN Connection
-resource hubrg 'Microsoft.Resources/resourceGroups@2023-07-01' existing = {
+resource hubrg 'Microsoft.Resources/resourceGroups@2025-04-01' existing = {
   scope: subscription(hubSubscriptionID)
   name: HubRgName
 }

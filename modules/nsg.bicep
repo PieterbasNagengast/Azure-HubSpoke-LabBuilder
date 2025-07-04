@@ -81,7 +81,7 @@ var securityRules = isBastionNSG
     ]
   : []
 
-resource nsg 'Microsoft.Network/networkSecurityGroups@2023-06-01' = {
+resource nsg 'Microsoft.Network/networkSecurityGroups@2024-07-01' = {
   name: nsgName
   location: location
   tags: tagsByResource[?'Microsoft.Network/networkSecurityGroups'] ?? {}

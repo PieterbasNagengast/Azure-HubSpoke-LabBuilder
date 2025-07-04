@@ -6,7 +6,7 @@ param isMultiRegion bool
 
 var addressSpaces = union(array(AddressSpace), isMultiRegion ? array(SecondRegionAddressSpace) : [])
 
-resource ruleCollectionGroup 'Microsoft.Network/firewallPolicies/ruleCollectionGroups@2023-06-01' = {
+resource ruleCollectionGroup 'Microsoft.Network/firewallPolicies/ruleCollectionGroups@2024-07-01' = {
   name: '${azFwPolicyName}/${ruleCollectiongroupName}'
   properties: {
     priority: 400

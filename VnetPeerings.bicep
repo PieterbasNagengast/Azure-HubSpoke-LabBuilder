@@ -16,7 +16,7 @@ var rgNameB = split(vnetIDB, '/')[4]
 var vnetNameA = split(vnetIDA, '/')[8]
 var vnetNameB = split(vnetIDB, '/')[8]
 
-resource rgA 'Microsoft.Resources/resourceGroups@2023-07-01' existing = {
+resource rgA 'Microsoft.Resources/resourceGroups@2025-04-01' existing = {
   scope: subscription(subscriptionA)
   name: rgNameA
 }
@@ -35,7 +35,7 @@ module peeringAtoB 'modules/vnetpeeering.bicep' = {
   ]
 }
 
-resource rgB 'Microsoft.Resources/resourceGroups@2023-07-01' existing = {
+resource rgB 'Microsoft.Resources/resourceGroups@2025-04-01' existing = {
   scope: subscription(subscriptionB)
   name: rgNameB
 }

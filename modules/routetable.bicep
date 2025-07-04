@@ -4,7 +4,7 @@ param disableRouteProp bool = true
 param tagsByResource object = {}
 param isFirewallSubnet bool = false
 
-resource rt 'Microsoft.Network/routeTables@2023-06-01' = {
+resource rt 'Microsoft.Network/routeTables@2024-07-01' = {
   name: rtName
   location: location
   properties: {

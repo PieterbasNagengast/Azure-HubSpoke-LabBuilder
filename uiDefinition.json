@@ -1246,7 +1246,8 @@
 								"Microsoft.Insights/dataCollectionRules",
 								"Microsoft.Network/networkManagers",
 								"Microsoft.Resources/deploymentScripts",
-								"Microsoft.ManagedIdentity/userAssignedIdentities"
+								"Microsoft.ManagedIdentity/userAssignedIdentities",
+								"Microsoft.Network/networkInterfaces"
 							]
 						}
 					]

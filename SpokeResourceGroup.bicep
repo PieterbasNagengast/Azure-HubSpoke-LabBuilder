@@ -28,7 +28,7 @@ var nsgName = 'NSG-Spoke${counter}-${shortLocationCode}'
 
 var defaultSubnetPrefix = cidrSubnet(AddressSpace, 26, 0)
 
-resource spokerg 'Microsoft.Resources/resourceGroups@2023-07-01' = {
+resource spokerg 'Microsoft.Resources/resourceGroups@2025-04-01' = {
   name: spokeRgName
   location: location
   tags: tagsByResource[?'Microsoft.Resources/subscriptions/resourceGroups'] ?? {}

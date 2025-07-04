@@ -12,7 +12,7 @@ param tagsByResource object = {}
 param AzFwPrivateIP string
 param userAssignedIdentityId string
 
-resource avnmrg 'Microsoft.Resources/resourceGroups@2023-07-01' existing = {
+resource avnmrg 'Microsoft.Resources/resourceGroups@2025-04-01' existing = {
   name: avnmRgName
 }
 

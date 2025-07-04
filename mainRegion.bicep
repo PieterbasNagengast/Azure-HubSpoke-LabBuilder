@@ -108,7 +108,7 @@ var isVwanHub = hubType == 'VWAN'
 var varHubRgName = '${hubRgName}-${shortLocationCode}'
 
 // Create the resource group for the hub
-resource hubrg 'Microsoft.Resources/resourceGroups@2023-07-01' = if (deployHUB && isVnetHub) {
+resource hubrg 'Microsoft.Resources/resourceGroups@2025-04-01' = if (deployHUB && isVnetHub) {
   name: varHubRgName
   location: location
   tags: tagsByResource[?'Microsoft.Resources/subscriptions/resourceGroups'] ?? {}

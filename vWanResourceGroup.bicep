@@ -22,7 +22,7 @@ var gatewayName = 'Gateway-Hub-${shortLocationCode}'
 var vwanHubName = 'HUB-${shortLocationCode}'
 
 // Reference existing the resource group for the hub
-resource hubrg 'Microsoft.Resources/resourceGroups@2023-07-01' existing = {
+resource hubrg 'Microsoft.Resources/resourceGroups@2025-04-01' existing = {
   name: hubRgName
 }
 

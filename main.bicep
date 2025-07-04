@@ -240,7 +240,7 @@ var deployVWAN = deployHUB && isVwanHub
 
 // VWAN
 // Create resource group for the vWAN
-resource vwanhubrg 'Microsoft.Resources/resourceGroups@2023-07-01' = if (deployVWAN) {
+resource vwanhubrg 'Microsoft.Resources/resourceGroups@2025-04-01' = if (deployVWAN) {
   name: hubRgName
   location: locations[0].region
   tags: tagsByResource[?'Microsoft.Resources/subscriptions/resourceGroups'] ?? {}
@@ -262,7 +262,7 @@ var deployAVNM = deployHUB && deploySpokes && isVnetHub && deployVnetPeeringAVNM
 
 // AVNM
 // Create resource group for AVNM
-resource avnmrg 'Microsoft.Resources/resourceGroups@2023-07-01' = if (deployAVNM) {
+resource avnmrg 'Microsoft.Resources/resourceGroups@2025-04-01' = if (deployAVNM) {
   name: avnmRgName
   location: locations[0].region
   tags: tagsByResource[?'Microsoft.Resources/subscriptions/resourceGroups'] ?? {}
@@ -282,7 +282,7 @@ module avnmmanager 'modules/avnmmanager.bicep' = if (deployAVNM) {
 
 // VMInsights DCR
 // Create resource group for DCR
-resource dcrrg 'Microsoft.Resources/resourceGroups@2023-07-01' = if (!empty(diagnosticWorkspaceId)) {
+resource dcrrg 'Microsoft.Resources/resourceGroups@2025-04-01' = if (!empty(diagnosticWorkspaceId)) {
   name: dcrRgName
   location: locations[0].region
   tags: tagsByResource[?'Microsoft.Resources/subscriptions/resourceGroups'] ?? {}
@@ -418,6 +418,7 @@ module CrossRegionVPNConnections 'VpnCrossRegionConnections.bicep' = [
   }
 ]
 
+// Outputs
 output vWanHubIDs array = [for (location, i) in locations: deployVWAN ? deployRegion[i].outputs.vWanHubID : 'noVWAN']
 output subscriptionIDs array = union(
   deployHUB ? map(locations, loc => loc.hubSubscriptionID) : [],

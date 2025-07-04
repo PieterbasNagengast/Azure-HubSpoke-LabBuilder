@@ -35,7 +35,7 @@ var gatewayName = 'Gateway-Hub-${shortLocationCode}'
 var bastionNsgName = 'NSG-Bastion-Hub-${shortLocationCode}'
 
 // reference existing the resource group for the hub
-resource hubrg 'Microsoft.Resources/resourceGroups@2023-07-01' existing = {
+resource hubrg 'Microsoft.Resources/resourceGroups@2025-04-01' existing = {
   name: hubRgName
   // location: location
   // tags: tagsByResource[?'Microsoft.Resources/subscriptions/resourceGroups'] ?? {}

@@ -33,7 +33,7 @@ var bastionSubnetPrefix = cidrSubnet(AddressSpace, 26, 1)
 var gatewaySubnetPrefix = cidrSubnet(AddressSpace, 26, 2)
 
 // Create a resource group
-resource onpremrg 'Microsoft.Resources/resourceGroups@2023-07-01' = {
+resource onpremrg 'Microsoft.Resources/resourceGroups@2025-04-01' = {
   name: varOnPremRgName
   location: location
   tags: tagsByResource[?'Microsoft.Resources/subscriptions/resourceGroups'] ?? {}

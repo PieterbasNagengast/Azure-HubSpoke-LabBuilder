@@ -119,7 +119,7 @@ resource dcrassociation 'Microsoft.Insights/dataCollectionRuleAssociations@2023-
   }
 }
 
-resource nic 'Microsoft.Network/networkInterfaces@2023-06-01' = {
+resource nic 'Microsoft.Network/networkInterfaces@2024-07-01' = {
   name: '${vmName}-nic'
   location: location
   properties: {
@@ -136,7 +136,7 @@ resource nic 'Microsoft.Network/networkInterfaces@2023-06-01' = {
       }
     ]
   }
-  tags: tagsByResource[?'Microsoft.Compute/virtualMachines'] ?? {}
+  tags: tagsByResource[?'Microsoft.Network/networkInterfaces'] ?? {}
 }
 
 module run 'runcommand.bicep' = if (osType == 'Windows') {

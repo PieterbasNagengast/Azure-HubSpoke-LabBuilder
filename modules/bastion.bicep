@@ -33,7 +33,7 @@ resource bastion 'Microsoft.Network/bastionHosts@2024-01-01' = {
   tags: tagsByResource[?'Microsoft.Network/bastionHosts'] ?? {}
 }
 
-resource bastionpip 'Microsoft.Network/publicIPAddresses@2023-06-01' = {
+resource bastionpip 'Microsoft.Network/publicIPAddresses@2024-07-01' = {
   name: '${bastionName}-pip'
   location: location
   properties: {
