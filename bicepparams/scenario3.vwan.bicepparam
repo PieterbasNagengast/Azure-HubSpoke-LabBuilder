@@ -1,7 +1,6 @@
 using '../main.bicep'
 param adminUsername = ''
 param adminPassword = ''
-param AddressSpace = '172.16.0.0/16'
 param tagsByResource = {
   'Microsoft.Resources/subscriptions/resourceGroups': {
     LabBuilder: 'validation'
@@ -9,12 +8,10 @@ param tagsByResource = {
   }
 }
 param deploySpokes = true
-param spokeRgNamePrefix = 'LabBuilderValidation-spoke'
 param amountOfSpokes = 2
 param deployVMsInSpokes = true
 param deployHUB = true
 param hubType = 'VWAN'
-param hubRgName = 'LabBuilderValidation-hub'
 param deployBastionInHub = false
 param deployGatewayInHub = false
 param deployFirewallInHub = true
@@ -23,7 +20,6 @@ param deployFirewallrules = true
 param hubBgp = false
 param hubBgpAsn = 65515
 param deployOnPrem = true
-param onpremRgName = 'LabBuilderValidation-onprem'
 param deployBastionInOnPrem = true
 param deployVMinOnPrem = true
 param deployGatewayinOnPrem = false

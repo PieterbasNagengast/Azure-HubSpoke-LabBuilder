@@ -5,7 +5,7 @@ param allowGatewayTransit bool
 param allowVirtualNetworkAccess bool = true
 param useRemoteGateways bool
 
-resource peering 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2023-06-01' = {
+resource peering 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2024-07-01' = {
   name: peeringName
   properties: {
     remoteVirtualNetwork: {

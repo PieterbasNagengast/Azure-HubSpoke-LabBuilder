@@ -1,4 +1,5 @@
 targetScope = 'subscription'
+param shortLocationCode string
 param vwanHubName string
 param SpokeVnetID string
 param HubResourceGroupName string
@@ -9,14 +10,14 @@ param enableRoutingIntent bool = true
 
 var spokeName = split(SpokeVnetID, '/')[8]
 
-resource hubrg 'Microsoft.Resources/resourceGroups@2023-07-01' existing = {
+resource hubrg 'Microsoft.Resources/resourceGroups@2025-04-01' existing = {
   scope: subscription(hubSubscriptionID)
   name: HubResourceGroupName
 }
 
 module vWanVnetConnection 'modules/vwanvnetconnection.bicep' = {
   scope: hubrg
-  name: 'VnetConnection${counter + 1}'
+  name: 'VWAN-VnetConnection${counter + 1}-${shortLocationCode}'
   params: {
     SpokeVnetID: SpokeVnetID
     vwanHubName: vwanHubName

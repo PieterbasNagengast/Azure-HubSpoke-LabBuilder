@@ -1,12 +1,13 @@
 targetScope = 'subscription'
 
-param location string
+param OnPremLocation string
+param HubLocation string
 @secure()
 param sharedKey string
 param enableBgp bool
 param tagsByResource object
 
-//OnPrem
+//OnPrem -> Hub
 param OnPremGatewayID string
 param OnPremRgName string
 param OnPremBgpAsn int
@@ -15,7 +16,7 @@ param HubGatewayPublicIP string
 param HubLocalGatewayName string
 param HubAddressPrefixes array
 
-//Hub
+//Hub - > OnPrem
 param HubGatewayID string
 param HubRgName string
 param HubBgpAsn int
@@ -28,7 +29,7 @@ param OnPremAddressPrefixes array
 param hubSubscriptionID string
 param onPremSubscriptionID string
 
-resource onpremrg 'Microsoft.Resources/resourceGroups@2023-07-01' existing = {
+resource onpremrg 'Microsoft.Resources/resourceGroups@2025-04-01' existing = {
   scope: subscription(onPremSubscriptionID)
   name: OnPremRgName
 }
@@ -40,8 +41,8 @@ module onprem2hub 'modules/vpnconnection.bicep' = {
     LocalGatewayAddressPrefixes: HubAddressPrefixes
     LocalGatewayName: HubLocalGatewayName
     LocalGatewayPublicIP: HubGatewayPublicIP
-    location: location
-    connectionName: 'VPNtoHub'
+    location: OnPremLocation
+    connectionName: 'VPNtoHub-${HubLocation}'
     sharedKey: sharedKey
     VpnGatewayID: OnPremGatewayID
     tagsByResource: tagsByResource
@@ -51,7 +52,7 @@ module onprem2hub 'modules/vpnconnection.bicep' = {
   }
 }
 
-resource hubrg 'Microsoft.Resources/resourceGroups@2023-07-01' existing = {
+resource hubrg 'Microsoft.Resources/resourceGroups@2025-04-01' existing = {
   scope: subscription(hubSubscriptionID)
   name: HubRgName
 }
@@ -63,8 +64,8 @@ module hub2onprem 'modules/vpnconnection.bicep' = {
     LocalGatewayAddressPrefixes: OnPremAddressPrefixes
     LocalGatewayName: OnPremLocalGatewayName
     LocalGatewayPublicIP: OnPremGatewayPublicIP
-    location: location
-    connectionName: 'VPNtoOnPrem'
+    location: HubLocation
+    connectionName: 'VPNtoOnPrem-${OnPremLocation}'
     sharedKey: sharedKey
     VpnGatewayID: HubGatewayID
     tagsByResource: tagsByResource

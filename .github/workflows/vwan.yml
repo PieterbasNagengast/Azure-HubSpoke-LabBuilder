@@ -1,34 +1,45 @@
 name: "LabBuilder - Deploy VWAN Scenarios"
 
 on:
-  push:
-    branches: none
-  pull_request:
-    branches: none
   workflow_dispatch:
     inputs:
-      LabBuilderLocation:
+      MultiOrSingleRegion:
+        description: "Deploy Multi or Single Region?"
         type: choice
         options:
+          - MultiRegion
+          - SingleRegion        
+        default: SingleRegion
+        required: true
+      DeploymentLocation:
+        description: "Location of the deployment"
+        type: choice
+        options:
+          - northeurope
+          - westeurope
           - swedencentral
+          - germanywestcentral
         required: true
         default: swedencentral
-      LabBuilderCleanup:
+      Cleanup:
+        description: "Cleanup the deployment?"
         type: boolean
         required: true
         default: true
       OnlyValidate:
+        description: "Only validate the deployment?"
         type: boolean
         required: true
-        default: false      
-
+        default: false
+        
 jobs:
     Deploy:
         uses: ./.github/workflows/deploy.yml
         with:
-            LabBuilderType: vwan
-            LabBuilderCleanup: ${{ inputs.LabBuilderCleanup }}
-            LabBuilderLocation: ${{ inputs.LabBuilderLocation }}
+            MultiOrSingleRegion: ${{ inputs.MultiOrSingleRegion }}
+            DeploymentLocation: ${{ inputs.DeploymentLocation }}
+            Type: 'vwan'
+            Cleanup: ${{ inputs.Cleanup }}            
             OnlyValidate: ${{ inputs.OnlyValidate }}
         secrets:
             inherit

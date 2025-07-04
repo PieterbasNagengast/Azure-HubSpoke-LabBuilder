@@ -10,35 +10,185 @@
 					"label": "Basics",
 					"elements": [
 						{
-							"name": "resourceScope",
-							"type": "Microsoft.Common.ResourceScope",
-							"location": {
-								"resourceTypes": []
-							}
+							"name": "Intro",
+							"type": "Microsoft.Common.Section",
+							"label": "Azure Hub & Spoke Playground - Basics",
+							"elements": [
+								{
+									"name": "IntroText",
+									"type": "Microsoft.Common.TextBlock",
+									"options": {
+										"text": "The Hub & Spoke Lab Builder playground allows you to deploy a Hub & Spoke or Virtual WAN (vWAN) network topology in Azure, supporting both single and multi-region setups. You can selectively deploy components such as Hubs, Spokes, and simulated On-Premises environments. Within each section, you can choose to include resources like VNETs, vWAN, Bastion, VPN Gateway,Virtual Machines and Azure Firewall.",
+										"link": {
+											"label": "Learn more",
+											"uri": "https://github.com/PieterbasNagengast/Azure-HubSpoke-LabBuilder"
+										}
+									}
+								},
+								{
+									"name": "infoBox",
+									"type": "Microsoft.Common.InfoBox",
+									"options": {
+										"style": "Info",
+										"text": "Select below a Subscription and Region for the deployment. The selected subscription and region will be used for the inital deployment. You can select Subscriptions and Regions for resources on specific tabs for Hub, Spoke and OnPrem."
+									},
+									"visible": true
+								}
+							]
 						},
 						{
-							"name": "AddressSpace",
-							"type": "Microsoft.Common.TextBox",
-							"label": "IP Address Space",
-							"defaultValue": "172.16.0.0/16",
-							"toolTip": "IP Address space used for VNETs in deployment. Only enter a /16 subnet. Default = 172.16.0.0/16",
-							"constraints": {
-								"required": true,
-								"regex": "^(10(?:\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))\\.0\\.0\\/16)|(172\\.(?:1[6-9]|2\\d|3[0-1])\\.0\\.0\\/16)|(192\\.168\\.0\\.0\\/16)",
-								"validationMessage": "The value must match a /16 subnet. 10.[0-255].0.0/16 or 172.[16-31].0.0/16 or 192.168.0.0/16"
-							},
-							"visible": true
+							"name": "resourceScope",
+							"type": "Microsoft.Common.ResourceScope"
 						}
 					]
 				},
 				{
-					"name": "HubVNET",
-					"label": "Hub VNET",
+					"name": "Regions",
+					"label": "Region(s)",
 					"elements": [
 						{
-							"name": "deployHUB",
+							"name": "Intro",
+							"type": "Microsoft.Common.Section",
+							"label": "Azure Hub & Spoke Playground - Regions(s)",
+							"elements": [
+								{
+									"name": "IntroText",
+									"type": "Microsoft.Common.TextBlock",
+									"options": {
+										"text": "Specify if you want to deploy in single or multi region. If you choose to deploy in multiple regions, the regions cannot be the same. The address spaces for the VNET's in the different regions also cannot be the same. The address space must be a /16 subnet (per region).",
+										"link": {
+											"label": "Learn more",
+											"uri": "https://github.com/PieterbasNagengast/Azure-HubSpoke-LabBuilder"
+										}
+									}
+								}
+							]
+						},
+						{
+							"name": "First",
+							"type": "Microsoft.Common.Section",
+							"label": "First Region",
+							"elements": [
+								{
+									"name": "Region",
+									"type": "Microsoft.Common.LocationSelector",
+									"label": "Azure Region:",
+									"scope": {
+										"subscriptionId": "[steps('basics').resourceScope.subscription.subscriptionId]"
+									},
+									"toolTip": "Select a region for deployment, excluding the previously selected region."
+								},
+								{
+									"name": "AddressSpace",
+									"type": "Microsoft.Common.TextBox",
+									"label": "IP Address Space",
+									"defaultValue": "172.16.0.0/16",
+									"toolTip": "IP Address space used for VNETs in deployment. Only enter a /16 subnet. Default = 172.16.0.0/16",
+									"constraints": {
+										"required": true,
+										"regex": "^(10(?:\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))\\.0\\.0\\/16)|(172\\.(?:1[6-9]|2\\d|3[0-1])\\.0\\.0\\/16)|(192\\.168\\.0\\.0\\/16)",
+										"validationMessage": "The value must match a /16 subnet. 10.[0-255].0.0/16 or 172.[16-31].0.0/16 or 192.168.0.0/16"
+									},
+									"visible": true
+								}
+							]
+						},
+						{
+							"name": "DeployMultiRegion",
 							"type": "Microsoft.Common.OptionsGroup",
-							"label": "Deploy Hub",
+							"label": "Deploy in Multi Region?",
+							"defaultValue": "no",
+							"toolTip": "When Multi Region is selected, deploy global VNET Peering between Hub VNET's. only applicable for VNET deployments",
+							"constraints": {
+								"allowedValues": [
+									{
+										"label": "yes",
+										"value": true
+									},
+									{
+										"label": "no",
+										"value": false
+									}
+								]
+							},
+							"visible": true
+						},
+						{
+							"name": "Second",
+							"type": "Microsoft.Common.Section",
+							"label": "Second Region",
+							"elements": [
+								{
+									"name": "Region",
+									"type": "Microsoft.Common.LocationSelector",
+									"label": "Azure Region:",
+									"scope": {
+										"subscriptionId": "[steps('basics').resourceScope.subscription.subscriptionId]"
+									},
+									"toolTip": "Select the second region for deployment. Default = First Region"
+								},
+								{
+									"name": "AddressSpace",
+									"type": "Microsoft.Common.TextBox",
+									"label": "IP Address Space",
+									"defaultValue": "172.31.0.0/16",
+									"toolTip": "IP Address space used for VNETs in deployment. Only enter a /16 subnet. Default = 172.16.0.0/16",
+									"constraints": {
+										"required": true,
+										"regex": "^(10(?:\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))\\.0\\.0\\/16)|(172\\.(?:1[6-9]|2\\d|3[0-1])\\.0\\.0\\/16)|(192\\.168\\.0\\.0\\/16)",
+										"validationMessage": "The value must match a /16 subnet. 10.[0-255].0.0/16 or 172.[16-31].0.0/16 or 192.168.0.0/16"
+									},
+									"visible": true
+								},
+								{
+									"name": "infoBox1",
+									"type": "Microsoft.Common.InfoBox",
+									"options": {
+										"style": "Error",
+										"text": "When deploying in multiple regions, the Regions cannot be the same. please select different regions"
+									},
+									"visible": "[equals(steps('Regions').First.Region.displayName,steps('Regions').Second.Region.displayName)]"
+								},
+								{
+									"name": "infoBox2",
+									"type": "Microsoft.Common.InfoBox",
+									"options": {
+										"style": "Error",
+										"text": "When deploying in multiple regions, the Address Spaces cannot be the same. please select different Address Spaces"
+									},
+									"visible": "[equals(steps('Regions').First.AddressSpace,steps('Regions').Second.AddressSpace)]"
+								}
+							],
+							"visible": "[equals(steps('Regions').DeployMultiRegion,true)]"
+						}
+					]
+				},
+				{
+					"name": "Hub",
+					"label": "Hub(s)",
+					"elements": [
+						{
+							"name": "Intro",
+							"type": "Microsoft.Common.Section",
+							"label": "Azure Hub & Spoke Playground - Hub",
+							"elements": [
+								{
+									"name": "IntroText",
+									"type": "Microsoft.Common.TextBlock",
+									"options": {
+										"text": "Choose to deploy a Hub. The Hub can be deployed as a VNET or as a VWAN. The Hub can also be used to deploy a Firewall, Bastion and/or VPN Gateway. The Hub will be connected to the Spoke VNET's.",
+										"link": {
+											"label": "Learn more",
+											"uri": "https://github.com/PieterbasNagengast/Azure-HubSpoke-LabBuilder"
+										}
+									}
+								}
+							]
+						},
+						{
+							"name": "Deploy",
+							"type": "Microsoft.Common.OptionsGroup",
+							"label": "Deploy Hub(s)",
 							"defaultValue": "yes",
 							"toolTip": "Deploy Hub VNET",
 							"constraints": {
@@ -57,17 +207,42 @@
 							"visible": true
 						},
 						{
-							"name": "hubSubSection",
+							"name": "First",
 							"type": "Microsoft.Common.Section",
-							"label": "HUB Deployment settings:",
 							"elements": [
 								{
+									"name": "InfoText",
+									"type": "Microsoft.Common.TextBlock",
+									"visible": true,
+									"options": {
+										"text": "[concat('Select subscription for region: <b>',steps('Regions').First.Region.displayName,'</b>')]"
+									}
+								},
+								{
 									"type": "Microsoft.Common.SubscriptionSelector",
-									"name": "hubSubscriptionID",
-									"label": "Hub subscription"
+									"name": "Subscription"
 								}
 							],
-							"visible": "[equals(steps('HubVNET').deployHUB,true)]"
+							"visible": "[equals(steps('Hub').Deploy,true)]"
+						},
+						{
+							"name": "Second",
+							"type": "Microsoft.Common.Section",
+							"elements": [
+								{
+									"name": "InfoText",
+									"type": "Microsoft.Common.TextBlock",
+									"visible": true,
+									"options": {
+										"text": "[concat('Select subscription for region: <b>',steps('Regions').Second.Region.displayName,'</b>')]"
+									}
+								},
+								{
+									"type": "Microsoft.Common.SubscriptionSelector",
+									"name": "Subscription"
+								}
+							],
+							"visible": "[and(equals(steps('Hub').Deploy,true),equals(steps('Regions').DeployMultiRegion,true))]"
 						},
 						{
 							"name": "VNETorVWAN",
@@ -88,7 +263,7 @@
 								],
 								"required": true
 							},
-							"visible": "[equals(steps('HubVNET').deployHUB,true)]"
+							"visible": "[equals(steps('Hub').Deploy,true)]"
 						},
 						{
 							"name": "deployVnetPeeringAVNM",
@@ -109,14 +284,14 @@
 								],
 								"required": true
 							},
-							"visible": "[and(equals(steps('HubVNET').deployHUB,true),equals(steps('HubVNET').VNETorVWAN,'VNET'))]"
+							"visible": "[and(equals(steps('Hub').Deploy,true),equals(steps('Hub').VNETorVWAN,'VNET'))]"
 						},
 						{
 							"name": "hubRgName",
 							"type": "Microsoft.Common.TextBox",
-							"label": "Hub Resource Group Name",
+							"label": "Hub Resource Group prefix Name",
 							"defaultValue": "rg-hub",
-							"toolTip": "Use only allowed characters",
+							"toolTip": "Use only allowed characters. A prefix will be added to the resource group name. Example: rg-hub-<region>",
 							"placeholder": "",
 							"multiLine": false,
 							"constraints": {
@@ -128,7 +303,7 @@
 									}
 								]
 							},
-							"visible": "[equals(steps('HubVNET').deployHUB,true)]"
+							"visible": "[equals(steps('Hub').Deploy,true)]"
 						},
 						{
 							"name": "deployBastionInHub",
@@ -149,7 +324,7 @@
 								],
 								"required": true
 							},
-							"visible": "[and(equals(steps('HubVNET').deployHUB,true),equals(steps('HubVNET').VNETorVWAN,'VNET'))]"
+							"visible": "[and(equals(steps('Hub').Deploy,true),equals(steps('Hub').VNETorVWAN,'VNET'))]"
 						},
 						{
 							"name": "bastionInHubSKU",
@@ -174,7 +349,7 @@
 									}
 								]
 							},
-							"visible": "[equals(steps('HubVNET').deployBastionInHub,true)]"
+							"visible": "[equals(steps('Hub').deployBastionInHub,true)]"
 						},
 						{
 							"name": "deployGatewayInHub",
@@ -195,7 +370,7 @@
 								],
 								"required": true
 							},
-							"visible": "[equals(steps('HubVNET').deployHUB,true)]"
+							"visible": "[equals(steps('Hub').Deploy,true)]"
 						},
 						{
 							"name": "hubBgp",
@@ -216,7 +391,7 @@
 								],
 								"required": true
 							},
-							"visible": "[and(equals(steps('HubVNET').deployHUB,true),equals(steps('HubVNET').deployGatewayInHub,true))]"
+							"visible": "[and(equals(steps('Hub').Deploy,true),equals(steps('Hub').deployGatewayInHub,true))]"
 						},
 						{
 							"name": "hubBgpAsn",
@@ -224,7 +399,7 @@
 							"label": "Hub BGP ASN",
 							"defaultValue": "",
 							"toolTip": "Use only allowed characters. For VNET deployments: default BGP ASN for Hub = 65010. For vWAN deployments: default BGP for vWAN Hub = 65515",
-							"placeholder": "[if(equals(steps('HubVNET').VNETorVWAN,'VNET'),65010,65515)]",
+							"placeholder": "[if(equals(steps('Hub').VNETorVWAN,'VNET'),65010,65515)]",
 							"multiLine": false,
 							"constraints": {
 								"required": true,
@@ -234,12 +409,12 @@
 										"message": "Only 5 digit mumber"
 									},
 									{
-										"isValid": "[or(and(equals(steps('HubVNET').hubBgpAsn,'65515'),equals(steps('HubVNET').VNETorVWAN,'VWAN')),and(not(equals(steps('HubVNET').hubBgpAsn,'65515')),equals(steps('HubVNET').VNETorVWAN,'VNET')))]",
+										"isValid": "[or(and(equals(steps('Hub').hubBgpAsn,'65515'),equals(steps('Hub').VNETorVWAN,'VWAN')),and(not(equals(steps('Hub').hubBgpAsn,'65515')),equals(steps('Hub').VNETorVWAN,'VNET')))]",
 										"message": "Use only allowed characters. For VNET deployments: default BGP ASN for Hub = 65010. For vWAN deployments: default BGP for vWAN Hub = 6551. Note1: Hub BGP and OnPrem BGP cannot be the same. Note2: BGP on Site-to-Site VPN tunnels between Azure VPN gateways (VNET only) cannot use the Azure default BGP ASN 65515, therefore defaulting to BGP ASN 65010."
 									}
 								]
 							},
-							"visible": "[and(equals(steps('HubVNET').deployHUB,true),equals(steps('HubVNET').deployGatewayInHub,true),equals(steps('HubVNET').hubBgp,true))]"
+							"visible": "[and(equals(steps('Hub').Deploy,true),equals(steps('Hub').deployGatewayInHub,true),equals(steps('Hub').hubBgp,true))]"
 						},
 						{
 							"name": "deployFirewallInHub",
@@ -260,7 +435,7 @@
 								],
 								"required": true
 							},
-							"visible": "[equals(steps('HubVNET').deployHUB,true)]"
+							"visible": "[equals(steps('Hub').Deploy,true)]"
 						},
 						{
 							"name": "AzureFirewallTier",
@@ -281,7 +456,7 @@
 									}
 								]
 							},
-							"visible": "[and(equals(steps('HubVNET').deployHUB,true),equals(steps('HubVNET').deployFirewallInHub,true))]"
+							"visible": "[and(equals(steps('Hub').Deploy,true),equals(steps('Hub').deployFirewallInHub,true))]"
 						},
 						{
 							"name": "AzureFirewallDNSproxy",
@@ -302,7 +477,7 @@
 								],
 								"required": true
 							},
-							"visible": "[and(equals(steps('HubVNET').deployHUB,true),equals(steps('HubVNET').deployFirewallInHub,true))]"
+							"visible": "[and(equals(steps('Hub').Deploy,true),equals(steps('Hub').deployFirewallInHub,true))]"
 						},
 						{
 							"name": "deployFirewallrules",
@@ -323,7 +498,7 @@
 								],
 								"required": true
 							},
-							"visible": "[and(equals(steps('HubVNET').deployHUB,true),equals(steps('HubVNET').deployFirewallInHub,true))]"
+							"visible": "[and(equals(steps('Hub').Deploy,true),equals(steps('Hub').deployFirewallInHub,true))]"
 						},
 						{
 							"name": "deployUDRs",
@@ -344,7 +519,7 @@
 								],
 								"required": true
 							},
-							"visible": "[and(equals(steps('HubVNET').deployHUB,true),equals(steps('HubVNET').VNETorVWAN,'VNET'),equals(steps('HubVNET').deployFirewallInHub,true))]"
+							"visible": "[and(equals(steps('Hub').Deploy,true),equals(steps('Hub').VNETorVWAN,'VNET'),equals(steps('Hub').deployFirewallInHub,true))]"
 						},
 						{
 							"name": "enableRoutingIntent",
@@ -373,16 +548,34 @@
 								],
 								"required": true
 							},
-							"visible": "[and(equals(steps('HubVNET').deployHUB,true),equals(steps('HubVNET').VNETorVWAN,'VWAN'),equals(steps('HubVNET').deployFirewallInHub,true))]"
+							"visible": "[and(equals(steps('Hub').Deploy,true),equals(steps('Hub').VNETorVWAN,'VWAN'),equals(steps('Hub').deployFirewallInHub,true))]"
 						}
 					]
 				},
 				{
-					"name": "SpokeVNETs",
-					"label": "Spoke VNET's",
+					"name": "Spoke",
+					"label": "Spoke(s)",
 					"elements": [
 						{
-							"name": "deploySpokes",
+							"name": "Intro",
+							"type": "Microsoft.Common.Section",
+							"label": "Azure Hub & Spoke Playground - Spoke VNET's",
+							"elements": [
+								{
+									"name": "IntroText",
+									"type": "Microsoft.Common.TextBlock",
+									"options": {
+										"text": "Choose to deploy Spoke(s). If a Hub is deployed, the Spokes will be connected to the Hub (Eithter VNET or VWAN).",
+										"link": {
+											"label": "Learn more",
+											"uri": "https://github.com/PieterbasNagengast/Azure-HubSpoke-LabBuilder"
+										}
+									}
+								}
+							]
+						},
+						{
+							"name": "Deploy",
 							"type": "Microsoft.Common.OptionsGroup",
 							"label": "Deploy Spokes",
 							"defaultValue": "yes",
@@ -403,24 +596,49 @@
 							"visible": true
 						},
 						{
-							"name": "spokeSubSection",
+							"name": "First",
 							"type": "Microsoft.Common.Section",
-							"label": "Spoke Deployment settings:",
 							"elements": [
 								{
+									"name": "InfoText",
+									"type": "Microsoft.Common.TextBlock",
+									"visible": true,
+									"options": {
+										"text": "[concat('Select subscription for region: <b>',steps('Regions').First.Region.displayName,'</b>')]"
+									}
+								},
+								{
 									"type": "Microsoft.Common.SubscriptionSelector",
-									"name": "spokeSubscriptionID",
-									"label": "Spoke subscription"
+									"name": "Subscription"
 								}
 							],
-							"visible": "[equals(steps('SpokeVNETs').deploySpokes,true)]"
+							"visible": "[equals(steps('Spoke').Deploy,true)]"
+						},
+						{
+							"name": "Second",
+							"type": "Microsoft.Common.Section",
+							"elements": [
+								{
+									"name": "InfoText",
+									"type": "Microsoft.Common.TextBlock",
+									"visible": true,
+									"options": {
+										"text": "[concat('Select subscription for region: <b>',steps('Regions').Second.Region.displayName,'</b>')]"
+									}
+								},
+								{
+									"type": "Microsoft.Common.SubscriptionSelector",
+									"name": "Subscription"
+								}
+							],
+							"visible": "[and(equals(steps('Spoke').Deploy,true),equals(steps('Regions').DeployMultiRegion,true))]"
 						},
 						{
 							"name": "spokeRgNamePrefix",
 							"type": "Microsoft.Common.TextBox",
 							"label": "Spoke Resource Group prefix Name",
 							"defaultValue": "rg-spoke",
-							"toolTip": "Use only allowed characters",
+							"toolTip": "Use only allowed characters. A prefix will be added to the resource group name. Example: rg-hub-<region>",
 							"placeholder": "",
 							"multiLine": false,
 							"constraints": {
@@ -432,7 +650,7 @@
 									}
 								]
 							},
-							"visible": "[equals(steps('SpokeVNETs').deploySpokes,true)]"
+							"visible": "[equals(steps('Spoke').Deploy,true)]"
 						},
 						{
 							"name": "amountOfSpokes",
@@ -447,7 +665,7 @@
 							"constraints": {
 								"required": false
 							},
-							"visible": "[equals(steps('SpokeVNETs').deploySpokes,true)]"
+							"visible": "[equals(steps('Spoke').Deploy,true)]"
 						},
 						{
 							"name": "deployVnetPeeringMesh",
@@ -468,7 +686,7 @@
 								],
 								"required": true
 							},
-							"visible": "[equals(steps('HubVNET').deployVnetPeeringAVNM,true)]"
+							"visible": "[equals(steps('Hub').deployVnetPeeringAVNM,true)]"
 						},
 						{
 							"name": "deployAvnmUDRs",
@@ -489,7 +707,7 @@
 								],
 								"required": true
 							},
-							"visible": "[and(equals(steps('HubVNET').deployVnetPeeringAVNM,true),equals(steps('HubVNET').deployFirewallInHub,true))]"
+							"visible": "[and(equals(steps('Hub').deployVnetPeeringAVNM,true),equals(steps('Hub').deployFirewallInHub,true))]"
 						},
 						{
 							"name": "PeeringMeshInfoAVNM",
@@ -498,7 +716,7 @@
 								"text": "AVNM will be deployed in Hub. Directly Connected Groups in AVNM will be used.",
 								"style": "Info"
 							},
-							"visible": "[and(equals(steps('SpokeVNETs').deployVnetPeeringMesh,true),equals(steps('HubVNET').deployVnetPeeringAVNM,true))]"
+							"visible": "[and(equals(steps('Spoke').deployVnetPeeringMesh,true),equals(steps('Hub').deployVnetPeeringAVNM,true))]"
 						},
 						{
 							"name": "EnablePrivateSubnet",
@@ -519,16 +737,34 @@
 								],
 								"required": true
 							},
-							"visible": "[and(equals(steps('SpokeVNETs').deploySpokes,true),equals(steps('HubVNET').deployFirewallInHub,true),equals(steps('HubVNET').deployUDRs,true))]"
+							"visible": "[and(equals(steps('Spoke').Deploy,true),equals(steps('Hub').deployFirewallInHub,true),equals(steps('Hub').deployUDRs,true))]"
 						}
 					]
 				},
 				{
 					"name": "OnPrem",
-					"label": "Simulate OnPrem",
+					"label": "OnPrem",
 					"elements": [
 						{
-							"name": "deployOnPrem",
+							"name": "Intro",
+							"type": "Microsoft.Common.Section",
+							"label": "Azure Hub & Spoke Playground - Simultate OnPrem",
+							"elements": [
+								{
+									"name": "IntroText",
+									"type": "Microsoft.Common.TextBlock",
+									"options": {
+										"text": "Choose to deploy an simulated OnPrem network (VNET). The OnPrem VNET can be connected to the Hub VNET (or VWAN). The OnPrem VNET can also be used Bastion and/or VPN Gateway. When deploying a VPN Gateway, a Site-to-Site connection will be deployed between the Hub and OnPrem VNET.",
+										"link": {
+											"label": "Learn more",
+											"uri": "https://github.com/PieterbasNagengast/Azure-HubSpoke-LabBuilder"
+										}
+									}
+								}
+							]
+						},
+						{
+							"name": "Deploy",
 							"type": "Microsoft.Common.OptionsGroup",
 							"label": "Deploy OnPrem",
 							"defaultValue": "no",
@@ -549,24 +785,49 @@
 							"visible": true
 						},
 						{
-							"name": "onPremSubSection",
+							"name": "First",
 							"type": "Microsoft.Common.Section",
-							"label": "OnPrem Deployment settings:",
 							"elements": [
 								{
+									"name": "InfoText",
+									"type": "Microsoft.Common.TextBlock",
+									"visible": true,
+									"options": {
+										"text": "[concat('Select subscription for region: <b>',steps('Regions').First.Region.displayName,'</b>')]"
+									}
+								},
+								{
 									"type": "Microsoft.Common.SubscriptionSelector",
-									"name": "onPremSubscriptionID",
-									"label": "OnPrem subscription"
+									"name": "Subscription"
 								}
 							],
-							"visible": "[equals(steps('OnPrem').deployOnPrem,true)]"
+							"visible": "[equals(steps('OnPrem').Deploy,true)]"
+						},
+						{
+							"name": "Second",
+							"type": "Microsoft.Common.Section",
+							"elements": [
+								{
+									"name": "InfoText",
+									"type": "Microsoft.Common.TextBlock",
+									"visible": true,
+									"options": {
+										"text": "[concat('Select subscription for region: <b>',steps('Regions').Second.Region.displayName,'</b>')]"
+									}
+								},
+								{
+									"type": "Microsoft.Common.SubscriptionSelector",
+									"name": "Subscription"
+								}
+							],
+							"visible": "[and(equals(steps('OnPrem').Deploy,true),equals(steps('Regions').DeployMultiRegion,true))]"
 						},
 						{
 							"name": "OnPremRgName",
 							"type": "Microsoft.Common.TextBox",
-							"label": "OnPrem Resource Group Name",
+							"label": "OnPrem Resource Group prefix Name",
 							"defaultValue": "rg-onprem",
-							"toolTip": "Use only allowed characters",
+							"toolTip": "Use only allowed characters. A prefix will be added to the resource group name. Example: rg-hub-<region>",
 							"placeholder": "",
 							"multiLine": false,
 							"constraints": {
@@ -578,7 +839,7 @@
 									}
 								]
 							},
-							"visible": "[equals(steps('OnPrem').deployOnPrem,true)]"
+							"visible": "[equals(steps('OnPrem').Deploy,true)]"
 						},
 						{
 							"name": "deployBastionInOnPrem",
@@ -599,7 +860,7 @@
 								],
 								"required": true
 							},
-							"visible": "[equals(steps('OnPrem').deployOnPrem,true)]"
+							"visible": "[equals(steps('OnPrem').Deploy,true)]"
 						},
 						{
 							"name": "bastionInOnPremSKU",
@@ -641,7 +902,7 @@
 								],
 								"required": true
 							},
-							"visible": "[equals(steps('OnPrem').deployOnPrem,true)]"
+							"visible": "[equals(steps('OnPrem').Deploy,true)]"
 						},
 						{
 							"name": "onpremBgp",
@@ -662,7 +923,7 @@
 								],
 								"required": true
 							},
-							"visible": "[and(equals(steps('OnPrem').deployOnPrem,true),equals(steps('OnPrem').deployGatewayInOnPrem,true))]"
+							"visible": "[and(equals(steps('OnPrem').Deploy,true),equals(steps('OnPrem').deployGatewayInOnPrem,true))]"
 						},
 						{
 							"name": "onpremBgpAsn",
@@ -680,12 +941,12 @@
 										"message": "Only 5 digit mumber"
 									},
 									{
-										"isValid": "[not(equals(steps('HubVNET').hubBgpAsn, steps('OnPrem').onpremBgpAsn))]",
+										"isValid": "[not(equals(steps('Hub').hubBgpAsn, steps('OnPrem').onpremBgpAsn))]",
 										"message": "(vWan) Hub and OnPrem BGP ASN's cannot be the same"
 									}
 								]
 							},
-							"visible": "[and(equals(steps('OnPrem').deployOnPrem,true),equals(steps('OnPrem').deployGatewayInOnPrem,true),equals(steps('OnPrem').onpremBgp,true))]"
+							"visible": "[and(equals(steps('OnPrem').Deploy,true),equals(steps('OnPrem').deployGatewayInOnPrem,true),equals(steps('OnPrem').onpremBgp,true))]"
 						},
 						{
 							"name": "deploySite2Site",
@@ -706,7 +967,7 @@
 								],
 								"required": true
 							},
-							"visible": "[and(equals(steps('OnPrem').deployGatewayInOnPrem,true),equals(steps('OnPrem').deployOnPrem,true))]"
+							"visible": "[and(equals(steps('OnPrem').deployGatewayInOnPrem,true),equals(steps('Hub').deployGatewayInHub,true),equals(steps('OnPrem').Deploy,true))]"
 						},
 						{
 							"name": "sharedKey",
@@ -719,15 +980,6 @@
 							"constraints": {
 								"required": true,
 								"validations": []
-							},
-							"visible": "[equals(steps('OnPrem').deploySite2Site,true)]"
-						},
-						{
-							"name": "deploySite2SiteInfo",
-							"type": "Microsoft.Common.InfoBox",
-							"options": {
-								"text": "This will also enable the deployment of a Virtual Network Gateway in the Hub",
-								"style": "Warning"
 							},
 							"visible": "[equals(steps('OnPrem').deploySite2Site,true)]"
 						}
@@ -756,7 +1008,7 @@
 								],
 								"required": true
 							},
-							"visible": "[coalesce(steps('SpokeVNETs').deploySpokes,false)]"
+							"visible": "[coalesce(steps('Spoke').Deploy,false)]"
 						},
 						{
 							"name": "deployVMinOnPrem",
@@ -777,16 +1029,16 @@
 								],
 								"required": true
 							},
-							"visible": "[coalesce(steps('OnPrem').deployOnPrem,false)]"
+							"visible": "[coalesce(steps('OnPrem').Deploy,false)]"
 						},
 						{
 							"name": "noVirtualMachines",
 							"type": "Microsoft.Common.InfoBox",
 							"options": {
-								"text": "Virtual machine deployments requires at least that deployment for Hub, Spokes or OnPrem is selected!",
+								"text": "Virtual machine deployments requires at least that deployment for Spokes and/or OnPrem is selected!",
 								"style": "Info"
 							},
-							"visible": "[and(equals(steps('HubVNET').deployHUB,false),equals(steps('SpokeVNETs').deploySpokes,false),equals(steps('OnPrem').deployOnPrem,false))]"
+							"visible": "[and(equals(steps('Spoke').Deploy,false),equals(steps('OnPrem').Deploy,false))]"
 						},
 						{
 							"name": "VMosTypeInfo",
@@ -875,7 +1127,7 @@
 										"hideDiskTypeFilter": false
 									},
 									"osPlatform": "Windows",
-									"count": "[steps('SpokeVNETs').amountOfSpokes]",
+									"count": "[steps('Spoke').amountOfSpokes]",
 									"visible": true
 								}
 							],
@@ -989,11 +1241,13 @@
 								"Microsoft.Network/localNetworkGateways",
 								"Microsoft.Network/connections",
 								"Microsoft.Network/virtualWans",
+								"Microsoft.Network/virtualHubs",
 								"Microsoft.Resources/subscriptions/resourceGroups",
 								"Microsoft.Insights/dataCollectionRules",
 								"Microsoft.Network/networkManagers",
 								"Microsoft.Resources/deploymentScripts",
-								"Microsoft.ManagedIdentity/userAssignedIdentities"
+								"Microsoft.ManagedIdentity/userAssignedIdentities",
+								"Microsoft.Network/networkInterfaces"
 							]
 						}
 					]
@@ -1002,51 +1256,48 @@
 		},
 		"outputs": {
 			"parameters": {
-				"AddressSpace": "[steps('basics').AddressSpace]",
+				"locations": "[if(equals(steps('Regions').DeployMultiRegion, true), parse(concat('[{\"region\":\"', steps('Regions').First.Region.name, '\", \"addressSpace\":\"', steps('Regions').First.AddressSpace, '\", \"hubSubscriptionID\":\"', steps('Hub').First.Subscription.subscriptionId, '\", \"spokeSubscriptionID\":\"', steps('Spoke').First.Subscription.subscriptionId, '\", \"onPremSubscriptionID\":\"', steps('OnPrem').First.Subscription.subscriptionId, '\"}, {\"region\":\"', steps('Regions').Second.Region.name, '\", \"addressSpace\":\"', steps('Regions').Second.AddressSpace, '\", \"hubSubscriptionID\":\"', steps('Hub').Second.Subscription.subscriptionId, '\", \"spokeSubscriptionID\":\"', steps('Spoke').Second.Subscription.subscriptionId, '\", \"onPremSubscriptionID\":\"', steps('OnPrem').Second.Subscription.subscriptionId, '\"}]')), parse(concat('[{\"region\":\"', steps('Regions').First.Region.name, '\", \"addressSpace\":\"', steps('Regions').First.AddressSpace, '\", \"hubSubscriptionID\":\"', steps('Hub').First.Subscription.subscriptionId, '\", \"spokeSubscriptionID\":\"', steps('Spoke').First.Subscription.subscriptionId, '\", \"onPremSubscriptionID\":\"', steps('OnPrem').First.Subscription.subscriptionId, '\"}]')))]",
 				"tagsByResource": "[steps('tags').tagsByResource]",
 				"adminUsername": "[coalesce(steps('VirtualMachines').adminUsername,'')]",
 				"adminPassword": "[coalesce(steps('VirtualMachines').adminPassword.password,'')]",
 				"deployVMsInSpokes": "[coalesce(steps('VirtualMachines').deployVMsInSpokes,false)]",
 				"deployVMinOnPrem": "[coalesce(steps('VirtualMachines').deployVMinOnPrem,false)]",
-				"deploySpokes": "[coalesce(steps('SpokeVNETs').deploySpokes,false)]",
-				"defaultOutboundAccess": "[coalesce(steps('SpokeVNETs').EnablePrivateSubnet,true)]",
-				"amountOfSpokes": "[steps('SpokeVNETs').amountOfSpokes]",
-				"deployVnetPeeringMesh": "[coalesce(steps('SpokeVNETs').deployVnetPeeringMesh,false)]",
-				"deployAvnmUDRs": "[coalesce(steps('SpokeVNETs').deployAvnmUDRs,false)]",
-				"deployHUB": "[coalesce(steps('HubVNET').deployHUB,false)]",
-				"hubType": "[steps('HubVNET').VNETorVWAN]",
-				"deployVnetPeeringAVNM": "[steps('HubVNET').deployVnetPeeringAVNM]",
-				"hubRgName": "[steps('HubVNET').hubRgName]",
-				"deployBastionInHub": "[coalesce(steps('HubVNET').deployBastionInHub,false)]",
-				"deployGatewayInHub": "[or(steps('HubVNET').deployGatewayInHub,steps('OnPrem').deploySite2Site)]",
-				"hubBgp": "[coalesce(steps('HubVNET').hubBgp,false)]",
-				"hubBgpAsn": "[steps('HubVNET').hubBgpAsn]",
-				"deployFirewallInHub": "[coalesce(steps('HubVNET').deployFirewallInHub,false)]",
-				"AzureFirewallTier": "[steps('HubVNET').AzureFirewallTier]",
-				"deployUDRs": "[steps('HubVNET').deployUDRs]",
-				"spokeRgNamePrefix": "[steps('SpokeVNETs').spokeRgNamePrefix]",
-				"deployFirewallrules": "[coalesce(steps('HubVNET').deployFirewallrules,false)]",
-				"firewallDNSproxy": "[coalesce(steps('HubVNET').AzureFirewallDNSproxy,false)]",
-				"deployOnPrem": "[coalesce(steps('OnPrem').deployOnPrem,false)]",
+				"deploySpokes": "[coalesce(steps('Spoke').Deploy,false)]",
+				"defaultOutboundAccess": "[coalesce(steps('Spoke').EnablePrivateSubnet,true)]",
+				"amountOfSpokes": "[steps('Spoke').amountOfSpokes]",
+				"deployVnetPeeringMesh": "[coalesce(steps('Spoke').deployVnetPeeringMesh,false)]",
+				"deployAvnmUDRs": "[coalesce(steps('Spoke').deployAvnmUDRs,false)]",
+				"deployHUB": "[coalesce(steps('Hub').Deploy,false)]",
+				"hubType": "[steps('Hub').VNETorVWAN]",
+				"deployVnetPeeringAVNM": "[steps('Hub').deployVnetPeeringAVNM]",
+				"hubRgName": "[steps('Hub').hubRgName]",
+				"deployBastionInHub": "[coalesce(steps('Hub').deployBastionInHub,false)]",
+				"deployGatewayInHub": "[or(steps('Hub').deployGatewayInHub,steps('OnPrem').deploySite2Site)]",
+				"hubBgp": "[coalesce(steps('Hub').hubBgp,false)]",
+				"hubBgpAsn": "[steps('Hub').hubBgpAsn]",
+				"deployFirewallInHub": "[coalesce(steps('Hub').deployFirewallInHub,false)]",
+				"AzureFirewallTier": "[steps('Hub').AzureFirewallTier]",
+				"deployUDRs": "[steps('Hub').deployUDRs]",
+				"spokeRgNamePrefix": "[steps('Spoke').spokeRgNamePrefix]",
+				"deployFirewallrules": "[coalesce(steps('Hub').deployFirewallrules,false)]",
+				"firewallDNSproxy": "[coalesce(steps('Hub').AzureFirewallDNSproxy,false)]",
+				"deployOnPrem": "[coalesce(steps('OnPrem').Deploy,false)]",
 				"onpremRgName": "[steps('OnPrem').OnPremRgName]",
 				"deployBastionInOnPrem": "[coalesce(steps('OnPrem').deployBastionInOnPrem,false)]",
 				"deployGatewayinOnPrem": "[coalesce(steps('OnPrem').deployGatewayInOnPrem,false)]",
 				"onpremBgp": "[coalesce(steps('OnPrem').onpremBgp,false)]",
 				"onpremBgpAsn": "[steps('OnPrem').onpremBgpAsn]",
-				"deploySiteToSite": "[coalesce(steps('OnPrem').deploySite2Site,false)]",
+				"deploySiteToSite": "[and(equals(steps('OnPrem').deploySite2Site,true),equals(steps('OnPrem').deployGatewayInOnPrem,true),equals(steps('Hub').deployGatewayInHub,true))]",
 				"sharedKey": "[steps('OnPrem').sharedKey]",
-				"hubSubscriptionID": "[steps('HubVNET').hubSubSection.hubSubscriptionID.subscriptionId]",
-				"spokeSubscriptionID": "[steps('SpokeVNETs').spokeSubSection.spokeSubscriptionID.subscriptionId]",
-				"onPremSubscriptionID": "[steps('OnPrem').onPremSubSection.onPremSubscriptionID.subscriptionId]",
-				"bastionInHubSKU": "[steps('HubVNET').bastionInHubSKU]",
+				"bastionInHubSKU": "[steps('Hub').bastionInHubSKU]",
 				"bastionInOnPremSKU": "[steps('OnPrem').bastionInOnPremSKU]",
 				"vmSizeSpoke": "[steps('VirtualMachines').SpokevmSizeSection.vmSize]",
 				"vmSizeOnPrem": "[steps('VirtualMachines').OnPremvmSizeSection.vmSize]",
 				"osTypeSpoke": "[steps('VirtualMachines').SpokevmSizeSection.osType]",
 				"osTypeOnPrem": "[steps('VirtualMachines').OnPremvmSizeSection.osType]",
 				"diagnosticWorkspaceId": "[steps('VirtualMachines').lawSelectorForAMA.id]",
-				"internetTrafficRoutingPolicy": "[or(equals(steps('HubVNET').enableRoutingIntent,'internet'),equals(steps('HubVNET').enableRoutingIntent,'privateAndInternet'))]",
-				"privateTrafficRoutingPolicy": "[or(equals(steps('HubVNET').enableRoutingIntent,'private'),equals(steps('HubVNET').enableRoutingIntent,'privateAndInternet'))]"
+				"internetTrafficRoutingPolicy": "[or(equals(steps('Hub').enableRoutingIntent,'internet'),equals(steps('Hub').enableRoutingIntent,'privateAndInternet'))]",
+				"privateTrafficRoutingPolicy": "[or(equals(steps('Hub').enableRoutingIntent,'private'),equals(steps('Hub').enableRoutingIntent,'privateAndInternet'))]"
 			},
 			"kind": "Subscription",
 			"subscriptionId": "[steps('basics').resourceScope.subscription.id]",

@@ -1,7 +1,9 @@
 targetScope = 'subscription'
 
 param location string
+param shortLocationCode string
 param AddressSpace string
+param isMultiRegion bool
 param hubAddressSpace string
 param deployBastionInHub bool
 param bastionSku string
@@ -13,12 +15,11 @@ param deployUDRs bool
 param deployGatewayInHub bool
 param tagsByResource object
 param AllSpokeAddressSpaces array
+param SecondRegionAddressSpace string
 param firewallDNSproxy bool
 
 param vpnGwEnebaleBgp bool
 param vpnGwBgpAsn int
-
-param diagnosticWorkspaceId string
 
 var firewallSubnetPrefix = cidrSubnet(hubAddressSpace, 26, 0)
 var bastionSubnetPrefix = cidrSubnet(hubAddressSpace, 26, 1)
@@ -26,18 +27,18 @@ var gatewaySubnetPrefix = cidrSubnet(hubAddressSpace, 26, 2)
 
 var firewallIP = cidrHost(firewallSubnetPrefix, 3)
 
-var bastionName = 'Bastion-Hub'
-var rtNameVPNgwSubnet = 'RT-Hub-GatewaySubnet'
-var hubVnetName = 'VNET-Hub'
-var firewallName = 'Firewall-Hub'
-var gatewayName = 'Gateway-Hub'
-var bastionNsgName = 'NSG-Bastion-Hub'
+var bastionName = 'Bastion-Hub-${shortLocationCode}'
+var rtNameVPNgwSubnet = 'RT-Hub-GatewaySubnet-${shortLocationCode}'
+var hubVnetName = 'VNET-Hub-${shortLocationCode}'
+var firewallName = 'Firewall-Hub-${shortLocationCode}'
+var gatewayName = 'Gateway-Hub-${shortLocationCode}'
+var bastionNsgName = 'NSG-Bastion-Hub-${shortLocationCode}'
 
-// Create the resource group for the hub
-resource hubrg 'Microsoft.Resources/resourceGroups@2023-07-01' = {
+// reference existing the resource group for the hub
+resource hubrg 'Microsoft.Resources/resourceGroups@2025-04-01' existing = {
   name: hubRgName
-  location: location
-  tags: tagsByResource[?'Microsoft.Resources/subscriptions/resourceGroups'] ?? {}
+  // location: location
+  // tags: tagsByResource[?'Microsoft.Resources/subscriptions/resourceGroups'] ?? {}
 }
 
 module bastioNsg 'modules/nsg.bicep' = if (deployBastionInHub) {
@@ -69,17 +70,8 @@ module vnet 'modules/vnet.bicep' = {
     deployGatewaySubnet: deployGatewayInHub
     tagsByResource: tagsByResource
     azFwIp: firewallIP
+    rtFwID: isMultiRegion && deployFirewallInHub && deployUDRs ? rtFirewall.outputs.rtID : 'none'
     firewallDNSproxy: firewallDNSproxy
-  }
-}
-
-module dcrvminsights 'modules/dcrvminsights.bicep' = if (!empty(diagnosticWorkspaceId)) {
-  scope: hubrg
-  name: 'dcr-vminsights'
-  params: {
-    diagnosticWorkspaceId: diagnosticWorkspaceId
-    location: location
-    tagsByResource: tagsByResource
   }
 }
 
@@ -115,6 +107,8 @@ module firewallrules 'modules/firewallpolicyrules.bicep' = if (deployFirewallrul
   params: {
     azFwPolicyName: deployFirewallInHub && deployFirewallrules ? firewall.outputs.azFwPolicyName : ''
     AddressSpace: AddressSpace
+    SecondRegionAddressSpace: SecondRegionAddressSpace
+    isMultiRegion: isMultiRegion
   }
 }
 
@@ -138,6 +132,7 @@ module rtvpngw 'modules/routetable.bicep' = if (deployFirewallInHub && deployGat
     location: location
     rtName: rtNameVPNgwSubnet
     disableRouteProp: false
+    tagsByResource: tagsByResource
   }
 }
 
@@ -155,12 +150,25 @@ module routeVPNgw 'modules/route.bicep' = [
   }
 ]
 
+module rtFirewall 'modules/routetable.bicep' = if (deployFirewallInHub && deployUDRs && isMultiRegion) {
+  scope: hubrg
+  name: 'routeTable-FW'
+  params: {
+    location: location
+    rtName: 'RT-Hub-FW-${shortLocationCode}'
+    disableRouteProp: false
+    isFirewallSubnet: true
+    tagsByResource: tagsByResource
+  }
+}
+
 output hubVnetID string = vnet.outputs.vnetID
 output azFwIp string = deployFirewallInHub ? firewall.outputs.azFwIP : '1.2.3.4'
+output hubRgName string = hubrg.name
 output HubResourceGroupName string = hubrg.name
 output hubVnetName string = vnet.outputs.vnetName
 output hubVnetAddressSpace array = vnet.outputs.vnetAddressSpace
 output hubGatewayPublicIP string = deployGatewayInHub ? vpngw.outputs.vpnGwPublicIP : 'none'
 output hubGatewayID string = deployGatewayInHub ? vpngw.outputs.vpnGwID : 'none'
 output HubGwBgpPeeringAddress string = deployGatewayInHub ? vpngw.outputs.vpnGwBgpPeeringAddress : 'none'
-output dcrvminsightsID string = !empty(diagnosticWorkspaceId) ? dcrvminsights.outputs.dcrID : ''
+output rtFirewallName string = deployFirewallInHub && deployUDRs && isMultiRegion ? rtFirewall.outputs.rtName : 'none'

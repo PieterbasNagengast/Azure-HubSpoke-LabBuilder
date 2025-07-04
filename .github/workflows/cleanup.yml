@@ -2,54 +2,46 @@ name: "LabBuilder - CleanUp"
 
 on:
   workflow_dispatch:
-    inputs:
-      LabBuilderType:
-        type: choice
-        options:
-          - vnet
-          - vwan
-          - avnm
-        required: true
-        default: vnet
   workflow_call:
-    inputs:
-      LabBuilderType:
-        type: string
-        required: true
 
 permissions:
   id-token: write
-  
-jobs:
-  VNETremoval:
-    name: "Remove deployments"
+    
+jobs:    
+  removeResources:
+    name: "Remove LabBuilder resources"
     runs-on: ubuntu-latest
-    # environment: LabBuilderCleanup
-    strategy:
-      matrix:
-        subscription: [hub,spoke,onprem]
-        include:
-          - subscription: hub
-            subscription_id: HUB_SUBSCRIPTION_ID
-          - subscription: spoke
-            subscription_id: SPOKE_SUBSCRIPTION_ID
-          - subscription: onprem
-            subscription_id: ONPREM_SUBSCRIPTION_ID
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
       - name: Azure Login
+        id: login
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      - name: Cleanup ${{ matrix.subscription }} Subsription
-        run: |
-          echo 'Switching to ${{ matrix.subscription }} Subscription...'
-          az account set --subscription ${{ secrets[matrix.subscription_id] }}
-          echo 'List of Resource groups to be deleted....'
-          az group list --tag LabBuilder=Validation --tag LabBuilderType=${{ inputs.LabBuilderType }} --output table
-          echo 'Removing Resource groups...'
-          az group list --tag LabBuilder=Validation --tag LabBuilderType=${{ inputs.LabBuilderType }} --query "[].[name]" --output tsv | xargs -r -l az group delete --yes --no-wait --name
+      - name: Cleanup
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            echo "Searching for resource groups tagged with LabBuilder=validation..."
+            resourceGroups=$(az group list --tag LabBuilder=validation --query "[].name" -o tsv)
+
+            if [ -z "$resourceGroups" ]; then
+              echo "No resource groups found to delete. Exiting."
+              exit 0
+            fi
+
+            echo "Found resource groups to delete:"
+            echo "$resourceGroups"
+
+            # Issue all deletes in parallel with --no-wait
+            for rg in $resourceGroups; do
+              echo "Deleting resource group: $rg..."
+              az group delete --name "$rg" --yes --no-wait &
+            done
+
+            wait
+
+            echo "All delete commands issued with --no-wait. Cleanup step complete."
+
+          

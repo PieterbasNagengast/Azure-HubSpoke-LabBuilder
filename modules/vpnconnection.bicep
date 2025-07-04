@@ -11,7 +11,7 @@ param enableBgp bool
 param BgpAsn int
 param BgpPeeringAddress string
 
-resource localNetworkGateway 'Microsoft.Network/localNetworkGateways@2023-06-01' = {
+resource localNetworkGateway 'Microsoft.Network/localNetworkGateways@2024-07-01' = {
   name: LocalGatewayName
   location: location
   properties: {
@@ -31,7 +31,7 @@ resource localNetworkGateway 'Microsoft.Network/localNetworkGateways@2023-06-01'
   tags: tagsByResource[?'Microsoft.Network/localNetworkGateways'] ?? {}
 }
 
-resource connection 'Microsoft.Network/connections@2023-06-01' = {
+resource connection 'Microsoft.Network/connections@2024-07-01' = {
   name: connectionName
   location: location
   properties: {

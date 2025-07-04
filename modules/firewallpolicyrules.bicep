@@ -1,8 +1,12 @@
 param azFwPolicyName string
 param ruleCollectiongroupName string = 'HubSpokeLabBuilderCollectionGroup'
 param AddressSpace string
+param SecondRegionAddressSpace string
+param isMultiRegion bool
 
-resource ruleCollectionGroup 'Microsoft.Network/firewallPolicies/ruleCollectionGroups@2023-06-01' = {
+var addressSpaces = union(array(AddressSpace), isMultiRegion ? array(SecondRegionAddressSpace) : [])
+
+resource ruleCollectionGroup 'Microsoft.Network/firewallPolicies/ruleCollectionGroups@2024-07-01' = {
   name: '${azFwPolicyName}/${ruleCollectiongroupName}'
   properties: {
     priority: 400
@@ -18,13 +22,8 @@ resource ruleCollectionGroup 'Microsoft.Network/firewallPolicies/ruleCollectionG
           {
             name: 'AllowLocalTraffic'
             ruleType: 'NetworkRule'
-            sourceAddresses: [
-              AddressSpace
-            ]
-            destinationAddresses: [
-              AddressSpace
-            ]
-
+            sourceAddresses: addressSpaces
+            destinationAddresses: addressSpaces
             ipProtocols: [
               'Any'
             ]

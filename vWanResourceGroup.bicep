@@ -1,7 +1,11 @@
 targetScope = 'subscription'
 
 param location string
+param shortLocationCode string
+param isMultiRegion bool
+param vWanID string
 param AddressSpace string
+param SecondRegionAddressSpace string
 param deployFirewallInHub bool
 param AzureFirewallTier string
 param hubRgName string
@@ -9,29 +13,29 @@ param deployFirewallrules bool
 param deployGatewayInHub bool
 param tagsByResource object = {}
 param firewallDNSproxy bool
-param diagnosticWorkspaceId string
 param internetTrafficRoutingPolicy bool
 param privateTrafficRoutingPolicy bool
 
-var vWanName = 'vWAN'
-var firewallName = 'Firewall-Hub'
-var gatewayName = 'Gateway-Hub'
+// var vWanName = 'vWAN'
+var firewallName = 'Firewall-Hub-${shortLocationCode}'
+var gatewayName = 'Gateway-Hub-${shortLocationCode}'
+var vwanHubName = 'HUB-${shortLocationCode}'
 
-resource hubrg 'Microsoft.Resources/resourceGroups@2023-07-01' = {
+// Reference existing the resource group for the hub
+resource hubrg 'Microsoft.Resources/resourceGroups@2025-04-01' existing = {
   name: hubRgName
-  location: location
-  tags: tagsByResource[?'Microsoft.Resources/subscriptions/resourceGroups'] ?? {}
 }
 
 // Deploy vWan and vWan Hub
-module vwan 'modules/vwan.bicep' = {
+module vwanHub 'modules/vwanhub.bicep' = {
   scope: hubrg
-  name: vWanName
+  name: vwanHubName
   params: {
+    HubName: vwanHubName
     AddressPrefix: AddressSpace
     location: location
-    vWanName: vWanName
     tagsByResource: tagsByResource
+    vWanID: vWanID
   }
 }
 
@@ -43,7 +47,7 @@ module AzFirewall 'modules/firewall.bicep' = if (deployFirewallInHub) {
     deployInVWan: true
     azfwTier: AzureFirewallTier
     firewallName: firewallName
-    vWanID: vwan.outputs.vWanHubID
+    vWanID: vwanHub.outputs.ID
     location: location
     tagsByResource: tagsByResource
     firewallDNSproxy: firewallDNSproxy
@@ -53,19 +57,21 @@ module AzFirewall 'modules/firewall.bicep' = if (deployFirewallInHub) {
 // If Azure Firewall deployed in vWan Hub AND Firewall policy rules is selected
 module firewallrules 'modules/firewallpolicyrules.bicep' = if (deployFirewallrules && deployFirewallInHub) {
   scope: hubrg
-  name: 'firewallRules'
+  name: 'firewallRules-${shortLocationCode}'
   params: {
     azFwPolicyName: deployFirewallInHub && deployFirewallrules ? AzFirewall.outputs.azFwPolicyName : 'none'
     AddressSpace: AddressSpace
+    isMultiRegion: isMultiRegion
+    SecondRegionAddressSpace: isMultiRegion ? SecondRegionAddressSpace : 'none'
   }
 }
 
 // If Azure Firewall deployed in vWan Hub: Add routes to default route table in vWan Hub for all RFC1918 address spaces + default route to Azure Firewall
 module vwanRouteTable 'modules/vwanhubroutes.bicep' = {
   scope: hubrg
-  name: 'routeTable'
+  name: 'routeTable-${shortLocationCode}'
   params: {
-    vwanHubName: vwan.outputs.vWanHubName
+    vwanHubName: vwanHub.outputs.Name
     AzFirewallID: deployFirewallInHub ? AzFirewall.outputs.azFwID : 'none'
     deployFirewallInHub: deployFirewallInHub
     internetTrafficRoutingPolicy: internetTrafficRoutingPolicy
@@ -79,30 +85,13 @@ module vpngateway 'modules/vwanvpngateway.bicep' = if (deployGatewayInHub) {
   params: {
     location: location
     vpnGwName: gatewayName
-    vWanHubID: vwan.outputs.vWanHubID
+    vWanHubID: vwanHub.outputs.ID
   }
 }
 
-module dcrvminsights 'modules/dcrvminsights.bicep' = if (!empty(diagnosticWorkspaceId)) {
-  scope: hubrg
-  name: 'dcr-vminsights'
-  params: {
-    diagnosticWorkspaceId: diagnosticWorkspaceId
-    location: location
-    tagsByResource: tagsByResource
-  }
-}
-
-output vwanHubName string = vwan.outputs.vWanHubName
-output vWanHubID string = vwan.outputs.vWanHubID
-output vWanID string = vwan.outputs.vWanID
-output vWanHubAddressSpace string = vwan.outputs.vWanHubAddressSpace
+output vWanHubName string = vwanHub.outputs.Name
 output HubResourceGroupName string = hubrg.name
-output vWanVpnGwID string = deployGatewayInHub ? vpngateway.outputs.vpnGwID : 'none'
-output vWanVpnGwPip array = deployGatewayInHub ? vpngateway.outputs.vpnGwPip : []
-output vWanFwPublicIP array = deployFirewallInHub ? AzFirewall.outputs.azFwIPvWan : []
 output vWanFwIP string = deployFirewallInHub ? AzFirewall.outputs.azFwIP : 'none'
 output vpnGwBgpIp array = deployGatewayInHub ? vpngateway.outputs.vpnGwBgpIp : []
-output vpnGwBgpAsn int = deployGatewayInHub ? vpngateway.outputs.vpnGwBgpAsn : 0
 output vpnGwName string = deployGatewayInHub ? vpngateway.outputs.vpnGwName : 'none'
-output dcrvminsightsID string = !empty(diagnosticWorkspaceId) ? dcrvminsights.outputs.dcrID : 'none'
+output vWanHubID string = vwanHub.outputs.ID

@@ -1,73 +1,92 @@
 targetScope = 'subscription'
 
-param location string
+param OnPremLocation string
+param OnPremShortLocationCode string
+param HubLocation string
+param HubShortLocationCode string
+
 @secure()
 param sharedKey string
+param enableBgp bool
+param tagsByResource object
 
+//OnPrem -> Hub
 param OnPremRgName string
-param HubRgName string
-
-param vwanLinkBgpAsn int
-param vwanLinkBgpPeeringAddress string
-param vwanLinkPublicIP string
-param vwanVpnSiteName string
-param vwanID string
-param vwanHubName string
-param vwanGatewayName string
+param OnPremGatewayID string
+param HubLocalGatewayName string
+param HubAddressPrefixes array
 param vwanVpnGwInfo array
-param tagsByResource object = {}
-param deployFirewallInHub bool
 
-param OnPremVpnGwID string
+//Hub -> OnPrem
+param HubRgName string
+param OnPremBgpAsn int
+param OnPremBgpPeeringAddress string
+param OnPremGatewayPublicIP string
+param OnPremAddressPrefixes array
+param vwanGatewayName string
+param vwanHubName string
+param vwanID string
+param deployFirewallInHub bool
 
 // subscriptions
 param hubSubscriptionID string
 param onPremSubscriptionID string
 
+param routingIntent bool = false
+
+param isCrossRegion bool = false
+
+var vWanCrossRegionPostfix = isCrossRegion ? '-CrossRegion' : ''
+
+// OnPrem VPN Local Gateway and Connection
+resource onpremrg 'Microsoft.Resources/resourceGroups@2025-04-01' existing = {
+  scope: subscription(onPremSubscriptionID)
+  name: OnPremRgName
+}
+
+module vpnOnPrem 'modules/vpnconnection.bicep' = [
+  for (vwan, i) in vwanVpnGwInfo: {
+    scope: onpremrg
+    name: '${HubLocalGatewayName}${i + 1}'
+    params: {
+      LocalGatewayAddressPrefixes: HubAddressPrefixes
+      LocalGatewayName: '${HubLocalGatewayName}${i + 1}'
+      LocalGatewayPublicIP: vwan.tunnelIpAddresses[0]
+      location: OnPremLocation
+      connectionName: 'VPNtoVWAN${i + 1}-${HubShortLocationCode}'
+      sharedKey: sharedKey
+      VpnGatewayID: OnPremGatewayID
+      tagsByResource: tagsByResource
+      enableBgp: enableBgp
+      BgpAsn: 65515
+      BgpPeeringAddress: vwan.defaultBgpIpAddresses[0]
+    }
+  }
+]
+
 // vWAN VPN Site and VPN Connection
-resource hubrg 'Microsoft.Resources/resourceGroups@2023-07-01' existing = {
+resource hubrg 'Microsoft.Resources/resourceGroups@2025-04-01' existing = {
   scope: subscription(hubSubscriptionID)
   name: HubRgName
 }
 
 module vpnvWan 'modules/vwanvpnconnection.bicep' = {
   scope: hubrg
-  name: 'vwanVPNsites'
+  name: 'vwanVPNsites-${OnPremLocation}'
   params: {
-    linkBgpAsn: vwanLinkBgpAsn
-    linkBgpPeeringAddress: vwanLinkBgpPeeringAddress
-    linkPublicIP: vwanLinkPublicIP
-    location: location
-    vpnSiteName: vwanVpnSiteName
+    enableBgp: enableBgp
+    addressPrefixes: OnPremAddressPrefixes
+    linkBgpAsn: OnPremBgpAsn
+    linkBgpPeeringAddress: OnPremBgpPeeringAddress
+    linkPublicIP: OnPremGatewayPublicIP
+    location: HubLocation
+    vpnSiteName: 'VPNtoOnPrem-${OnPremShortLocationCode}${vWanCrossRegionPostfix}'
     vwanGatewayName: vwanGatewayName
     vwanHubName: vwanHubName
     vwanID: vwanID
     sharedKey: sharedKey
     tagsByResource: tagsByResource
     propagateToNoneRouteTable: deployFirewallInHub
+    routingIntent: routingIntent
   }
 }
-
-// OnPrem VPN Local Gateway and Connection
-resource onpremrg 'Microsoft.Resources/resourceGroups@2023-07-01' existing = {
-  scope: subscription(onPremSubscriptionID)
-  name: OnPremRgName
-}
-
-module vpnOnPrem 'modules/vpnconnection.bicep' = [for (item, i) in vwanVpnGwInfo: {
-  scope: onpremrg
-  name: 'vpnconnection${i + 1}'
-  params: {
-    connectionName: 'toVWAN${i + 1}'
-    enableBgp: true
-    LocalGatewayAddressPrefixes: []
-    LocalGatewayName: 'VWAN${i + 1}'
-    BgpPeeringAddress: vwanVpnGwInfo[i].defaultBgpIpAddresses[0]
-    BgpAsn: 65515
-    LocalGatewayPublicIP: vwanVpnGwInfo[i].tunnelIpAddresses[0]
-    location: location
-    sharedKey: sharedKey
-    VpnGatewayID: OnPremVpnGwID
-    tagsByResource: tagsByResource
-  }
-}]

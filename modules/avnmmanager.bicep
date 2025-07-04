@@ -26,5 +26,23 @@ resource avnm 'Microsoft.Network/networkManagers@2024-05-01' = {
   tags: tagsByResource[?'Microsoft.Network/networkManagers'] ?? {}
 }
 
+module userAssignedIdentity 'uai.bicep' = {
+  name: 'UserAssignedIdentityForAVNM'
+  params: {
+    location: location
+    uaiName: avnmName
+    tagsByResource: tagsByResource
+  }
+}
+
+module roleAssignment 'avnmroleassignment.bicep' = {
+  name: 'RoleAssignmentForAVNMDeploymentScript'
+  params: {
+    principalID: userAssignedIdentity.outputs.principalID
+    avnmName: avnmName
+  }
+}
+
 output id string = avnm.id
 output name string = avnm.name
+output uaiId string = userAssignedIdentity.outputs.id

@@ -1,6 +1,7 @@
 targetScope = 'subscription'
 
 param location string
+param shortLocationCode string
 param AddressSpace string
 param counter int
 param adminUsername string
@@ -11,26 +12,24 @@ param deployFirewallInHub bool
 param deployUDRs bool
 param AzureFirewallpip string
 param HubDeployed bool
-param spokeRgNamePrefix string
+param spokeRgName string
 param vmSize string
 param tagsByResource object
 param osType string
 param firewallDNSproxy bool
 param defaultOutboundAccess bool
 
-param diagnosticWorkspaceId string
-
 param dcrID string
 
-var vnetName = 'VNET-Spoke${counter}'
-var vmName = 'VM-Spoke${counter}'
-var rtName = 'RT-Spoke${counter}'
-var nsgName = 'NSG-Spoke${counter}'
+var vnetName = 'VNET-Spoke${counter}-${shortLocationCode}'
+var vmName = 'VM-Spoke${counter}-${shortLocationCode}'
+var rtName = 'RT-Spoke${counter}-${shortLocationCode}'
+var nsgName = 'NSG-Spoke${counter}-${shortLocationCode}'
 
 var defaultSubnetPrefix = cidrSubnet(AddressSpace, 26, 0)
 
-resource spokerg 'Microsoft.Resources/resourceGroups@2023-07-01' = {
-  name: '${spokeRgNamePrefix}${counter}'
+resource spokerg 'Microsoft.Resources/resourceGroups@2025-04-01' = {
+  name: spokeRgName
   location: location
   tags: tagsByResource[?'Microsoft.Resources/subscriptions/resourceGroups'] ?? {}
 }
@@ -65,7 +64,6 @@ module vm 'modules/vm.bicep' = if (deployVMsInSpokes) {
     vmSize: vmSize
     tagsByResource: tagsByResource
     osType: osType
-    diagnosticWorkspaceId: diagnosticWorkspaceId
     dcrID: dcrID
   }
 }
@@ -92,7 +90,7 @@ module rt 'modules/routetable.bicep' = if (deployFirewallInHub && HubDeployed &&
 
 module route1 'modules/route.bicep' = if (deployFirewallInHub && HubDeployed && deployUDRs) {
   scope: spokerg
-  name: 'RouteToInternet'
+  name: '${rtName}-RouteToInternet'
   params: {
     routeAddressPrefix: '0.0.0.0/0'
     routeName: deployFirewallInHub && HubDeployed && deployUDRs ? '${rt.outputs.rtName}/toInternet' : 'dummy1'
@@ -101,7 +99,3 @@ module route1 'modules/route.bicep' = if (deployFirewallInHub && HubDeployed && 
 }
 
 output spokeVnetID string = vnet.outputs.vnetID
-output spokeVnetAddressSpace string = AddressSpace
-output spokeResourceGroupName string = spokerg.name
-output spokeVnetName string = vnet.outputs.vnetName
-output spokeVmResourceID string = deployVMsInSpokes ? vm.outputs.vmResourceID : 'none'

@@ -9,6 +9,7 @@ param nsgID string = 'none'
 param bastionNSGID string = 'none'
 param rtDefID string = 'none'
 param rtGwID string = 'none'
+param rtFwID string = 'none'
 param deployDefaultSubnet bool
 param deployBastionSubnet bool = false
 param deployFirewallSubnet bool = false
@@ -50,6 +51,7 @@ var firewallSubnet = deployFirewallSubnet
         name: 'AzureFirewallSubnet'
         properties: {
           addressPrefix: firewallSubnetPrefix
+          routeTable: rtFwID == 'none' ? null : json('{"id": "${rtFwID}"}"')
         }
       }
     ]
@@ -67,7 +69,7 @@ var gatewaySubnet = deployGatewaySubnet
     ]
   : []
 
-resource vnet 'Microsoft.Network/virtualNetworks@2023-06-01' = {
+resource vnet 'Microsoft.Network/virtualNetworks@2024-07-01' = {
   name: vnetname
   location: location
   properties: {

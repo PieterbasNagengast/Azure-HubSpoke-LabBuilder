@@ -10,8 +10,6 @@ param osType string = 'Windows'
 param tagsByResource object = {}
 param dcrID string
 
-param diagnosticWorkspaceId string
-
 var EnableICMPv4 = 'netsh advfirewall firewall add rule name="ICMP Allow incoming V4 echo request" protocol="icmpv4:8,any" dir=in action=allow'
 
 var AmaExtensionName = osType == 'Windows' ? 'AzureMonitorWindowsAgent' : 'AzureMonitorLinuxAgent'
@@ -20,7 +18,7 @@ var AmaExtensionVersion = '1.0'
 
 var DaExtensionName = 'DependencyAgentWindows'
 var DaExtensionType = 'DependencyAgentWindows'
-var DaExtensionVersion = '9.5'
+var DaExtensionVersion = '9.10'
 
 var Windows = {
   publisher: 'MicrosoftWindowsServer'
@@ -38,7 +36,7 @@ var Linux = {
 
 var imagereference = osType == 'Windows' ? Windows : osType == 'Linux' ? Linux : {}
 
-resource vm 'Microsoft.Compute/virtualMachines@2023-09-01' = {
+resource vm 'Microsoft.Compute/virtualMachines@2024-11-01' = {
   name: vmName
   location: location
   identity: {
@@ -84,7 +82,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2023-09-01' = {
   tags: tagsByResource[?'Microsoft.Compute/virtualMachines'] ?? {}
 }
 
-resource amaextension 'Microsoft.Compute/virtualMachines/extensions@2023-09-01' = if (!empty(diagnosticWorkspaceId)) {
+resource amaextension 'Microsoft.Compute/virtualMachines/extensions@2023-09-01' = if (!empty(dcrID)) {
   name: AmaExtensionName
   parent: vm
   location: location
@@ -93,10 +91,11 @@ resource amaextension 'Microsoft.Compute/virtualMachines/extensions@2023-09-01' 
     type: AmaExtensionType
     typeHandlerVersion: AmaExtensionVersion
     autoUpgradeMinorVersion: true
+    enableAutomaticUpgrade: true
   }
 }
 
-resource daextension 'Microsoft.Compute/virtualMachines/extensions@2023-09-01' = if (!empty(diagnosticWorkspaceId) && osType == 'Windows') {
+resource daextension 'Microsoft.Compute/virtualMachines/extensions@2023-09-01' = if (!empty(dcrID) && osType == 'Windows') {
   name: DaExtensionName
   parent: vm
   location: location
@@ -111,7 +110,7 @@ resource daextension 'Microsoft.Compute/virtualMachines/extensions@2023-09-01' =
   }
 }
 
-resource dcrassociation 'Microsoft.Insights/dataCollectionRuleAssociations@2023-03-11' = if (!empty(diagnosticWorkspaceId)) {
+resource dcrassociation 'Microsoft.Insights/dataCollectionRuleAssociations@2023-03-11' = if (!empty(dcrID)) {
   name: 'VMInsights-Dcr-Association'
   scope: vm
   properties: {
@@ -120,7 +119,7 @@ resource dcrassociation 'Microsoft.Insights/dataCollectionRuleAssociations@2023-
   }
 }
 
-resource nic 'Microsoft.Network/networkInterfaces@2023-06-01' = {
+resource nic 'Microsoft.Network/networkInterfaces@2024-07-01' = {
   name: '${vmName}-nic'
   location: location
   properties: {
@@ -137,7 +136,7 @@ resource nic 'Microsoft.Network/networkInterfaces@2023-06-01' = {
       }
     ]
   }
-  tags: tagsByResource[?'Microsoft.Compute/virtualMachines'] ?? {}
+  tags: tagsByResource[?'Microsoft.Network/networkInterfaces'] ?? {}
 }
 
 module run 'runcommand.bicep' = if (osType == 'Windows') {
