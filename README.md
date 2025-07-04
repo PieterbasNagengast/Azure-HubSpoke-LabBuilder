@@ -1,5 +1,3 @@
-<h1>Hub or Azure Virtual WAN & Spoke playground - LAB Builder</h1>
-
 [![LabBuilder - Deploy VNET Scenarios](https://github.com/PieterbasNagengast/Azure-HubSpoke-LabBuilder/actions/workflows/vnet.yml/badge.svg)](https://github.com/PieterbasNagengast/Azure-HubSpoke-LabBuilder/actions/workflows/vnet.yml)
 
 [![LabBuilder - Deploy VWAN Scenarios](https://github.com/PieterbasNagengast/Azure-HubSpoke-LabBuilder/actions/workflows/vwan.yml/badge.svg)](https://github.com/PieterbasNagengast/Azure-HubSpoke-LabBuilder/actions/workflows/vwan.yml)
@@ -23,8 +21,13 @@
 - [Azure Monitor Agent, VM Insights and Dependency Agent](#azure-monitor-agent-vm-insights-and-dependency-agent)
 - [Azure Virtual Network Manager](#azure-virtual-network-manager)
 - [Private Subnets (Disable Default Outbound Access)](#private-subnets-disable-default-outbound-access)
+- [Multi-Region](#multi-region)
+  - [Multi-Region Deployments](#multi-region-deployments)
+  - [Multi-Region Configuration](#multi-region-configuration)
+  - [Multi-Region Topology](#multi-region-topology)
 - [Parameters overview](#parameters-overview)
 - [Updates](#updates)
+  - [July 2025 updates](#july-2025-updates)
   - [April 2025 updates](#april-2025-updates)
   - [March 2025 updates](#march-2025-updates)
   - [July 2024 updates](#july-2024-updates)
@@ -48,9 +51,11 @@
 
 ## Description
 
-This Lab Builder is built for testing, training, learning, reproduce and demo purposes which allows for quickly repeatable deployments of a Azure Hub & Spoke topology. All components like: Azure Virtual Machines, Azure Firewalls, Azure Virtual Network Gateways, Azure Bastion Hosts and the number of Spokes are optional making this deployment suitable for every scenario!
+This Lab Builder is built for testing, training, learning, reproduce and demo purposes which allows for quickly repeatable deployments of Azure Hub & Spoke topology. All components like: Azure Virtual Machines, Azure Firewalls, Azure Virtual Network Gateways, Azure Bastion Hosts and the number of Spokes are optional making this deployment suitable for every scenario!
 
-Optionaly you can deploy:
+**New Multi-Region Support**: Deploy across multiple Azure regions with automatic cross-region connectivity, global VNET peering, and cross-region VPN tunnels for comprehensive multi-region testing scenarios.
+
+Optionally you can deploy:
 
 - Azure Firewall (Standard or Premium) in the Hub (VNET or vWAN) incl. Route table
 - Azure Virtual network manager (AVNM) with Hub & Spoke topology and optionally Directly Connected network group.
@@ -64,11 +69,11 @@ Optionaly you can deploy:
   - Bastion Host
   - Virtual Machine
 
-** On deployemnt you can specify the amount of Spoke VNET's to be deployed. VNET peerings will be deployed if both Hub and Spoke(s) are selected for deployement. When deploying together with AVNM the VNET peerings will be managed by AVNM.
+** On deployment you can specify the amount of Spoke VNET's to be deployed. VNET peerings will be deployed if both Hub and Spoke(s) are selected for deployment. When deploying together with AVNM the VNET peerings will be managed by AVNM.
 
-*** To simulate OnPrem hybrid connectivity you can optionaly deploy a 'OnPrem' VNET. Optionaly deploy a Bastion Host, Virtual Machine and Virtual Network Gateway in the OnPrem VNET. When a Hub is also deployed with a VPN Gateway you can optionaly deploy a site-to-site VPN connection.
+*** To simulate OnPrem hybrid connectivity you can optionally deploy a 'OnPrem' VNET. Optionally deploy a Bastion Host, Virtual Machine and Virtual Network Gateway in the OnPrem VNET. When a Hub is also deployed with a VPN Gateway you can optionally deploy a site-to-site VPN connection.
 
-**** Azure Virtual Network Manager is onyl supported in 'VNET' Hub & Spoke topology.
+**** Azure Virtual Network Manager is only supported in 'VNET' Hub & Spoke topology.
 
 ## Scenario's
 
@@ -87,6 +92,7 @@ Within these **main** scenario's there are multiple options (but not limited to 
 | **2. Only deploy Hub or vWAN Hub**                | - Resource Group (rg-Hub)<br>- Virtual Network (VNET-Hub)<br>- [optional] Subnet (AzureBastionSubnet)<br>- [optional] Subnet (AzureFirewallSubnet)<br><br>- [optional] Subnet (GatewaySubnet)<br>- [optional] Azure Bastion Host (Bastion-Hub) incl. Public IP <br>- [optional] Azure Firewall (AzFw) incl. Public IP<br>- [optional] Azure Firewall Policy (AzFwPolicy)<br>- [optional] Azure Firewall Policy rule Collection Group<br>- [optional] Virtual Network Gateway<br><br>*Only in combination with Firewall in Hub:*<br>- Route table (RT-Hub) linked to 'Default' Subnet, with default route to Azure Firewall |
 | **3. Deploy Hub or vWAN Hub and Spokes**          | includes all from scenario 1 and 2, incl:<br>- VNET Peerings                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | **4. Deploy Hub or vWAN Hub and Spokes + OnPrem** | includes all from scenario 1, 2 and 3 incl:<br>- Resource Group (rg-OnPrem)<br>- Virtual Network (VNET-OnPrem)<br>- Network Security Group (NSG-OnPrem) linked to 'Default' Subnet<br>- Subnet (Default)<br>- [optional] Subnet (AzureBastionSubnet)<br>- [optional] Subnet (GatewaySubnet)<br>- [optional] Azure Bastion Host (Bastion-Hub) incl. Public IP<br>- [optional] Azure Virtual Machine (Windows)<br><br>*Only in combination with Hub:*<br>- [optional] Site-to-Site VPN Connection to Hub Gateway                                                                                                             |
+| **5. Deploy Multi-Region Hub & Spoke**            | includes all from scenarios 1, 2, 3 and 4 deployed across multiple regions, incl:<br>- Global VNET Peering between regions<br>- Cross-Region VPN Connections<br>- Multi-Region Hub & Spoke topology<br>- Cross-Region OnPrem connectivity<br>- Region-specific resource groups and naming<br>- Independent address spaces per region                                                                                                                                                                                                                                                                                       |
 
 ### Topology drawing - Hub & Spoke
 
@@ -107,8 +113,8 @@ Within these **main** scenario's there are multiple options (but not limited to 
 - Linux VM image is Ubuntu Server 22.04 LTS Gen2
 - Route table incl. Default routes (Private and Public) will be deployed in vWAN Hub if Azure Firewall is selected.  
 - Route tables (UDR's) incl. Default route will be deployed if Azure Firewall is selected (0.0.0.0/0 -> Azure Firewall)
-- Network Security group will be deplyed to 'default' subnets only
-- At deployemt use a /16 subnet. every VNET (Hub and Spoke VNET's) will get a /24 subnet
+- Network Security group will be deployed to 'default' subnets only
+- At deployment use a /16 subnet. every VNET (Hub and Spoke VNET's) will get a /24 subnet
 - Hub VNET will always get the first available /24 address space. eg. 172.16.0.0/24
 - Spoke(s) VNET gets subsequent address spaces. eg. 172.16.1.0/24, 172.16.2.0/24 etc.
 - OnPrem VNET will always get the latest available /24 address space. eg. 172.16.255.0/24
@@ -188,66 +194,119 @@ When deploying a Hub you can also deploy a Azure Virtual Network Manager (AVNM).
 
 When deploying Private Subnets in the Spoke VNET's you can disable the default outbound access. This is only available when deploying Azure Firewall in the Hub VNET. The default outbound access will be disabled on the Spoke VNET subnets and all traffic will be routed to the Azure Firewall (Explicit outbound access).
 
+## Multi-Region
+
+### Multi-Region Deployments
+
+The LAB Builder now supports deploying across multiple Azure regions (up to 2 regions) for comprehensive multi-region testing scenarios. This enables you to test:
+
+- **Global VNET Peering**: Automatic peering between VNETs across regions
+- **Cross-Region VPN Connections**: Site-to-site VPN tunnels between regions
+- **Multi-Region Hub & Spoke**: Deploy Hub and Spoke topologies across regions
+- **Cross-Region OnPrem Connectivity**: Simulate OnPrem connections to multiple regions
+
+### Multi-Region Configuration
+
+To deploy across multiple regions, configure the `locations` parameter in your deployment:
+
+```bicep
+param locations = [
+  {
+    region: 'swedencentral'
+    addressSpace: '172.16.0.0/16'
+    hubSubscriptionID: subscription().subscriptionId
+    spokeSubscriptionID: subscription().subscriptionId
+    onPremSubscriptionID: subscription().subscriptionId
+  }
+  {
+    region: 'germanywestcentral'
+    addressSpace: '172.31.0.0/16'
+    hubSubscriptionID: subscription().subscriptionId
+    spokeSubscriptionID: subscription().subscriptionId
+    onPremSubscriptionID: subscription().subscriptionId
+  }
+]
+```
+
+### Multi-Region Topology
+
+When deploying in multi-region mode:
+- Each region gets its own Hub and Spoke topology
+- Global VNET peering is automatically configured between regions
+- Cross-region VPN tunnels are established between Hub VNETs or vWAN Hubs
+- OnPrem VNETs can connect to multiple regions simultaneously
+
 ## Parameters overview
 
-| Parameter Name                 | Type         | Description                                                                                                                                  | DefaultValue                    | Possible values         |
-| :----------------------------- | :----------- | :------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------ | :---------------------- |
-| `AddressSpace`                 | string       | IP Address space used for VNETs in deployment. Only enter a /16 subnet. Default = 172.16.0.0/16                                              | 172.16.0.0/16                   |                         |
-| `adminPassword`                | secureString | Admin Password for VM                                                                                                                        |                                 |                         |
-| `adminUsername`                | string       | Admin username for VM                                                                                                                        |                                 |                         |
-| `amountOfSpokes`               | int          | Amount of Spoke VNETs you want to deploy. Default = 2                                                                                        | 2                               |                         |
-| `AzureFirewallTier`            | string       | Azure Firewall Tier: Standard or Premium                                                                                                     | Standard                        | `Standard` or `Premium` |
-| `bastionInHubSKU`              | string       | Hub Bastion SKU                                                                                                                              | Basic                           | `Basic` or `Standard`   |
-| `bastionInOnPremSKU`           | string       | OnPrem Bastion SKU                                                                                                                           | Basic                           | `Basic` or `Standard`   |
-| `bastionInSpokeSKU`            | string       | Spoke Bastion SKU                                                                                                                            | Basic                           | `Basic` or `Standard`   |
-| `deployBastionInHub`           | bool         | Deploy Bastion Host in Hub VNET                                                                                                              | False                           |                         |
-| `deployBastionInOnPrem`        | bool         | Deploy Bastion Host in OnPrem VNET                                                                                                           | True                            |                         |
-| `deployBastionInSpoke`         | bool         | Deploy Bastion Host in every Spoke VNET                                                                                                      | False                           |                         |
-| `deployFirewallInHub`          | bool         | Deploy Azure Firewall in Hub VNET. includes deployment of custom route tables in Spokes and Hub VNETs                                        | True                            |                         |
-| `deployFirewallrules`          | bool         | Deploy Firewall policy Rule Collection group which allows spoke-to-spoke and internet traffic                                                | True                            |                         |
-| `deployGatewayInHub`           | bool         | Deploy Virtual Network Gateway in Hub VNET                                                                                                   | True                            |                         |
-| `deployGatewayinOnPrem`        | bool         | Deploy Virtual Network Gateway in OnPrem VNET                                                                                                | True                            |                         |
-| `deployHUB`                    | bool         | Deploy Hub                                                                                                                                   | True                            |                         |
-| `deployOnPrem`                 | bool         | Deploy Virtual Network Gateway in OnPrem                                                                                                     | True                            |                         |
-| `deploySiteToSite`             | bool         | Deploy Site-to-Site VPN connection between OnPrem and Hub Gateways                                                                           | True                            |                         |
-| `deploySpokes`                 | bool         | Deploy Spoke VNETs                                                                                                                           | True                            |                         |
-| `deployUDRs`                   | bool         | Dploy route tables (UDR's) to VM subnet(s) in Hub and Spokes                                                                                 | True                            |                         |
-| `deployVMinOnPrem`             | bool         | Deploy VM in OnPrem VNET                                                                                                                     | True                            |                         |
-| `deployVMsInSpokes`            | bool         | Deploy VM in every Spoke VNET                                                                                                                | True                            |                         |
-| `diagnosticWorkspaceId`        | string       | Workspace ID of exsisting LogAnalytics Workspace                                                                                             |                                 |                         |
-| `firewallDNSproxy`             | bool         | Enable Azure Firewall DNS proxy                                                                                                              | False                           |                         |
-| `hubBgp`                       | bool         | Enable BGP on Hub Gateway                                                                                                                    | True                            |                         |
-| `hubBgpAsn`                    | int          | Hub BGP ASN                                                                                                                                  | 65010                           |                         |
-| `hubRgName`                    | string       | Hub resource group pre-fix name                                                                                                              | rg-hub                          |                         |
-| `hubSubscriptionID`            | string       | SubscriptionID for HUB deployemnt                                                                                                            | [subscription().subscriptionId] |                         |
-| `hubType`                      | string       | Deploy Hub VNET or Azuere vWAN                                                                                                               | VWAN                            | `VNET` or `VWAN`        |
-| `location`                     | string       | Azure Region. Defualt = Deployment location                                                                                                  | [deployment().location]         |                         |
-| `onpremBgp`                    | bool         | Enable BGP on OnPrem Gateway                                                                                                                 | True                            |                         |
-| `onpremBgpAsn`                 | int          | OnPrem BGP ASN                                                                                                                               | 65020                           |                         |
-| `onpremRgName`                 | string       | OnPrem Resource Group Name                                                                                                                   | rg-onprem                       |                         |
-| `onPremSubscriptionID`         | string       | SubscriptionID for OnPrem deployemnt                                                                                                         | [subscription().subscriptionId] |                         |
-| `osTypeHub`                    | string       | Hub Virtual Machine OS type. Windows or Linux. Default = Windows                                                                             | Windows                         | `Windows` or `Linux`    |
-| `osTypeOnPrem`                 | string       | OnPrem Virtual Machine OS type. Windows or Linux. Default = Windows                                                                          | Windows                         | `Windows` or `Linux`    |
-| `osTypeSpoke`                  | string       | Spoke Virtual Machine(s) OS type. Windows or Linux. Default = Windows                                                                        | Windows                         | `Windows` or `Linux`    |
-| `sharedKey`                    | secureString | Site-to-Site ShareKey                                                                                                                        |                                 |                         |
-| `spokeRgNamePrefix`            | string       | Spoke resource group prefix name                                                                                                             | rg-spoke                        |                         |
-| `spokeSubscriptionID`          | string       | SubscriptionID for Spoke deployemnt                                                                                                          | [subscription().subscriptionId] |                         |
-| `tagsByResource`               | object       | Tags by resource types                                                                                                                       |                                 |                         |
-| `vmSizeHub`                    | string       | Hub Virtual Machine SKU. Default = Standard_B2s                                                                                              | Standard_B2s                    |                         |
-| `vmSizeOnPrem`                 | string       | OnPrem Virtual Machine SKU. Default = Standard_B2s                                                                                           | Standard_B2s                    |                         |
-| `vmSizeSpoke`                  | string       | Spoke Virtual Machine SKU. Default = Standard_B2s                                                                                            | Standard_B2s                    |                         |
-| `deployVnetPeeringMesh`        | bool         | Directly connect VNET Spokes (Fully Meshed Topology) with standard VNET Peerings. When using AVNM the Directly Connected Group will be used. | False                           |                         |
-| `deployVnetPeeringAVNM`        | bool         | Deploy Azure Virtual Network Manager                                                                                                         | False                           |                         |
-| `internetTrafficRoutingPolicy` | bool         | Enable Internet traffic vWAN routing policy on Azure Firewall                                                                                | False                           |                         |
-| `privateTrafficRoutingPolicy`  | bool         | Enable Private traffic vWAN routing policy on Azure Firewall                                                                                 | False                           |                         |
-| `defaultOutboundAccess`        | bool         | Disbale Default outbound access on Spoke VNET subnets. Only available if Firewall is deployed in Hub.                                        | False                           |                         |
+| Parameter Name                 | Type         | Description                                                                                                                                  | DefaultValue                    | Possible values                   |
+| :----------------------------- | :----------- | :------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------ | :-------------------------------- |
+| `AddressSpace`                 | string       | IP Address space used for VNETs in deployment. Only enter a /16 subnet. Default = 172.16.0.0/16                                              | 172.16.0.0/16                   |                                   |
+| `locations`                    | array        | Array of location objects for multi-region deployments. Each location includes region, addressSpace, and subscription IDs                    | Single region configuration     |                                   |
+| `adminPassword`                | secureString | Admin Password for VM                                                                                                                        |                                 |                                   |
+| `adminUsername`                | string       | Admin username for VM                                                                                                                        |                                 |                                   |
+| `amountOfSpokes`               | int          | Amount of Spoke VNETs you want to deploy. Default = 2                                                                                        | 2                               |                                   |
+| `AzureFirewallTier`            | string       | Azure Firewall Tier: Standard or Premium                                                                                                     | Standard                        | `Standard` or `Premium`           |
+| `bastionInHubSKU`              | string       | Hub Bastion SKU                                                                                                                              | Basic                           | `Basic`, `Standard`, or `Premium` |
+| `bastionInOnPremSKU`           | string       | OnPrem Bastion SKU                                                                                                                           | Basic                           | `Basic` or `Standard`             |
+| `bastionInSpokeSKU`            | string       | Spoke Bastion SKU                                                                                                                            | Basic                           | `Basic` or `Standard`             |
+| `deployBastionInHub`           | bool         | Deploy Bastion Host in Hub VNET                                                                                                              | False                           |                                   |
+| `deployBastionInOnPrem`        | bool         | Deploy Bastion Host in OnPrem VNET                                                                                                           | True                            |                                   |
+| `deployBastionInSpoke`         | bool         | Deploy Bastion Host in every Spoke VNET                                                                                                      | False                           |                                   |
+| `deployFirewallInHub`          | bool         | Deploy Azure Firewall in Hub VNET. includes deployment of custom route tables in Spokes and Hub VNETs                                        | True                            |                                   |
+| `deployFirewallrules`          | bool         | Deploy Firewall policy Rule Collection group which allows spoke-to-spoke and internet traffic                                                | True                            |                                   |
+| `deployGatewayInHub`           | bool         | Deploy Virtual Network Gateway in Hub VNET                                                                                                   | True                            |                                   |
+| `deployGatewayinOnPrem`        | bool         | Deploy Virtual Network Gateway in OnPrem VNET                                                                                                | True                            |                                   |
+| `deployHUB`                    | bool         | Deploy Hub                                                                                                                                   | True                            |                                   |
+| `deployOnPrem`                 | bool         | Deploy Virtual Network Gateway in OnPrem                                                                                                     | True                            |                                   |
+| `deploySiteToSite`             | bool         | Deploy Site-to-Site VPN connection between OnPrem and Hub Gateways                                                                           | True                            |                                   |
+| `deploySpokes`                 | bool         | Deploy Spoke VNETs                                                                                                                           | True                            |                                   |
+| `deployUDRs`                   | bool         | Deploy route tables (UDR's) to VM subnet(s) in Hub and Spokes                                                                                | True                            |                                   |
+| `deployVMinOnPrem`             | bool         | Deploy VM in OnPrem VNET                                                                                                                     | True                            |                                   |
+| `deployVMsInSpokes`            | bool         | Deploy VM in every Spoke VNET                                                                                                                | True                            |                                   |
+| `diagnosticWorkspaceId`        | string       | Workspace ID of exsisting LogAnalytics Workspace                                                                                             |                                 |                                   |
+| `firewallDNSproxy`             | bool         | Enable Azure Firewall DNS proxy                                                                                                              | False                           |                                   |
+| `hubBgp`                       | bool         | Enable BGP on Hub Gateway                                                                                                                    | True                            |                                   |
+| `hubBgpAsn`                    | int          | Hub BGP ASN                                                                                                                                  | 65010                           |                                   |
+| `hubRgName`                    | string       | Hub resource group pre-fix name                                                                                                              | rg-hub                          |                                   |
+| `hubSubscriptionID`            | string       | SubscriptionID for HUB deployemnt                                                                                                            | [subscription().subscriptionId] |                                   |
+| `hubType`                      | string       | Deploy Hub VNET or Azuere vWAN                                                                                                               | VWAN                            | `VNET` or `VWAN`                  |
+| `location`                     | string       | Azure Region. Default = Deployment location                                                                                                  | [deployment().location]         |                                   |
+| `onpremBgp`                    | bool         | Enable BGP on OnPrem Gateway                                                                                                                 | True                            |                                   |
+| `onpremBgpAsn`                 | int          | OnPrem BGP ASN                                                                                                                               | 65020                           |                                   |
+| `onpremRgName`                 | string       | OnPrem Resource Group Name                                                                                                                   | rg-onprem                       |                                   |
+| `onPremSubscriptionID`         | string       | SubscriptionID for OnPrem deployemnt                                                                                                         | [subscription().subscriptionId] |                                   |
+| `osTypeHub`                    | string       | Hub Virtual Machine OS type. Windows or Linux. Default = Windows                                                                             | Windows                         | `Windows` or `Linux`              |
+| `osTypeOnPrem`                 | string       | OnPrem Virtual Machine OS type. Windows or Linux. Default = Windows                                                                          | Windows                         | `Windows` or `Linux`              |
+| `osTypeSpoke`                  | string       | Spoke Virtual Machine(s) OS type. Windows or Linux. Default = Windows                                                                        | Windows                         | `Windows` or `Linux`              |
+| `sharedKey`                    | secureString | Site-to-Site ShareKey                                                                                                                        |                                 |                                   |
+| `spokeRgNamePrefix`            | string       | Spoke resource group prefix name                                                                                                             | rg-spoke                        |                                   |
+| `spokeSubscriptionID`          | string       | SubscriptionID for Spoke deployemnt                                                                                                          | [subscription().subscriptionId] |                                   |
+| `tagsByResource`               | object       | Tags by resource types                                                                                                                       |                                 |                                   |
+| `vmSizeHub`                    | string       | Hub Virtual Machine SKU. Default = Standard_B2ls_v2                                                                                          | Standard_B2ls_v2                |                                   |
+| `vmSizeOnPrem`                 | string       | OnPrem Virtual Machine SKU. Default = Standard_B2ls_v2                                                                                       | Standard_B2ls_v2                |                                   |
+| `vmSizeSpoke`                  | string       | Spoke Virtual Machine SKU. Default = Standard_B2ls_v2                                                                                        | Standard_B2ls_v2                |                                   |
+| `deployVnetPeeringMesh`        | bool         | Directly connect VNET Spokes (Fully Meshed Topology) with standard VNET Peerings. When using AVNM the Directly Connected Group will be used. | False                           |                                   |
+| `deployVnetPeeringAVNM`        | bool         | Deploy Azure Virtual Network Manager                                                                                                         | False                           |                                   |
+| `internetTrafficRoutingPolicy` | bool         | Enable Internet traffic vWAN routing policy on Azure Firewall                                                                                | False                           |                                   |
+| `privateTrafficRoutingPolicy`  | bool         | Enable Private traffic vWAN routing policy on Azure Firewall                                                                                 | False                           |                                   |
+| `defaultOutboundAccess`        | bool         | Disable Default outbound access on Spoke VNET subnets. Only available if Firewall is deployed in Hub.                                        | False                           |                                   |
 
 ## Updates
+
+### July 2025 updates
+- Enhanced multi-region deployment capabilities with improved cross-region connectivity
+- Updated default Virtual Machine SKUs to more cost-effective options (Standard_B2ls_v2)
+- Improved Bicep parameter file structure with better organization and validation
+- Enhanced Azure Bastion Premium SKU support across all deployment scenarios
+- Optimized subnet allocation for better address space utilization
+- Improved documentation and parameter descriptions for better user experience
+- Updated resource naming conventions for better consistency across deployments
+- Enhanced AVNM (Azure Virtual Network Manager) integration with improved routing capabilities
 
 ### April 2025 updates
 - Added support for Multi-Region deployments
 - Added Global VNET Peering when deploying in Multi-Region
-- Added Cross Region VPN tunnels when deploying in Multi-Region incuding OnPrem VNET
+- Added Cross Region VPN tunnels when deploying in Multi-Region including OnPrem VNET
 
 ### March 2025 updates
 - Updated Resources API's to latest version
@@ -326,5 +385,7 @@ When deploying Private Subnets in the Spoke VNET's you can disable the default o
 - Virtual machine boot diagnostics (Managed storage account)
 - Virtual machine delete option of Disk and Nic
 - Tags support for resources deployed
+
+
 
 
