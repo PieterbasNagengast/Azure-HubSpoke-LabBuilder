@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.36.1.42791",
-      "templateHash": "9821340395141903177"
+      "templateHash": "10305593783389923618"
     }
   },
   "definitions": {
@@ -7655,7 +7655,7 @@
         },
         "mode": "Incremental",
         "parameters": {
-          "routeName": "[if(variables('deployRoutes'), createObject('value', format('{0}/toRegion{1}', reference(format('deployRegion[{0}]', copyIndex())).outputs.HubRtFirewallName.value, variables('regionShortCodes')[parameters('locations')[copyIndex()].region])), createObject('value', 'noRoute'))]",
+          "routeName": "[if(variables('deployRoutes'), createObject('value', format('{0}/toRegion{1}', reference(format('deployRegion[{0}]', copyIndex())).outputs.HubRtFirewallName.value, variables('regionShortCodes')[parameters('locations')[if(and(equals(length(parameters('locations')), 2), equals(copyIndex(), 0)), 1, 0)].region])), createObject('value', 'noRoute'))]",
           "routeNextHopType": {
             "value": "VirtualAppliance"
           },
@@ -8876,10 +8876,10 @@
         }
       },
       "dependsOn": [
+        "[format('deployRegion[{0}]', if(and(equals(length(parameters('locations')), 2), equals(copyIndex(), 0)), 1, 0))]",
+        "[format('deployRegion[{0}]', 0)]",
         "[format('deployRegion[{0}]', if(and(equals(length(parameters('locations')), 2), equals(copyIndex(), 0)), 0, 1))]",
-        "[format('deployRegion[{0}]', 0)]",
-        "[format('deployRegion[{0}]', 0)]",
-        "[format('deployRegion[{0}]', if(and(equals(length(parameters('locations')), 2), equals(copyIndex(), 0)), 1, 0))]"
+        "[format('deployRegion[{0}]', 0)]"
       ]
     }
   },
