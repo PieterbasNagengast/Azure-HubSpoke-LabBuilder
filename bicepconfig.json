@@ -87,6 +87,12 @@
         },
         "prefer-unquoted-property-names": {
           "level": "error"
+        },
+        "no-unused-imports": {
+          "level": "error"
+        },
+        "use-secure-value-for-secure-inputs": {
+          "level": "error"
         }
       }
     }

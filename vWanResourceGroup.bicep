@@ -59,7 +59,7 @@ module firewallrules 'modules/firewallpolicyrules.bicep' = if (deployFirewallrul
   scope: hubrg
   name: 'firewallRules-${shortLocationCode}'
   params: {
-    azFwPolicyName: deployFirewallInHub && deployFirewallrules ? AzFirewall.outputs.azFwPolicyName : 'none'
+    azFwPolicyName: deployFirewallInHub && deployFirewallrules ? AzFirewall!.outputs.azFwPolicyName : 'none'
     AddressSpace: AddressSpace
     isMultiRegion: isMultiRegion
     SecondRegionAddressSpace: isMultiRegion ? SecondRegionAddressSpace : 'none'
@@ -72,7 +72,7 @@ module vwanRouteTable 'modules/vwanhubroutes.bicep' = {
   name: 'routeTable-${shortLocationCode}'
   params: {
     vwanHubName: vwanHub.outputs.Name
-    AzFirewallID: deployFirewallInHub ? AzFirewall.outputs.azFwID : 'none'
+    AzFirewallID: deployFirewallInHub ? AzFirewall!.outputs.azFwID : 'none'
     deployFirewallInHub: deployFirewallInHub
     internetTrafficRoutingPolicy: internetTrafficRoutingPolicy
     privateTrafficRoutingPolicy: privateTrafficRoutingPolicy
@@ -91,7 +91,7 @@ module vpngateway 'modules/vwanvpngateway.bicep' = if (deployGatewayInHub) {
 
 output vWanHubName string = vwanHub.outputs.Name
 output HubResourceGroupName string = hubrg.name
-output vWanFwIP string = deployFirewallInHub ? AzFirewall.outputs.azFwIP : 'none'
-output vpnGwBgpIp array = deployGatewayInHub ? vpngateway.outputs.vpnGwBgpIp : []
-output vpnGwName string = deployGatewayInHub ? vpngateway.outputs.vpnGwName : 'none'
+output vWanFwIP string = deployFirewallInHub ? AzFirewall!.outputs.azFwIP : 'none'
+output vpnGwBgpIp array = deployGatewayInHub ? vpngateway!.outputs.vpnGwBgpIp : []
+output vpnGwName string = deployGatewayInHub ? vpngateway!.outputs.vpnGwName : 'none'
 output vWanHubID string = vwanHub.outputs.ID

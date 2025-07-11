@@ -41,7 +41,7 @@ module vnet 'modules/vnet.bicep' = {
     location: location
     vnetAddressSpcae: AddressSpace
     nsgID: nsg.outputs.nsgID
-    rtDefID: deployFirewallInHub && HubDeployed && deployUDRs ? rt.outputs.rtID : 'none'
+    rtDefID: deployFirewallInHub && HubDeployed && deployUDRs ? rt!.outputs.rtID : 'none'
     vnetname: vnetName
     deployDefaultSubnet: true
     defaultSubnetPrefix: defaultSubnetPrefix
@@ -93,7 +93,7 @@ module route1 'modules/route.bicep' = if (deployFirewallInHub && HubDeployed && 
   name: '${rtName}-RouteToInternet'
   params: {
     routeAddressPrefix: '0.0.0.0/0'
-    routeName: deployFirewallInHub && HubDeployed && deployUDRs ? '${rt.outputs.rtName}/toInternet' : 'dummy1'
+    routeName: deployFirewallInHub && HubDeployed && deployUDRs ? '${rt!.outputs.rtName}/toInternet' : 'dummy1'
     routeNextHopIpAddress: deployFirewallInHub && HubDeployed && deployUDRs ? AzureFirewallpip : '1.2.3.4'
   }
 }

@@ -58,7 +58,7 @@ module vnet 'modules/vnet.bicep' = {
     location: location
     vnetAddressSpcae: AddressSpace
     nsgID: nsg.outputs.nsgID
-    bastionNSGID: deployBastionInOnPrem ? bastioNsg.outputs.nsgID : 'none'
+    bastionNSGID: deployBastionInOnPrem ? bastioNsg!.outputs.nsgID : 'none'
     vnetname: vnetName
     deployDefaultSubnet: true
     defaultSubnetPrefix: defaultSubnetPrefix
@@ -126,8 +126,8 @@ module vpngw 'modules/vpngateway.bicep' = if (deployGatewayInOnPrem) {
 }
 
 output OnPremRgName string = onpremrg.name
-output OnPremGatewayPublicIP string = deployGatewayInOnPrem ? vpngw.outputs.vpnGwPublicIP : 'none'
-output OnPremGatewayID string = deployGatewayInOnPrem ? vpngw.outputs.vpnGwID : 'none'
+output OnPremGatewayPublicIP string = deployGatewayInOnPrem ? vpngw!.outputs.vpnGwPublicIP : 'none'
+output OnPremGatewayID string = deployGatewayInOnPrem ? vpngw!.outputs.vpnGwID : 'none'
 output OnPremAddressSpace string = AddressSpace
-output OnPremGwBgpPeeringAddress string = deployGatewayInOnPrem ? vpngw.outputs.vpnGwBgpPeeringAddress : 'none'
-output OnPremGwBgpAsn int = deployGatewayInOnPrem && vpnGwEnebaleBgp ? vpngw.outputs.vpnGwAsn : 0
+output OnPremGwBgpPeeringAddress string = deployGatewayInOnPrem ? vpngw!.outputs.vpnGwBgpPeeringAddress : 'none'
+output OnPremGwBgpAsn int = deployGatewayInOnPrem && vpnGwEnebaleBgp ? vpngw!.outputs.vpnGwAsn : 0

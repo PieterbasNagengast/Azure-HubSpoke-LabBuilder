@@ -339,8 +339,8 @@ module deployRegion 'mainRegion.bicep' = [
       deployVMsInSpokes: deployVMsInSpokes
       deployVnetPeeringMesh: deployVnetPeeringMesh
       avnmRgName: deployAVNM ? avnmrg.name : 'noAVNM'
-      avnmName: deployAVNM ? avnmmanager.outputs.name : 'noAVNM'
-      avnmUserAssignedIdentityId: deployAVNM ? avnmmanager.outputs.uaiId : 'noAVNM'
+      avnmName: deployAVNM ? avnmmanager!.outputs.name : 'noAVNM'
+      avnmUserAssignedIdentityId: deployAVNM ? avnmmanager!.outputs.uaiId : 'noAVNM'
       deployVnetPeeringAVNM: deployVnetPeeringAVNM
       deployUDRs: deployUDRs
       tagsByResource: tagsByResource
@@ -357,8 +357,8 @@ module deployRegion 'mainRegion.bicep' = [
       hubRgName: vwanhubrg.name
       onpremRgName: onpremRgName
       hubType: hubType
-      vWanID: deployVWAN ? vwan.outputs.ID : 'noVWAN'
-      dcrID: !empty(diagnosticWorkspaceId) ? dcrvminsights.outputs.dcrID : ''
+      vWanID: deployVWAN ? vwan!.outputs.ID : 'noVWAN'
+      dcrID: !empty(diagnosticWorkspaceId) ? dcrvminsights!.outputs.dcrID : ''
     }
   }
 ]

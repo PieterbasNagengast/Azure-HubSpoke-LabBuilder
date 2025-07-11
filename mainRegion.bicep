@@ -179,8 +179,8 @@ module spokeVnets 'SpokeResourceGroup.bicep' = [
       deployVMsInSpokes: deployVMsInSpokes
       deployFirewallInHub: deployFirewallInHub && isVnetHub
       AzureFirewallpip: deployHUB && isVnetHub
-        ? hubVnet.outputs.azFwIp
-        : deployHUB && isVwanHub ? vwan.outputs.vWanFwIP : 'none'
+        ? hubVnet!.outputs.azFwIp
+        : deployHUB && isVwanHub ? vwan!.outputs.vWanFwIP : 'none'
       HubDeployed: deployHUB && isVnetHub
       spokeRgName: '${spokeRgNamePrefix}${i}-${shortLocationCode}'
       vmSize: vmSizeSpoke
@@ -199,8 +199,8 @@ module vnetPeerings 'VnetPeerings.bicep' = [
   for i in range(0, amountOfSpokes): if (deployHUB && deploySpokes && isVnetHub && !deployVnetPeeringAVNM) {
     name: '${hubRgName}-VnetPeering${i + 1}-${shortLocationCode}'
     params: {
-      vnetIDA: deployHUB && deploySpokes && isVnetHub ? spokeVnets[i].outputs.spokeVnetID : 'No VNET peering'
-      vnetIDB: deployHUB && deploySpokes && isVnetHub ? hubVnet.outputs.hubVnetID : 'No VNET peering'
+      vnetIDA: deployHUB && deploySpokes && isVnetHub ? spokeVnets[i]!.outputs.spokeVnetID : 'No VNET peering'
+      vnetIDB: deployHUB && deploySpokes && isVnetHub ? hubVnet!.outputs.hubVnetID : 'No VNET peering'
       useRemoteGatewaysVnetA: deployGatewayInHub
       allowGatewayTransitVnetB: deployGatewayInHub
     }
@@ -218,15 +218,15 @@ module vnetPeeringsAVNM 'Avnm.bicep' = if (deployHUB && deploySpokes && isVnetHu
     avnmRgName: deployHUB && deploySpokes && isVnetHub && deployVnetPeeringAVNM ? avnmRgName : 'No Hub'
     spokeVNETids: [
       for i in range(0, amountOfSpokes): deployHUB && deploySpokes && isVnetHub && deployVnetPeeringAVNM
-        ? spokeVnets[i].outputs.spokeVnetID
+        ? spokeVnets[i]!.outputs.spokeVnetID
         : []
     ]
-    hubVNETid: deployHUB && deploySpokes && isVnetHub && deployVnetPeeringAVNM ? hubVnet.outputs.hubVnetID : 'No Hub'
+    hubVNETid: deployHUB && deploySpokes && isVnetHub && deployVnetPeeringAVNM ? hubVnet!.outputs.hubVnetID : 'No Hub'
     useHubGateway: deployGatewayInHub
     deployVnetPeeringMesh: deployHUB && deploySpokes && isVnetHub && deployVnetPeeringAVNM && deployVnetPeeringMesh
     deployAvnmUDRs: deployHUB && deploySpokes && isVnetHub && deployVnetPeeringAVNM && deployAvnmUDRs && deployFirewallInHub
     AzFwPrivateIP: deployHUB && deploySpokes && isVnetHub && deployVnetPeeringAVNM && deployAvnmUDRs && deployFirewallInHub
-      ? hubVnet.outputs.azFwIp
+      ? hubVnet!.outputs.azFwIp
       : 'none'
     location: location
     tagsByResource: tagsByResource
@@ -239,10 +239,10 @@ module vnetConnections 'vWanVnetConnections.bicep' = [
     name: 'VWAN-VnetConnection${i + 1}-${shortLocationCode}'
     params: {
       HubResourceGroupName: deployHUB && deploySpokes && isVwanHub
-        ? vwan.outputs.HubResourceGroupName
+        ? vwan!.outputs.HubResourceGroupName
         : 'No VNET peering'
-      SpokeVnetID: deployHUB && deploySpokes && isVwanHub ? spokeVnets[i].outputs.spokeVnetID : 'No VNET peering'
-      vwanHubName: deployHUB && deploySpokes && isVwanHub ? vwan.outputs.vWanHubName : 'No VNET peering'
+      SpokeVnetID: deployHUB && deploySpokes && isVwanHub ? spokeVnets[i]!.outputs.spokeVnetID : 'No VNET peering'
+      vwanHubName: deployHUB && deploySpokes && isVwanHub ? vwan!.outputs.vWanHubName : 'No VNET peering'
       deployFirewallInHub: deployFirewallInHub && isVwanHub
       counter: i
       hubSubscriptionID: hubSubscriptionID
@@ -284,23 +284,23 @@ module s2s 'VpnConnections.bicep' = if (deployVPNConnectionsVNET) {
   name: 'VPN-s2s-Hub-to-OnPrem-${shortLocationCode}'
   params: {
     HubLocation: location
-    HubRgName: deployVPNConnectionsVNET ? hubVnet.outputs.hubRgName : 'none'
-    HubGatewayID: deployVPNConnectionsVNET ? hubVnet.outputs.hubGatewayID : 'none'
-    HubGatewayPublicIP: deployVPNConnectionsVNET ? hubVnet.outputs.hubGatewayPublicIP : 'none'
+    HubRgName: deployVPNConnectionsVNET ? hubVnet!.outputs.hubRgName : 'none'
+    HubGatewayID: deployVPNConnectionsVNET ? hubVnet!.outputs.hubGatewayID : 'none'
+    HubGatewayPublicIP: deployVPNConnectionsVNET ? hubVnet!.outputs.hubGatewayPublicIP : 'none'
     HubAddressPrefixes: deployVPNConnectionsVNET ? AllAddressSpaces : []
     HubLocalGatewayName: deployVPNConnectionsVNET ? 'LocalGateway-Hub-${shortLocationCode}' : 'none'
     OnPremLocation: location
-    OnPremRgName: deployVPNConnectionsVNET ? onprem.outputs.OnPremRgName : 'none'
-    OnPremGatewayID: deployVPNConnectionsVNET ? onprem.outputs.OnPremGatewayID : 'none'
-    OnPremGatewayPublicIP: deployVPNConnectionsVNET ? onprem.outputs.OnPremGatewayPublicIP : 'none'
-    OnPremAddressPrefixes: deployVPNConnectionsVNET ? array(onprem.outputs.OnPremAddressSpace) : []
+    OnPremRgName: deployVPNConnectionsVNET ? onprem!.outputs.OnPremRgName : 'none'
+    OnPremGatewayID: deployVPNConnectionsVNET ? onprem!.outputs.OnPremGatewayID : 'none'
+    OnPremGatewayPublicIP: deployVPNConnectionsVNET ? onprem!.outputs.OnPremGatewayPublicIP : 'none'
+    OnPremAddressPrefixes: deployVPNConnectionsVNET ? array(onprem!.outputs.OnPremAddressSpace) : []
     OnPremLocalGatewayName: deployVPNConnectionsVNET ? 'LocalGateway-OnPrem-${shortLocationCode}' : 'none'
     tagsByResource: tagsByResource
     enableBgp: hubBgp && onpremBgp && deployVPNConnectionsVNET
     HubBgpAsn: hubBgpAsn
-    HubBgpPeeringAddress: deployVPNConnectionsVNET ? hubVnet.outputs.HubGwBgpPeeringAddress : 'none'
+    HubBgpPeeringAddress: deployVPNConnectionsVNET ? hubVnet!.outputs.HubGwBgpPeeringAddress : 'none'
     OnPremBgpAsn: onpremBgpAsn
-    OnPremBgpPeeringAddress: deployVPNConnectionsVNET ? onprem.outputs.OnPremGwBgpPeeringAddress : 'none'
+    OnPremBgpPeeringAddress: deployVPNConnectionsVNET ? onprem!.outputs.OnPremGwBgpPeeringAddress : 'none'
     sharedKey: deploySiteToSite && deployVPNConnectionsVNET ? sharedKey : 'none'
     hubSubscriptionID: hubSubscriptionID
     onPremSubscriptionID: onPremSubscriptionID
@@ -317,20 +317,20 @@ module vwans2s 'vWanVpnConnections.bicep' = if (deployVPNConnectionsVWAN) {
     HubLocation: location
     HubShortLocationCode: shortLocationCode
     HubRgName: deployVPNConnectionsVWAN ? hubRgName : 'none'
-    vwanVpnGwInfo: deployVPNConnectionsVWAN ? vwan.outputs.vpnGwBgpIp : []
-    vwanGatewayName: deployVPNConnectionsVWAN ? vwan.outputs.vpnGwName : 'none'
+    vwanVpnGwInfo: deployVPNConnectionsVWAN ? vwan!.outputs.vpnGwBgpIp : []
+    vwanGatewayName: deployVPNConnectionsVWAN ? vwan!.outputs.vpnGwName : 'none'
     vwanID: deployVPNConnectionsVWAN ? vWanID : 'none'
-    vwanHubName: deployVPNConnectionsVWAN ? vwan.outputs.vWanHubName : 'none'
+    vwanHubName: deployVPNConnectionsVWAN ? vwan!.outputs.vWanHubName : 'none'
     HubAddressPrefixes: deployVPNConnectionsVWAN ? AllAddressSpaces : []
     HubLocalGatewayName: deployVPNConnectionsVWAN ? 'LocalGateway-Hub-${shortLocationCode}' : 'none'
     OnPremLocation: location
     OnPremShortLocationCode: shortLocationCode
-    OnPremRgName: deployVPNConnectionsVWAN ? onprem.outputs.OnPremRgName : 'none'
-    OnPremGatewayID: deployVPNConnectionsVWAN ? onprem.outputs.OnPremGatewayID : 'none'
-    OnPremGatewayPublicIP: deployVPNConnectionsVWAN ? onprem.outputs.OnPremGatewayPublicIP : 'none'
-    OnPremAddressPrefixes: deployVPNConnectionsVWAN ? array(onprem.outputs.OnPremAddressSpace) : []
-    OnPremBgpPeeringAddress: deployVPNConnectionsVWAN ? onprem.outputs.OnPremGwBgpPeeringAddress : 'none'
-    OnPremBgpAsn: deployVPNConnectionsVWAN ? onprem.outputs.OnPremGwBgpAsn : 65515
+    OnPremRgName: deployVPNConnectionsVWAN ? onprem!.outputs.OnPremRgName : 'none'
+    OnPremGatewayID: deployVPNConnectionsVWAN ? onprem!.outputs.OnPremGatewayID : 'none'
+    OnPremGatewayPublicIP: deployVPNConnectionsVWAN ? onprem!.outputs.OnPremGatewayPublicIP : 'none'
+    OnPremAddressPrefixes: deployVPNConnectionsVWAN ? array(onprem!.outputs.OnPremAddressSpace) : []
+    OnPremBgpPeeringAddress: deployVPNConnectionsVWAN ? onprem!.outputs.OnPremGwBgpPeeringAddress : 'none'
+    OnPremBgpAsn: deployVPNConnectionsVWAN ? onprem!.outputs.OnPremGwBgpAsn : 65515
     tagsByResource: tagsByResource
     enableBgp: hubBgp && onpremBgp && deployVPNConnectionsVWAN
     sharedKey: deployVPNConnectionsVWAN ? sharedKey : 'none'
@@ -344,20 +344,20 @@ module vwans2s 'vWanVpnConnections.bicep' = if (deployVPNConnectionsVWAN) {
 
 // Outputs
 output HubRtFirewallName string = deployFirewallInHub && deployHUB && isVnetHub
-  ? hubVnet.outputs.rtFirewallName
+  ? hubVnet!.outputs.rtFirewallName
   : 'none'
-output VNET_AzFwPrivateIp string = deployFirewallInHub && deployHUB && isVnetHub ? hubVnet.outputs.azFwIp : 'none'
-output vWanHubID string = deployHUB && isVwanHub ? vwan.outputs.vWanHubID : 'none'
-output HubVnetID string = deployHUB && isVnetHub ? hubVnet.outputs.hubVnetID : 'none'
+output VNET_AzFwPrivateIp string = deployFirewallInHub && deployHUB && isVnetHub ? hubVnet!.outputs.azFwIp : 'none'
+output vWanHubID string = deployHUB && isVwanHub ? vwan!.outputs.vWanHubID : 'none'
+output HubVnetID string = deployHUB && isVnetHub ? hubVnet!.outputs.hubVnetID : 'none'
 output VpnSettings _VPNSettings = {
   Hub: deployVPNConnectionsVNET
     ? {
         type: 'VNET'
-        GatewayID: deployVPNConnectionsVNET ? hubVnet.outputs.hubGatewayID : 'none'
-        GatewayPublicIP: deployVPNConnectionsVNET ? hubVnet.outputs.hubGatewayPublicIP : 'none'
+        GatewayID: deployVPNConnectionsVNET ? hubVnet!.outputs.hubGatewayID : 'none'
+        GatewayPublicIP: deployVPNConnectionsVNET ? hubVnet!.outputs.hubGatewayPublicIP : 'none'
         AddressPrefixes: deployVPNConnectionsVNET ? AllAddressSpaces : []
         BgpAsn: hubBgpAsn
-        BgpPeeringAddress: deployVPNConnectionsVNET ? hubVnet.outputs.HubGwBgpPeeringAddress : 'none'
+        BgpPeeringAddress: deployVPNConnectionsVNET ? hubVnet!.outputs.HubGwBgpPeeringAddress : 'none'
         Location: location
         shortLocationCode: shortLocationCode
         enableBgp: hubBgp
@@ -365,9 +365,9 @@ output VpnSettings _VPNSettings = {
     : {
         type: 'VWAN'
         vWanID: deployVPNConnectionsVWAN ? vWanID : 'none'
-        vWanHubName: deployVPNConnectionsVWAN ? vwan.outputs.vWanHubName : 'none'
-        vWanGatewayName: deployVPNConnectionsVWAN ? vwan.outputs.vpnGwName : 'none'
-        vwanVpnGwInfo: deployVPNConnectionsVWAN ? vwan.outputs.vpnGwBgpIp : []
+        vWanHubName: deployVPNConnectionsVWAN ? vwan!.outputs.vWanHubName : 'none'
+        vWanGatewayName: deployVPNConnectionsVWAN ? vwan!.outputs.vpnGwName : 'none'
+        vwanVpnGwInfo: deployVPNConnectionsVWAN ? vwan!.outputs.vpnGwBgpIp : []
         AddressPrefixes: deployVPNConnectionsVWAN ? AllAddressSpaces : []
         BgpAsn: 65515
         Location: location
@@ -377,16 +377,16 @@ output VpnSettings _VPNSettings = {
       }
   OnPrem: {
     type: 'VNET'
-    GatewayID: deployVPNConnectionsVNET || deployVPNConnectionsVWAN ? onprem.outputs.OnPremGatewayID : 'none'
+    GatewayID: deployVPNConnectionsVNET || deployVPNConnectionsVWAN ? onprem!.outputs.OnPremGatewayID : 'none'
     GatewayPublicIP: deployVPNConnectionsVNET || deployVPNConnectionsVWAN
-      ? onprem.outputs.OnPremGatewayPublicIP
+      ? onprem!.outputs.OnPremGatewayPublicIP
       : 'none'
     AddressPrefixes: deployVPNConnectionsVNET || deployVPNConnectionsVWAN
-      ? array(onprem.outputs.OnPremAddressSpace)
+      ? array(onprem!.outputs.OnPremAddressSpace)
       : []
     BgpAsn: onpremBgpAsn
     BgpPeeringAddress: deployVPNConnectionsVNET || deployVPNConnectionsVWAN
-      ? onprem.outputs.OnPremGwBgpPeeringAddress
+      ? onprem!.outputs.OnPremGwBgpPeeringAddress
       : 'none'
     Location: location
     shortLocationCode: shortLocationCode

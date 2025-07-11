@@ -58,8 +58,8 @@ module vnet 'modules/vnet.bicep' = {
   params: {
     location: location
     vnetAddressSpcae: hubAddressSpace
-    rtGwID: deployFirewallInHub && deployGatewayInHub ? rtvpngw.outputs.rtID : 'none'
-    bastionNSGID: deployBastionInHub ? bastioNsg.outputs.nsgID : 'none'
+    rtGwID: deployFirewallInHub && deployGatewayInHub ? rtvpngw!.outputs.rtID : 'none'
+    bastionNSGID: deployBastionInHub ? bastioNsg!.outputs.nsgID : 'none'
     vnetname: hubVnetName
     bastionSubnetPrefix: bastionSubnetPrefix
     firewallSubnetPrefix: firewallSubnetPrefix
@@ -70,7 +70,7 @@ module vnet 'modules/vnet.bicep' = {
     deployGatewaySubnet: deployGatewayInHub
     tagsByResource: tagsByResource
     azFwIp: firewallIP
-    rtFwID: isMultiRegion && deployFirewallInHub && deployUDRs ? rtFirewall.outputs.rtID : 'none'
+    rtFwID: isMultiRegion && deployFirewallInHub && deployUDRs ? rtFirewall!.outputs.rtID : 'none'
     firewallDNSproxy: firewallDNSproxy
   }
 }
@@ -105,7 +105,7 @@ module firewallrules 'modules/firewallpolicyrules.bicep' = if (deployFirewallrul
   scope: hubrg
   name: 'firewallRules'
   params: {
-    azFwPolicyName: deployFirewallInHub && deployFirewallrules ? firewall.outputs.azFwPolicyName : ''
+    azFwPolicyName: deployFirewallInHub && deployFirewallrules ? firewall!.outputs.azFwPolicyName : ''
     AddressSpace: AddressSpace
     SecondRegionAddressSpace: SecondRegionAddressSpace
     isMultiRegion: isMultiRegion
@@ -143,9 +143,9 @@ module routeVPNgw 'modules/route.bicep' = [
     params: {
       routeAddressPrefix: addressRange
       routeName: deployFirewallInHub && deployGatewayInHub && deployUDRs
-        ? '${rtvpngw.outputs.rtName}/LocalRoute${i}'
+        ? '${rtvpngw!.outputs.rtName}/LocalRoute${i}'
         : 'dummy3'
-      routeNextHopIpAddress: deployFirewallInHub && deployUDRs ? firewall.outputs.azFwIP : '1.2.3.4'
+      routeNextHopIpAddress: deployFirewallInHub && deployUDRs ? firewall!.outputs.azFwIP : '1.2.3.4'
     }
   }
 ]
@@ -163,12 +163,12 @@ module rtFirewall 'modules/routetable.bicep' = if (deployFirewallInHub && deploy
 }
 
 output hubVnetID string = vnet.outputs.vnetID
-output azFwIp string = deployFirewallInHub ? firewall.outputs.azFwIP : '1.2.3.4'
+output azFwIp string = deployFirewallInHub ? firewall!.outputs.azFwIP : '1.2.3.4'
 output hubRgName string = hubrg.name
 output HubResourceGroupName string = hubrg.name
 output hubVnetName string = vnet.outputs.vnetName
 output hubVnetAddressSpace array = vnet.outputs.vnetAddressSpace
-output hubGatewayPublicIP string = deployGatewayInHub ? vpngw.outputs.vpnGwPublicIP : 'none'
-output hubGatewayID string = deployGatewayInHub ? vpngw.outputs.vpnGwID : 'none'
-output HubGwBgpPeeringAddress string = deployGatewayInHub ? vpngw.outputs.vpnGwBgpPeeringAddress : 'none'
-output rtFirewallName string = deployFirewallInHub && deployUDRs && isMultiRegion ? rtFirewall.outputs.rtName : 'none'
+output hubGatewayPublicIP string = deployGatewayInHub ? vpngw!.outputs.vpnGwPublicIP : 'none'
+output hubGatewayID string = deployGatewayInHub ? vpngw!.outputs.vpnGwID : 'none'
+output HubGwBgpPeeringAddress string = deployGatewayInHub ? vpngw!.outputs.vpnGwBgpPeeringAddress : 'none'
+output rtFirewallName string = deployFirewallInHub && deployUDRs && isMultiRegion ? rtFirewall!.outputs.rtName : 'none'

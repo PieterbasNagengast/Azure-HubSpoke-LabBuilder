@@ -70,7 +70,7 @@ module avnmRoutingConfigDeployment 'modules/avnmdeployment.bicep' = if (deployAv
   params: {
     avnmName: avnmName
     configType: 'Routing'
-    configurationId: deployAvnmUDRs ? avnmRoutingConfig.outputs.id : ''
+    configurationId: deployAvnmUDRs ? avnmRoutingConfig!.outputs.id : ''
     deploymentScriptName: '${avnmName}-RoutingConfig-DeploymentScript-${shortLocationCode}'
     location: location
     userAssignedIdentityId: userAssignedIdentityId

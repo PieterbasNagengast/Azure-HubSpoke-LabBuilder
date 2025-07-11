@@ -115,7 +115,7 @@ resource vpnconnection 'Microsoft.Network/vpnGateways/vpnConnections@2024-05-01'
         name: '${vpnSiteName}-Link'
         properties: {
           vpnSiteLink: {
-            id: enableBgp ? vpnsiteBgp.properties.vpnSiteLinks[0].id : vpnsiteNoBgp.properties.vpnSiteLinks[0].id
+            id: enableBgp ? vpnsiteBgp!.properties.vpnSiteLinks[0].id : vpnsiteNoBgp!.properties.vpnSiteLinks[0].id
           }
           enableBgp: enableBgp
           vpnConnectionProtocolType: 'IKEv2'
