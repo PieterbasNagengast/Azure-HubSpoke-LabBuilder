@@ -385,7 +385,7 @@ module route 'modules/route.bicep' = [
     name: 'DeployRegionRoute-${regionShortCodes[location.region]}'
     params: {
       routeName: deployRoutes
-        ? '${deployRegion[i].outputs.HubRtFirewallName}/toRegion${regionShortCodes[location.region]}'
+        ? '${deployRegion[i].outputs.HubRtFirewallName}/toRegion${regionShortCodes[locations[length(locations) == 2 && i == 0 ? 1 : 0].region]}'
         : 'noRoute'
       routeNextHopType: 'VirtualAppliance'
       routeNextHopIpAddress: deployRoutes
