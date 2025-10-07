@@ -82,7 +82,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2024-11-01' = {
   tags: tagsByResource[?'Microsoft.Compute/virtualMachines'] ?? {}
 }
 
-resource amaextension 'Microsoft.Compute/virtualMachines/extensions@2023-09-01' = if (!empty(dcrID)) {
+resource amaextension 'Microsoft.Compute/virtualMachines/extensions@2025-04-01' = if (!empty(dcrID)) {
   name: AmaExtensionName
   parent: vm
   location: location
@@ -95,7 +95,7 @@ resource amaextension 'Microsoft.Compute/virtualMachines/extensions@2023-09-01' 
   }
 }
 
-resource daextension 'Microsoft.Compute/virtualMachines/extensions@2023-09-01' = if (!empty(dcrID) && osType == 'Windows') {
+resource daextension 'Microsoft.Compute/virtualMachines/extensions@2025-04-01' = if (!empty(dcrID) && osType == 'Windows') {
   name: DaExtensionName
   parent: vm
   location: location
