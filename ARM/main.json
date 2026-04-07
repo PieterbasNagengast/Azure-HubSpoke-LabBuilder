@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.41.2.15936",
-      "templateHash": "6134736522099512739"
+      "templateHash": "8874732224896027582"
     }
   },
   "definitions": {
@@ -1065,7 +1065,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.41.2.15936",
-              "templateHash": "15510742661027712567"
+              "templateHash": "8873761163279419602"
             }
           },
           "definitions": {
@@ -1475,7 +1475,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.41.2.15936",
-                      "templateHash": "15092131843768909233"
+                      "templateHash": "13550224378071392639"
                     }
                   },
                   "parameters": {
@@ -2273,7 +2273,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.41.2.15936",
-                              "templateHash": "1209974139577361176"
+                              "templateHash": "2375255362224487769"
                             }
                           },
                           "parameters": {
@@ -2364,9 +2364,14 @@
                             },
                             {
                               "type": "Microsoft.Network/publicIPAddresses",
-                              "apiVersion": "2024-07-01",
+                              "apiVersion": "2025-05-01",
                               "name": "[variables('pipName')]",
                               "location": "[parameters('location')]",
+                              "zones": [
+                                "1",
+                                "2",
+                                "3"
+                              ],
                               "properties": {
                                 "publicIPAddressVersion": "IPv4",
                                 "publicIPAllocationMethod": "Static"
@@ -2381,7 +2386,7 @@
                           "outputs": {
                             "vpnGwPublicIP": {
                               "type": "string",
-                              "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('pipName')), '2024-07-01').ipAddress]"
+                              "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('pipName')), '2025-05-01').ipAddress]"
                             },
                             "vpnGwID": {
                               "type": "string",
@@ -5420,7 +5425,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.41.2.15936",
-                      "templateHash": "3966328686346428472"
+                      "templateHash": "2915715181841575789"
                     }
                   },
                   "parameters": {
@@ -6297,7 +6302,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.41.2.15936",
-                              "templateHash": "1209974139577361176"
+                              "templateHash": "2375255362224487769"
                             }
                           },
                           "parameters": {
@@ -6388,9 +6393,14 @@
                             },
                             {
                               "type": "Microsoft.Network/publicIPAddresses",
-                              "apiVersion": "2024-07-01",
+                              "apiVersion": "2025-05-01",
                               "name": "[variables('pipName')]",
                               "location": "[parameters('location')]",
+                              "zones": [
+                                "1",
+                                "2",
+                                "3"
+                              ],
                               "properties": {
                                 "publicIPAddressVersion": "IPv4",
                                 "publicIPAllocationMethod": "Static"
@@ -6405,7 +6415,7 @@
                           "outputs": {
                             "vpnGwPublicIP": {
                               "type": "string",
-                              "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('pipName')), '2024-07-01').ipAddress]"
+                              "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('pipName')), '2025-05-01').ipAddress]"
                             },
                             "vpnGwID": {
                               "type": "string",
@@ -7725,8 +7735,8 @@
         }
       },
       "dependsOn": [
-        "[format('deployRegion[{0}]', copyIndex())]",
-        "[format('deployRegion[{0}]', if(and(equals(length(parameters('locations')), 2), equals(copyIndex(), 0)), 1, 0))]"
+        "[format('deployRegion[{0}]', if(and(equals(length(parameters('locations')), 2), equals(copyIndex(), 0)), 1, 0))]",
+        "[format('deployRegion[{0}]', copyIndex())]"
       ]
     },
     "CrossRegionVPNConnections": {
@@ -8891,10 +8901,10 @@
         }
       },
       "dependsOn": [
-        "[format('deployRegion[{0}]', if(and(equals(length(parameters('locations')), 2), equals(copyIndex(), 0)), 0, 1))]",
-        "[format('deployRegion[{0}]', if(and(equals(length(parameters('locations')), 2), equals(copyIndex(), 0)), 1, 0))]",
         "[format('deployRegion[{0}]', 0)]",
-        "[format('deployRegion[{0}]', 0)]"
+        "[format('deployRegion[{0}]', 0)]",
+        "[format('deployRegion[{0}]', if(and(equals(length(parameters('locations')), 2), equals(copyIndex(), 0)), 0, 1))]",
+        "[format('deployRegion[{0}]', if(and(equals(length(parameters('locations')), 2), equals(copyIndex(), 0)), 1, 0))]"
       ]
     }
   },
