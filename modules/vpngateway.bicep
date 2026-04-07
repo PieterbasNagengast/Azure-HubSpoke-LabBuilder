@@ -1,17 +1,24 @@
 param location string
 param vpnGatewayName string
 param vpnGatewaySubnetID string
-param vpnGatewaySKU string = 'VpnGw1'
+@allowed([
+  'VpnGw1AZ'
+  'VpnGw2AZ'
+  'VpnGw3AZ'
+  'VpnGw4AZ'
+  'VpnGw5AZ'
+])
+param vpnGatewaySKU string = 'VpnGw1AZ'
 param vpnGatewayType string = 'Vpn'
 param vpnGatewayVPNtype string = 'RouteBased'
-param vpnGatewayGen string = 'Generation1'
+param vpnGatewayGen string = 'Generation2'
 param vpnGatewayEnableBgp bool
 param vpnGatewayBgpAsn int
 param tagsByResource object = {}
 
 var pipName = '${vpnGatewayName}-pip'
 
-resource vpngw 'Microsoft.Network/virtualNetworkGateways@2024-07-01' = {
+resource vpngw 'Microsoft.Network/virtualNetworkGateways@2025-05-01' = {
   name: vpnGatewayName
   location: location
   properties: {

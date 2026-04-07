@@ -297,6 +297,7 @@ When deploying in multi-region mode:
 ## April 2026 updates
 - Updated Bicep code to use latest API versions for all resources
 - Fixed: Azure Firewall Policy now adds correct CIDR range used for network and application rules
+- Upgraded VPN Gateway SKU to VpnGw1AZ Generation 2 SKU as older VPN Gateway SKUs are being retired by Microsoft
 
 ### July 2025 updates
 - Enhanced multi-region deployment capabilities with improved cross-region connectivity
