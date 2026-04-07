@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.37.4.10188",
-      "templateHash": "11674629811520131182"
+      "templateHash": "9237896948168804922"
     }
   },
   "definitions": {
@@ -1065,7 +1065,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.37.4.10188",
-              "templateHash": "14915384502526261373"
+              "templateHash": "5314604934665832583"
             }
           },
           "definitions": {
@@ -4608,7 +4608,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.37.4.10188",
-                      "templateHash": "18374788786658922928"
+                      "templateHash": "11420344970490625253"
                     }
                   },
                   "parameters": {
@@ -5002,7 +5002,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.37.4.10188",
-                              "templateHash": "7035208373969922301"
+                              "templateHash": "1201702699869741021"
                             }
                           },
                           "parameters": {
@@ -5052,7 +5052,7 @@
                               },
                               "properties": {
                                 "forceUpdateTag": "[parameters('timeStamp')]",
-                                "azPowerShellVersion": "8.3",
+                                "azPowerShellVersion": "11.0",
                                 "retentionInterval": "PT1H",
                                 "timeout": "PT1H",
                                 "arguments": "[format('-networkManagerName \"{0}\" -targetLocations {1} -configIds {2} -subscriptionId {3} -configType {4} -resourceGroupName {5}', parameters('avnmName'), parameters('location'), parameters('configurationId'), subscription().subscriptionId, parameters('configType'), resourceGroup().name)]",
@@ -5106,7 +5106,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.37.4.10188",
-                              "templateHash": "7035208373969922301"
+                              "templateHash": "1201702699869741021"
                             }
                           },
                           "parameters": {
@@ -5156,7 +5156,7 @@
                               },
                               "properties": {
                                 "forceUpdateTag": "[parameters('timeStamp')]",
-                                "azPowerShellVersion": "8.3",
+                                "azPowerShellVersion": "11.0",
                                 "retentionInterval": "PT1H",
                                 "timeout": "PT1H",
                                 "arguments": "[format('-networkManagerName \"{0}\" -targetLocations {1} -configIds {2} -subscriptionId {3} -configType {4} -resourceGroupName {5}', parameters('avnmName'), parameters('location'), parameters('configurationId'), subscription().subscriptionId, parameters('configType'), resourceGroup().name)]",
