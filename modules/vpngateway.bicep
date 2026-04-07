@@ -52,9 +52,14 @@ resource vpngw 'Microsoft.Network/virtualNetworkGateways@2025-05-01' = {
   tags: tagsByResource[?'Microsoft.Network/virtualNetworkGateways'] ?? {}
 }
 
-resource vpngwpip 'Microsoft.Network/publicIPAddresses@2024-07-01' = {
+resource vpngwpip 'Microsoft.Network/publicIPAddresses@2025-05-01' = {
   name: pipName
   location: location
+  zones: [
+    '1'
+    '2'
+    '3'
+  ]
   properties: {
     publicIPAddressVersion: 'IPv4'
     publicIPAllocationMethod: 'Static'
