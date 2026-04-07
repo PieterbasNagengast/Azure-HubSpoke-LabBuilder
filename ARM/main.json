@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.41.2.15936",
-      "templateHash": "14797085493883627536"
+      "templateHash": "6134736522099512739"
     }
   },
   "definitions": {
@@ -1065,7 +1065,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.41.2.15936",
-              "templateHash": "13164676329046545347"
+              "templateHash": "15510742661027712567"
             }
           },
           "definitions": {
@@ -1475,7 +1475,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.41.2.15936",
-                      "templateHash": "6908024622242686671"
+                      "templateHash": "15092131843768909233"
                     }
                   },
                   "parameters": {
@@ -2273,7 +2273,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.41.2.15936",
-                              "templateHash": "9135738640934889826"
+                              "templateHash": "1209974139577361176"
                             }
                           },
                           "parameters": {
@@ -2288,7 +2288,14 @@
                             },
                             "vpnGatewaySKU": {
                               "type": "string",
-                              "defaultValue": "VpnGw1"
+                              "defaultValue": "VpnGw1AZ",
+                              "allowedValues": [
+                                "VpnGw1AZ",
+                                "VpnGw2AZ",
+                                "VpnGw3AZ",
+                                "VpnGw4AZ",
+                                "VpnGw5AZ"
+                              ]
                             },
                             "vpnGatewayType": {
                               "type": "string",
@@ -2300,7 +2307,7 @@
                             },
                             "vpnGatewayGen": {
                               "type": "string",
-                              "defaultValue": "Generation1"
+                              "defaultValue": "Generation2"
                             },
                             "vpnGatewayEnableBgp": {
                               "type": "bool"
@@ -2319,7 +2326,7 @@
                           "resources": [
                             {
                               "type": "Microsoft.Network/virtualNetworkGateways",
-                              "apiVersion": "2024-07-01",
+                              "apiVersion": "2025-05-01",
                               "name": "[parameters('vpnGatewayName')]",
                               "location": "[parameters('location')]",
                               "properties": {
@@ -2382,7 +2389,7 @@
                             },
                             "vpnGwBgpPeeringAddress": {
                               "type": "string",
-                              "value": "[reference(resourceId('Microsoft.Network/virtualNetworkGateways', parameters('vpnGatewayName')), '2024-07-01').bgpSettings.bgpPeeringAddress]"
+                              "value": "[reference(resourceId('Microsoft.Network/virtualNetworkGateways', parameters('vpnGatewayName')), '2025-05-01').bgpSettings.bgpPeeringAddress]"
                             },
                             "vpnGwName": {
                               "type": "string",
@@ -2390,7 +2397,7 @@
                             },
                             "vpnGwAsn": {
                               "type": "int",
-                              "value": "[reference(resourceId('Microsoft.Network/virtualNetworkGateways', parameters('vpnGatewayName')), '2024-07-01').bgpSettings.asn]"
+                              "value": "[reference(resourceId('Microsoft.Network/virtualNetworkGateways', parameters('vpnGatewayName')), '2025-05-01').bgpSettings.asn]"
                             }
                           }
                         }
@@ -5413,7 +5420,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.41.2.15936",
-                      "templateHash": "6271970105759978739"
+                      "templateHash": "3966328686346428472"
                     }
                   },
                   "parameters": {
@@ -6290,7 +6297,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.41.2.15936",
-                              "templateHash": "9135738640934889826"
+                              "templateHash": "1209974139577361176"
                             }
                           },
                           "parameters": {
@@ -6305,7 +6312,14 @@
                             },
                             "vpnGatewaySKU": {
                               "type": "string",
-                              "defaultValue": "VpnGw1"
+                              "defaultValue": "VpnGw1AZ",
+                              "allowedValues": [
+                                "VpnGw1AZ",
+                                "VpnGw2AZ",
+                                "VpnGw3AZ",
+                                "VpnGw4AZ",
+                                "VpnGw5AZ"
+                              ]
                             },
                             "vpnGatewayType": {
                               "type": "string",
@@ -6317,7 +6331,7 @@
                             },
                             "vpnGatewayGen": {
                               "type": "string",
-                              "defaultValue": "Generation1"
+                              "defaultValue": "Generation2"
                             },
                             "vpnGatewayEnableBgp": {
                               "type": "bool"
@@ -6336,7 +6350,7 @@
                           "resources": [
                             {
                               "type": "Microsoft.Network/virtualNetworkGateways",
-                              "apiVersion": "2024-07-01",
+                              "apiVersion": "2025-05-01",
                               "name": "[parameters('vpnGatewayName')]",
                               "location": "[parameters('location')]",
                               "properties": {
@@ -6399,7 +6413,7 @@
                             },
                             "vpnGwBgpPeeringAddress": {
                               "type": "string",
-                              "value": "[reference(resourceId('Microsoft.Network/virtualNetworkGateways', parameters('vpnGatewayName')), '2024-07-01').bgpSettings.bgpPeeringAddress]"
+                              "value": "[reference(resourceId('Microsoft.Network/virtualNetworkGateways', parameters('vpnGatewayName')), '2025-05-01').bgpSettings.bgpPeeringAddress]"
                             },
                             "vpnGwName": {
                               "type": "string",
@@ -6407,7 +6421,7 @@
                             },
                             "vpnGwAsn": {
                               "type": "int",
-                              "value": "[reference(resourceId('Microsoft.Network/virtualNetworkGateways', parameters('vpnGatewayName')), '2024-07-01').bgpSettings.asn]"
+                              "value": "[reference(resourceId('Microsoft.Network/virtualNetworkGateways', parameters('vpnGatewayName')), '2025-05-01').bgpSettings.asn]"
                             }
                           }
                         }
@@ -7711,8 +7725,8 @@
         }
       },
       "dependsOn": [
-        "[format('deployRegion[{0}]', if(and(equals(length(parameters('locations')), 2), equals(copyIndex(), 0)), 1, 0))]",
-        "[format('deployRegion[{0}]', copyIndex())]"
+        "[format('deployRegion[{0}]', copyIndex())]",
+        "[format('deployRegion[{0}]', if(and(equals(length(parameters('locations')), 2), equals(copyIndex(), 0)), 1, 0))]"
       ]
     },
     "CrossRegionVPNConnections": {
@@ -8877,10 +8891,10 @@
         }
       },
       "dependsOn": [
-        "[format('deployRegion[{0}]', 0)]",
-        "[format('deployRegion[{0}]', 0)]",
         "[format('deployRegion[{0}]', if(and(equals(length(parameters('locations')), 2), equals(copyIndex(), 0)), 0, 1))]",
-        "[format('deployRegion[{0}]', if(and(equals(length(parameters('locations')), 2), equals(copyIndex(), 0)), 1, 0))]"
+        "[format('deployRegion[{0}]', if(and(equals(length(parameters('locations')), 2), equals(copyIndex(), 0)), 1, 0))]",
+        "[format('deployRegion[{0}]', 0)]",
+        "[format('deployRegion[{0}]', 0)]"
       ]
     }
   },
