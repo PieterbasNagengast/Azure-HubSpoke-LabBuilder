@@ -27,6 +27,7 @@
   - [Multi-Region Topology](#multi-region-topology)
 - [Parameters overview](#parameters-overview)
 - [Updates](#updates)
+- [April 2026 updates](#april-2026-updates)
   - [July 2025 updates](#july-2025-updates)
   - [April 2025 updates](#april-2025-updates)
   - [March 2025 updates](#march-2025-updates)
@@ -293,6 +294,10 @@ When deploying in multi-region mode:
 
 ## Updates
 
+## April 2026 updates
+- Updated Bicep code to use latest API versions for all resources
+- Fixed: Azure Firewall Policy now adds correct CIDR range used for network and application rules
+
 ### July 2025 updates
 - Enhanced multi-region deployment capabilities with improved cross-region connectivity
 - Updated default Virtual Machine SKUs to more cost-effective options (Standard_B2ls_v2)
@@ -385,7 +390,3 @@ When deploying in multi-region mode:
 - Virtual machine boot diagnostics (Managed storage account)
 - Virtual machine delete option of Disk and Nic
 - Tags support for resources deployed
-
-
-
-
