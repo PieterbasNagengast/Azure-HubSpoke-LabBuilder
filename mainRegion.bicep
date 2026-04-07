@@ -151,7 +151,7 @@ module vwan 'vWanResourceGroup.bicep' = if (deployHUB && isVwanHub) {
     isMultiRegion: isMultiRegion
     vWanID: vWanID
     deployFirewallInHub: deployFirewallInHub && isVwanHub
-    AddressSpace: AllAddressSpaces[0]
+    AddressSpace: AddressSpace
     SecondRegionAddressSpace: isMultiRegion ? SecondRegionAddressSpace : ''
     AzureFirewallTier: AzureFirewallTier
     firewallDNSproxy: firewallDNSproxy && isVwanHub

@@ -110,7 +110,7 @@ resource daextension 'Microsoft.Compute/virtualMachines/extensions@2025-04-01' =
   }
 }
 
-resource dcrassociation 'Microsoft.Insights/dataCollectionRuleAssociations@2023-03-11' = if (!empty(dcrID)) {
+resource dcrassociation 'Microsoft.Insights/dataCollectionRuleAssociations@2024-03-11' = if (!empty(dcrID)) {
   name: 'VMInsights-Dcr-Association'
   scope: vm
   properties: {

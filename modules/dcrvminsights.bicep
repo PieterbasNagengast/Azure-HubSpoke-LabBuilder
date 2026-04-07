@@ -2,7 +2,7 @@ param location string
 param diagnosticWorkspaceId string
 param tagsByResource object = {}
 
-resource dcr 'Microsoft.Insights/dataCollectionRules@2023-03-11' = {
+resource dcr 'Microsoft.Insights/dataCollectionRules@2024-03-11' = {
   name: 'MSVMI-LabBuilder'
   location: location
   properties: {

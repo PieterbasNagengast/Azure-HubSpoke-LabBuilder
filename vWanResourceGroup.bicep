@@ -21,6 +21,8 @@ var firewallName = 'Firewall-Hub-${shortLocationCode}'
 var gatewayName = 'Gateway-Hub-${shortLocationCode}'
 var vwanHubName = 'HUB-${shortLocationCode}'
 
+var vwanHubAddressPrefix = cidrSubnet(AddressSpace, 24, 0)
+
 // Reference existing the resource group for the hub
 resource hubrg 'Microsoft.Resources/resourceGroups@2025-04-01' existing = {
   name: hubRgName
@@ -32,7 +34,7 @@ module vwanHub 'modules/vwanhub.bicep' = {
   name: vwanHubName
   params: {
     HubName: vwanHubName
-    AddressPrefix: AddressSpace
+    AddressPrefix: vwanHubAddressPrefix
     location: location
     tagsByResource: tagsByResource
     vWanID: vWanID

@@ -9,7 +9,7 @@ param subnetID string
 param bastionSku string
 param tagsByResource object = {}
 
-resource bastion 'Microsoft.Network/bastionHosts@2024-01-01' = {
+resource bastion 'Microsoft.Network/bastionHosts@2025-05-01' = {
   name: bastionName
   location: location
   properties: {
@@ -33,7 +33,7 @@ resource bastion 'Microsoft.Network/bastionHosts@2024-01-01' = {
   tags: tagsByResource[?'Microsoft.Network/bastionHosts'] ?? {}
 }
 
-resource bastionpip 'Microsoft.Network/publicIPAddresses@2024-07-01' = {
+resource bastionpip 'Microsoft.Network/publicIPAddresses@2025-05-01' = {
   name: '${bastionName}-pip'
   location: location
   properties: {
